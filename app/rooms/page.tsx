@@ -1,6 +1,10 @@
 import { AppShell } from "@/components/dashboard/AppShell";
+import { RoomsTable } from "@/components/dashboard/RoomsTable";
+import { getRooms } from "@/lib/services/rooms.service";
 
-export default function RoomsPage() {
+export default async function RoomsPage() {
+  const rooms = await getRooms();
+
   return (
     <AppShell>
       <div className="mb-8">
@@ -17,15 +21,7 @@ export default function RoomsPage() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-8 text-center">
-        <h2 className="text-2xl font-semibold">
-          Пока здесь пусто
-        </h2>
-
-        <p className="mt-3 text-zinc-500">
-          Следующим шагом подключим Supabase и загрузим номера.
-        </p>
-      </div>
+      <RoomsTable rooms={rooms} />
     </AppShell>
   );
 }
