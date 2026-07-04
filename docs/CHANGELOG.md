@@ -8,6 +8,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Production Readiness (Sprint 12.5)
+
+- **Startup validation** — `instrumentation.ts` + `lib/ops/startup.ts` logs env diagnostics on boot (no crash).
+- **Health endpoint** — `GET /api/ai/health` extended with Supabase, OpenAI, Stripe, Telegram, Website Chat.
+- **Ops layer** — `lib/ops/env.ts`, `lib/ops/health.ts` for centralized env checks.
+- **Docs** — `docs/DEPLOYMENT.md`, `docs/PRODUCTION_CHECKLIST.md`; README and `.env.example` env audit.
+
 ### Stripe Billing (Sprint 12)
 
 - **Billing layer** — `lib/billing/` with Stripe client, checkout, portal, webhook handlers, and plan mapping.

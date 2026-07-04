@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getPlatformHealth } from "@/lib/ops/health";
 import { getAIHealthStatus } from "@/lib/services/ai-settings.service";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,6 +14,7 @@ export async function GET() {
     return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   }
 
-  const health = await getAIHealthStatus();
-  return NextResponse.json(health);
+  const aiHealth = await getAIHealthStatus().catch(() => null);
+
+  return NextResponse.json(getPlatformHealth(aiHealth));
 }

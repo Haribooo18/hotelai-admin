@@ -32,22 +32,34 @@ Open [http://localhost:3000](http://localhost:3000). Unauthenticated users are r
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` and fill in values:
+Copy `.env.example` to `.env.local` and fill in values. Production setup: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). Pre-launch checklist: [`docs/PRODUCTION_CHECKLIST.md`](docs/PRODUCTION_CHECKLIST.md).
 
 | Variable | Required | Scope | Description |
 |----------|----------|-------|-------------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Client + server | Supabase project URL |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Client + server | Supabase anon (public) key |
-| `DEFAULT_HOTEL_ID` | Yes* | Server | Fallback hotel id when user metadata has no `hotel_id` (default: `hotel_aurora` from seed migration). **Temporary** — remove once all users have memberships (TD-09). |
-| `OPENAI_API_KEY` | No | Server only | OpenAI API key for AI receptionist. App runs without it; AI features stay disabled until set. Never expose to the client. |
-| `SUPABASE_SERVICE_ROLE_KEY` | Yes* | Server only | Service role key for channel webhooks (bypasses RLS; all queries remain scoped by `hotel_id`). |
-| `TELEGRAM_BOT_TOKEN` | No | Server only | Telegram Bot API token from [@BotFather](https://t.me/BotFather). Required to enable Telegram channel. |
-| `TELEGRAM_WEBHOOK_SECRET` | No | Server only | Secret token sent in `X-Telegram-Bot-Api-Secret-Token`; must match `setWebhook` `secret_token`. |
-| `TELEGRAM_HOTEL_ID` | No | Server only | Hotel id for inbound Telegram messages. Defaults to `DEFAULT_HOTEL_ID`. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes* | Server only | Service role for Telegram, Website Chat, and Stripe webhook writes |
+| `DEFAULT_HOTEL_ID` | Yes | Server | Fallback hotel id when JWT lacks `hotel_id` (seed: `hotel_aurora`) |
+| `OPENAI_API_KEY` | Yes* | Server only | OpenAI API key for AI receptionist. Never expose to the client. |
+| `STRIPE_SECRET_KEY` | Yes* | Server only | Stripe secret key for checkout and portal |
+| `STRIPE_WEBHOOK_SECRET` | Yes* | Server only | Stripe webhook signing secret |
+| `STRIPE_PRICE_STARTER` | Yes* | Server only | Stripe Price id for Starter plan |
+| `STRIPE_PRICE_PRO` | Yes* | Server only | Stripe Price id for Pro plan |
+| `STRIPE_PRICE_ENTERPRISE` | Yes* | Server only | Stripe Price id for Enterprise plan |
+| `TELEGRAM_BOT_TOKEN` | No | Server only | Telegram Bot API token ([@BotFather](https://t.me/BotFather)) |
+| `TELEGRAM_WEBHOOK_SECRET` | No | Server only | Secret for `X-Telegram-Bot-Api-Secret-Token` header |
+| `TELEGRAM_HOTEL_ID` | No | Server only | Hotel for inbound Telegram (defaults to `DEFAULT_HOTEL_ID`) |
+| `WEBSITE_CHAT_HOTEL_ID` | No | Server only | Hotel for website widget (defaults to `DEFAULT_HOTEL_ID`) |
 
-\* Required when using Telegram (or other channel webhooks).
+\* Required for the corresponding feature in production (channels, billing, AI).
 
-\* Required for local dev with the seeded tenant model until every user has `app_metadata.hotel_id`.
+### Startup validation
+
+On server boot, `instrumentation.ts` logs `[HotelAI startup]` diagnostics for Supabase, OpenAI, Stripe, Telegram (optional), and Website Chat. Missing optional integrations do **not** crash the app.
+
+### Health endpoint
+
+Authenticated `GET /api/ai/health` returns JSON for `supabase`, `openai`, `stripe`, `telegram`, `website_chat`, and tenant `ai` metrics.
 
 ---
 
@@ -93,6 +105,7 @@ Migrations live in `supabase/migrations/`. Apply **in numeric order** on a fresh
 | `0008_knowledge_base.sql` | Knowledge article workflow fields |
 | `0009_ai_openai.sql` | AI settings, observability, `is_ai_typing` |
 | `0010_ai_settings_hardening.sql` | `top_p`, `tool_choice`, `system_language` |
+| `0011_billing.sql` | `subscriptions`, `subscription_events` (Stripe billing) |
 
 Run via Supabase SQL Editor (paste each file) or Supabase CLI:
 
@@ -167,6 +180,8 @@ hotelai-admin/
 | [`docs/CODING_STANDARDS.md`](docs/CODING_STANDARDS.md) | TypeScript, React, git hygiene |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Product status by area |
 | [`docs/BACKLOG.md`](docs/BACKLOG.md) | Sprint backlog & technical debt |
+| [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md) | Vercel, Supabase, Stripe, webhooks, DNS |
+| [`docs/PRODUCTION_CHECKLIST.md`](docs/PRODUCTION_CHECKLIST.md) | Pre-launch checklist & smoke tests |
 | [`AGENTS.md`](AGENTS.md) | Agent/coding entrypoint |
 
 ---
