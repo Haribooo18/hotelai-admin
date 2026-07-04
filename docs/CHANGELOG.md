@@ -8,6 +8,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Architecture & Code Quality Audit (Sprint 8.2)
+
+- Removed dead code: legacy `PromptBuilder` shim, unused knowledge service helpers, `KnowledgePageHeaderIcon`.
+- `configureAIServices` skips registry/assembler re-wiring on provider-only updates.
+- OpenAI provider reuses a single SDK client instance per provider.
+- Dropped unnecessary `"use client"` from `DataTable`, `GuestBookingHistory`, `BookingsStats`.
+
 ### AI Infrastructure Hardening (Sprint 8.1)
 
 - **Lazy singleton bootstrap** — `ensureAIServicesInitialized()` in `bootstrap.ts` runs once inside `getAIServices()` (`container.ts`). Removed scattered `bootstrapAIServices()` calls from pages, API routes, and services.

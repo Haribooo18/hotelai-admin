@@ -526,7 +526,7 @@ Feature folder: `components/dashboard/ai/`. Provider-agnostic AI contracts live 
 | `AIProvider`         | `types.ts`                | `complete(AIRequest) → AIResponse` |
 | `AITool`             | `tools.ts`                | Executable tools with JSON schema |
 | `KnowledgeRetriever` | `knowledge-retriever.ts`  | RAG snippet retrieval |
-| `PromptBuilder`      | `prompt-assembler.ts`     | Legacy `buildSystemPrompt`; full `AIRequest` via `PromptAssembler` |
+| `PromptAssembler`    | `prompt-assembler.ts`     | Builds full `AIRequest` from hotel, knowledge, history, tools |
 | DI container         | `container.ts`            | `getAIServices()` — lazy init via `ensureAIServicesInitialized()` |
 | Model pricing        | `models.ts`               | Per-model USD rates; single source for `estimateCostUsd()` |
 

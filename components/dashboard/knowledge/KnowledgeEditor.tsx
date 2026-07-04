@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -50,11 +50,51 @@ type EditorTab = "edit" | "preview";
 
 const AUTOSAVE_MS = 2000;
 
+function parseList(value: string): string[] {
+  return value
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+function buildAutosaveSnapshot(input: {
+  id: string;
+  title: string;
+  content: string;
+  category: string;
+  language: string;
+  priority: KnowledgeArticle["priority"];
+  tags: string;
+  keywords: string;
+}) {
+  return JSON.stringify({
+    id: input.id,
+    title: input.title,
+    content: input.content,
+    category: input.category,
+    language: input.language,
+    priority: input.priority,
+    tags: parseList(input.tags),
+    search_keywords: parseList(input.keywords),
+  });
+}
+
 export function KnowledgeEditor({ article: initial }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [tab, setTab] = useState<EditorTab>("edit");
-  const [saved, setSaved] = useState(true);
+  const [lastSavedSnapshot, setLastSavedSnapshot] = useState(() =>
+    buildAutosaveSnapshot({
+      id: initial.id,
+      title: initial.title,
+      content: initial.content,
+      category: initial.category ?? "",
+      language: initial.language,
+      priority: initial.priority,
+      tags: initial.tags.join(", "),
+      keywords: initial.search_keywords.join(", "),
+    })
+  );
 
   const [title, setTitle] = useState(initial.title);
   const [content, setContent] = useState(initial.content);
@@ -67,66 +107,47 @@ export function KnowledgeEditor({ article: initial }: Props) {
   );
   const [tagInput, setTagInput] = useState("");
 
-  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const lastSavedRef = useRef(JSON.stringify(initial));
-
   const wordCount = countWords(content);
 
-  const scheduleAutosave = useCallback(() => {
-    setSaved(false);
-    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-    autosaveTimer.current = setTimeout(() => {
-      const payload = {
-        id: initial.id,
-        title,
-        content,
-        category,
-        language,
-        priority,
-        tags: parseList(tags),
-        search_keywords: parseList(keywords),
-      };
-      const snapshot = JSON.stringify(payload);
-      if (snapshot === lastSavedRef.current) {
-        setSaved(true);
-        return;
-      }
+  const autosavePayload = useMemo(
+    () => ({
+      id: initial.id,
+      title,
+      content,
+      category,
+      language,
+      priority,
+      tags: parseList(tags),
+      search_keywords: parseList(keywords),
+    }),
+    [initial.id, title, content, category, language, priority, tags, keywords]
+  );
 
+  const snapshot = useMemo(
+    () => JSON.stringify(autosavePayload),
+    [autosavePayload]
+  );
+
+  const isDirty = snapshot !== lastSavedSnapshot;
+
+  useEffect(() => {
+    if (!isDirty) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
       startTransition(async () => {
         try {
-          await autosaveKnowledgeArticle(payload);
-          lastSavedRef.current = snapshot;
-          setSaved(true);
+          await autosaveKnowledgeArticle(autosavePayload);
+          setLastSavedSnapshot(snapshot);
         } catch {
           toast.error("Ошибка автосохранения");
         }
       });
     }, AUTOSAVE_MS);
-  }, [
-    initial.id,
-    title,
-    content,
-    category,
-    language,
-    priority,
-    tags,
-    keywords,
-    startTransition,
-  ]);
 
-  useEffect(() => {
-    scheduleAutosave();
-    return () => {
-      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
-    };
-  }, [scheduleAutosave]);
-
-  function parseList(value: string): string[] {
-    return value
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
+    return () => clearTimeout(timer);
+  }, [isDirty, snapshot, autosavePayload, startTransition]);
 
   function addTag() {
     const t = tagInput.trim();
@@ -239,7 +260,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
               <span className="text-xs text-zinc-500">v{initial.version}</span>
             </div>
             <p className="text-xs text-zinc-500">
-              {saved ? "Сохранено" : "Сохранение…"} · {wordCount} слов
+              {pending || isDirty ? "Сохранение…" : "Сохранено"} · {wordCount} слов
             </p>
           </div>
         </div>

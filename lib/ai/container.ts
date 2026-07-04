@@ -1,10 +1,6 @@
 import type { AIProvider } from "./types";
 import type { KnowledgeRetriever } from "./knowledge-retriever";
-import {
-  PromptAssembler,
-  createLegacyPromptBuilder,
-  type PromptBuilder,
-} from "./prompt-assembler";
+import { PromptAssembler } from "./prompt-assembler";
 import { serverKnowledgeRetriever } from "./server-knowledge-retriever";
 import {
   ToolExecutor,
@@ -20,7 +16,6 @@ import { ensureAIServicesInitialized } from "./bootstrap";
 export type AIServices = {
   provider: AIProvider;
   knowledgeRetriever: KnowledgeRetriever;
-  promptBuilder: PromptBuilder;
   promptAssembler: PromptAssembler;
   tools: AITool[];
   toolRegistry: ToolRegistry;
@@ -51,7 +46,6 @@ const defaultAssembler = new PromptAssembler({
 let _services: AIServices = {
   provider: unconfiguredAIProvider,
   knowledgeRetriever: serverKnowledgeRetriever,
-  promptBuilder: createLegacyPromptBuilder(defaultAssembler),
   promptAssembler: defaultAssembler,
   tools: discoveredTools,
   toolRegistry: defaultRegistry,
@@ -59,8 +53,20 @@ let _services: AIServices = {
   toolExecutor: createToolExecutor(defaultRegistry),
 };
 
+function isProviderOnlyUpdate(
+  services: Partial<AIServices>
+): services is Pick<AIServices, "provider"> {
+  const keys = Object.keys(services) as (keyof AIServices)[];
+  return keys.length === 1 && keys[0] === "provider";
+}
+
 /** Register production implementations (tests or custom adapters only). */
 export function configureAIServices(services: Partial<AIServices>) {
+  if (isProviderOnlyUpdate(services)) {
+    _services = { ..._services, provider: services.provider };
+    return;
+  }
+
   const tools = services.tools ?? _services.tools;
   const registry = services.toolRegistry ?? createToolRegistry(tools);
   const assembler =
@@ -80,8 +86,6 @@ export function configureAIServices(services: Partial<AIServices>) {
     toolExecutor:
       services.toolExecutor ?? createToolExecutor(registry),
     promptAssembler: assembler,
-    promptBuilder:
-      services.promptBuilder ?? createLegacyPromptBuilder(assembler),
   };
 }
 

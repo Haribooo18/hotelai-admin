@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Pin, Search } from "lucide-react";
 
 import type { KnowledgeArticle } from "@/types/knowledge-article";
@@ -59,9 +60,9 @@ export function KnowledgePanel({ articles }: Props) {
         {articles.length === 0 ? (
           <p className="text-center text-sm text-zinc-500">
             Нет опубликованных статей.{" "}
-            <a href="/knowledge" className="text-blue-400 hover:underline">
+            <Link href="/knowledge" className="text-blue-400 hover:underline">
               Добавить в базе знаний
-            </a>
+            </Link>
           </p>
         ) : (
           <div className="space-y-6">

@@ -80,18 +80,6 @@ export async function searchPublishedKnowledge(
   return searchKnowledgeArticles(query, { publishedOnly: true, limit });
 }
 
-export async function getPinnedKnowledgeArticles(): Promise<KnowledgeArticle[]> {
-  const articles = await getPublishedKnowledgeArticles();
-  return articles.filter((a) => a.is_pinned);
-}
-
-export async function getRecentKnowledgeArticles(
-  limit = 5
-): Promise<KnowledgeArticle[]> {
-  const articles = await getPublishedKnowledgeArticles();
-  return articles.slice(0, limit);
-}
-
 export async function getKnowledgeCategories(): Promise<string[]> {
   const articles = await getKnowledgeArticles();
   const set = new Set<string>();

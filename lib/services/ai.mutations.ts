@@ -8,6 +8,7 @@ import {
   addConversationTagSchema,
   conversationAssignSchema,
   conversationCreateSchema,
+  conversationDeleteSchema,
   conversationInternalNotesSchema,
   conversationUpdatePrioritySchema,
   conversationUpdateStatusSchema,
@@ -259,16 +260,21 @@ export async function archiveConversation(id: string) {
 }
 
 export async function deleteConversation(id: string) {
+  const parsed = conversationDeleteSchema.safeParse({ id });
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
+  }
+
   const supabase = await createClient();
   const hotelId = await getCurrentHotelId();
 
   const { error } = await supabase
     .from("conversations")
     .update({ deleted_at: new Date().toISOString(), status: "archived" })
-    .eq("id", id)
+    .eq("id", parsed.data.id)
     .eq("hotel_id", hotelId);
 
   if (error) throw error;
 
-  revalidateAI(id);
+  revalidateAI(parsed.data.id);
 }

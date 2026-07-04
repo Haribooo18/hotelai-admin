@@ -1,5 +1,3 @@
-"use client";
-
 import type { Booking } from "@/types/booking";
 
 import {

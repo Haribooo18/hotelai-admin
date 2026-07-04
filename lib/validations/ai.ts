@@ -78,5 +78,9 @@ export const addConversationTagSchema = z.object({
   tag: z.string().trim().min(1, "Введите тег"),
 });
 
+export const conversationDeleteSchema = z.object({
+  id: z.string().uuid(),
+});
+
 export type ConversationCreateInput = z.infer<typeof conversationCreateSchema>;
 export type SendMessageInput = z.infer<typeof sendMessageSchema>;

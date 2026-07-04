@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { BookOpen } from "lucide-react";
 
 import type { KnowledgeArticle } from "@/types/knowledge-article";
 
@@ -95,8 +94,4 @@ export function KnowledgePage({ articles, categories }: Props) {
       <KnowledgeCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
     </div>
   );
-}
-
-export function KnowledgePageHeaderIcon() {
-  return <BookOpen size={18} />;
 }

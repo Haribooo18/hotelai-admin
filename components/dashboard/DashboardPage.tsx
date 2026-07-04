@@ -12,8 +12,6 @@ import { LeadsTable } from "@/components/dashboard/LeadsTable";
 import { LeadSearch } from "@/app/LeadSearch";
 import { LeadFilters } from "@/app/LeadFilters";
 
-export type { Lead } from "@/types/lead";
-
 type Props = {
   initialLeads: Lead[];
   hotelId: string;

@@ -125,12 +125,22 @@ export type OpenAIProvider = AIProvider & {
 export function createOpenAIProvider(
   config: OpenAIProviderConfig
 ): OpenAIProvider {
+  let clientPromise: Promise<import("openai").default> | null = null;
+
+  async function getClient() {
+    if (!clientPromise) {
+      clientPromise = import("openai").then(
+        ({ default: OpenAI }) => new OpenAI({ apiKey: config.apiKey })
+      );
+    }
+    return clientPromise;
+  }
+
   return {
     name: "openai",
 
     async complete(request, options?: AIProviderOptions) {
-      const OpenAI = (await import("openai")).default;
-      const client = new OpenAI({ apiKey: config.apiKey });
+      const client = await getClient();
 
       const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
       const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;
@@ -168,8 +178,7 @@ export function createOpenAIProvider(
     },
 
     async *stream(request, options?: AIProviderOptions) {
-      const OpenAI = (await import("openai")).default;
-      const client = new OpenAI({ apiKey: config.apiKey });
+      const client = await getClient();
 
       const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
       const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;
@@ -280,8 +289,7 @@ export function createOpenAIProvider(
       toolOutputs: { call_id: string; output: string }[],
       options?: AIProviderOptions
     ): Promise<AIResponse> {
-      const OpenAI = (await import("openai")).default;
-      const client = new OpenAI({ apiKey: config.apiKey });
+      const client = await getClient();
 
       const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
       const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;

@@ -13,7 +13,6 @@ import {
   pinKnowledgeArticle,
 } from "@/lib/services/knowledge.mutations";
 
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DataTable,
   type DataTableColumn,

@@ -104,34 +104,3 @@ export class PromptAssembler {
     };
   }
 }
-
-/** @deprecated Use PromptAssembler — kept for Sprint 6 interface compatibility. */
-export type PromptBuilder = {
-  buildSystemPrompt(ctx: {
-    hotelName: string;
-    conversation: Conversation;
-    messages: Message[];
-    knowledge: { id: string; title: string; content: string }[];
-  }): string;
-};
-
-export function createLegacyPromptBuilder(
-  assembler: PromptAssembler
-): PromptBuilder {
-  return {
-    buildSystemPrompt(ctx) {
-      const built = defaultContextBuilder.build({
-        hotel: { id: "", name: ctx.hotelName },
-        conversation: ctx.conversation,
-        messages: ctx.messages,
-        knowledge: ctx.knowledge.map((k) => ({
-          ...k,
-          category: null,
-          language: "ru",
-        })),
-        tools: [],
-      });
-      return defaultSystemPromptBuilder.build({ context: built });
-    },
-  };
-}
