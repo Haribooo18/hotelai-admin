@@ -8,6 +8,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Core Unit Tests (Sprint 8.4)
+
+- **Vitest** — Node test environment for pure domain logic (`vitest.config.ts`, `tests/unit/`).
+- **Scripts** — `npm run test`, `npm run test:watch`, `npm run test:coverage`.
+- **Coverage scope** — booking price/availability (`lib/booking-logic.ts`), calendar helpers (`lib/calendar.ts`), `PromptAssembler`, `ToolExecutor`, tenant resolution (`resolveHotelId`, `getCurrentHotelId`).
+- **CI** — `npm run test` runs after build in `.github/workflows/ci.yml`.
+- **Testing strategy** — mock external boundaries only (Supabase, network); no OpenAI or live DB; deterministic assertions on pure functions and injectable dependencies.
+
 ### Continuous Integration (Sprint 8.3)
 
 - **GitHub Actions** — `.github/workflows/ci.yml` runs on every `push` and `pull_request`.

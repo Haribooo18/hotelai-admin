@@ -69,12 +69,22 @@ export async function requireUser(): Promise<User> {
 }
 
 /**
+ * Resolves hotel id from Supabase user metadata.
+ * Priority: app_metadata.hotel_id → user_metadata.hotel_id → DEFAULT_HOTEL_ID.
+ *
+ * DEFAULT_HOTEL_ID is a temporary fallback until every user has an assigned hotel (TD-09).
+ */
+export function resolveHotelId(user: User): string {
+  return readHotelId(user) ?? DEFAULT_HOTEL_ID;
+}
+
+/**
  * Single source of truth for the active hotel id.
  * Services must call this instead of hardcoding a hotel identifier.
  */
 export async function getCurrentHotelId(): Promise<string> {
   const user = await requireUser();
-  return readHotelId(user) ?? DEFAULT_HOTEL_ID;
+  return resolveHotelId(user);
 }
 
 /**
@@ -84,7 +94,7 @@ export async function getCurrentHotel(): Promise<CurrentHotel> {
   const user = await requireUser();
 
   return {
-    id: readHotelId(user) ?? DEFAULT_HOTEL_ID,
+    id: resolveHotelId(user),
     name: readHotelName(user) ?? "Aurora Hotel",
   };
 }

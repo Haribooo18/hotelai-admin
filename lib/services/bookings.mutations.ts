@@ -3,6 +3,11 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/lib/supabase/server";
+import {
+  calculateTotalPrice as computeTotalPrice,
+  findAvailabilityConflict,
+  formatAvailabilityConflictError,
+} from "@/lib/booking-logic";
 import { getCurrentHotelId } from "@/lib/tenant";
 import {
   bookingCreateSchema,
@@ -36,15 +41,7 @@ async function calculateTotalPrice(
 
   if (error) throw error;
 
-  const nights = Math.max(
-    1,
-    Math.ceil(
-      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-        (1000 * 60 * 60 * 24)
-    )
-  );
-
-  return room.price * nights;
+  return computeTotalPrice(room.price, checkIn, checkOut);
 }
 
 async function ensureRoomAvailable(
@@ -71,20 +68,10 @@ async function ensureRoomAvailable(
 
   if (error) throw error;
 
-  const start = new Date(checkIn).getTime();
-  const end = new Date(checkOut).getTime();
-
-  const conflict = data?.find((booking) => {
-    const existingStart = new Date(booking.check_in).getTime();
-    const existingEnd = new Date(booking.check_out).getTime();
-
-    return start < existingEnd && end > existingStart;
-  });
+  const conflict = findAvailabilityConflict(data ?? [], checkIn, checkOut);
 
   if (conflict) {
-    throw new Error(
-      `Номер уже забронирован (${conflict.check_in} — ${conflict.check_out})`
-    );
+    throw new Error(formatAvailabilityConflictError(conflict));
   }
 }
 
