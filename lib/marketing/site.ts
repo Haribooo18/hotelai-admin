@@ -1,4 +1,4 @@
-export const SITE_NAME = "HotelAI";
+export const SITE_NAME = "Monavel";
 export const SITE_DESCRIPTION =
   "AI-ресепшн для отелей: автоматизация гостевых диалогов через Telegram, Website Chat и единую панель администратора.";
 

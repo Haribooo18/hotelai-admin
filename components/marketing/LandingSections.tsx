@@ -19,7 +19,7 @@ export function HeroSection() {
         Автоматизируйте гостевой сервис без потери качества
       </h1>
       <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-400">
-        HotelAI объединяет AI-ресепшн, каналы связи и панель управления отелем
+        Monavel объединяет AI-ресепшн, каналы связи и панель управления отелем
         в одном решении для независимых отелей.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
@@ -29,7 +29,7 @@ export function HeroSection() {
         <Button
           size="lg"
           variant="outline"
-          render={<a href="mailto:demo@hotelai.com?subject=HotelAI Demo" />}
+          render={<a href="mailto:hello@monavel.app?subject=Monavel Demo" />}
         >
           Записаться на демо
         </Button>

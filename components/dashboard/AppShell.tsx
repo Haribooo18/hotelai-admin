@@ -98,7 +98,7 @@ export function AppShell({ children, hotel }: Props) {
               </div>
 
               <div>
-                <h1 className="text-xl font-bold">HotelAI</h1>
+                <h1 className="text-xl font-bold">Monavel</h1>
 
                 <p className="text-sm text-zinc-400">
                   AI Receptionist

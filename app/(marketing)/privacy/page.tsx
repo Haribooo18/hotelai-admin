@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Политика конфиденциальности",
-  description: "Политика конфиденциальности HotelAI.",
+  description: "Политика конфиденциальности Monavel.",
 };
 
 export default function PrivacyPage() {
@@ -15,7 +15,7 @@ export default function PrivacyPage() {
 
       <section className="mt-8 space-y-4 text-sm text-zinc-300">
         <p>
-          HotelAI обрабатывает персональные данные гостей и сотрудников отелей
+          Monavel обрабатывает персональные данные гостей и сотрудников отелей
           исключительно для предоставления сервиса AI-ресепшна и панели
           администратора.
         </p>
@@ -25,8 +25,8 @@ export default function PrivacyPage() {
         </p>
         <p>
           Для вопросов о данных обращайтесь:{" "}
-          <a href="mailto:privacy@hotelai.com" className="text-emerald-400">
-            privacy@hotelai.com
+          <a href="mailto:privacy@monavel.app" className="text-emerald-400">
+            privacy@monavel.app
           </a>
         </p>
       </section>

@@ -30,7 +30,7 @@ export default async function LoginPage({ searchParams }: Props) {
             <Hotel className="h-6 w-6 text-white" />
           </div>
 
-          <h1 className="text-2xl font-bold">HotelAI</h1>
+          <h1 className="text-2xl font-bold">Monavel</h1>
 
           <p className="mt-2 text-sm text-zinc-500">
             Войдите в панель управления отелем

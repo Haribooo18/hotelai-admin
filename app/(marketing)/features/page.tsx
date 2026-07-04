@@ -4,7 +4,7 @@ import { FeaturesOverview } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Возможности",
-  description: "Обзор возможностей HotelAI: AI-ресепшн, каналы, PMS и аналитика.",
+  description: "Обзор возможностей Monavel: AI-ресепшн, каналы, PMS и аналитика.",
 };
 
 export default function FeaturesPage() {

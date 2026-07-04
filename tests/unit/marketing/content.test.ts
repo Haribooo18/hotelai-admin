@@ -10,7 +10,7 @@ import { getSiteUrl, MARKETING_NAV, SITE_NAME } from "@/lib/marketing/site";
 
 describe("marketing site config", () => {
   it("exposes site name and navigation", () => {
-    expect(SITE_NAME).toBe("HotelAI");
+    expect(SITE_NAME).toBe("Monavel");
     expect(MARKETING_NAV.length).toBeGreaterThanOrEqual(3);
   });
 

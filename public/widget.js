@@ -359,13 +359,13 @@ var HotelAI = (() => {
       );
       icon.appendChild(path);
       this.launcher.appendChild(icon);
-      this.launcher.setAttribute("aria-label", "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0447\u0430\u0442 HotelAI");
+      this.launcher.setAttribute("aria-label", "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0447\u0430\u0442 Monavel");
       this.launcher.addEventListener("click", () => this.toggle(true));
       const header = createElement("div", "hotelai-widget__header");
       const headerText = createElement("div");
       const title = createElement("p", "hotelai-widget__title");
       const subtitle = createElement("p", "hotelai-widget__subtitle");
-      setText(title, "HotelAI");
+      setText(title, "Monavel");
       setText(subtitle, "AI-\u0440\u0435\u0441\u0435\u043F\u0448\u043D \u043E\u0442\u0435\u043B\u044F");
       headerText.appendChild(title);
       headerText.appendChild(subtitle);

@@ -47,9 +47,9 @@ describe("marketing page rendering", () => {
   it("renders features overview page content", () => {
     const html = renderToStaticMarkup(React.createElement(FeaturesOverview));
 
-    expect(html).toContain("Возможности HotelAI");
+    expect(html).toContain("Возможности Monavel");
     expect(html).toContain("Записаться на демо");
-    expect(html).toContain("mailto:demo@hotelai.com");
+    expect(html).toContain("mailto:hello@monavel.app");
   });
 
   it("renders pricing overview from billing plans", () => {

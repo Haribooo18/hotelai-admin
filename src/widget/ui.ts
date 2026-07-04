@@ -116,14 +116,14 @@ export class WidgetUI {
     );
     icon.appendChild(path);
     this.launcher.appendChild(icon);
-    this.launcher.setAttribute("aria-label", "Открыть чат HotelAI");
+    this.launcher.setAttribute("aria-label", "Открыть чат Monavel");
     this.launcher.addEventListener("click", () => this.toggle(true));
 
     const header = createElement("div", "hotelai-widget__header");
     const headerText = createElement("div");
     const title = createElement("p", "hotelai-widget__title");
     const subtitle = createElement("p", "hotelai-widget__subtitle");
-    setText(title, "HotelAI");
+    setText(title, "Monavel");
     setText(subtitle, "AI-ресепшн отеля");
     headerText.appendChild(title);
     headerText.appendChild(subtitle);

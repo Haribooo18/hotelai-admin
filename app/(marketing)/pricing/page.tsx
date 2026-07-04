@@ -4,7 +4,7 @@ import { PricingOverview } from "@/components/marketing";
 
 export const metadata: Metadata = {
   title: "Тарифы",
-  description: "Тарифы HotelAI: Starter, Pro и Enterprise.",
+  description: "Тарифы Monavel: Starter, Pro и Enterprise.",
 };
 
 export default function PricingPage() {

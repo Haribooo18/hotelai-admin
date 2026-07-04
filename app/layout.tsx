@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HotelAI Admin",
-  description: "HotelAI Administration Panel",
+  title: "Monavel Admin",
+  description: "Monavel — AI Platform for Modern Hotels",
 };
 
 export default function RootLayout({
