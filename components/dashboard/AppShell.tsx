@@ -15,6 +15,7 @@ import {
   Hotel,
   ClipboardList,
   Users,
+  Bot,
 } from "lucide-react";
 
 import { SignOutButton } from "@/components/auth/SignOutButton";
@@ -52,6 +53,11 @@ const navItems = [
     label: "Гости",
     href: "/guests",
     icon: Users,
+  },
+  {
+    label: "AI Receptionist",
+    href: "/ai",
+    icon: Bot,
   },
   {
     label: "Календарь",

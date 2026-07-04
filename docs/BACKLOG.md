@@ -44,7 +44,11 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | B-031 | Link bookings to guest records                   | Guests      | Replace inline guest fields |
 | B-032 | Booking notes and special requests field         | Bookings    | DB column + form |
 | B-033 | Email notification on booking create             | Bookings    | Supabase Edge Function or Resend |
-| B-034 | FAQ / Knowledge base page (`/knowledge`)           | AI          | Nav link exists |
+| B-034 | FAQ / Knowledge base page (`/knowledge`)           | AI          | Nav link exists; DB + inbox panel done (Sprint 6) |
+| B-060 | OpenAI provider adapter (`lib/ai/providers/`)      | AI          | Implement `AIProvider.complete()`              |
+| B-061 | Channel webhooks → `messages` ingest               | AI          | WhatsApp, Telegram, etc.                       |
+| B-062 | Knowledge article editor UI                        | AI          | Mutations exist; no dedicated editor route     |
+| B-063 | Realtime sync for `messages` table                 | AI          | Supabase realtime subscription in inbox        |
 | B-035 | Revenue chart with real booking data               | Dashboard   | Replace mock `DashboardCharts` data |
 | B-036 | Date-range filter for dashboard KPIs               | Dashboard   | |
 | B-037 | Room photos upload (Supabase Storage)              | Rooms       | |
@@ -101,6 +105,11 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | TD-20 | Guest avatar is a raw URL via `<img>` (no upload/validation) | Wire Supabase Storage upload + `next/image` remotePatterns (B-037-style) |
 | TD-21 | Calendar drag/resize is same-room only | Cross-room drag (change `room_id` by dragging vertically) — currently done via `BookingEditDialog` |
 | TD-22 | Calendar reads all bookings, filtered client-side by visible range | Add a date-bounded `getBookingsInRange(from, to)` service query for large datasets |
+| TD-23 | No channel webhook ingest for guest messages | External channels must write to `messages` + bump `conversations.unread_count` |
+| TD-24 | `ai_actions` table unused until OpenAI ships | Wire tool-call logging in the provider adapter |
+| TD-25 | Knowledge panel is read-only in inbox | Add article create/edit UI (mutations already exist) |
+| TD-26 | `is_guest_typing` not updated by any channel | Set via webhook or realtime when channels integrate |
+| TD-27 | Lead ↔ conversation link is manual (`lead_id` text) | Auto-link when lead created from same email/phone |
 | TD-23 | Row virtualization only (day columns not virtualized) | Fine for month view (~31 cols); add horizontal windowing if multi-month ranges ship |
 
 ---

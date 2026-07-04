@@ -14,6 +14,7 @@ Multi-tenancy: domain tables include `hotel_id`, enforced in the app (query scop
 > - `0004_harden_leads_rpc.sql` — membership checks inside `list_hotel_leads` / `update_lead_status`.
 > - `0005_realtime_leads.sql` — `leads` replica identity + realtime publication.
 > - `0006_guests_crm.sql` — guest CRM columns (`tags`, `is_vip`, `is_favorite`, `avatar_url`, `deleted_at`) + supporting indexes (Sprint 4).
+> - `0007_ai_receptionist.sql` — AI Receptionist tables (`conversations`, `messages`, `knowledge_articles`, `ai_actions`, `conversation_tags`, `conversation_assignments`) + RLS (Sprint 6).
 
 ---
 
@@ -26,7 +27,12 @@ auth.users ──< memberships >── hotels
                                   │     └──< bookings.room_id → rooms.id (ON DELETE RESTRICT)
                                   ├── bookings
                                   ├── guests
-                                  └── leads
+                                  ├── leads
+                                  ├── conversations ──< messages
+                                  │        ├──< conversation_tags
+                                  │        └──< conversation_assignments
+                                  ├── knowledge_articles
+                                  └── ai_actions (optional FK → conversations, messages)
 ```
 
 All `hotel_id` columns are foreign keys to `hotels(id)` (`ON DELETE CASCADE`). `bookings.room_id` references `rooms(id)` (`ON DELETE RESTRICT`, to preserve reservation history).
@@ -216,6 +222,105 @@ Incoming guest inquiries captured by the AI receptionist or manual entry.
 
 ---
 
+## AI Receptionist (Sprint 6)
+
+### `conversations`
+
+Guest conversation threads across channels.
+
+| Column                 | Type          | Nullable | Description |
+|------------------------|---------------|----------|-------------|
+| `id`                   | `uuid`        | NO       | Primary key |
+| `hotel_id`             | `text`        | NO       | Tenant |
+| `guest_name`           | `text`        | NO       | |
+| `guest_email`          | `text`        | YES      | |
+| `guest_phone`          | `text`        | YES      | |
+| `channel`              | `text`        | NO       | `website` \| `whatsapp` \| `telegram` \| `instagram` \| `facebook_messenger` \| `email` |
+| `status`               | `text`        | NO       | `new` \| `assigned` \| `ai_answering` \| `waiting_guest` \| `resolved` \| `archived` |
+| `priority`             | `text`        | NO       | `low` \| `normal` \| `high` \| `urgent` |
+| `lead_id`              | `text`        | YES      | Optional link to `leads.lead_id` |
+| `subject`              | `text`        | YES      | |
+| `last_message_preview` | `text`        | YES      | Denormalized snippet |
+| `last_message_at`      | `timestamptz` | YES      | |
+| `unread_count`         | `integer`     | NO       | Staff unread counter |
+| `assigned_to`          | `uuid`        | YES      | Current assignee (`auth.users`) |
+| `is_guest_typing`      | `boolean`     | NO       | Channel typing indicator |
+| `internal_notes`       | `text`        | YES      | Staff-only notes |
+| `deleted_at`           | `timestamptz` | YES      | Soft delete |
+| `created_at`           | `timestamptz` | NO       | |
+| `updated_at`           | `timestamptz` | NO       | |
+
+**Used by:** `lib/services/ai.service.ts`, `lib/services/ai.mutations.ts`
+
+### `messages`
+
+Messages within a conversation.
+
+| Column            | Type          | Nullable | Description |
+|-------------------|---------------|----------|-------------|
+| `id`              | `uuid`        | NO       | Primary key |
+| `hotel_id`        | `text`        | NO       | Tenant |
+| `conversation_id` | `uuid`        | NO       | FK → `conversations` |
+| `role`            | `text`        | NO       | `guest` \| `staff` \| `ai` \| `system` |
+| `body`            | `text`        | NO       | |
+| `is_internal`     | `boolean`     | NO       | Internal staff note |
+| `metadata`        | `jsonb`       | NO       | Provider/channel metadata |
+| `deleted_at`      | `timestamptz` | YES      | Soft delete |
+| `created_at`      | `timestamptz` | NO       | |
+
+**Used by:** `getMessages`, `sendMessage`
+
+### `knowledge_articles`
+
+Hotel knowledge base for RAG / staff reference.
+
+| Column       | Type          | Nullable | Description |
+|--------------|---------------|----------|-------------|
+| `id`         | `uuid`        | NO       | Primary key |
+| `hotel_id`   | `text`        | NO       | Tenant |
+| `title`      | `text`        | NO       | |
+| `slug`       | `text`        | YES      | |
+| `content`    | `text`        | NO       | |
+| `category`   | `text`        | YES      | |
+| `is_pinned`  | `boolean`     | NO       | |
+| `tags`       | `text[]`      | NO       | |
+| `deleted_at` | `timestamptz` | YES      | Soft delete |
+| `created_at` | `timestamptz` | NO       | |
+| `updated_at` | `timestamptz` | NO       | |
+
+**Used by:** `lib/services/knowledge.service.ts`, `lib/services/knowledge.mutations.ts`, `lib/ai/server-knowledge-retriever.ts`
+
+### `ai_actions`
+
+Audit log for AI tool calls and automations (populated when OpenAI integration ships).
+
+| Column            | Type          | Nullable | Description |
+|-------------------|---------------|----------|-------------|
+| `id`              | `uuid`        | NO       | Primary key |
+| `hotel_id`        | `text`        | NO       | Tenant |
+| `conversation_id` | `uuid`        | YES      | |
+| `message_id`      | `uuid`        | YES      | |
+| `action_type`     | `text`        | NO       | e.g. `tool_call`, `completion` |
+| `tool_name`       | `text`        | YES      | |
+| `input`           | `jsonb`       | NO       | |
+| `output`          | `jsonb`       | YES      | |
+| `status`          | `text`        | NO       | `pending` \| `completed` \| `failed` |
+| `error_message`   | `text`        | YES      | |
+| `created_at`      | `timestamptz` | NO       | |
+| `completed_at`    | `timestamptz` | YES      | |
+
+### `conversation_tags`
+
+Free-form tags on conversations. Unique per `(conversation_id, tag)`.
+
+### `conversation_assignments`
+
+Assignment history (`is_active` marks the current assignment row).
+
+**TypeScript:** `types/conversation.ts`, `types/message.ts`, `types/knowledge-article.ts`, `types/ai-action.ts`
+
+---
+
 ## RPC Functions
 
 ### `list_hotel_leads`
@@ -319,6 +424,10 @@ using (
 | guests   | `guests_tags_gin_idx (tags)` GIN             | tag membership filter                    |
 | leads    | `leads_hotel_created_idx (hotel_id, created_at desc)` | `list_hotel_leads`               |
 | leads    | `leads_hotel_status_idx (hotel_id, status)`  | status filters                           |
+| conversations | `conversations_hotel_active_idx` (partial) | `getConversations` inbox list        |
+| messages | `messages_conversation_created_idx`          | `getMessages` thread                     |
+| knowledge_articles | `knowledge_articles_hotel_active_idx` | `getKnowledgeArticles`           |
+| ai_actions | `ai_actions_conversation_idx`              | future AI audit queries                  |
 | memberships | `memberships_user_id_idx`, `memberships_hotel_id_idx` | RLS membership lookups          |
 
 Every hot-path query is now index-backed on its `hotel_id` prefix, so tenant-scoped scans stay logarithmic as data grows.

@@ -148,12 +148,18 @@ Roadmap organized by feature area. Status key: ✅ Done · 🚧 In Progress · �
 
 | Item                                      | Status        | Notes                                      |
 |-------------------------------------------|---------------|--------------------------------------------|
-| AI receptionist (guest-facing)            | ✅ Done       | External service; feeds leads                |
-| Lead capture from AI conversations        | ✅ Done       | `leads` table, `list_hotel_leads` RPC        |
-| FAQ / Knowledge base page                 | 📋 Planned    | Nav link exists (`/knowledge`)             |
-| AI-suggested responses for staff          | 📋 Planned    |                                            |
-| Conversation history viewer               | 📋 Planned    |                                            |
-| AI booking assistant (staff-side)         | 🔮 Future     |                                            |
+| AI receptionist inbox (staff UI)          | ✅ Done (Sprint 6) | `/ai` → `AIInboxPage`, 3-pane layout      |
+| Conversation + message storage            | ✅ Done (Sprint 6) | migration `0007`, RLS, soft delete         |
+| Knowledge base (DB + panel)               | ✅ Done (Sprint 6) | `knowledge_articles`, search/pinned/recent |
+| Provider-agnostic AI layer                | ✅ Done (Sprint 6) | `lib/ai/` interfaces + DI, no OpenAI yet   |
+| AI actions audit log                      | ✅ Done (Sprint 6) | `ai_actions` table (empty until wired)     |
+| Lead capture from AI conversations        | ✅ Done       | `leads` table; inbox links via `lead_id`   |
+| OpenAI / LLM integration                  | 📋 Planned    | Implement `AIProvider` adapter             |
+| Channel webhooks (WhatsApp, Telegram…)    | 📋 Planned    | Ingest guest messages → `messages`         |
+| Realtime message sync                     | 📋 Planned    | Supabase realtime on `messages`            |
+| Knowledge article editor UI               | 📋 Planned    | CRUD UI beyond inbox panel                 |
+| FAQ / Knowledge public page               | 📋 Planned    | Nav link exists (`/knowledge`)             |
+| AI-suggested responses for staff          | 📋 Planned    | Requires OpenAI provider                   |
 | Demand forecasting                        | 🔮 Future     |                                            |
 
 ---
@@ -191,7 +197,7 @@ Roadmap organized by feature area. Status key: ✅ Done · 🚧 In Progress · �
 |-------------------------------------------|---------------|--------------------------------------------|
 | Supabase Auth + RLS                       | ✅ Done (Sprint 1) | Apply RLS migration on Supabase; harden leads RPCs |
 | Multi-tenant hotel isolation              | ✅ Done (Sprint 1) | `lib/tenant.ts` + `memberships` + RLS      |
-| Error boundaries per route                | 🟡 Partial | `/rooms`, `/bookings`, `/guests`, `/calendar` done; `/` pending |
+| Error boundaries per route                | 🟡 Partial | `/rooms`, `/bookings`, `/guests`, `/calendar`, `/ai` done; `/` pending |
 | Zod form validation                       | ✅ Done (Sprint 3) | `lib/validations/{room,booking}.ts` shared client + server |
 | E2E test suite                            | 📋 Planned    |                                            |
 | CI/CD pipeline                            | 📋 Planned    |                                            |

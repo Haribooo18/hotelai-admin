@@ -8,6 +8,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### AI Receptionist foundation (Sprint 6)
+
+- **New AI module** (`components/dashboard/ai/`) — production inbox UI: `AIInboxPage`, `ConversationList`, `ConversationView`, `MessageBubble`, `MessageComposer`, `ConversationHeader`, `LeadCard`, `KnowledgePanel`, `QuickActions`, `TypingIndicator`, `EmptyConversation`, `AIStatusBadge`.
+- **Route** `/ai` with `loading.tsx` + `error.tsx`; **AppShell** nav item "AI Receptionist".
+- **Migration `0007_ai_receptionist.sql`** — `conversations`, `messages`, `knowledge_articles`, `ai_actions`, `conversation_tags`, `conversation_assignments`; all tenant-scoped with RLS, indexes, soft delete on conversations/messages/articles.
+- **Services** — `ai.service.ts` / `ai.mutations.ts` (CRUD conversations, send message, assign, status/priority, tags, archive); `knowledge.service.ts` / `knowledge.mutations.ts` (article CRUD, pin, soft delete).
+- **Domain types** — `types/conversation.ts`, `types/message.ts`, `types/knowledge-article.ts`, `types/ai-action.ts`.
+- **Provider layer** (`lib/ai/`) — `AIProvider`, `AIRequest`/`AIResponse`, `AITool`, `KnowledgeRetriever`, `PromptBuilder`; DI via `configureAIServices()`. `unconfiguredAIProvider` throws — **no fake AI responses**.
+- **Validation** — `lib/validations/ai.ts`, `lib/validations/knowledge.ts` (Zod, shared client + server).
+- **Metadata** — `lib/ai/metadata.ts` (status/channel/priority labels and badge styles).
+
+### Migration notes (Sprint 6)
+
+- Apply `supabase/migrations/0007_ai_receptionist.sql`.
+- OpenAI is **not** wired; call `configureAIServices({ provider: openAIAdapter })` when the adapter ships.
+- Guest messages from external channels will populate `messages` via future webhooks (see TD-23).
+
 ### Calendar Pro (Sprint 5)
 
 - **Rebuilt the reservation calendar** (`components/dashboard/calendar/`) — replaced the static month grid prototype with a production timeline. Removed `CalendarGrid`, `CalendarHeader`, `CalendarRoomRow`, `CalendarBooking`, and the dead `components/dashboard/calendar/page.tsx` duplicate route.

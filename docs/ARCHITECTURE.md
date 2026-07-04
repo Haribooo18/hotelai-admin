@@ -47,6 +47,7 @@ components/dashboard/<feature>/
 | Rooms     | `components/dashboard/rooms/`     | `/rooms`        |
 | Guests    | `components/dashboard/guests/`    | `/guests`, `/guests/[id]` |
 | Calendar  | `components/dashboard/calendar/`  | `/calendar` (timeline, drag/resize) |
+| AI        | `components/dashboard/ai/`        | `/ai` → `AIInboxPage` |
 
 > **Note:** The leads dashboard (`DashboardPage`) currently lives at the root of `components/dashboard/` alongside shared shell components. New features should use dedicated subfolders.
 > **Note:** `getDashboardStats` (`lib/services/dashboard.service.ts`) is retained but currently unwired after the `/bookings` rewire — reserved for a future overview/dashboard route (TD-14).
@@ -67,6 +68,7 @@ hotelai-admin/
 │   ├── bookings/page.tsx
 │   ├── rooms/page.tsx
 │   ├── calendar/page.tsx
+│   ├── ai/page.tsx
 │   └── <route>/page.tsx          # One page per route
 │
 ├── components/
@@ -507,12 +509,42 @@ Overlap is blocked client-side (`hasRoomConflict`) and server-side (`ensureRoomA
 
 ---
 
+## AI Receptionist
+
+Feature folder: `components/dashboard/ai/`. Provider-agnostic AI contracts live in `lib/ai/`.
+
+### Data flow
+
+1. `app/ai/page.tsx` fetches `conversations`, `knowledge_articles`, and (when `?conversation=` is set) `messages` + linked `lead`.
+2. `AIInboxPage` is the client orchestrator: three-pane inbox (list · conversation · knowledge).
+3. Staff messages go through `sendMessage` (`ai.mutations.ts`). **No AI provider is invoked yet** — `lib/ai/index.ts` exports `unconfiguredAIProvider` that throws `AIProviderNotConfiguredError`.
+
+### Provider architecture (`lib/ai/`)
+
+| Interface            | File                      | Purpose |
+|----------------------|---------------------------|---------|
+| `AIProvider`         | `types.ts`                | `complete(AIRequest) → AIResponse` |
+| `AITool`             | `tools.ts`                | Executable tools with JSON schema |
+| `KnowledgeRetriever` | `knowledge-retriever.ts`  | RAG snippet retrieval |
+| `PromptBuilder`      | `prompt-builder.ts`       | System prompt assembly |
+| DI container         | `index.ts`                | `configureAIServices()` / `getAIServices()` |
+
+Wire production implementations via `configureAIServices()` at server bootstrap (Server Action or Edge Function). `server-knowledge-retriever.ts` is the reference retriever implementation.
+
+### Conversation lifecycle
+
+`new` → `assigned` → `ai_answering` → `waiting_guest` → `resolved` → `archived`
+
+Channels: `website`, `whatsapp`, `telegram`, `instagram`, `facebook_messenger`, `email`.
+
+---
+
 ## Future Architecture Goals
 
 1. ~~**Auth layer** — Supabase Auth + RLS; remove hardcoded `hotel_id`.~~ ✅ Delivered in Sprint 1.
 2. ~~**Consolidate leads** — move `Lead` type to `types/lead.ts`.~~ ✅ `types/lead.ts` added; feature folder `components/dashboard/leads/` still pending.
 3. ~~**Zod validation** — shared schemas in `lib/validations/`.~~ ✅ Sprint 3 (`room`/`booking` schemas).
-4. **Error boundaries** — per-route `error.tsx` and `loading.tsx`. ✅ `/rooms`, `/bookings` (Sprint 3), `/guests` (Sprint 4), `/calendar` (Sprint 5); `/` (leads) pending (TD-15).
+4. **Error boundaries** — per-route `error.tsx` and `loading.tsx`. ✅ `/rooms`, `/bookings` (Sprint 3), `/guests` (Sprint 4), `/calendar` (Sprint 5), `/ai` (Sprint 6); `/` (leads) pending (TD-15).
 5. **Hooks folder** — `hooks/useBookings.ts` for client-side data when needed.
 6. **i18n** — extract Russian UI strings to locale files.
 7. **Roles** — use the `memberships.role` column for owner/manager/staff authorization.
