@@ -40,6 +40,12 @@ Copy `.env.example` to `.env.local` and fill in values:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Client + server | Supabase anon (public) key |
 | `DEFAULT_HOTEL_ID` | Yes* | Server | Fallback hotel id when user metadata has no `hotel_id` (default: `hotel_aurora` from seed migration). **Temporary** — remove once all users have memberships (TD-09). |
 | `OPENAI_API_KEY` | No | Server only | OpenAI API key for AI receptionist. App runs without it; AI features stay disabled until set. Never expose to the client. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Yes* | Server only | Service role key for channel webhooks (bypasses RLS; all queries remain scoped by `hotel_id`). |
+| `TELEGRAM_BOT_TOKEN` | No | Server only | Telegram Bot API token from [@BotFather](https://t.me/BotFather). Required to enable Telegram channel. |
+| `TELEGRAM_WEBHOOK_SECRET` | No | Server only | Secret token sent in `X-Telegram-Bot-Api-Secret-Token`; must match `setWebhook` `secret_token`. |
+| `TELEGRAM_HOTEL_ID` | No | Server only | Hotel id for inbound Telegram messages. Defaults to `DEFAULT_HOTEL_ID`. |
+
+\* Required when using Telegram (or other channel webhooks).
 
 \* Required for local dev with the seeded tenant model until every user has `app_metadata.hotel_id`.
 
@@ -180,6 +186,26 @@ hotelai-admin/
 | `/settings` | AI settings & diagnostics |
 
 `/pricing` is linked in navigation but not yet implemented (see ROADMAP).
+
+---
+
+## Telegram channel
+
+Public webhook: `POST /api/channels/telegram/webhook` (no auth session; validated via `TELEGRAM_WEBHOOK_SECRET`).
+
+1. Create a bot via [@BotFather](https://t.me/BotFather) and set `TELEGRAM_BOT_TOKEN`.
+2. Set `TELEGRAM_WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`, and `TELEGRAM_HOTEL_ID` (or rely on `DEFAULT_HOTEL_ID`).
+3. Register the webhook with Telegram (replace URL and secret):
+
+```bash
+curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook" \
+  -d "url=https://<your-host>/api/channels/telegram/webhook" \
+  -d "secret_token=<TELEGRAM_WEBHOOK_SECRET>"
+```
+
+4. Enable AI for the hotel at `/settings` and set `OPENAI_API_KEY` for auto-replies.
+
+Inbound Telegram messages create or reuse a `conversations` row (`channel: telegram`, `guest_phone` = chat id), insert a `messages` row (`role: guest`), run the existing `AIOrchestrator`, persist the AI reply, and send it back via the Bot API.
 
 ---
 

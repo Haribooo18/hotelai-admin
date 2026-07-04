@@ -592,6 +592,43 @@ Channels: `website`, `whatsapp`, `telegram`, `instagram`, `facebook_messenger`, 
 
 ---
 
+## Communication Channels (Sprint 10)
+
+Channel integrations are a **transport layer only** — they do not duplicate AI logic. All completions go through the existing `AIOrchestrator`, `conversations`, `messages`, and `ai_actions` tables.
+
+```
+lib/channels/
+  index.ts              # Public exports
+  types.ts              # ChannelInboundMessage, ChannelOutboundMessage
+  telegram/
+    types.ts            # TelegramUpdate, TelegramMessage
+    parser.ts           # parseTelegramUpdate() → ChannelInboundMessage
+    sender.ts           # sendTelegramMessage() via Bot API
+    webhook.ts          # validate secret, find/create conversation, AI trigger, outbound send
+```
+
+### Telegram inbound flow
+
+```
+POST /api/channels/telegram/webhook
+  ├─ validate X-Telegram-Bot-Api-Secret-Token (TELEGRAM_WEBHOOK_SECRET)
+  ├─ parseTelegramUpdate()
+  ├─ resolve hotel_id (TELEGRAM_HOTEL_ID → DEFAULT_HOTEL_ID)
+  ├─ findOrCreateTelegramConversation() — channel=telegram, guest_phone=chat_id
+  ├─ insert guest message (messages.role=guest, hotel_id scoped)
+  ├─ generateAIResponseForHotel() → tenant-ai.service (Sprint 10.1)
+  │    └─ AIOrchestrator.run() + typing/status/persist (unchanged pipeline)
+  └─ sendTelegramMessage() → Telegram Bot API
+```
+
+**Tenant isolation:** Webhook ingress uses `lib/supabase/admin.ts` (service role) only for conversation lookup/create and guest message insert. AI lifecycle runs in `lib/services/tenant-ai.service.ts` with explicit `hotel_id` on every query. Telegram chat id is stored in `conversations.guest_phone` for lookup.
+
+**Public route:** `/api/channels/telegram/webhook` is listed in `lib/supabase/session.ts` `PUBLIC_PATHS` (secret-validated, not session-authenticated).
+
+**Env:** `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_HOTEL_ID` (optional), `SUPABASE_SERVICE_ROLE_KEY` (required for webhooks).
+
+---
+
 ## Knowledge Base
 
 Feature folder: `components/dashboard/knowledge/`. Route: `/knowledge` (admin CRUD); `/knowledge/[id]` (editor).

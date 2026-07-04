@@ -8,6 +8,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Telegram Integration (Sprint 10)
+
+- **Channel layer** — `lib/channels/` with Telegram parser, webhook handler, and Bot API sender.
+- **Webhook route** — `POST /api/channels/telegram/webhook` (public, secret-validated).
+- **Tenant AI service** — `lib/services/tenant-ai.service.ts` (`generateAIResponseForHotel`) owns AI lifecycle for staff + channels.
+- **Ingress-only admin client** — webhook uses service role only for find/create conversation and guest message insert (Sprint 10.1).
+- **Tests** — parser, webhook secret, conversation create/reuse, AI trigger, sender.
+- **Docs** — README Telegram setup, `.env.example`, ARCHITECTURE channel flow.
+
 ### AI Stream Pipeline Unification (Sprint 8.5)
 
 - **`AIOrchestrator.runStream()`** — streaming and non-streaming paths share one entrypoint; identical pre-flight checks (enabled, provider, rate limit), `PromptAssembler`, tool loop, `ai_actions` logging, typing/status updates.

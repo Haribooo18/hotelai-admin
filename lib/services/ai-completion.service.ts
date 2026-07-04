@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { aiOrchestrator } from "@/lib/ai/orchestrator";
-import { getConversation, getMessages } from "@/lib/services/ai.service";
+import { generateAIResponseForHotel } from "@/lib/services/tenant-ai.service";
 import { getHotelAISettings } from "@/lib/services/ai-settings.service";
 import { getCurrentHotel, getCurrentHotelId } from "@/lib/tenant";
 import {
@@ -11,6 +10,7 @@ import {
   guestMessageSchema,
 } from "@/lib/validations/ai-settings";
 
+import { aiOrchestrator } from "@/lib/ai/orchestrator";
 import { createClient } from "@/lib/supabase/server";
 
 function revalidateAI(conversationId?: string) {
@@ -18,98 +18,27 @@ function revalidateAI(conversationId?: string) {
   if (conversationId) revalidatePath(`/ai?conversation=${conversationId}`);
 }
 
-async function setAITyping(conversationId: string, typing: boolean) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  await supabase
-    .from("conversations")
-    .update({ is_ai_typing: typing })
-    .eq("id", conversationId)
-    .eq("hotel_id", hotelId);
-}
-
-async function setConversationAiAnswering(conversationId: string) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  await supabase
-    .from("conversations")
-    .update({ status: "ai_answering" })
-    .eq("id", conversationId)
-    .eq("hotel_id", hotelId);
-}
-
-async function saveAIMessage(
-  conversationId: string,
-  body: string,
-  metadata: Record<string, unknown>
-) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { data, error } = await supabase
-    .from("messages")
-    .insert({
-      hotel_id: hotelId,
-      conversation_id: conversationId,
-      role: "ai",
-      body,
-      metadata,
-    })
-    .select("id, created_at")
-    .single();
-
-  if (error) throw error;
-
-  await supabase
-    .from("conversations")
-    .update({
-      status: "waiting_guest",
-      is_ai_typing: false,
-      last_message_preview: body.slice(0, 200),
-      last_message_at: data.created_at,
-    })
-    .eq("id", conversationId)
-    .eq("hotel_id", hotelId);
-
-  return data.id as string;
-}
-
 export async function generateAIResponse(conversationId: string) {
-  const [hotel, conversation, messages, settings] = await Promise.all([
+  const [hotel, supabase] = await Promise.all([
     getCurrentHotel(),
-    getConversation(conversationId),
-    getMessages(conversationId),
-    getHotelAISettings(),
+    createClient(),
   ]);
 
-  if (!conversation) throw new Error("Диалог не найден");
-
-  await setAITyping(conversationId, true);
-  await setConversationAiAnswering(conversationId);
   revalidateAI(conversationId);
 
   try {
-    const result = await aiOrchestrator.run({
-      hotel,
-      conversation,
-      messages,
-      settings,
-    });
-
-    const messageId = await saveAIMessage(conversationId, result.content, {
-      model: result.model,
-      usage: result.usage,
-      cost_usd: result.costUsd,
-      tool_rounds: result.toolRounds,
-      provider: "openai",
+    const result = await generateAIResponseForHotel(hotel.id, conversationId, {
+      supabase,
+      hotelName: hotel.name,
+      throwIfDisabled: true,
     });
 
     revalidateAI(conversationId);
-    return { messageId, content: result.content };
+    return {
+      messageId: result!.messageId,
+      content: result!.content,
+    };
   } catch (err) {
-    await setAITyping(conversationId, false);
     revalidateAI(conversationId);
     throw err;
   }
