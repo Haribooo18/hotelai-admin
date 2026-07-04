@@ -6,7 +6,7 @@ import { getCurrentHotel } from "@/lib/tenant";
 
 import type { Lead } from "@/types/lead";
 
-export default async function Home() {
+export default async function DashboardRoute() {
   const hotel = await getCurrentHotel();
 
   let leads: Lead[] = [];

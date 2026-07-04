@@ -42,7 +42,7 @@ components/dashboard/<feature>/
 
 | Feature   | Path                              | Route(s)        |
 |-----------|-----------------------------------|-----------------|
-| Leads     | `components/dashboard/` (root)    | `/` (leads)     |
+| Leads     | `components/dashboard/` (root)    | `/dashboard`    |
 | Bookings  | `components/dashboard/bookings/`  | `/bookings` → `BookingsPage` |
 | Rooms     | `components/dashboard/rooms/`     | `/rooms`        |
 | Guests    | `components/dashboard/guests/`    | `/guests`, `/guests/[id]` |
@@ -50,6 +50,16 @@ components/dashboard/<feature>/
 | AI        | `components/dashboard/ai/`        | `/ai` → `AIInboxPage` |
 | Knowledge | `components/dashboard/knowledge/` | `/knowledge`, `/knowledge/[id]` |
 | Settings  | `components/dashboard/settings/`  | `/settings` (AI config, health) |
+
+**Public marketing site** (no auth, `app/(marketing)/`):
+
+| Page     | Route       | Components                          |
+|----------|-------------|-------------------------------------|
+| Landing  | `/`         | `LandingSections`, `MarketingShell` |
+| Features | `/features` | `FeaturesOverview`                  |
+| Pricing  | `/pricing`  | `PricingOverview` (plans from `lib/billing/plans.ts`) |
+| Contact  | `/contact`  | `ContactForm`                       |
+| Legal    | `/privacy`, `/terms` | Static content             |
 
 > **Note:** The leads dashboard (`DashboardPage`) currently lives at the root of `components/dashboard/` alongside shared shell components. New features should use dedicated subfolders.
 > **Note:** `getDashboardStats` (`lib/services/dashboard.service.ts`) is retained but currently unwired after the `/bookings` rewire — reserved for a future overview/dashboard route (TD-14).
@@ -63,8 +73,19 @@ hotelai-admin/
 ├── proxy.ts                      # Next.js 16 Proxy (middleware): session refresh + route guard
 ├── app/                          # Next.js App Router — routes only
 │   ├── layout.tsx                # Root layout, fonts, providers
-│   ├── page.tsx                  # Home / leads dashboard (protected)
+│   ├── (marketing)/              # Public landing site (route group)
+│   │   ├── layout.tsx            # MarketingShell + SEO metadata
+│   │   ├── page.tsx              # Landing
+│   │   ├── features/page.tsx
+│   │   ├── pricing/page.tsx
+│   │   ├── contact/page.tsx
+│   │   ├── privacy/page.tsx
+│   │   └── terms/page.tsx
+│   ├── dashboard/page.tsx        # Leads dashboard (protected)
 │   ├── login/page.tsx            # Public sign-in page
+│   ├── robots.ts                 # SEO robots.txt
+│   ├── sitemap.ts                # SEO sitemap.xml
+│   ├── icon.tsx                  # Favicon
 │   ├── globals.css               # Design tokens, Tailwind theme
 │   ├── providers.tsx             # Client providers (toasts, etc.)
 │   ├── bookings/page.tsx
@@ -75,6 +96,7 @@ hotelai-admin/
 │
 ├── components/
 │   ├── auth/                     # LoginForm, SignOutButton
+│   ├── marketing/                # Public site UI (landing, pricing, contact)
 │   ├── dashboard/                # Feature UI + app shell
 │   │   ├── AppShell.tsx          # Sidebar, header, layout wrapper
 │   │   ├── <feature>/            # Feature modules (see above)
@@ -87,6 +109,7 @@ hotelai-admin/
 │   │   ├── server.ts             # Server client (Server Components / Actions)
 │   │   └── session.ts            # updateSession() used by proxy.ts
 │   ├── tenant.ts                 # currentHotel abstraction + auth guards
+│   ├── marketing/                # Site config, content, pricing display, metadata
 │   ├── utils.ts                  # cn() and shared helpers
 │   └── services/
 │       ├── <domain>.service.ts   # Read operations (queries)
@@ -326,7 +349,7 @@ Auth uses **Supabase Auth** with the cookie-based `@supabase/ssr` package.
 | Route protection   | `proxy.ts` redirects anonymous users to `/login`; `requireUser()` guards data access |
 | Reading the user   | `getCurrentUser()` / `requireUser()` in `lib/tenant.ts` |
 
-`/login` is the only public route. Every other route requires a session.
+`/login`, `/`, `/features`, `/pricing`, `/contact`, `/privacy`, `/terms`, and selected API webhooks are public routes (see `PUBLIC_PATHS` in `lib/supabase/session.ts`). All other admin routes require a session; sign-in redirects to `/dashboard`.
 
 ## Tenant Context (`currentHotel`)
 

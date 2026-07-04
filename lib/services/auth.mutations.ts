@@ -33,7 +33,9 @@ export async function signIn(
   }
 
   const destination =
-    redirectedFrom && redirectedFrom.startsWith("/") ? redirectedFrom : "/";
+    redirectedFrom && redirectedFrom.startsWith("/")
+      ? redirectedFrom
+      : "/dashboard";
 
   redirect(destination);
 }

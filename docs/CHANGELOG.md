@@ -8,6 +8,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Public Landing Website (Sprint 13)
+
+- **Marketing site** — public pages at `/`, `/features`, `/pricing`, `/contact`, `/privacy`, `/terms` (no auth).
+- **Dashboard move** — leads dashboard relocated from `/` to `/dashboard`; login redirects to `/dashboard`.
+- **Marketing layer** — `lib/marketing/` (content, pricing display, SEO metadata) and `components/marketing/`.
+- **Pricing reuse** — marketing plans derived from `lib/billing/plans.ts` via `getMarketingPlans()`.
+- **SEO** — `app/robots.ts`, `app/sitemap.ts`, `app/icon.tsx`, OpenGraph metadata.
+- **Tests** — marketing content, pricing, and server component rendering.
+
 ### Production Readiness (Sprint 12.5)
 
 - **Startup validation** — `instrumentation.ts` + `lib/ops/startup.ts` logs env diagnostics on boot (no crash).

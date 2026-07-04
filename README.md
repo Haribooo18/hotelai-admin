@@ -26,7 +26,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Unauthenticated users are redirected to `/login` (see `proxy.ts`).
+Open [http://localhost:3000](http://localhost:3000) for the public marketing site. Sign in at `/login` to access the admin dashboard at `/dashboard` (see `proxy.ts`).
 
 ---
 
@@ -46,6 +46,7 @@ Copy `.env.example` to `.env.local` and fill in values. Production setup: [`docs
 | `STRIPE_PRICE_STARTER` | Yes* | Server only | Stripe Price id for Starter plan |
 | `STRIPE_PRICE_PRO` | Yes* | Server only | Stripe Price id for Pro plan |
 | `STRIPE_PRICE_ENTERPRISE` | Yes* | Server only | Stripe Price id for Enterprise plan |
+| `NEXT_PUBLIC_SITE_URL` | No | Client + server | Canonical URL for sitemap, OpenGraph, and robots (defaults to localhost) |
 | `TELEGRAM_BOT_TOKEN` | No | Server only | Telegram Bot API token ([@BotFather](https://t.me/BotFather)) |
 | `TELEGRAM_WEBHOOK_SECRET` | No | Server only | Secret for `X-Telegram-Bot-Api-Secret-Token` header |
 | `TELEGRAM_HOTEL_ID` | No | Server only | Hotel for inbound Telegram (defaults to `DEFAULT_HOTEL_ID`) |
@@ -157,10 +158,14 @@ Node **22**, npm cache enabled.
 ```
 hotelai-admin/
 ├── app/                    # Next.js App Router (thin pages only)
+│   ├── (marketing)/        # Public landing site (no auth)
+│   └── dashboard/          # Leads dashboard (protected)
 ├── components/
+│   ├── marketing/          # Public site UI (landing, pricing, contact)
 │   ├── dashboard/<feature>/  # Feature UI (bookings, rooms, ai, …)
 │   └── ui/                 # Generic design-system primitives
 ├── lib/
+│   ├── marketing/          # Site config, content, pricing display
 │   ├── services/           # *.service.ts (reads), *.mutations.ts (writes)
 │   ├── ai/                 # AI provider, orchestrator, tools
 │   ├── validations/        # Shared Zod schemas
@@ -186,12 +191,27 @@ hotelai-admin/
 
 ---
 
-## Routes (authenticated)
+## Routes
+
+### Public (marketing)
+
+| Path | Page |
+|------|------|
+| `/` | Landing (hero, features, pricing, FAQ) |
+| `/features` | Feature overview |
+| `/pricing` | Pricing plans (Starter / Pro / Enterprise from `lib/billing/plans.ts`) |
+| `/contact` | Contact form |
+| `/privacy` | Privacy Policy |
+| `/terms` | Terms of Service |
+| `/login` | Sign in |
+
+SEO: `app/robots.ts`, `app/sitemap.ts`, `app/icon.tsx`, OpenGraph metadata in `app/(marketing)/layout.tsx`.
+
+### Authenticated (admin)
 
 | Path | Feature |
 |------|---------|
-| `/` | Leads dashboard |
-| `/login` | Public login |
+| `/dashboard` | Leads dashboard |
 | `/bookings` | Bookings CRUD |
 | `/rooms` | Rooms CRUD |
 | `/guests` | Guest CRM |
@@ -200,7 +220,7 @@ hotelai-admin/
 | `/knowledge` | Knowledge base admin |
 | `/settings` | AI settings & diagnostics |
 
-`/pricing` is linked in navigation but not yet implemented (see ROADMAP).
+Admin nav item «Цены» points to `/rates` (room rates — not yet implemented).
 
 ---
 

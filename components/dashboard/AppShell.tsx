@@ -31,12 +31,12 @@ type Props = {
 const navItems = [
   {
     label: "Dashboard",
-    href: "/",
+    href: "/dashboard",
     icon: LayoutDashboard,
   },
   {
     label: "Заявки",
-    href: "/",
+    href: "/dashboard",
     icon: ClipboardList,
   },
   {
@@ -66,7 +66,7 @@ const navItems = [
   },
   {
     label: "Цены",
-    href: "/pricing",
+    href: "/rates",
     icon: Wallet,
   },
   {
@@ -125,13 +125,13 @@ export function AppShell({ children, hotel }: Props) {
             {navItems.map((item) => {
               const Icon = item.icon;
               const active =
-                item.href === "/"
-                  ? pathname === "/"
+                item.href === "/dashboard"
+                  ? pathname === "/dashboard"
                   : pathname.startsWith(item.href);
 
               return (
                 <Link
-                  key={item.href}
+                  key={item.label}
                   href={item.href}
                   className={`mb-2 flex items-center gap-4 rounded-xl px-4 py-3 transition-all ${
                     active
