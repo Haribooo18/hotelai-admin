@@ -34,5 +34,16 @@ export const bookingUpdateSchema = z
   .object({ id: z.string().min(1), ...bookingFields })
   .refine(laterCheckout, laterCheckoutError);
 
+/** Minimal payload for calendar drag / resize (dates + room only). */
+export const bookingRescheduleSchema = z
+  .object({
+    id: z.string().min(1),
+    room_id: z.string().min(1, "Выберите номер"),
+    check_in: z.string().min(1, "Укажите дату заезда"),
+    check_out: z.string().min(1, "Укажите дату выезда"),
+  })
+  .refine(laterCheckout, laterCheckoutError);
+
 export type BookingCreateInput = z.infer<typeof bookingCreateSchema>;
 export type BookingUpdateInput = z.infer<typeof bookingUpdateSchema>;
+export type BookingRescheduleInput = z.infer<typeof bookingRescheduleSchema>;

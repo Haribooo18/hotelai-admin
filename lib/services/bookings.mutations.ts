@@ -7,8 +7,10 @@ import { getCurrentHotelId } from "@/lib/tenant";
 import {
   bookingCreateSchema,
   bookingUpdateSchema,
+  bookingRescheduleSchema,
   type BookingCreateInput,
   type BookingUpdateInput,
+  type BookingRescheduleInput,
 } from "@/lib/validations/booking";
 
 function revalidateBookings() {
@@ -165,6 +167,38 @@ export async function updateBooking(input: BookingUpdateInput) {
       check_out,
       total_price: totalPrice,
     })
+    .eq("id", id)
+    .eq("hotel_id", hotelId);
+
+  if (error) throw error;
+
+  revalidateBookings();
+}
+
+export async function rescheduleBooking(input: BookingRescheduleInput) {
+  const parsed = bookingRescheduleSchema.safeParse(input);
+
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
+  }
+
+  const { id, room_id, check_in, check_out } = parsed.data;
+
+  const supabase = await createClient();
+  const hotelId = await getCurrentHotelId();
+
+  await ensureRoomAvailable(hotelId, room_id, check_in, check_out, id);
+
+  const totalPrice = await calculateTotalPrice(
+    hotelId,
+    room_id,
+    check_in,
+    check_out
+  );
+
+  const { error } = await supabase
+    .from("bookings")
+    .update({ room_id, check_in, check_out, total_price: totalPrice })
     .eq("id", id)
     .eq("hotel_id", hotelId);
 

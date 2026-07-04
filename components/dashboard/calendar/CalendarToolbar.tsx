@@ -3,70 +3,87 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import type { CalendarView } from "@/lib/calendar";
 
 type Props = {
-  date: Date;
+  title: string;
+  view: CalendarView;
+  occupancyPercent: number;
   onPrevious: () => void;
   onNext: () => void;
   onToday: () => void;
+  onViewChange: (view: CalendarView) => void;
 };
 
-const MONTHS = [
-  "Январь",
-  "Февраль",
-  "Март",
-  "Апрель",
-  "Май",
-  "Июнь",
-  "Июль",
-  "Август",
-  "Сентябрь",
-  "Октябрь",
-  "Ноябрь",
-  "Декабрь",
-];
-
 export function CalendarToolbar({
-  date,
+  title,
+  view,
+  occupancyPercent,
   onPrevious,
   onNext,
   onToday,
+  onViewChange,
 }: Props) {
   return (
-    <div className="flex items-center justify-between rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-      <div>
-        <h2 className="text-2xl font-semibold">
-          {MONTHS[date.getMonth()]} {date.getFullYear()}
-        </h2>
-
-        <p className="mt-1 text-sm text-zinc-500">
-          Календарь бронирований
-        </p>
-      </div>
-
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+      <div className="flex items-center gap-3">
         <Button
           variant="outline"
           size="icon"
+          aria-label="Предыдущий период"
           onClick={onPrevious}
         >
           <ChevronLeft size={18} />
         </Button>
 
-        <Button
-          variant="outline"
-          onClick={onToday}
-        >
+        <Button variant="outline" onClick={onToday}>
           Сегодня
         </Button>
 
         <Button
           variant="outline"
           size="icon"
+          aria-label="Следующий период"
           onClick={onNext}
         >
           <ChevronRight size={18} />
         </Button>
+
+        <h2 className="ml-2 text-xl font-semibold capitalize">{title}</h2>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="hidden text-sm text-zinc-400 sm:block">
+          Средняя загрузка:{" "}
+          <span className="font-semibold text-emerald-400">
+            {occupancyPercent}%
+          </span>
+        </div>
+
+        <div
+          role="tablist"
+          aria-label="Режим отображения"
+          className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1"
+        >
+          {(["month", "week"] as CalendarView[]).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              role="tab"
+              aria-selected={view === mode}
+              onClick={() => onViewChange(mode)}
+              className={cn(
+                "rounded-md px-3 py-1.5 text-sm font-medium transition",
+                view === mode
+                  ? "bg-emerald-600 text-white"
+                  : "text-zinc-400 hover:text-white"
+              )}
+            >
+              {mode === "month" ? "Месяц" : "Неделя"}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

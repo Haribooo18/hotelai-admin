@@ -30,7 +30,7 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | ~~B-015~~ | ~~Zod validation for booking and room forms~~ | Forms | ✅ Sprint 3 — `lib/validations/{room,booking}.ts` shared client + server |
 | B-016 | Settings page — hotel profile basics             | Settings    | Name, timezone, contact |
 | B-017 | Pricing page — view and edit base rates            | Pricing     | Nav link already exists |
-| B-018 | Calendar booking click → detail/edit sheet       | Calendar    | |
+| ~~B-018~~ | ~~Calendar booking click → detail/edit sheet~~ | Calendar | ✅ Sprint 5 — bar/agenda click opens `BookingEditDialog` |
 | ~~B-019~~ | ~~Standardize error handling in services~~ | Architecture | ✅ Sprint 3 — `rooms.service` now throws like `bookings.service` |
 | ~~B-020~~ | ~~Remove stray `Untitled` file in bookings folder~~ | Cleanup | ✅ Sprint 3 |
 
@@ -50,7 +50,7 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | B-037 | Room photos upload (Supabase Storage)              | Rooms       | |
 | B-038 | Export bookings to CSV                           | Reports     | |
 | B-039 | Occupancy report page                            | Reports     | |
-| B-040 | Drag-and-drop booking reschedule on calendar       | Calendar    | |
+| ~~B-040~~ | ~~Drag-and-drop booking reschedule on calendar~~ | Calendar | ✅ Sprint 5 — drag + edge-resize via `rescheduleBooking` |
 | B-041 | Create booking from calendar empty cell            | Calendar    | |
 | B-042 | Payment recording against booking                  | Payments    | |
 | B-043 | User roles (owner, manager, staff)               | Settings    | |
@@ -93,12 +93,15 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | TD-12 | `rooms` has no natural unique key (room number) | Consider `unique (hotel_id, room_type)` or add a `room_number` column |
 | TD-13 | `DashboardPage` refetches all leads on any realtime event | Apply incremental payload updates instead of full RPC refetch |
 | TD-14 | `getDashboardStats` (`lib/services/dashboard.service.ts`) is now unwired | Retained for a future dedicated overview/dashboard route; wire it or remove |
-| TD-15 | `/` and `/calendar` still lack `loading.tsx`/`error.tsx` | Services throw; add boundaries or a root `app/error.tsx` |
+| TD-15 | `/` (leads) still lacks `loading.tsx`/`error.tsx` | `/calendar` added in Sprint 5; add a root `app/error.tsx` for the leads route |
 | TD-16 | Duplicate inline `Field` helper in `RoomForm`, `BookingForm`, `GuestForm` | Extract a shared `FormField` component (now used in 3 forms) |
 | TD-17 | Guest booking history matched by email/name, not `guest_id` | Add `bookings.guest_id → guests.id` + backfill; supersedes TD-11 |
 | TD-18 | `guests.total_bookings` / `total_spent` are denormalized and can drift | Profile stats are computed live; either backfill counters via trigger or drop the columns |
 | TD-19 | `guests_hotel_email_unique` still applies to soft-deleted rows | Re-adding a guest with a tombstoned email fails; scope the unique index `where deleted_at is null` |
 | TD-20 | Guest avatar is a raw URL via `<img>` (no upload/validation) | Wire Supabase Storage upload + `next/image` remotePatterns (B-037-style) |
+| TD-21 | Calendar drag/resize is same-room only | Cross-room drag (change `room_id` by dragging vertically) — currently done via `BookingEditDialog` |
+| TD-22 | Calendar reads all bookings, filtered client-side by visible range | Add a date-bounded `getBookingsInRange(from, to)` service query for large datasets |
+| TD-23 | Row virtualization only (day columns not virtualized) | Fine for month view (~31 cols); add horizontal windowing if multi-month ranges ship |
 
 ---
 

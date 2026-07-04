@@ -46,7 +46,7 @@ components/dashboard/<feature>/
 | Bookings  | `components/dashboard/bookings/`  | `/bookings` → `BookingsPage` |
 | Rooms     | `components/dashboard/rooms/`     | `/rooms`        |
 | Guests    | `components/dashboard/guests/`    | `/guests`, `/guests/[id]` |
-| Calendar  | `components/dashboard/calendar/`  | `/calendar`     |
+| Calendar  | `components/dashboard/calendar/`  | `/calendar` (timeline, drag/resize) |
 
 > **Note:** The leads dashboard (`DashboardPage`) currently lives at the root of `components/dashboard/` alongside shared shell components. New features should use dedicated subfolders.
 > **Note:** `getDashboardStats` (`lib/services/dashboard.service.ts`) is retained but currently unwired after the `/bookings` rewire — reserved for a future overview/dashboard route (TD-14).
@@ -467,12 +467,52 @@ HotelAI uses **Sheet** (slide-over panel) from `components/ui/sheet.tsx` as the 
 
 ---
 
+## Calendar (Reservation Timeline)
+
+Feature folder: `components/dashboard/calendar/`. Shared date math lives in `lib/calendar.ts`.
+
+### Data flow
+
+1. `app/calendar/page.tsx` fetches `rooms` + `bookings` (tenant-scoped services) and passes them to `CalendarPage`.
+2. `CalendarPage` is the client orchestrator: view state (`month` | `week`), anchor date, optimistic booking list, edit dialog.
+3. Drag/resize calls `rescheduleBooking` (`lib/services/bookings.mutations.ts`) validated by `bookingRescheduleSchema`.
+
+### Layout
+
+| Constant          | Value | Purpose                          |
+|-------------------|-------|----------------------------------|
+| `DAY_WIDTH`       | 56px  | One day column                   |
+| `ROOM_COL_WIDTH`  | 220px | Sticky room label column         |
+| `ROW_HEIGHT`      | 64px  | One room row (virtualization)    |
+
+- **Sticky header** — `CalendarDateHeader` (`top-0`) shows weekday, date, per-day occupancy bar.
+- **Sticky room column** — `CalendarRoomCell` (`left-0`) shows room type, price, per-room availability bar.
+- **Booking bars** — `placeBooking()` maps `[check_in, check_out)` to column index + span; `CalendarBookingBar` renders status-colored bars.
+
+### Interactions
+
+| Action            | Desktop                         | Mobile (`CalendarAgenda`) |
+|-------------------|---------------------------------|---------------------------|
+| View details      | Click bar / Enter               | Tap agenda item           |
+| Move booking      | Pointer drag / Arrow keys       | Edit dialog only          |
+| Resize stay       | Edge drag / Shift+Arrow keys    | Edit dialog only          |
+| Navigate          | Toolbar prev/next, Today, view  | Same toolbar              |
+
+Overlap is blocked client-side (`hasRoomConflict`) and server-side (`ensureRoomAvailable` + DB GiST exclusion).
+
+### Performance
+
+- **Row virtualization** — `CalendarTimeline` renders only visible room rows + overscan.
+- **Horizontal scroll** — full day range rendered (7–31 columns); acceptable without column virtualization at current scale.
+
+---
+
 ## Future Architecture Goals
 
 1. ~~**Auth layer** — Supabase Auth + RLS; remove hardcoded `hotel_id`.~~ ✅ Delivered in Sprint 1.
 2. ~~**Consolidate leads** — move `Lead` type to `types/lead.ts`.~~ ✅ `types/lead.ts` added; feature folder `components/dashboard/leads/` still pending.
 3. ~~**Zod validation** — shared schemas in `lib/validations/`.~~ ✅ Sprint 3 (`room`/`booking` schemas).
-4. **Error boundaries** — per-route `error.tsx` and `loading.tsx`. ✅ `/rooms` and `/bookings` (Sprint 3); `/` and `/calendar` pending (TD-15).
+4. **Error boundaries** — per-route `error.tsx` and `loading.tsx`. ✅ `/rooms`, `/bookings` (Sprint 3), `/guests` (Sprint 4), `/calendar` (Sprint 5); `/` (leads) pending (TD-15).
 5. **Hooks folder** — `hooks/useBookings.ts` for client-side data when needed.
 6. **i18n** — extract Russian UI strings to locale files.
 7. **Roles** — use the `memberships.role` column for owner/manager/staff authorization.

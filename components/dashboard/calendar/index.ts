@@ -1,11 +1,8 @@
 export { CalendarPage } from "./CalendarPage";
-
 export { CalendarToolbar } from "./CalendarToolbar";
-
-export { CalendarGrid } from "./CalendarGrid";
-
-export { CalendarHeader } from "./CalendarHeader";
-
-export { CalendarRoomRow } from "./CalendarRoomRow";
-
-export { CalendarBooking } from "./CalendarBooking";
+export { CalendarTimeline } from "./CalendarTimeline";
+export { CalendarDateHeader } from "./CalendarDateHeader";
+export { CalendarRoomCell } from "./CalendarRoomCell";
+export { CalendarBookingBar } from "./CalendarBookingBar";
+export { CalendarAgenda } from "./CalendarAgenda";
+export { CalendarLegend } from "./CalendarLegend";

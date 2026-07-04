@@ -8,6 +8,26 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Calendar Pro (Sprint 5)
+
+- **Rebuilt the reservation calendar** (`components/dashboard/calendar/`) — replaced the static month grid prototype with a production timeline. Removed `CalendarGrid`, `CalendarHeader`, `CalendarRoomRow`, `CalendarBooking`, and the dead `components/dashboard/calendar/page.tsx` duplicate route.
+- **Horizontal timeline** — sticky room column (`CalendarRoomCell`) + sticky date header (`CalendarDateHeader`), booking bars spanning multiple days with half-open `[check_in, check_out)` placement.
+- **Navigation** — month/week view toggle, prev/next by view unit, and Today shortcut (`CalendarToolbar`).
+- **Row virtualization** — `CalendarTimeline` windows visible room rows (fixed row height + overscan) for large room lists.
+- **Drag & resize** — `CalendarBookingBar` supports pointer drag to move and edge handles to change duration, snapped to day columns, with optimistic UI and revert on failure. Keyboard equivalents: arrows move ±1 day, Shift+arrows resize, Enter opens details.
+- **Overlap prevention** — client-side `hasRoomConflict` guard plus the server `rescheduleBooking` mutation (`ensureRoomAvailable` + DB exclusion constraint).
+- **Booking detail** — clicking a bar (or agenda item) opens the existing `BookingEditDialog`.
+- **Visualization** — status colors via new `barClassName` in `lib/booking-status.ts`, hover/focus summary card, per-day occupancy bars, per-room availability bars, empty-room highlighting, weekend + current-day tinting.
+- **Shared utilities** — `lib/calendar.ts` (date math, day-range builder, booking placement, occupancy, overlap helpers, layout constants).
+- **Validation** — `bookingRescheduleSchema` + `rescheduleBooking` mutation (dates/room only, reuses price + availability helpers).
+- **Responsive** — desktop timeline (`md:block`) with a mobile agenda fallback (`CalendarAgenda`, `md:hidden`).
+- **States** — `app/calendar/loading.tsx`, `app/calendar/error.tsx`, and an empty state when no rooms exist.
+
+### Migration notes (Sprint 5)
+
+- No database migration required; `rescheduleBooking` reuses the existing bookings schema and the `0002` no-overlap exclusion constraint.
+- Reschedule is same-room only; changing a booking's room still goes through `BookingEditDialog` (see TD-21).
+
 ### Guest CRM (Sprint 4)
 
 - **New Guests module** (`components/dashboard/guests/`) following feature architecture — list, profile, search, filters, CRUD, all tenant-scoped.
