@@ -1,0 +1,55 @@
+---
+description: React component patterns for HotelAI admin
+globs: **/*.tsx
+alwaysApply: false
+---
+
+# React Patterns
+
+Read `docs/CODING_STANDARDS.md` and `docs/ARCHITECTURE.md`.
+
+## Components
+
+- Functional only; `type Props = { ... }` then `export function Name({ ... }: Props)`
+- One component per file; `key={entity.id}` on lists
+
+## Feature Module Files
+
+```
+<Feature>Page.tsx      — client orchestrator (filters, dialog state)
+<Feature>Table.tsx    — presentation + delete actions
+<Feature>Form.tsx     — create/edit, calls Server Actions
+<Feature>CreateDialog.tsx / <Feature>EditDialog.tsx — Sheet wrapper
+index.ts              — barrel exports
+```
+
+## Client Page Pattern
+
+```tsx
+"use client";
+const [open, setOpen] = useState(false);
+const filtered = useMemo(() => items.filter(...), [items, filter]);
+// Table + CreateDialog(open) + EditDialog(selected)
+```
+
+## Forms
+
+- `useTransition` for pending; `router.refresh()` after mutation
+- `toast.success/error` from sonner
+- `space-y-5` form layout; `onSuccess={() => setOpen(false)}`
+
+## Tables
+
+- Empty state: `rounded-2xl border border-zinc-800 py-16 text-center text-zinc-500`
+- Wrapper: `overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950`
+- Delete: `confirm()` → Server Action → toast → refresh
+
+## Dialogs
+
+- Use `Sheet` from `@/components/ui/sheet`, not raw dialog
+- `sm:max-w-lg`, `SheetTitle`, form in `mt-6` div
+
+## Hooks
+
+- Clean up Supabase channels in `useEffect` return
+- Shared hooks go in `hooks/` (when created)

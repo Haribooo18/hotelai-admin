@@ -1,0 +1,47 @@
+---
+description: HotelAI feature-first architecture, folder structure, and data flow
+alwaysApply: true
+---
+
+# HotelAI Architecture
+
+Read `docs/ARCHITECTURE.md` for full details. Follow these rules:
+
+## Feature-First Layout
+
+- `app/<route>/page.tsx` — thin Server Components: fetch data, wrap in `AppShell`, pass props
+- `components/dashboard/<feature>/` — feature UI (Page, Table, Form, Dialogs, Stats, Filters)
+- `lib/services/<domain>.service.ts` — read queries (no `"use server"`)
+- `lib/services/<domain>.mutations.ts` — writes (`"use server"`, `revalidatePath`)
+- `types/<domain>.ts` — shared entity types
+- `components/ui/` — generic shadcn primitives only, no domain logic
+
+## Naming
+
+- Components: PascalCase (`BookingsTable.tsx`)
+- Services: `<domain>.service.ts`, `<domain>.mutations.ts`
+- Types: singular (`booking.ts`), exported as `type` not `enum`
+- Routes: kebab-case folders, `page.tsx` inside
+
+## Data Flow
+
+1. Server page calls `getX()` from `*.service.ts`
+2. Client feature component handles UI state (filters, dialogs)
+3. Forms call Server Actions from `*.mutations.ts`
+4. On success: `revalidatePath` + `router.refresh()` + `toast`
+
+## Server Actions
+
+- Input as typed object, throw on error, `revalidatePath("/route")` after mutation
+- Business rules (availability, pricing) as private helpers in mutations file
+
+## Multi-Tenancy
+
+- All data scoped by `hotel_id` (currently hardcoded `hotel_aurora`)
+- Never add queries without tenant filter
+
+## Do Not
+
+- Put Supabase calls in components (except legacy leads realtime)
+- Put business logic in `app/` pages or `components/ui/`
+- Create default exports for components (pages excepted)

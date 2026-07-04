@@ -1,6 +1,9 @@
 "use client";
 
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
+
 import {
   LayoutDashboard,
   BedDouble,
@@ -22,12 +25,16 @@ const navItems = [
     label: "Dashboard",
     href: "/",
     icon: LayoutDashboard,
-    active: true,
   },
   {
     label: "Заявки",
-    href: "/",
+    href: "/leads",
     icon: ClipboardList,
+  },
+  {
+    label: "Бронирования",
+    href: "/bookings",
+    icon: CalendarDays,
   },
   {
     label: "Номера",
@@ -57,11 +64,11 @@ const navItems = [
 ];
 
 export function AppShell({ children }: Props) {
+  const pathname = usePathname();
+
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
       <div className="flex min-h-screen">
-        {/* Sidebar */}
-
         <aside className="hidden w-72 shrink-0 border-r border-zinc-800 bg-zinc-950 lg:flex lg:flex-col">
           <div className="border-b border-zinc-800 p-6">
             <div className="flex items-center gap-4">
@@ -96,15 +103,17 @@ export function AppShell({ children }: Props) {
           <nav className="flex-1 px-4">
             {navItems.map((item) => {
               const Icon = item.icon;
+              const active =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href);
 
               return (
-                <a
-                  key={item.label}
+                <Link
+                  key={item.href}
                   href={item.href}
-                  className={`mb-2 flex items-center gap-4 rounded-xl px-4 py-3 transition-all
-
-                  ${
-                    item.active
+                  className={`mb-2 flex items-center gap-4 rounded-xl px-4 py-3 transition-all ${
+                    active
                       ? "bg-emerald-600 text-white shadow-lg"
                       : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
                   }`}
@@ -114,7 +123,7 @@ export function AppShell({ children }: Props) {
                   <span className="font-medium">
                     {item.label}
                   </span>
-                </a>
+                </Link>
               );
             })}
           </nav>
@@ -137,8 +146,6 @@ export function AppShell({ children }: Props) {
             </div>
           </div>
         </aside>
-
-        {/* Content */}
 
         <div className="flex flex-1 flex-col">
           <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/90 backdrop-blur">
