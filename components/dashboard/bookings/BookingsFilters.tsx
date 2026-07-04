@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
+import { BOOKING_STATUS_OPTIONS } from "@/lib/booking-status";
 
 type Props = {
   search: string;
@@ -30,6 +31,7 @@ export function BookingsFilters({
         <Input
           className="pl-10"
           placeholder="Поиск гостя..."
+          aria-label="Поиск по гостям"
           value={search}
           onChange={(e) =>
             onSearchChange(e.target.value)
@@ -41,24 +43,8 @@ export function BookingsFilters({
         value={status}
         onChange={onStatusChange}
         placeholder="Все статусы"
-        options={[
-          {
-            value: "confirmed",
-            label: "Подтверждено",
-          },
-          {
-            value: "checked_in",
-            label: "Заселен",
-          },
-          {
-            value: "checked_out",
-            label: "Выселен",
-          },
-          {
-            value: "cancelled",
-            label: "Отменено",
-          },
-        ]}
+        aria-label="Фильтр по статусу"
+        options={BOOKING_STATUS_OPTIONS}
       />
     </div>
   );

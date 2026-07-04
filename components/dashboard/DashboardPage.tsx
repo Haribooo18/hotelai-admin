@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
+import type { Lead } from "@/types/lead";
 
 import { DashboardStats } from "@/components/dashboard/DashboardStats";
 import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
@@ -11,25 +12,14 @@ import { LeadsTable } from "@/components/dashboard/LeadsTable";
 import { LeadSearch } from "@/app/LeadSearch";
 import { LeadFilters } from "@/app/LeadFilters";
 
-export type Lead = {
-  lead_id: string;
-  created_at: string;
-  guest_name: string | null;
-  phone: string |null;
-  email: string | null;
-  room_type: string | null;
-  check_in: string | null;
-  check_out: string | null;
-  guests: number | null;
-  status: string | null;
-  comment: string | null;
-};
+export type { Lead } from "@/types/lead";
 
 type Props = {
   initialLeads: Lead[];
+  hotelId: string;
 };
 
-export function DashboardPage({ initialLeads }: Props) {
+export function DashboardPage({ initialLeads, hotelId }: Props) {
   const [leads, setLeads] = useState(initialLeads);
 
   const [search, setSearch] = useState("");
@@ -37,18 +27,21 @@ export function DashboardPage({ initialLeads }: Props) {
   const [status, setStatus] = useState("all");
 
   useEffect(() => {
+    const supabase = createClient();
+
     const channel = supabase
-      .channel("hotel-leads")
+      .channel(`hotel-leads-${hotelId}`)
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "leads",
+          filter: `hotel_id=eq.${hotelId}`,
         },
         async () => {
           const { data, error } = await supabase.rpc("list_hotel_leads", {
-            p_hotel_id: "hotel_aurora",
+            p_hotel_id: hotelId,
             p_limit: 50,
           });
 
@@ -62,7 +55,7 @@ export function DashboardPage({ initialLeads }: Props) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [hotelId]);
 
   const counts = useMemo(
     () => ({
@@ -117,7 +110,7 @@ export function DashboardPage({ initialLeads }: Props) {
         </h1>
 
         <p className="mt-2 text-zinc-500">
-          Управление входящими заявками Aurora Hotel
+          Управление входящими заявками отеля
         </p>
       </div>
 

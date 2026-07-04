@@ -1,59 +1,23 @@
 ---
-description: TypeScript conventions for HotelAI
+description: TypeScript guidance entrypoint for HotelAI
 globs: **/*.{ts,tsx}
 alwaysApply: false
 ---
 
-# TypeScript Rules
+# TypeScript Guidance
 
-Read `docs/CODING_STANDARDS.md` and `docs/DATABASE.md`.
+Read these before changing TypeScript:
 
-## Entity Types (`types/`)
+- `docs/CODING_STANDARDS.md` for type rules, imports, exports, and validation.
+- `docs/DATABASE.md` for current table shapes, nullable fields, status values, and RPCs.
+- `docs/ARCHITECTURE.md` for where shared types and service types belong.
 
-```typescript
-export type BookingStatus = "confirmed" | "checked_in" | "checked_out" | "cancelled";
+Keep this rule short. Do not copy TypeScript examples here.
 
-export type Booking = {
-  id: string;
-  hotel_id: string;
-  guest_email: string | null;  // nullable = null, not undefined
-  status: BookingStatus;
-};
-```
+## Non-Negotiables
 
-## Service Functions
-
-```typescript
-// reads — no "use server"
-export async function getBookings(): Promise<Booking[]> {
-  const { data, error } = await supabase.from("bookings").select("*");
-  if (error) throw new Error(`${error.code}: ${error.message}`);
-  return (data ?? []) as Booking[];
-}
-```
-
-## Server Action Inputs
-
-```typescript
-"use server";
-type CreateBookingInput = {
-  guest_name: string;
-  room_id: string;
-  check_in: string;
-  check_out: string;
-};
-export async function createBooking(input: CreateBookingInput) { ... }
-```
-
-## Rules
-
-- No `enum` — use union types
-- No `any` — use `unknown` + narrow
-- `import type { X }` for types
-- Cast query results: `(data ?? []) as Entity[]` or `satisfies Entity[]`
-- Action input types defined in mutations file, not exported unless needed by forms
-
-## Status Unions
-
-- Bookings: `confirmed | checked_in | checked_out | cancelled`
-- Leads: `new | contacted | confirmed | cancelled`
+- No `any`; use explicit types or `unknown` with narrowing.
+- No TypeScript `enum`; use string unions.
+- Nullable database fields are `T | null`.
+- Shared domain entity types live in `types/`.
+- Server Action inputs are typed objects.

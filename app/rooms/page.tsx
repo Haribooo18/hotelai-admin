@@ -2,12 +2,13 @@ import { AppShell } from "@/components/dashboard/AppShell";
 import { RoomsTable } from "@/components/dashboard/RoomsTable";
 import { RoomCreateDialog } from "@/components/dashboard/rooms/RoomCreateDialog";
 import { getRooms } from "@/lib/services/rooms.service";
+import { getCurrentHotel } from "@/lib/tenant";
 
 export default async function RoomsPage() {
-  const rooms = await getRooms();
+  const [hotel, rooms] = await Promise.all([getCurrentHotel(), getRooms()]);
 
   return (
-    <AppShell>
+    <AppShell hotel={hotel}>
       <div className="mb-8 flex items-start justify-between">
         <div>
           <p className="text-sm uppercase tracking-[0.25em] text-zinc-500">

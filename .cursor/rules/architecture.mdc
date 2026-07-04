@@ -1,47 +1,19 @@
 ---
-description: HotelAI feature-first architecture, folder structure, and data flow
+description: Canonical HotelAI architecture guidance
 alwaysApply: true
 ---
 
 # HotelAI Architecture
 
-Read `docs/ARCHITECTURE.md` for full details. Follow these rules:
+`docs/ARCHITECTURE.md` is the source of truth. Read it before changing routes, feature structure, services, mutations, shared types, or reusable UI patterns.
 
-## Feature-First Layout
+Keep this rule short. Do not copy architecture details here.
 
-- `app/<route>/page.tsx` — thin Server Components: fetch data, wrap in `AppShell`, pass props
-- `components/dashboard/<feature>/` — feature UI (Page, Table, Form, Dialogs, Stats, Filters)
-- `lib/services/<domain>.service.ts` — read queries (no `"use server"`)
-- `lib/services/<domain>.mutations.ts` — writes (`"use server"`, `revalidatePath`)
-- `types/<domain>.ts` — shared entity types
-- `components/ui/` — generic shadcn primitives only, no domain logic
+## Non-Negotiables
 
-## Naming
-
-- Components: PascalCase (`BookingsTable.tsx`)
-- Services: `<domain>.service.ts`, `<domain>.mutations.ts`
-- Types: singular (`booking.ts`), exported as `type` not `enum`
-- Routes: kebab-case folders, `page.tsx` inside
-
-## Data Flow
-
-1. Server page calls `getX()` from `*.service.ts`
-2. Client feature component handles UI state (filters, dialogs)
-3. Forms call Server Actions from `*.mutations.ts`
-4. On success: `revalidatePath` + `router.refresh()` + `toast`
-
-## Server Actions
-
-- Input as typed object, throw on error, `revalidatePath("/route")` after mutation
-- Business rules (availability, pricing) as private helpers in mutations file
-
-## Multi-Tenancy
-
-- All data scoped by `hotel_id` (currently hardcoded `hotel_aurora`)
-- Never add queries without tenant filter
-
-## Do Not
-
-- Put Supabase calls in components (except legacy leads realtime)
-- Put business logic in `app/` pages or `components/ui/`
-- Create default exports for components (pages excepted)
+- `app/**/page.tsx` stays thin: fetch data, wrap in `AppShell`, pass props.
+- Feature UI lives under `components/dashboard/<feature>/`.
+- Reads go in `lib/services/*.service.ts`; writes go in `lib/services/*.mutations.ts`.
+- Domain types live in `types/`.
+- `components/ui/` remains generic UI primitives only.
+- Auth + tenant context comes from `lib/tenant.ts` (`getCurrentHotelId`, `requireUser`); `/login` is the only public route (guarded by `proxy.ts`).

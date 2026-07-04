@@ -1,61 +1,24 @@
 ---
-description: Supabase data layer patterns for HotelAI
+description: Supabase guidance entrypoint for HotelAI services
 globs: lib/**/*.ts
 alwaysApply: false
 ---
 
-# Supabase Layer
+# Supabase Guidance
 
-Read `docs/DATABASE.md` and `docs/ARCHITECTURE.md`.
+Read these before changing Supabase access:
 
-## Client
+- `docs/DATABASE.md` for current tables, RPCs, realtime subscriptions, tenant gaps, and schema conventions.
+- `docs/ARCHITECTURE.md` for the read/write service split and data flow.
+- `docs/CODING_STANDARDS.md` for error handling and Server Action rules.
 
-Import from `@/lib/supabase` — singleton, never create new clients.
+Keep this rule short. Do not copy database details here.
 
-## File Split
+## Non-Negotiables
 
-| Reads | Writes |
-|-------|--------|
-| `<domain>.service.ts` | `<domain>.mutations.ts` |
-| No `"use server"` | `"use server"` required |
-| `get*`, `list*`, counts | `create*`, `update*`, `delete*` |
-
-## Tables in Use
-
-- `rooms` — id, hotel_id, room_type, capacity, price
-- `bookings` — guest fields, dates, total_price, status, room_id
-- `guests` — name, contact, total_bookings, total_spent
-- `leads` / `hotel_leads` — AI inquiry pipeline
-
-## RPC
-
-- `list_hotel_leads(p_hotel_id, p_limit)` — fetch leads
-- `update_lead_status(p_lead_id, p_status)` — lead workflow
-
-## Mutation Pattern
-
-```typescript
-"use server";
-import { revalidatePath } from "next/cache";
-import { supabase } from "@/lib/supabase";
-
-export async function createX(input: CreateXInput) {
-  const { error } = await supabase.from("table").insert({ ... });
-  if (error) throw error;
-  revalidatePath("/route");
-}
-```
-
-## Business Rules (in mutations)
-
-- `ensureRoomAvailable()` — reject overlapping bookings
-- `calculateTotalPrice()` — room.price × nights (min 1)
-
-## Tenant
-
-Always include `hotel_id`. Current: `"hotel_aurora"`. Filter all queries by tenant.
-
-## Errors
-
-- Mutations: `throw error` or `throw new Error("Russian message")`
-- New services: throw on read failure (don't silently return `[]`)
+- Server code (services, mutations, Server Components) uses `createClient()` from `@/lib/supabase/server`; Client Components use `@/lib/supabase/client`. No shared singleton.
+- Resolve the tenant via `getCurrentHotelId()` from `@/lib/tenant`; never hardcode a hotel id. Every read/write filters by `hotel_id`.
+- Reads stay in `*.service.ts`; writes stay in `*.mutations.ts`.
+- Mutation files start with `"use server"` and call `revalidatePath`.
+- Business rules stay in service/mutation helpers, not UI components.
+- RLS is the second line of defense (see `supabase/migrations/`); keep app-layer scoping too.

@@ -1,8 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { useTransition } from "react";
+import { toast } from "sonner";
+
+import { updateLeadStatus } from "@/lib/services/leads.mutations";
+import type { LeadStatus } from "@/types/lead";
+
 import { Button } from "@/components/ui/button";
 
 type Props = {
@@ -12,42 +16,36 @@ type Props = {
 
 export function LeadStatusActions({ leadId, currentStatus }: Props) {
   const router = useRouter();
-  const [status, setStatus] = useState(currentStatus || "new");
-  const [loading, setLoading] = useState(false);
+  const [pending, startTransition] = useTransition();
 
-  async function updateStatus(nextStatus: string) {
-    setLoading(true);
+  const status = currentStatus ?? "new";
 
-    const { error } = await supabase.rpc("update_lead_status", {
-      p_lead_id: leadId,
-      p_status: nextStatus,
+  function handleUpdate(nextStatus: LeadStatus) {
+    startTransition(async () => {
+      try {
+        await updateLeadStatus({ leadId, status: nextStatus });
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+        toast.error("Не удалось обновить статус заявки");
+      }
     });
-
-    if (error) {
-      alert(error.message);
-      setLoading(false);
-      return;
-    }
-
-    setStatus(nextStatus);
-    router.refresh();
-    setLoading(false);
   }
 
   return (
     <div className="flex gap-2">
       <Button
         variant="secondary"
-        disabled={loading || status === "contacted"}
-        onClick={() => updateStatus("contacted")}
+        disabled={pending || status === "contacted"}
+        onClick={() => handleUpdate("contacted")}
         className="px-3 py-1 text-xs"
       >
         Связались
       </Button>
 
       <Button
-        disabled={loading || status === "confirmed"}
-        onClick={() => updateStatus("confirmed")}
+        disabled={pending || status === "confirmed"}
+        onClick={() => handleUpdate("confirmed")}
         className="bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600"
       >
         Подтвердить
@@ -55,8 +53,8 @@ export function LeadStatusActions({ leadId, currentStatus }: Props) {
 
       <Button
         variant="destructive"
-        disabled={loading || status === "cancelled"}
-        onClick={() => updateStatus("cancelled")}
+        disabled={pending || status === "cancelled"}
+        onClick={() => handleUpdate("cancelled")}
         className="px-3 py-1 text-xs"
       >
         Отменить

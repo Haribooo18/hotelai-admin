@@ -2,30 +2,67 @@
 
 Database: **Supabase (PostgreSQL)**  
 Schema: `public`  
-Multi-tenancy: all tables scoped by `hotel_id`
+Auth: **Supabase Auth** (`auth.users`)  
+Multi-tenancy: domain tables include `hotel_id`, enforced in the app (query scoping) **and** in the database (Row Level Security).
 
 > This document reflects tables and RPC functions **currently used in the codebase**. Columns inferred from TypeScript types, service queries, and mutation payloads.
+
+> **Migrations** (`supabase/migrations/`):
+> - `0001_auth_multitenancy_rls.sql` — tenant tables (`hotels`, `memberships`), `is_hotel_member()`, RLS enablement + baseline policies.
+> - `0002_constraints_indexes.sql` — foreign keys, check/unique constraints, indexes, no-overlap exclusion, `updated_at` triggers.
+> - `0003_rls_optimization.sql` — RLS policies rewritten for performance (`(select auth.uid())` + membership sub-select, `TO authenticated`).
+> - `0004_harden_leads_rpc.sql` — membership checks inside `list_hotel_leads` / `update_lead_status`.
+> - `0005_realtime_leads.sql` — `leads` replica identity + realtime publication.
+> - `0006_guests_crm.sql` — guest CRM columns (`tags`, `is_vip`, `is_favorite`, `avatar_url`, `deleted_at`) + supporting indexes (Sprint 4).
 
 ---
 
 ## Entity Relationship Overview
 
 ```
-hotel (implicit tenant)
-  │
-  ├── rooms
-  │     └── bookings.room_id → rooms.id
-  │
-  ├── bookings
-  │
-  ├── guests
-  │
-  └── leads / hotel_leads
+auth.users ──< memberships >── hotels
+                                  │  (FK hotel_id, ON DELETE CASCADE)
+                                  ├── rooms
+                                  │     └──< bookings.room_id → rooms.id (ON DELETE RESTRICT)
+                                  ├── bookings
+                                  ├── guests
+                                  └── leads
 ```
+
+All `hotel_id` columns are foreign keys to `hotels(id)` (`ON DELETE CASCADE`). `bookings.room_id` references `rooms(id)` (`ON DELETE RESTRICT`, to preserve reservation history).
 
 ---
 
 ## Tables
+
+### `hotels`
+
+Tenant registry. One row per property.
+
+| Column       | Type          | Nullable | Description                     |
+|--------------|---------------|----------|---------------------------------|
+| `id`         | `text`        | NO       | Primary key (e.g. `hotel_aurora`) |
+| `name`       | `text`        | NO       | Display name                    |
+| `created_at` | `timestamptz` | NO       | Creation timestamp              |
+
+**Used by:** tenant resolution (`lib/tenant.ts`) and RLS policies.
+
+---
+
+### `memberships`
+
+Maps authenticated users to the hotels they can access. Source of truth for `is_hotel_member()`.
+
+| Column       | Type          | Nullable | Description                                  |
+|--------------|---------------|----------|----------------------------------------------|
+| `user_id`    | `uuid`        | NO       | FK → `auth.users.id` (part of PK)            |
+| `hotel_id`   | `text`        | NO       | FK → `hotels.id` (part of PK)                |
+| `role`       | `text`        | NO       | `owner` \| `manager` \| `staff` (default `staff`) |
+| `created_at` | `timestamptz` | NO       | Creation timestamp                           |
+
+**Used by:** `public.is_hotel_member()` (RLS), future role-based authorization.
+
+---
 
 ### `rooms`
 
@@ -38,6 +75,11 @@ Hotel room inventory. Each row is a sellable room unit.
 | `room_type` | `text`        | NO       | Display name / category (e.g. "Deluxe") |
 | `capacity`  | `integer`     | NO       | Maximum guests                       |
 | `price`     | `numeric`     | NO       | Base nightly rate (USD)              |
+
+**Constraints & indexes:**
+- FK `hotel_id → hotels(id)` `ON DELETE CASCADE`
+- `check (capacity > 0)`, `check (price >= 0)`
+- Index `rooms_hotel_type_idx (hotel_id, room_type)`
 
 **Used by:**
 - `lib/services/rooms.service.ts` — `getRooms()`, `getAvailableRooms()`
@@ -70,10 +112,18 @@ Reservations linking a guest to a room for a date range.
 | `created_at`  | `timestamptz` | NO       | Record creation time                     |
 | `updated_at`  | `timestamptz` | NO       | Last update time                         |
 
-**Business rules (application layer):**
-- Overlapping bookings for the same `room_id` are rejected (excluding `cancelled`)
+**Business rules:**
+- Overlapping bookings for the same `room_id` are rejected (excluding `cancelled`) — enforced in the app **and** by the `bookings_no_overlap` exclusion constraint
 - `total_price` recalculated on create/update
 - Minimum 1 night stay
+
+**Constraints & indexes:**
+- FK `hotel_id → hotels(id)` `ON DELETE CASCADE`; FK `room_id → rooms(id)` `ON DELETE RESTRICT`
+- `check (check_out > check_in)`, `check (total_price >= 0)`, `check (adults >= 0 and children >= 0)`
+- `check (status in ('confirmed','checked_in','checked_out','cancelled'))`
+- Exclusion `bookings_no_overlap` — GiST on `(room_id, daterange(check_in, check_out, '[)'))` where `status <> 'cancelled'`
+- Indexes: `bookings_hotel_checkin_idx (hotel_id, check_in desc)`, `bookings_hotel_status_idx (hotel_id, status)`, `bookings_room_dates_idx (room_id, check_in, check_out)`
+- Trigger `set_bookings_updated_at` maintains `updated_at`
 
 **Used by:**
 - `lib/services/bookings.service.ts` — `getBookings()`
@@ -87,7 +137,7 @@ Reservations linking a guest to a room for a date range.
 
 ### `guests`
 
-Guest CRM records. Not yet linked to bookings in the UI (bookings store inline guest fields).
+Guest CRM records. Booking history is matched by email/name at query time — bookings still store inline guest fields (no `guest_id` FK; see TD-11).
 
 | Column           | Type          | Nullable | Description                    |
 |------------------|---------------|----------|--------------------------------|
@@ -100,14 +150,30 @@ Guest CRM records. Not yet linked to bookings in the UI (bookings store inline g
 | `country`        | `text`        | YES      |                                |
 | `city`           | `text`        | YES      |                                |
 | `notes`          | `text`        | YES      | Staff notes                    |
+| `tags`           | `text[]`      | NO       | Free-form tags (default `{}`)  |
+| `is_vip`         | `boolean`     | NO       | VIP flag (default `false`)     |
+| `is_favorite`    | `boolean`     | NO       | Favorite flag (default `false`)|
+| `avatar_url`     | `text`        | YES      | Avatar image URL               |
 | `total_bookings` | `integer`     | NO       | Denormalized counter (default 0) |
 | `total_spent`    | `numeric`     | NO       | Denormalized total (default 0) |
+| `deleted_at`     | `timestamptz` | YES      | Soft-delete tombstone (NULL = active) |
 | `created_at`     | `timestamptz` | NO       |                                |
 | `updated_at`     | `timestamptz` | NO       |                                |
 
+**Constraints & indexes:**
+- FK `hotel_id → hotels(id)` `ON DELETE CASCADE`
+- `check (total_bookings >= 0 and total_spent >= 0)`
+- Unique `guests_hotel_email_unique (hotel_id, lower(email))` where `email is not null`
+- Index `guests_hotel_created_idx (hotel_id, created_at desc)`
+- Index `guests_hotel_active_created_idx (hotel_id, created_at desc) where deleted_at is null` — default list
+- Partial indexes `guests_hotel_vip_idx`, `guests_hotel_favorite_idx` for flag filters
+- GIN index `guests_tags_gin_idx (tags)` for tag membership
+- Trigger `set_guests_updated_at` maintains `updated_at`
+
 **Used by:**
-- `lib/services/guests.service.ts` — `getGuests()`
-- `lib/services/guests.mutations.ts` — `createGuest`, `deleteGuest`
+- `lib/services/guests.service.ts` — `getGuests()`, `getGuest()`, `getGuestBookings()`
+- `lib/services/guests.mutations.ts` — `createGuest`, `updateGuest`, `deleteGuest` (soft), `setGuestVip`, `setGuestFavorite`, `mergeGuests`
+- Stay statistics computed in `lib/guest-stats.ts` (pure) from booking history
 
 **TypeScript:** `types/guest.ts` → `Guest`
 
@@ -132,30 +198,21 @@ Incoming guest inquiries captured by the AI receptionist or manual entry.
 | `status`     | `text`        | YES      | `new` \| `contacted` \| `confirmed` \| `cancelled` |
 | `comment`    | `text`        | YES      | Additional notes from AI or staff        |
 
+**Constraints & indexes:**
+- FK `hotel_id → hotels(id)` `ON DELETE CASCADE`
+- `check (status is null or status in ('new','contacted','confirmed','cancelled'))`
+- `check (guests is null or guests >= 0)`
+- Indexes: `leads_hotel_created_idx (hotel_id, created_at desc)`, `leads_hotel_status_idx (hotel_id, status)`
+- `replica identity full` + member of `supabase_realtime` publication (for realtime filters)
+
 **Used by:**
-- `app/page.tsx` — initial fetch via RPC
+- `app/page.tsx` / `lib/services/leads.service.ts` — initial fetch via `list_hotel_leads`
 - `components/dashboard/DashboardPage.tsx` — realtime subscription on `leads` table
-- `app/LeadStatusActions.tsx` — status updates via RPC
+- `app/LeadStatusActions.tsx` / `lib/services/leads.mutations.ts` — status updates via `update_lead_status`
 
-**TypeScript:** `Lead` type in `components/dashboard/DashboardPage.tsx` (to be moved to `types/lead.ts`)
+**TypeScript:** `types/lead.ts` → `Lead`, `LeadStatus`
 
----
-
-### `hotel_leads`
-
-Referenced in `RealtimeListener` for INSERT events. Likely a view or mirror of `leads` data scoped per hotel.
-
-| Column       | Type          | Nullable | Description                    |
-|--------------|---------------|----------|--------------------------------|
-| `hotel_id`   | `text`        | NO       | Tenant filter for realtime     |
-| `guest_name` | `text`        | YES      | Used in toast notification   |
-| `room_type`  | `text`        | YES      | Used in toast notification   |
-| *(others)*   | —             | —        | Assumed same shape as `leads`  |
-
-**Used by:**
-- `components/dashboard/RealtimeListener.tsx` — `postgres_changes` on INSERT
-
-> **Action item:** Confirm with Supabase whether `hotel_leads` is a table or view and align realtime subscriptions.
+> The former `hotel_leads` realtime subscription (`RealtimeListener`) was dead code and was removed in Sprint 2. There is no `hotel_leads` object in the schema.
 
 ---
 
@@ -172,10 +229,12 @@ Returns leads for a specific hotel.
 | `p_hotel_id`  | `text`    | Hotel tenant ID      |
 | `p_limit`     | `integer` | Max rows to return   |
 
-**Returns:** Array of lead objects matching the `Lead` type shape.
+**Returns:** `setof public.leads` (matching the `Lead` type shape).
+
+**Security:** `SECURITY DEFINER`; raises `42501` unless the caller `is_hotel_member(p_hotel_id)` (migration `0004`).
 
 **Used by:**
-- `app/page.tsx`
+- `lib/services/leads.service.ts` (`getLeads`) — used by `app/page.tsx`
 - `components/dashboard/DashboardPage.tsx` (realtime refresh)
 
 ---
@@ -189,19 +248,22 @@ Updates the status of a lead.
 | Parameter    | Type   | Description                                        |
 |--------------|--------|----------------------------------------------------|
 | `p_lead_id`  | `uuid` | Lead to update                                     |
-| `p_status`   | `text` | New status: `contacted`, `confirmed`, `cancelled`  |
+| `p_status`   | `text` | New status: `new`, `contacted`, `confirmed`, `cancelled` |
+
+**Security:** `SECURITY DEFINER`; resolves the lead's hotel, raises `42501` unless the caller is a member, validates `p_status` (migration `0004`).
 
 **Used by:**
-- `app/LeadStatusActions.tsx`
+- `lib/services/leads.mutations.ts` (`updateLeadStatus`) — used by `app/LeadStatusActions.tsx`
 
 ---
 
 ## Realtime Subscriptions
 
-| Channel       | Table          | Event    | Filter                  | Component            |
-|---------------|----------------|----------|-------------------------|----------------------|
-| `hotel-leads` | `leads`        | `*`      | —                       | `DashboardPage`      |
-| `hotel-leads` | `hotel_leads`  | `INSERT` | `hotel_id=eq.<id>`      | `RealtimeListener`   |
+| Channel             | Table   | Event | Filter             | Component       |
+|---------------------|---------|-------|--------------------|-----------------|
+| `hotel-leads-<id>`  | `leads` | `*`   | `hotel_id=eq.<id>` | `DashboardPage` |
+
+Requires `leads` to have `replica identity full` and be in the `supabase_realtime` publication (migration `0005`). Realtime respects RLS, so a client only receives events for hotels it belongs to.
 
 ---
 
@@ -209,13 +271,57 @@ Updates the status of a lead.
 
 ### Tenant Scoping
 
-All queries must filter by `hotel_id`. Current hardcoded value:
+Every hotel-owned query filters by `hotel_id`, resolved from `getCurrentHotelId()` (`lib/tenant.ts`) — never hardcoded. This is enforced twice:
+
+1. **App layer:** all `*.service.ts` reads and `*.mutations.ts` writes chain `.eq("hotel_id", hotelId)`.
+2. **Database layer:** RLS policies restrict every row to hotel members.
 
 ```
-hotel_id = "hotel_aurora"
+const hotelId = await getCurrentHotelId();
+supabase.from("bookings").select("*").eq("hotel_id", hotelId);
 ```
 
-Future: resolve from authenticated user's session.
+`DEFAULT_HOTEL_ID` (env, default `hotel_aurora`) is a migration fallback only, used until every user has a `memberships` row / `app_metadata.hotel_id`.
+
+### Row Level Security (RLS)
+
+RLS is enabled on `hotels`, `memberships`, `rooms`, `bookings`, `guests`, `leads`.
+
+Business-table policies (migration `0003`) are scoped `TO authenticated` and use a cached membership sub-select rather than a per-row function call:
+
+```sql
+using (
+  hotel_id in (
+    select m.hotel_id from public.memberships m
+    where m.user_id = (select auth.uid())
+  )
+)
+```
+
+- `(select auth.uid())` is evaluated once per statement (InitPlan), not per row.
+- The membership set is materialized once and applied as a semi-join.
+- `memberships`: a user sees only their own rows. `hotels`: a user sees only hotels they belong to.
+- `public.is_hotel_member(hid)` is retained for the `SECURITY DEFINER` RPCs.
+
+**RPC hardening (done in `0004`):** `list_hotel_leads` / `update_lead_status` are `SECURITY DEFINER` and bypass RLS, so they now call `is_hotel_member()` internally and raise `42501` on non-members.
+
+### Indexes & Performance
+
+| Table    | Index                                        | Serves                                   |
+|----------|----------------------------------------------|------------------------------------------|
+| rooms    | `rooms_hotel_type_idx (hotel_id, room_type)` | `getRooms` / `getAvailableRooms`         |
+| bookings | `bookings_hotel_checkin_idx (hotel_id, check_in desc)` | `getBookings`                   |
+| bookings | `bookings_hotel_status_idx (hotel_id, status)` | dashboard occupied count               |
+| bookings | `bookings_room_dates_idx (room_id, check_in, check_out)` | availability scan + `room_id` FK |
+| bookings | `bookings_no_overlap` (GiST)                 | overlap prevention + range lookups       |
+| guests   | `guests_hotel_active_created_idx (hotel_id, created_at desc) where deleted_at is null` | `getGuests` (active list) |
+| guests   | `guests_hotel_vip_idx` / `guests_hotel_favorite_idx` (partial) | VIP / favorite filters          |
+| guests   | `guests_tags_gin_idx (tags)` GIN             | tag membership filter                    |
+| leads    | `leads_hotel_created_idx (hotel_id, created_at desc)` | `list_hotel_leads`               |
+| leads    | `leads_hotel_status_idx (hotel_id, status)`  | status filters                           |
+| memberships | `memberships_user_id_idx`, `memberships_hotel_id_idx` | RLS membership lookups          |
+
+Every hot-path query is now index-backed on its `hotel_id` prefix, so tenant-scoped scans stay logarithmic as data grows.
 
 ### Timestamps
 
@@ -240,8 +346,6 @@ Prices stored as `numeric`. Displayed with `$` prefix in UI. Currency field per 
 
 | Table              | Purpose                        | Roadmap Area    |
 |--------------------|--------------------------------|-----------------|
-| `hotels`           | Tenant profile, settings       | Settings        |
-| `users`            | Staff accounts                 | Settings        |
 | `room_status`      | Housekeeping state per room    | Housekeeping    |
 | `payments`         | Payment records per booking    | Payments        |
 | `pricing_rules`    | Seasonal / dynamic rates       | Pricing         |

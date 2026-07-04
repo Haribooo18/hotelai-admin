@@ -1,61 +1,18 @@
 ---
-description: HotelAI core coding standards — imports, exports, errors, validation
+description: Canonical HotelAI coding standards
 alwaysApply: true
 ---
 
 # HotelAI Coding Standards
 
-Read `docs/CODING_STANDARDS.md` for full details.
+`docs/CODING_STANDARDS.md` is the source of truth for TypeScript, React, imports, exports, Server/Client boundaries, error handling, forms, validation, linting, env, and git hygiene.
 
-## TypeScript
+Keep this rule short. Do not copy coding standards here.
 
-- `strict: true` always; no `any`, no TS `enum` (use string unions)
-- Nullable DB columns: `string | null`
-- `import type` for type-only imports
-- Entity types in `types/`, one file per domain
+## Non-Negotiables
 
-## Imports (order)
-
-1. React/Next → 2. third-party → 3. `@/lib` → 4. `@/types` → 5. `@/components/ui` → 6. relative
-
-Use `@/` alias, never deep `../../../` paths.
-
-## Exports
-
-- Named exports for components and functions
-- Default export only for `app/**/page.tsx`
-- Feature barrels via `index.ts`
-
-## Server vs Client
-
-| Server Component | Client Component (`"use client"`) |
-|------------------|---------------------------------|
-| Route pages, data fetch | useState, useEffect, events |
-| `*.service.ts` calls | Forms, tables with actions |
-| No hooks or handlers | Realtime, toasts, confirm() |
-
-## Error Handling
-
-```typescript
-// Mutations: throw
-if (error) throw error;
-
-// Client: catch + toast
-try { await action(); toast.success("..."); router.refresh(); }
-catch (e) { console.error(e); toast.error("..."); }
-```
-
-- Never empty catch blocks
-- User messages in Russian
-- `confirm()` before delete; no `alert()` in new code
-
-## Forms
-
-- `useTransition` + Server Action on submit
-- `disabled={pending}` on submit button
-- Optional entity prop for edit mode; `onSuccess` closes dialog
-
-## Git / Env
-
-- Never commit `.env`, secrets, or zip artifacts
-- Env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `strict` TypeScript, no `any`, no TypeScript `enum`.
+- Named exports for components/functions; default exports only for Next route pages.
+- `import type` for type-only imports.
+- User-facing messages are Russian.
+- Never commit `.env`, secrets, zip artifacts, or generated build output.

@@ -88,7 +88,7 @@ The admin panel (`hotelai-admin`) is the **command center** for hotel owners and
 
 ### Workspace Model
 
-Each hotel is a **workspace** (e.g. Aurora Hotel / `hotel_aurora`). All data is tenant-scoped. The sidebar shows the active workspace; switching properties is a future capability.
+Each hotel is a **workspace** (e.g. Aurora Hotel / `hotel_aurora`). The product model is tenant-scoped data per workspace; full enforcement in the current codebase is tracked as platform work. The sidebar shows the active workspace; switching properties is a future capability.
 
 ---
 

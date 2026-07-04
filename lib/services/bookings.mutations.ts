@@ -1,36 +1,35 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { supabase } from "@/lib/supabase";
 
-type CreateBookingInput = {
-  guest_name: string;
-  guest_email: string;
-  guest_phone: string;
-  room_id: string;
-  check_in: string;
-  check_out: string;
-};
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentHotelId } from "@/lib/tenant";
+import {
+  bookingCreateSchema,
+  bookingUpdateSchema,
+  type BookingCreateInput,
+  type BookingUpdateInput,
+} from "@/lib/validations/booking";
 
-type UpdateBookingInput = {
-  id: string;
-  guest_name: string;
-  guest_email: string;
-  guest_phone: string;
-  room_id: string;
-  check_in: string;
-  check_out: string;
-};
+function revalidateBookings() {
+  revalidatePath("/bookings");
+  revalidatePath("/");
+  revalidatePath("/calendar");
+}
 
 async function calculateTotalPrice(
+  hotelId: string,
   roomId: string,
   checkIn: string,
   checkOut: string
 ) {
+  const supabase = await createClient();
+
   const { data: room, error } = await supabase
     .from("rooms")
     .select("price")
     .eq("id", roomId)
+    .eq("hotel_id", hotelId)
     .single();
 
   if (error) throw error;
@@ -38,8 +37,7 @@ async function calculateTotalPrice(
   const nights = Math.max(
     1,
     Math.ceil(
-      (new Date(checkOut).getTime() -
-        new Date(checkIn).getTime()) /
+      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
         (1000 * 60 * 60 * 24)
     )
   );
@@ -48,14 +46,18 @@ async function calculateTotalPrice(
 }
 
 async function ensureRoomAvailable(
+  hotelId: string,
   roomId: string,
   checkIn: string,
   checkOut: string,
   bookingId?: string
 ) {
+  const supabase = await createClient();
+
   let query = supabase
     .from("bookings")
     .select("id, guest_name, check_in, check_out")
+    .eq("hotel_id", hotelId)
     .eq("room_id", roomId)
     .neq("status", "cancelled");
 
@@ -84,81 +86,104 @@ async function ensureRoomAvailable(
   }
 }
 
-export async function createBooking(
-  input: CreateBookingInput
-) {
-  await ensureRoomAvailable(
-    input.room_id,
-    input.check_in,
-    input.check_out
-  );
+export async function createBooking(input: BookingCreateInput) {
+  const parsed = bookingCreateSchema.safeParse(input);
+
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
+  }
+
+  const { guest_name, guest_email, guest_phone, room_id, check_in, check_out } =
+    parsed.data;
+
+  const supabase = await createClient();
+  const hotelId = await getCurrentHotelId();
+
+  await ensureRoomAvailable(hotelId, room_id, check_in, check_out);
 
   const totalPrice = await calculateTotalPrice(
-    input.room_id,
-    input.check_in,
-    input.check_out
+    hotelId,
+    room_id,
+    check_in,
+    check_out
   );
 
-  const { error } = await supabase
-    .from("bookings")
-    .insert({
-      hotel_id: "hotel_aurora",
-      room_id: input.room_id,
-      guest_name: input.guest_name,
-      guest_email: input.guest_email,
-      guest_phone: input.guest_phone,
-      check_in: input.check_in,
-      check_out: input.check_out,
-      total_price: totalPrice,
-      status: "confirmed",
-    });
+  const { error } = await supabase.from("bookings").insert({
+    hotel_id: hotelId,
+    room_id,
+    guest_name,
+    guest_email,
+    guest_phone,
+    check_in,
+    check_out,
+    total_price: totalPrice,
+    status: "confirmed",
+  });
 
   if (error) throw error;
 
-  revalidatePath("/bookings");
+  revalidateBookings();
 }
 
-export async function updateBooking(
-  input: UpdateBookingInput
-) {
-  await ensureRoomAvailable(
-    input.room_id,
-    input.check_in,
-    input.check_out,
-    input.id
-  );
+export async function updateBooking(input: BookingUpdateInput) {
+  const parsed = bookingUpdateSchema.safeParse(input);
+
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
+  }
+
+  const {
+    id,
+    guest_name,
+    guest_email,
+    guest_phone,
+    room_id,
+    check_in,
+    check_out,
+  } = parsed.data;
+
+  const supabase = await createClient();
+  const hotelId = await getCurrentHotelId();
+
+  await ensureRoomAvailable(hotelId, room_id, check_in, check_out, id);
 
   const totalPrice = await calculateTotalPrice(
-    input.room_id,
-    input.check_in,
-    input.check_out
+    hotelId,
+    room_id,
+    check_in,
+    check_out
   );
 
   const { error } = await supabase
     .from("bookings")
     .update({
-      room_id: input.room_id,
-      guest_name: input.guest_name,
-      guest_email: input.guest_email,
-      guest_phone: input.guest_phone,
-      check_in: input.check_in,
-      check_out: input.check_out,
+      room_id,
+      guest_name,
+      guest_email,
+      guest_phone,
+      check_in,
+      check_out,
       total_price: totalPrice,
     })
-    .eq("id", input.id);
+    .eq("id", id)
+    .eq("hotel_id", hotelId);
 
   if (error) throw error;
 
-  revalidatePath("/bookings");
+  revalidateBookings();
 }
 
 export async function deleteBooking(id: string) {
+  const supabase = await createClient();
+  const hotelId = await getCurrentHotelId();
+
   const { error } = await supabase
     .from("bookings")
     .delete()
-    .eq("id", id);
+    .eq("id", id)
+    .eq("hotel_id", hotelId);
 
   if (error) throw error;
 
-  revalidatePath("/bookings");
+  revalidateBookings();
 }

@@ -294,7 +294,7 @@ try {
 - Never swallow errors silently (empty `catch`)
 - Always `console.error` in catch blocks
 - User-facing messages in Russian
-- Use `confirm()` before destructive actions
+- Use `ConfirmDialog` before destructive actions (not native `confirm()`)
 - Do not use `alert()` in new code — use toast
 
 ---
@@ -314,9 +314,9 @@ try {
 
 | Layer    | Method                                  |
 |----------|-----------------------------------------|
-| HTML     | `required` attribute on mandatory fields|
-| Server   | Business rules in `*.mutations.ts`      |
-| Future   | Zod schemas in `lib/validations/`       |
+| Client   | Zod `safeParse` in the form → inline field errors |
+| Server   | Same Zod schema re-parsed in `*.mutations.ts` + business rules |
+| Schemas  | `lib/validations/{room,booking}.ts`     |
 
 ### Rules
 

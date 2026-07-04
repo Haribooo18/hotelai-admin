@@ -10,13 +10,9 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
-import { BookingForm } from "./BookingForm";
+import type { Room } from "@/types/room";
 
-type Room = {
-  id: string;
-  room_type: string;
-  price: number;
-};
+import { BookingForm } from "./BookingForm";
 
 type Props = {
   open: boolean;

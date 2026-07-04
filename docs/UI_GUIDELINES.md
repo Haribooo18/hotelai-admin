@@ -213,7 +213,7 @@ Use `Button` from `@/components/ui/button`.
 
 - Always `disabled={pending}` during form submission
 - Icon + text: `<Icon className="mr-2 h-4 w-4" />` before label
-- Destructive actions require `confirm()` before execution
+- Destructive actions require a `ConfirmDialog` (`components/ui/confirm-dialog.tsx`) before execution — never native `confirm()`
 
 ---
 

@@ -4,9 +4,11 @@ This document defines the long-term architectural foundation for the HotelAI Pro
 
 ## Overview
 
-HotelAI Admin is a **Next.js 16** application using the **App Router**, **React 19**, **TypeScript**, **Tailwind CSS 4**, **shadcn/ui (base-nova)**, and **Supabase** as the backend.
+HotelAI Admin is a **Next.js 16** application using the **App Router**, **React 19**, **TypeScript**, **Tailwind CSS 4**, **shadcn/ui (base-nova)**, and **Supabase** (Postgres + Auth) as the backend.
 
 The architecture follows a **feature-first** model: each business domain (bookings, rooms, calendar, guests, leads) owns its UI, while shared infrastructure (types, services, UI primitives) lives in cross-cutting folders.
+
+Access is authenticated (Supabase Auth) and multi-tenant: every request runs in the context of a signed-in user and their **hotel**, resolved through a single `lib/tenant.ts` abstraction and enforced by Postgres Row Level Security.
 
 ---
 
@@ -40,13 +42,14 @@ components/dashboard/<feature>/
 
 | Feature   | Path                              | Route(s)        |
 |-----------|-----------------------------------|-----------------|
-| Dashboard | `components/dashboard/dashboard/` | `/` (bookings dashboard variant in progress) |
 | Leads     | `components/dashboard/` (root)    | `/` (leads)     |
-| Bookings  | `components/dashboard/bookings/`  | `/bookings`     |
+| Bookings  | `components/dashboard/bookings/`  | `/bookings` → `BookingsPage` |
 | Rooms     | `components/dashboard/rooms/`     | `/rooms`        |
+| Guests    | `components/dashboard/guests/`    | `/guests`, `/guests/[id]` |
 | Calendar  | `components/dashboard/calendar/`  | `/calendar`     |
 
 > **Note:** The leads dashboard (`DashboardPage`) currently lives at the root of `components/dashboard/` alongside shared shell components. New features should use dedicated subfolders.
+> **Note:** `getDashboardStats` (`lib/services/dashboard.service.ts`) is retained but currently unwired after the `/bookings` rewire — reserved for a future overview/dashboard route (TD-14).
 
 ---
 
@@ -54,9 +57,11 @@ components/dashboard/<feature>/
 
 ```
 hotelai-admin/
+├── proxy.ts                      # Next.js 16 Proxy (middleware): session refresh + route guard
 ├── app/                          # Next.js App Router — routes only
 │   ├── layout.tsx                # Root layout, fonts, providers
-│   ├── page.tsx                  # Home / leads dashboard
+│   ├── page.tsx                  # Home / leads dashboard (protected)
+│   ├── login/page.tsx            # Public sign-in page
 │   ├── globals.css               # Design tokens, Tailwind theme
 │   ├── providers.tsx             # Client providers (toasts, etc.)
 │   ├── bookings/page.tsx
@@ -65,6 +70,7 @@ hotelai-admin/
 │   └── <route>/page.tsx          # One page per route
 │
 ├── components/
+│   ├── auth/                     # LoginForm, SignOutButton
 │   ├── dashboard/                # Feature UI + app shell
 │   │   ├── AppShell.tsx          # Sidebar, header, layout wrapper
 │   │   ├── <feature>/            # Feature modules (see above)
@@ -72,7 +78,11 @@ hotelai-admin/
 │   └── ui/                       # shadcn/ui primitives (Button, Input, Sheet, …)
 │
 ├── lib/
-│   ├── supabase.ts               # Supabase client singleton
+│   ├── supabase/
+│   │   ├── client.ts             # Browser client (Client Components)
+│   │   ├── server.ts             # Server client (Server Components / Actions)
+│   │   └── session.ts            # updateSession() used by proxy.ts
+│   ├── tenant.ts                 # currentHotel abstraction + auth guards
 │   ├── utils.ts                  # cn() and shared helpers
 │   └── services/
 │       ├── <domain>.service.ts   # Read operations (queries)
@@ -81,7 +91,11 @@ hotelai-admin/
 ├── types/
 │   ├── booking.ts
 │   ├── guest.ts
+│   ├── lead.ts
 │   └── room.ts
+│
+├── supabase/
+│   └── migrations/               # SQL migrations (tenant tables + RLS)
 │
 ├── docs/                         # Project documentation (this folder)
 └── .cursor/rules/                # AI agent rules
@@ -154,12 +168,19 @@ All mutations use Next.js **Server Actions** defined in `lib/services/*.mutation
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { supabase } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/server";
+import { getCurrentHotelId } from "@/lib/tenant";
 
 type CreateBookingInput = { /* fields */ };
 
 export async function createBooking(input: CreateBookingInput) {
-  const { error } = await supabase.from("bookings").insert({ /* ... */ });
+  const supabase = await createClient();
+  const hotelId = await getCurrentHotelId(); // resolves + requires auth
+
+  const { error } = await supabase
+    .from("bookings")
+    .insert({ hotel_id: hotelId /* ... */ });
+
   if (error) throw error;
   revalidatePath("/bookings");
 }
@@ -283,24 +304,53 @@ Add cross-cutting pure functions here only when used by 3+ features. Feature-spe
 
 ### Realtime Path (Leads)
 
-1. Client subscribes to `postgres_changes` on `leads` / `hotel_leads`.
-2. On change, refetch via RPC `list_hotel_leads` or reload page.
-3. `RealtimeListener` shows toast on new lead INSERT.
+1. `DashboardPage` subscribes to `postgres_changes` on `leads`, filtered by `hotel_id`.
+2. On change, it refetches via the `list_hotel_leads` RPC.
+3. Realtime respects RLS, so a client only receives events for its own hotel (requires `leads` replica identity full + publication membership).
 
 ---
 
+## Authentication & Session
+
+Auth uses **Supabase Auth** with the cookie-based `@supabase/ssr` package.
+
+| Concern            | Where                                             |
+|--------------------|---------------------------------------------------|
+| Sign in            | `signIn` Server Action (`lib/services/auth.mutations.ts`) via `LoginForm` |
+| Sign out           | `signOut` Server Action, triggered by `SignOutButton` in `AppShell` |
+| Session refresh    | `proxy.ts` → `updateSession()` runs on every matched request |
+| Route protection   | `proxy.ts` redirects anonymous users to `/login`; `requireUser()` guards data access |
+| Reading the user   | `getCurrentUser()` / `requireUser()` in `lib/tenant.ts` |
+
+`/login` is the only public route. Every other route requires a session.
+
+## Tenant Context (`currentHotel`)
+
+`lib/tenant.ts` is the **single source of hotel context**. Services never hardcode a hotel id.
+
+- `getCurrentUser()` — cached authenticated user or `null`
+- `requireUser()` — returns the user or redirects to `/login`
+- `getCurrentHotelId()` — resolves `hotel_id` from `app_metadata` → `user_metadata` → `DEFAULT_HOTEL_ID` env fallback
+- `getCurrentHotel()` — `{ id, name }` for services and UI
+
+Every service read and mutation calls `getCurrentHotelId()` and scopes queries with `.eq("hotel_id", hotelId)`. This keeps queries secure even independent of RLS.
+
 ## Supabase Layer
 
-### Client
+### Clients
 
-`lib/supabase.ts` creates a singleton browser/server-compatible client:
+Two request-scoped factories (no shared singleton):
 
 ```typescript
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+// Client Components ("use client")
+import { createClient } from "@/lib/supabase/client"; // createBrowserClient
+
+// Server Components / Server Actions / services
+import { createClient } from "@/lib/supabase/server"; // async, cookie-aware
 ```
+
+- Browser client: realtime subscriptions and other client-only reads.
+- Server client: all `*.service.ts` reads and `*.mutations.ts` writes. Created per call because it binds to request cookies.
 
 ### Service Layer Split
 
@@ -319,12 +369,19 @@ export const supabase = createClient(
 
 | RPC                  | Used by                    | Purpose              |
 |----------------------|----------------------------|----------------------|
-| `list_hotel_leads`   | `app/page.tsx`, DashboardPage | List leads for hotel |
-| `update_lead_status` | `LeadStatusActions`        | Update lead status   |
+| `list_hotel_leads`   | `leads.service.ts`, DashboardPage | List leads for hotel (membership-checked) |
+| `update_lead_status` | `leads.mutations.ts`       | Update lead status (membership-checked) |
+
+Both are `SECURITY DEFINER` and enforce `is_hotel_member()` internally (migration `0004`).
 
 ### Multi-Tenancy
 
-All entities are scoped by `hotel_id`. Current hardcoded tenant: `"hotel_aurora"`. Future: resolve from auth session.
+Every business entity carries `hotel_id`. Tenant isolation is enforced at two layers:
+
+1. **Application** — all services resolve the hotel via `getCurrentHotelId()` and filter every read/write with `.eq("hotel_id", hotelId)`.
+2. **Database** — Row Level Security policies (`supabase/migrations/0001_auth_multitenancy_rls.sql`) restrict rows to members of the hotel via `public.is_hotel_member(hotel_id)`.
+
+The user → hotel mapping lives in the `memberships` table (and optionally mirrored into JWT `app_metadata.hotel_id`). `DEFAULT_HOTEL_ID` (env) is only a migration fallback until all users have memberships. No hotel id is hardcoded in service code.
 
 ---
 
@@ -367,9 +424,10 @@ AppShell
 
 ### Validation
 
-- HTML `required` for mandatory fields.
-- Server-side validation in mutations (availability, business rules).
-- Future: add Zod schemas shared between client and server.
+- Zod schemas in `lib/validations/{room,booking}.ts`, shared by client and server.
+- Forms `safeParse` on submit and render inline field errors (`aria-invalid` + `aria-describedby`).
+- Mutations re-parse the same schema as a server-side backstop and throw localized messages.
+- Server-side business rules stay in mutations (room availability, price calculation).
 
 ---
 
@@ -378,12 +436,11 @@ AppShell
 ### Standard Pattern
 
 1. Receive typed array as prop from server page.
-2. Empty state: centered message in `rounded-2xl border` container.
-3. Table wrapper: `overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950`.
-4. Header: `bg-zinc-900`, `text-xs uppercase text-zinc-500`.
-5. Rows: `hover:bg-zinc-900/60`, `border-b border-zinc-900`.
-6. Actions column: icon buttons or inline dialogs.
-7. Delete: `confirm()` → Server Action → toast → `router.refresh()`.
+2. Use the shared `DataTable` (`components/dashboard/DataTable.tsx`): column defs, `getRowId`, `caption`, and an `empty` slot.
+3. `DataTable` renders the standard shell: `overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950`, header `bg-zinc-900 text-xs uppercase text-zinc-500`, rows `hover:bg-zinc-900/60`.
+4. Empty state: centered message passed via the `empty` prop.
+5. Actions column: icon buttons (with `aria-label`) or inline dialogs; align `right`.
+6. Delete: `ConfirmDialog` → `useOptimistic` row removal → Server Action → toast → `router.refresh()`.
 
 ---
 
@@ -406,14 +463,17 @@ HotelAI uses **Sheet** (slide-over panel) from `components/ui/sheet.tsx` as the 
 | Self-contained       | `RoomCreateDialog` — owns open state + trigger button |
 | Controlled           | `BookingCreateDialog` — parent owns `open` state |
 | Edit with selection  | `BookingEditDialog` — parent sets `selectedBooking` |
+| Confirmation         | `ConfirmDialog` (`components/ui/confirm-dialog.tsx`) — centered modal replacing native `confirm()` |
 
 ---
 
 ## Future Architecture Goals
 
-1. **Auth layer** — Supabase Auth + RLS; remove hardcoded `hotel_id`.
-2. **Zod validation** — shared schemas in `lib/validations/`.
-3. **Error boundaries** — per-route `error.tsx` and `loading.tsx`.
-4. **Consolidate leads** — move `Lead` type to `types/lead.ts`, feature folder `components/dashboard/leads/`.
+1. ~~**Auth layer** — Supabase Auth + RLS; remove hardcoded `hotel_id`.~~ ✅ Delivered in Sprint 1.
+2. ~~**Consolidate leads** — move `Lead` type to `types/lead.ts`.~~ ✅ `types/lead.ts` added; feature folder `components/dashboard/leads/` still pending.
+3. ~~**Zod validation** — shared schemas in `lib/validations/`.~~ ✅ Sprint 3 (`room`/`booking` schemas).
+4. **Error boundaries** — per-route `error.tsx` and `loading.tsx`. ✅ `/rooms` and `/bookings` (Sprint 3); `/` and `/calendar` pending (TD-15).
 5. **Hooks folder** — `hooks/useBookings.ts` for client-side data when needed.
 6. **i18n** — extract Russian UI strings to locale files.
+7. **Roles** — use the `memberships.role` column for owner/manager/staff authorization.
+8. ~~**Harden leads RPCs** — add membership checks inside `list_hotel_leads` / `update_lead_status`.~~ ✅ Sprint 2 (migration `0004`).

@@ -1,75 +1,21 @@
 ---
-description: HotelAI UI guidelines — dark theme, spacing, components
+description: UI guidance entrypoint for HotelAI components
 globs: components/**/*.{ts,tsx}
 alwaysApply: false
 ---
 
-# UI Guidelines
+# UI Guidance
 
-Read `docs/UI_GUIDELINES.md`. Stack: Tailwind 4, shadcn/ui (base-nova), lucide-react, sonner.
+`docs/UI_GUIDELINES.md` is the source of truth for spacing, typography, radius, colors, buttons, inputs, tables, dialogs, animations, and responsive behavior.
 
-## Colors
+Also read `docs/ARCHITECTURE.md` before moving domain logic into shared UI.
 
-- Background: `bg-zinc-950`, cards: `bg-zinc-950` / `bg-zinc-900`
-- Borders: `border-zinc-800` (panels), `border-zinc-900` (row dividers)
-- Muted text: `text-zinc-500`, subtitles: `text-zinc-400`
-- Brand accent: `bg-emerald-600` (active nav, CTAs)
-- Use `cn()` from `@/lib/utils` for conditional classes
+Keep this rule short. Do not copy UI tokens or component recipes here.
 
-## Spacing
+## Non-Negotiables
 
-- Page: `p-8` (AppShell main), sections: `space-y-8`, cards: `p-6`
-- Forms: `space-y-5`, tables: `px-6 py-4` header / `px-6 py-5` body
-
-## Typography
-
-- Eyebrow: `text-sm uppercase tracking-[0.3em] text-zinc-500`
-- Page title: `text-4xl font-bold`
-- Section: `text-xl font-semibold`
-- Table headers: `text-xs uppercase text-zinc-500`
-
-## Radius
-
-- Cards/tables: `rounded-2xl`
-- Nav/buttons: `rounded-xl` / `rounded-lg`
-- Avatars: `rounded-full`
-
-## Components
-
-- UI primitives: `@/components/ui/` (Button, Input, Select, Sheet, Badge, Card, Table)
-- Icons: lucide-react only (`size={18}` tables, `h-4 w-4` buttons)
-- Toasts: `toast.success()` / `toast.error()` — not `alert()`
-
-## Tables
-
-```tsx
-<div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
-  <table className="w-full">
-    <thead className="border-b border-zinc-800 bg-zinc-900">...</thead>
-    <tr className="border-b border-zinc-900 hover:bg-zinc-900/60">...</tr>
-  </table>
-</div>
-```
-
-## Dialogs (Sheet)
-
-```tsx
-<Sheet open={open} onOpenChange={setOpen}>
-  <SheetContent className="sm:max-w-lg">
-    <SheetHeader><SheetTitle>...</SheetTitle></SheetHeader>
-    <div className="mt-6"><Form onSuccess={() => setOpen(false)} /></div>
-  </SheetContent>
-</Sheet>
-```
-
-## Responsive
-
-- Sidebar: `hidden lg:flex`
-- Grids: `md:grid-cols-2 lg:grid-cols-4`, `xl:grid-cols-3`
-- UI copy in Russian
-
-## Do Not
-
-- Hardcode colors in `components/ui/` primitives (use CSS variables)
-- Add domain logic to `components/ui/`
-- Mix English/Russian in same view
+- Use `@/components/ui/*` primitives for generic controls.
+- Keep domain components under `components/dashboard/<feature>/`.
+- Use lucide-react icons and sonner toasts.
+- User-facing admin copy is Russian unless product docs say otherwise.
+- Do not put domain logic in `components/ui/`.

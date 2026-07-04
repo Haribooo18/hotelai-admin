@@ -14,10 +14,17 @@ import {
   Bell,
   Hotel,
   ClipboardList,
+  Users,
 } from "lucide-react";
+
+import { SignOutButton } from "@/components/auth/SignOutButton";
 
 type Props = {
   children: ReactNode;
+  hotel?: {
+    id: string;
+    name: string;
+  };
 };
 
 const navItems = [
@@ -28,7 +35,7 @@ const navItems = [
   },
   {
     label: "Заявки",
-    href: "/leads",
+    href: "/",
     icon: ClipboardList,
   },
   {
@@ -40,6 +47,11 @@ const navItems = [
     label: "Номера",
     href: "/rooms",
     icon: BedDouble,
+  },
+  {
+    label: "Гости",
+    href: "/guests",
+    icon: Users,
   },
   {
     label: "Календарь",
@@ -63,8 +75,11 @@ const navItems = [
   },
 ];
 
-export function AppShell({ children }: Props) {
+export function AppShell({ children, hotel }: Props) {
   const pathname = usePathname();
+
+  const hotelName = hotel?.name ?? "Aurora Hotel";
+  const hotelId = hotel?.id ?? "hotel_aurora";
 
   return (
     <div className="min-h-screen bg-zinc-950 text-white">
@@ -92,11 +107,11 @@ export function AppShell({ children }: Props) {
             </p>
 
             <p className="mt-3 text-lg font-semibold">
-              Aurora Hotel
+              {hotelName}
             </p>
 
             <p className="text-sm text-zinc-500">
-              hotel_aurora
+              {hotelId}
             </p>
           </div>
 
@@ -156,7 +171,7 @@ export function AppShell({ children }: Props) {
                 </p>
 
                 <h2 className="mt-2 text-2xl font-bold">
-                  Aurora Hotel
+                  {hotelName}
                 </h2>
               </div>
 
@@ -178,6 +193,8 @@ export function AppShell({ children }: Props) {
                     </p>
                   </div>
                 </div>
+
+                <SignOutButton />
               </div>
             </div>
           </header>

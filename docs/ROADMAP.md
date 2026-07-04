@@ -74,13 +74,15 @@ Roadmap organized by feature area. Status key: ✅ Done · 🚧 In Progress · �
 | Item                                      | Status        | Notes                                      |
 |-------------------------------------------|---------------|--------------------------------------------|
 | Guest type definition                     | ✅ Done       | `types/guest.ts`                           |
-| Guest service (list)                      | ✅ Done       | `getGuests`                                |
-| Create / delete guest mutations           | ✅ Done       | `guests.mutations.ts`                      |
-| Guests page UI                            | 📋 Planned    | Route `/guests` not yet created            |
-| Guest profile with booking history        | 📋 Planned    |                                            |
-| Link booking to guest record              | 📋 Planned    | Bookings use inline guest fields today     |
-| Guest search and filters                  | 📋 Planned    |                                            |
-| VIP / loyalty tags                        | 🔮 Future     |                                            |
+| Guest service (list/get/history)          | ✅ Done       | `getGuests`, `getGuest`, `getGuestBookings`|
+| Guest CRUD mutations                       | ✅ Done (Sprint 4) | create/update/soft-delete/merge/flags |
+| Guests page UI                            | ✅ Done (Sprint 4) | `/guests` → `GuestsPage`              |
+| Guest profile with booking history        | ✅ Done (Sprint 4) | `/guests/[id]` + stay statistics      |
+| Guest search and filters                  | ✅ Done (Sprint 4) | search + VIP/favorite/tag filters     |
+| VIP / favorite / tags                     | ✅ Done (Sprint 4) | flags + free-form tags                |
+| Merge duplicate guests                    | ✅ Done (Sprint 4) | `mergeGuests`                         |
+| Soft delete                               | ✅ Done (Sprint 4) | `deleted_at` tombstone                |
+| Link booking to guest record (FK)         | 📋 Planned    | Still matched by email/name (TD-11)        |
 
 ---
 
@@ -180,10 +182,10 @@ Roadmap organized by feature area. Status key: ✅ Done · 🚧 In Progress · �
 
 | Item                                      | Status        | Notes                                      |
 |-------------------------------------------|---------------|--------------------------------------------|
-| Supabase Auth + RLS                       | 📋 Planned    | Remove hardcoded `hotel_aurora`            |
-| Multi-tenant hotel isolation              | 📋 Planned    |                                            |
-| Error boundaries per route                | 📋 Planned    |                                            |
-| Zod form validation                       | 📋 Planned    |                                            |
+| Supabase Auth + RLS                       | ✅ Done (Sprint 1) | Apply RLS migration on Supabase; harden leads RPCs |
+| Multi-tenant hotel isolation              | ✅ Done (Sprint 1) | `lib/tenant.ts` + `memberships` + RLS      |
+| Error boundaries per route                | 🟡 Partial (Sprint 3) | `/rooms`, `/bookings` done; `/`, `/calendar` pending |
+| Zod form validation                       | ✅ Done (Sprint 3) | `lib/validations/{room,booking}.ts` shared client + server |
 | E2E test suite                            | 📋 Planned    |                                            |
 | CI/CD pipeline                            | 📋 Planned    |                                            |
 | Staging environment                       | 📋 Planned    |                                            |
