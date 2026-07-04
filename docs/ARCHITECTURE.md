@@ -48,6 +48,8 @@ components/dashboard/<feature>/
 | Guests    | `components/dashboard/guests/`    | `/guests`, `/guests/[id]` |
 | Calendar  | `components/dashboard/calendar/`  | `/calendar` (timeline, drag/resize) |
 | AI        | `components/dashboard/ai/`        | `/ai` → `AIInboxPage` |
+| Knowledge | `components/dashboard/knowledge/` | `/knowledge`, `/knowledge/[id]` |
+| Settings  | `components/dashboard/settings/`  | `/settings` (AI config, health) |
 
 > **Note:** The leads dashboard (`DashboardPage`) currently lives at the root of `components/dashboard/` alongside shared shell components. New features should use dedicated subfolders.
 > **Note:** `getDashboardStats` (`lib/services/dashboard.service.ts`) is retained but currently unwired after the `/bookings` rewire — reserved for a future overview/dashboard route (TD-14).
@@ -537,21 +539,23 @@ Feature folder: `components/dashboard/ai/`. Provider-agnostic AI contracts live 
 ```
 Guest/staff trigger → generateAIResponse / /api/ai/stream
   ├─ getAIServices() → ensureAIServicesInitialized() (once)
-  ├─ hotel_ai_settings (model, temperature, top_p, tool_choice, system_language, limits, enabled)
-  ├─ RateLimiter (per hotel)
-  ├─ PromptAssembler → AIRequest
-  ├─ AIOrchestrator
-  │    ├─ OpenAI Responses API (complete / stream)
+  ├─ AIOrchestrator (single entrypoint for both paths)
+  │    ├─ Pre-flight: enabled, provider configured, rate limit
+  │    ├─ Conversation load (stream path via runStream)
+  │    ├─ PromptAssembler → AIRequest (knowledge retrieval inside)
+  │    ├─ hotel_ai_settings (model, temperature, top_p, tool_choice, system_language, limits)
+  │    ├─ OpenAI Responses API (complete via run / stream via runStream)
   │    ├─ ToolExecutor loop (max_tool_rounds)
   │    ├─ ai_actions audit (tokens, cost, duration)
-  │    └─ messages insert (role: ai)
+  │    ├─ Typing + conversation status (stream path in orchestrator)
+  │    └─ messages insert (role: ai) — stream path in orchestrator; respond via ai-completion.service
   └─ conversations status → ai_answering → waiting_guest
 ```
 
 | Component | File | Purpose |
 |-----------|------|---------|
 | `createOpenAIProvider` | `providers/openai.ts` | Responses API + streaming; respects `AbortSignal` |
-| `AIOrchestrator` | `orchestrator.ts` | Tool loop, logging, anti-hallucination |
+| `AIOrchestrator` | `orchestrator.ts` | Single entrypoint: `run()` (non-stream) + `runStream()` / `stream()` (SSE); shared pre-flight, tool loop, logging |
 | `ensureAIServicesInitialized` | `bootstrap.ts` | One-time DI wiring from `OPENAI_API_KEY` |
 | `getAIServices` | `container.ts` | Shared service container; triggers lazy bootstrap |
 | `AI_MODELS` | `models.ts` | Centralized per-1M-token pricing |
@@ -559,7 +563,7 @@ Guest/staff trigger → generateAIResponse / /api/ai/stream
 
 API key: `OPENAI_API_KEY` env var only — never sent to client.
 
-**Streaming cancellation:** `/api/ai/stream` passes `request.signal` to the provider and orchestrator. On client disconnect, generation stops and no AI message is persisted.
+**Streaming cancellation:** `/api/ai/stream` delegates to `AIOrchestrator.runStream()` — same pre-flight guards as `run()`. `request.signal` stops provider generation; on abort, typing is cleared and no AI message is persisted.
 
 #### Context preparation (Sprint 7)
 

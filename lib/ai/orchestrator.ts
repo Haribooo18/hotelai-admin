@@ -10,8 +10,12 @@ import { logAIObservability } from "./observability";
 import { hotelRateLimiter } from "./rate-limiter";
 import type { OpenAIProvider } from "./providers/openai";
 import { getAIServices } from "./container";
+import type { AIProvider } from "./types";
 import type { AIRequest, AIResponse } from "./types";
 import type { ToolContext } from "./tools";
+import { getConversation, getMessages } from "@/lib/services/ai.service";
+import { getHotelAISettings } from "@/lib/services/ai-settings.service";
+import { getCurrentHotel } from "@/lib/tenant";
 
 export type OrchestratorInput = {
   hotel: { id: string; name: string };
@@ -20,6 +24,11 @@ export type OrchestratorInput = {
   settings: HotelAISettings;
   retrievalQuery?: string;
   stream?: boolean;
+  signal?: AbortSignal;
+};
+
+export type OrchestratorStreamInput = {
+  conversationId: string;
   signal?: AbortSignal;
 };
 
@@ -32,6 +41,15 @@ export type OrchestratorResult = {
   toolRounds: number;
 };
 
+export type OrchestratorStreamEvent =
+  | { type: "status"; status: "ai_answering" | "tool_calls" }
+  | { type: "text_delta"; delta: string }
+  | { type: "text_final"; content: string }
+  | { type: "done"; messageId: string };
+
+const FALLBACK_CONTENT =
+  "К сожалению, у меня нет этой информации. Пожалуйста, свяжитесь с ресепшном.";
+
 const ANTI_HALLUCINATION = [
   "НИКОГДА не выдумывайте цены, политики, услуги или наличие номеров.",
   "Отвечайте ТОЛЬКО на основе базы знаний, результатов инструментов или явных фактов из контекста.",
@@ -39,11 +57,323 @@ const ANTI_HALLUCINATION = [
   "Не ссылайтесь на статьи, которых нет в предоставленной базе знаний.",
 ];
 
+type ResolvedProviderOptions = ReturnType<typeof resolveProviderOptions>;
+
+type CompletionLoopResult = {
+  content: string;
+  usage: AITokenUsage;
+  costUsd: number;
+  toolRounds: number;
+  requestId: string;
+};
+
 export class AIOrchestrator {
   async run(input: OrchestratorInput): Promise<OrchestratorResult> {
     const services = getAIServices();
     const provider = services.provider;
 
+    this.validatePreflight(input, provider);
+
+    const opts = resolveProviderOptions(input.settings);
+    const start = Date.now();
+
+    const aiRequest = await this.prepareAIRequest(input, opts);
+
+    const actionId = await logAIActionStart({
+      hotelId: input.hotel.id,
+      conversationId: input.conversation.id,
+      request: aiRequest,
+      model: opts.model,
+    });
+
+    await logAIObservability({
+      hotelId: input.hotel.id,
+      level: "info",
+      event: "ai.completion.start",
+      conversationId: input.conversation.id,
+      payload: { model: opts.model, actionId },
+    });
+
+    try {
+      const result = await this.executeCompletionLoop({
+        input,
+        aiRequest,
+        opts,
+        initialResponse: null,
+        signal: input.signal,
+      });
+
+      const durationMs = Date.now() - start;
+
+      await logAIActionComplete({
+        actionId,
+        output: {
+          content: result.content,
+          usage: result.usage,
+          toolRounds: result.toolRounds,
+        },
+        model: opts.model,
+        usage: result.usage,
+        costUsd: result.costUsd,
+        durationMs,
+        requestId: result.requestId,
+      });
+
+      await logAIObservability({
+        hotelId: input.hotel.id,
+        level: "info",
+        event: "ai.completion.done",
+        conversationId: input.conversation.id,
+        payload: {
+          durationMs,
+          usage: result.usage,
+          costUsd: result.costUsd,
+          toolRounds: result.toolRounds,
+        },
+      });
+
+      return {
+        content: result.content,
+        messageId: null,
+        usage: result.usage,
+        costUsd: result.costUsd,
+        model: opts.model,
+        toolRounds: result.toolRounds,
+      };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Ошибка AI";
+      await logAIActionFailed({ actionId, errorMessage: message });
+      await logAIObservability({
+        hotelId: input.hotel.id,
+        level: "error",
+        event: "ai.completion.failed",
+        conversationId: input.conversation.id,
+        payload: { error: message },
+      });
+      throw err;
+    }
+  }
+
+  async *runStream(
+    input: OrchestratorStreamInput
+  ): AsyncGenerator<OrchestratorStreamEvent> {
+    const [hotel, conversation, messages, settings] = await Promise.all([
+      getCurrentHotel(),
+      getConversation(input.conversationId),
+      getMessages(input.conversationId),
+      getHotelAISettings(),
+    ]);
+
+    if (!conversation) {
+      throw new Error("Диалог не найден");
+    }
+
+    yield* this.stream({
+      hotel,
+      conversation,
+      messages,
+      settings,
+      signal: input.signal,
+    });
+  }
+
+  async *stream(input: OrchestratorInput): AsyncGenerator<OrchestratorStreamEvent> {
+    const services = getAIServices();
+    const provider = services.provider;
+
+    this.validatePreflight(input, provider);
+
+    const opts = resolveProviderOptions(input.settings);
+    const start = Date.now();
+
+    yield { type: "status", status: "ai_answering" };
+    await setConversationAIActive(input.conversation.id, input.hotel.id);
+
+    const aiRequest = await this.prepareAIRequest(input, opts);
+
+    const actionId = await logAIActionStart({
+      hotelId: input.hotel.id,
+      conversationId: input.conversation.id,
+      request: aiRequest,
+      model: opts.model,
+    });
+
+    await logAIObservability({
+      hotelId: input.hotel.id,
+      level: "info",
+      event: "ai.completion.start",
+      conversationId: input.conversation.id,
+      payload: { model: opts.model, actionId, streamed: true },
+    });
+
+    try {
+      let fullText = "";
+      let loopResult: CompletionLoopResult | null = null;
+
+      if (provider.stream && !input.signal?.aborted) {
+        let streamedResponse: AIResponse | null = null;
+
+        for await (const event of provider.stream(aiRequest, {
+          model: opts.model,
+          maxOutputTokens: opts.maxOutputTokens,
+          temperature: opts.temperature,
+          topP: opts.topP,
+          toolChoice: opts.toolChoice,
+          timeoutMs: opts.timeoutMs,
+          maxRetries: opts.maxRetries,
+          signal: input.signal,
+        })) {
+          if (input.signal?.aborted) {
+            await clearConversationAITyping(
+              input.conversation.id,
+              input.hotel.id
+            );
+            return;
+          }
+
+          if (event.type === "text_delta") {
+            fullText += event.delta;
+            yield { type: "text_delta", delta: event.delta };
+          }
+
+          if (event.type === "completed") {
+            streamedResponse = event.response;
+          }
+        }
+
+        if (input.signal?.aborted) {
+          await clearConversationAITyping(
+            input.conversation.id,
+            input.hotel.id
+          );
+          return;
+        }
+
+        if (streamedResponse && streamedResponse.toolCalls.length > 0) {
+          yield { type: "status", status: "tool_calls" };
+          loopResult = await this.executeCompletionLoop({
+            input,
+            aiRequest,
+            opts,
+            initialResponse: streamedResponse,
+            signal: input.signal,
+          });
+          fullText = loopResult.content;
+          yield { type: "text_final", content: fullText };
+        } else if (!fullText.trim()) {
+          loopResult = await this.executeCompletionLoop({
+            input,
+            aiRequest,
+            opts,
+            initialResponse: streamedResponse,
+            signal: input.signal,
+          });
+          fullText = loopResult.content;
+          yield { type: "text_final", content: fullText };
+        } else if (streamedResponse) {
+          const usage =
+            (streamedResponse.metadata.usage as AITokenUsage) ??
+            EMPTY_TOKEN_USAGE;
+          loopResult = {
+            content: fullText,
+            usage,
+            costUsd: estimateCostUsd(
+              String(streamedResponse.metadata.model ?? opts.model),
+              usage
+            ),
+            toolRounds: 0,
+            requestId: String(streamedResponse.metadata.request_id ?? ""),
+          };
+        }
+      }
+
+      if (input.signal?.aborted) {
+        await clearConversationAITyping(input.conversation.id, input.hotel.id);
+        return;
+      }
+
+      if (!fullText.trim()) {
+        loopResult = await this.executeCompletionLoop({
+          input,
+          aiRequest,
+          opts,
+          initialResponse: null,
+          signal: input.signal,
+        });
+        fullText = loopResult.content;
+        yield { type: "text_final", content: fullText };
+      }
+
+      if (input.signal?.aborted) {
+        await clearConversationAITyping(input.conversation.id, input.hotel.id);
+        return;
+      }
+
+      const usage = loopResult?.usage ?? { ...EMPTY_TOKEN_USAGE };
+      const costUsd = loopResult?.costUsd ?? 0;
+      const toolRounds = loopResult?.toolRounds ?? 0;
+      const requestId = loopResult?.requestId ?? "";
+
+      const messageId = await persistAIMessage({
+        hotelId: input.hotel.id,
+        conversationId: input.conversation.id,
+        body: fullText,
+        metadata: {
+          provider: provider.name,
+          streamed: true,
+          model: opts.model,
+          usage,
+          cost_usd: costUsd,
+          tool_rounds: toolRounds,
+        },
+      });
+
+      const durationMs = Date.now() - start;
+
+      await logAIActionComplete({
+        actionId,
+        output: { content: fullText, usage, toolRounds },
+        model: opts.model,
+        usage,
+        costUsd,
+        durationMs,
+        requestId,
+      });
+
+      await logAIObservability({
+        hotelId: input.hotel.id,
+        level: "info",
+        event: "ai.completion.done",
+        conversationId: input.conversation.id,
+        payload: {
+          durationMs,
+          usage,
+          costUsd,
+          toolRounds,
+          streamed: true,
+        },
+      });
+
+      yield { type: "done", messageId };
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Ошибка AI";
+      await logAIActionFailed({ actionId, errorMessage: message });
+      await logAIObservability({
+        hotelId: input.hotel.id,
+        level: "error",
+        event: "ai.completion.failed",
+        conversationId: input.conversation.id,
+        payload: { error: message, streamed: true },
+      });
+      await clearConversationAITyping(input.conversation.id, input.hotel.id);
+      throw err;
+    }
+  }
+
+  private validatePreflight(
+    input: OrchestratorInput,
+    provider: AIProvider
+  ): void {
     if (provider.name === "unconfigured") {
       throw new Error("AI-провайдер не настроен. Добавьте OPENAI_API_KEY.");
     }
@@ -61,9 +391,13 @@ export class AIOrchestrator {
         `Превышен лимит запросов. Повторите через ${Math.ceil(rate.retryAfterMs / 1000)} с.`
       );
     }
+  }
 
-    const opts = resolveProviderOptions(input.settings);
-    const start = Date.now();
+  private async prepareAIRequest(
+    input: OrchestratorInput,
+    opts: ResolvedProviderOptions
+  ): Promise<AIRequest> {
+    const services = getAIServices();
 
     const aiRequest = await services.promptAssembler.build({
       hotel: input.hotel,
@@ -84,29 +418,39 @@ export class AIOrchestrator {
         "\n\n# Внимание\nБаза знаний пуста для этого запроса. Не отвечайте на вопросы о политиках, ценах и услугах без вызова инструментов. Если инструменты не помогают — сообщите, что информация недоступна.";
     }
 
-    const actionId = await logAIActionStart({
-      hotelId: input.hotel.id,
-      conversationId: input.conversation.id,
-      request: aiRequest,
-      model: opts.model,
-    });
+    return aiRequest;
+  }
 
-    await logAIObservability({
-      hotelId: input.hotel.id,
-      level: "info",
-      event: "ai.completion.start",
-      conversationId: input.conversation.id,
-      payload: { model: opts.model, actionId },
-    });
+  private async executeCompletionLoop(params: {
+    input: OrchestratorInput;
+    aiRequest: AIRequest;
+    opts: ResolvedProviderOptions;
+    initialResponse: AIResponse | null;
+    signal?: AbortSignal;
+  }): Promise<CompletionLoopResult> {
+    const { input, aiRequest, opts, initialResponse, signal } = params;
+    const provider = getAIServices().provider as OpenAIProvider;
 
     let usage = { ...EMPTY_TOKEN_USAGE };
     let totalCost = 0;
     let toolRounds = 0;
+    let requestId = "";
 
-    try {
-      const openai = provider as OpenAIProvider;
+    let response: AIResponse;
 
-      let response = await openai.complete(aiRequest, {
+    if (initialResponse) {
+      response = initialResponse;
+      usage = mergeTokenUsage(
+        usage,
+        (initialResponse.metadata.usage as AITokenUsage) ?? EMPTY_TOKEN_USAGE
+      );
+      totalCost += estimateCostUsd(
+        String(initialResponse.metadata.model ?? opts.model),
+        (initialResponse.metadata.usage as AITokenUsage) ?? EMPTY_TOKEN_USAGE
+      );
+      requestId = String(initialResponse.metadata.request_id ?? "");
+    } else {
+      response = await provider.complete(aiRequest, {
         model: opts.model,
         maxOutputTokens: opts.maxOutputTokens,
         temperature: opts.temperature,
@@ -114,7 +458,7 @@ export class AIOrchestrator {
         toolChoice: opts.toolChoice,
         timeoutMs: opts.timeoutMs,
         maxRetries: opts.maxRetries,
-        signal: input.signal,
+        signal,
       });
 
       usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);
@@ -122,108 +466,71 @@ export class AIOrchestrator {
         String(response.metadata.model ?? opts.model),
         response.metadata.usage as AITokenUsage
       );
+      requestId = String(response.metadata.request_id ?? "");
+    }
 
-      while (
-        response.toolCalls.length > 0 &&
-        toolRounds < input.settings.max_tool_rounds
-      ) {
-        if (input.signal?.aborted) {
-          throw new Error("Запрос отменён");
-        }
-
-        const toolOutputs = await this.executeTools(
-          response,
-          aiRequest,
-          input.conversation.id
-        );
-
-        for (const call of response.toolCalls) {
-          const raw = toolOutputs.find((t) => t.call_id === call.id)?.output;
-          let parsed: Record<string, unknown> = {};
-          try {
-            parsed = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
-          } catch {
-            parsed = { raw };
-          }
-          await logAIActionTool({
-            hotelId: input.hotel.id,
-            conversationId: input.conversation.id,
-            toolName: call.name,
-            input: call.arguments,
-            output: parsed,
-            model: opts.model,
-          });
-        }
-
-        toolRounds++;
-
-        response = await openai.completeWithToolOutputs(aiRequest, toolOutputs, {
-          model: opts.model,
-          maxOutputTokens: opts.maxOutputTokens,
-          temperature: opts.temperature,
-          topP: opts.topP,
-          toolChoice: opts.toolChoice,
-          timeoutMs: opts.timeoutMs,
-          maxRetries: opts.maxRetries,
-          signal: input.signal,
-        });
-
-        usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);
-        totalCost += estimateCostUsd(
-          String(response.metadata.model ?? opts.model),
-          response.metadata.usage as AITokenUsage
-        );
+    while (
+      response.toolCalls.length > 0 &&
+      toolRounds < input.settings.max_tool_rounds
+    ) {
+      if (signal?.aborted) {
+        throw new Error("Запрос отменён");
       }
 
-      const content =
-        response.content?.trim() ||
-        "К сожалению, у меня нет этой информации. Пожалуйста, свяжитесь с ресепшном.";
+      const toolOutputs = await this.executeTools(
+        response,
+        aiRequest,
+        input.conversation.id
+      );
 
-      const durationMs = Date.now() - start;
+      for (const call of response.toolCalls) {
+        const raw = toolOutputs.find((t) => t.call_id === call.id)?.output;
+        let parsed: Record<string, unknown> = {};
+        try {
+          parsed = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
+        } catch {
+          parsed = { raw };
+        }
+        await logAIActionTool({
+          hotelId: input.hotel.id,
+          conversationId: input.conversation.id,
+          toolName: call.name,
+          input: call.arguments,
+          output: parsed,
+          model: opts.model,
+        });
+      }
 
-      await logAIActionComplete({
-        actionId,
-        output: { content, usage, toolRounds },
+      toolRounds++;
+
+      response = await provider.completeWithToolOutputs(aiRequest, toolOutputs, {
         model: opts.model,
-        usage,
-        costUsd: totalCost,
-        durationMs,
-        requestId: String(response.metadata.request_id ?? ""),
+        maxOutputTokens: opts.maxOutputTokens,
+        temperature: opts.temperature,
+        topP: opts.topP,
+        toolChoice: opts.toolChoice,
+        timeoutMs: opts.timeoutMs,
+        maxRetries: opts.maxRetries,
+        signal,
       });
 
-      await logAIObservability({
-        hotelId: input.hotel.id,
-        level: "info",
-        event: "ai.completion.done",
-        conversationId: input.conversation.id,
-        payload: {
-          durationMs,
-          usage,
-          costUsd: totalCost,
-          toolRounds,
-        },
-      });
-
-      return {
-        content,
-        messageId: null,
-        usage,
-        costUsd: totalCost,
-        model: opts.model,
-        toolRounds,
-      };
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Ошибка AI";
-      await logAIActionFailed({ actionId, errorMessage: message });
-      await logAIObservability({
-        hotelId: input.hotel.id,
-        level: "error",
-        event: "ai.completion.failed",
-        conversationId: input.conversation.id,
-        payload: { error: message },
-      });
-      throw err;
+      usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);
+      totalCost += estimateCostUsd(
+        String(response.metadata.model ?? opts.model),
+        response.metadata.usage as AITokenUsage
+      );
+      requestId = String(response.metadata.request_id ?? requestId);
     }
+
+    const content = response.content?.trim() || FALLBACK_CONTENT;
+
+    return {
+      content,
+      usage,
+      costUsd: totalCost,
+      toolRounds,
+      requestId,
+    };
   }
 
   private async executeTools(
@@ -245,9 +552,7 @@ export class AIOrchestrator {
       outputs.push({
         call_id: call.id,
         output: JSON.stringify(
-          result.ok
-            ? result.result.output
-            : { error: result.error }
+          result.ok ? result.result.output : { error: result.error }
         ),
       });
     }
@@ -257,6 +562,71 @@ export class AIOrchestrator {
 }
 
 export const aiOrchestrator = new AIOrchestrator();
+
+async function setConversationAIActive(
+  conversationId: string,
+  hotelId: string
+): Promise<void> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  await supabase
+    .from("conversations")
+    .update({ is_ai_typing: true, status: "ai_answering" })
+    .eq("id", conversationId)
+    .eq("hotel_id", hotelId);
+}
+
+async function clearConversationAITyping(
+  conversationId: string,
+  hotelId: string
+): Promise<void> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  await supabase
+    .from("conversations")
+    .update({ is_ai_typing: false })
+    .eq("id", conversationId)
+    .eq("hotel_id", hotelId);
+}
+
+async function persistAIMessage(input: {
+  hotelId: string;
+  conversationId: string;
+  body: string;
+  metadata: Record<string, unknown>;
+}): Promise<string> {
+  const { createClient } = await import("@/lib/supabase/server");
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("messages")
+    .insert({
+      hotel_id: input.hotelId,
+      conversation_id: input.conversationId,
+      role: "ai",
+      body: input.body,
+      metadata: input.metadata,
+    })
+    .select("id, created_at")
+    .single();
+
+  if (error) throw error;
+
+  await supabase
+    .from("conversations")
+    .update({
+      status: "waiting_guest",
+      is_ai_typing: false,
+      last_message_preview: input.body.slice(0, 200),
+      last_message_at: data.created_at,
+    })
+    .eq("id", input.conversationId)
+    .eq("hotel_id", input.hotelId);
+
+  return data.id as string;
+}
 
 async function logAIActionStart(input: {
   hotelId: string;

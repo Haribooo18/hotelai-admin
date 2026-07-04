@@ -8,6 +8,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### AI Stream Pipeline Unification (Sprint 8.5)
+
+- **`AIOrchestrator.runStream()`** — streaming and non-streaming paths share one entrypoint; identical pre-flight checks (enabled, provider, rate limit), `PromptAssembler`, tool loop, `ai_actions` logging, typing/status updates.
+- **`/api/ai/stream`** — reduced to auth, validation, SSE wrapper around `runStream()`; removed direct `PromptAssembler` / provider calls.
+- **Tests** — `tests/unit/ai/orchestrator-stream.test.ts` covers enabled flag, provider configured, rate limiter, `ai_actions` logging, conversation status, abort cleanup.
+
+### Production Readiness (Sprint 9)
+
+- **README.md** — full bootstrap guide: requirements, env vars, Supabase setup, migrations, local dev, testing, CI, project structure.
+- **`.env.example`** — documented all variables including optional `OPENAI_API_KEY`.
+- **`package.json`** — `engines.node >= 22` aligned with CI.
+- **Docs** — `DATABASE.md` migration `0010`; `ROADMAP` settings/CI/AI respond status; `ARCHITECTURE` knowledge/settings routes; `BACKLOG` TD-05 resolved, B-059/duplicate TD id clarified.
+
 ### Core Unit Tests (Sprint 8.4)
 
 - **Vitest** — Node test environment for pure domain logic (`vitest.config.ts`, `tests/unit/`).

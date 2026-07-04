@@ -8,4 +8,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 The `docs/` directory is the source of truth for project architecture, product direction, database shape, UI standards, and coding standards.
 
+**New developers:** start with [`README.md`](README.md) for clone → install → env → migrations → `npm run dev`.
+
 Cursor rules in `.cursor/rules/` are short entrypoints only; do not duplicate long-form documentation there.

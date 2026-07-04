@@ -75,7 +75,7 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | B-056 | Guest loyalty / VIP tags                         | Guests      | |
 | B-057 | Webhook API for third-party integrations         | Integrations| |
 | B-058 | E2E test suite (Playwright)                        | Platform    | |
-| B-059 | CI/CD with preview deployments                   | Platform    | |
+| B-059 | CI/CD preview deployments                    | Platform    | Verify pipeline ✅ Sprint 8.3–8.4; Vercel/preview env pending |
 
 ---
 
@@ -87,7 +87,7 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | TD-02 | `DashboardPage` fetches via client Supabase channel  | Realtime refresh is intentional; still tenant-scoped now |
 | TD-03 | Inline styles in `AppShell` (zinc palette) vs CSS variables | Align AppShell with `globals.css` tokens |
 | TD-04 | No `hooks/` folder yet                           | Create when client hooks are shared |
-| TD-05 | `hotelai-admin-clean.zip` in repo root           | Remove from repo |
+| ~~TD-05~~ | ~~`hotelai-admin-clean.zip` in repo root~~       | ✅ Removed — not present in repository |
 | TD-06 | Missing `types/index.ts` barrel export           | Optional convenience |
 | ~~TD-07~~ | ~~Some service reads/update/delete operations are not tenant-filtered~~ | ✅ Sprint 1 — all services scope by `hotel_id` |
 | ~~TD-08~~ | ~~Leads RPCs bypass RLS~~ | ✅ Sprint 2 — `is_hotel_member()` enforced in `0004` |
@@ -110,7 +110,7 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | TD-25 | Knowledge panel is read-only in inbox | Add article create/edit UI (mutations already exist) |
 | TD-26 | `is_guest_typing` not updated by any channel | Set via webhook or realtime when channels integrate |
 | TD-27 | Lead ↔ conversation link is manual (`lead_id` text) | Auto-link when lead created from same email/phone |
-| TD-23 | Row virtualization only (day columns not virtualized) | Fine for month view (~31 cols); add horizontal windowing if multi-month ranges ship |
+| TD-28 | Row virtualization only (day columns not virtualized) | Fine for month view (~31 cols); add horizontal windowing if multi-month ranges ship |
 
 ---
 
