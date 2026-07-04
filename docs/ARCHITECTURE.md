@@ -672,7 +672,9 @@ POST /api/channels/website/stream  (SSE response)
 
 **Transport only:** `stream.ts` owns SSE stream lifecycle and protocol mapping; it does not call `PromptAssembler`, providers, or tools directly.
 
-**Public route:** `/api/channels/website/stream` is listed in `lib/supabase/session.ts` `PUBLIC_PATHS`.
+**Public route:** `/api/channels/website/stream` is listed in `lib/supabase/session.ts` `PUBLIC_PATHS`. CORS enabled for cross-origin widget embeds.
+
+**Widget embed (Sprint 14):** `public/widget.js` (from `src/widget/`) is a client-only transport layer. `HotelAI.init()` sends `guest_message` frames with `hotel_id`; streaming replies map through the same SSE protocol. See `docs/WIDGET.md`.
 
 **Env:** `WEBSITE_CHAT_HOTEL_ID` (optional), `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`.
 

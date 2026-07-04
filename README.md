@@ -51,6 +51,10 @@ Copy `.env.example` to `.env.local` and fill in values. Production setup: [`docs
 | `TELEGRAM_WEBHOOK_SECRET` | No | Server only | Secret for `X-Telegram-Bot-Api-Secret-Token` header |
 | `TELEGRAM_HOTEL_ID` | No | Server only | Hotel for inbound Telegram (defaults to `DEFAULT_HOTEL_ID`) |
 | `WEBSITE_CHAT_HOTEL_ID` | No | Server only | Hotel for website widget (defaults to `DEFAULT_HOTEL_ID`) |
+| `WEBSITE_WIDGET_ALLOWED_ORIGINS` | Yes* | Server only | Multiline CORS whitelist for embed origins (wildcard subdomains supported) |
+| `WEBSITE_WIDGET_SESSION_RATE_LIMIT` | No | Server only | Widget stream rate limit per `session_id` per minute (default: 30) |
+| `WEBSITE_WIDGET_IP_RATE_LIMIT` | No | Server only | Widget stream rate limit per IP per minute (default: 60) |
+| `WEBSITE_WIDGET_MAX_MESSAGE_LENGTH` | No | Server only | Max guest message length for widget frames (default: 4000) |
 
 \* Required for the corresponding feature in production (channels, billing, AI).
 
@@ -246,7 +250,28 @@ Inbound Telegram messages create or reuse a `conversations` row (`channel: teleg
 
 ## Website chat channel
 
-Public streaming endpoint (SSE): `POST /api/channels/website/stream` (no auth session; hotel scoped via `WEBSITE_CHAT_HOTEL_ID` or `DEFAULT_HOTEL_ID`).
+Public streaming endpoint (SSE): `POST /api/channels/website/stream` (no auth session; hotel scoped via `hotel_id` in the frame, `WEBSITE_CHAT_HOTEL_ID`, or `DEFAULT_HOTEL_ID`).
+
+### Embeddable widget
+
+Customers install the chat widget with a single script. Full guide: [`docs/WIDGET.md`](docs/WIDGET.md).
+
+```html
+<script src="https://your-domain/widget.js"></script>
+<script>
+  HotelAI.init({
+    hotelId: "hotel_aurora",
+    apiUrl: "https://your-domain",
+    theme: "dark",
+    position: "right",
+    primaryColor: "#10b981",
+  });
+</script>
+```
+
+Build the bundle locally: `npm run build:widget` → `public/widget.js`.
+
+**Production:** set `WEBSITE_WIDGET_ALLOWED_ORIGINS` to customer site origins. The widget sends `hotel_id` on every message; unknown hotels return 404. See [`docs/WIDGET.md`](docs/WIDGET.md) for CORS, rate limits, and validation.
 
 Widget flow:
 
@@ -265,7 +290,8 @@ Example request body:
   "message_id": "msg-001",
   "guest_name": "Maria",
   "guest_email": "maria@example.com",
-  "body": "Есть ли парковка?"
+  "body": "Есть ли парковка?",
+  "hotel_id": "hotel_aurora"
 }
 ```
 

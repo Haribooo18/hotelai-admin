@@ -8,6 +8,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Website Widget Production Hardening (Sprint 14.5)
+
+- **CORS** — configurable `WEBSITE_WIDGET_ALLOWED_ORIGINS` with wildcard support; rejects unknown origins (403).
+- **Hotel validation** — required `hotel_id`; verifies hotel exists (404, no env fallback).
+- **Rate limiting** — per `session_id` and IP via shared `RateLimiter` (429).
+- **Payload validation** — empty/oversized/invalid UTF-8/frame type → 400.
+- **Stream cleanup** — guaranteed `cleanupWebsiteStream()` on all exit paths.
+- **Client resilience** — exponential reconnect backoff, double-init guard, sanitized errors.
+- **Observability** — `[HotelAI widget]` logs without message contents.
+- **Docs** — `docs/WIDGET.md`, `docs/DEPLOYMENT.md`, README production config.
+
+### Website Widget & Embed SDK (Sprint 14)
+
+- **Widget SDK** — `src/widget/` bundled to `public/widget.js` via esbuild (`npm run build:widget`).
+- **Public API** — `HotelAI.init({ hotelId, apiUrl, theme, position, primaryColor })` with event callbacks.
+- **Transport** — reuses `POST /api/channels/website/stream` (SSE); no duplicate AI endpoints.
+- **Multi-tenant routing** — optional `hotel_id` in guest frames for per-customer embeds.
+- **CORS** — cross-origin support on the website stream route.
+- **Docs** — `docs/WIDGET.md`; README widget installation section.
+- **Tests** — session persistence, serialization, events, init validation, SSE transport.
+
 ### Public Landing Website (Sprint 13)
 
 - **Marketing site** — public pages at `/`, `/features`, `/pricing`, `/contact`, `/privacy`, `/terms` (no auth).

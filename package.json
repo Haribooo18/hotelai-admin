@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build:widget": "esbuild src/widget/embed.ts --bundle --outfile=public/widget.js --format=iife --global-name=HotelAI --loader:.css=text --target=es2017",
+    "build": "npm run build:widget && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "lint": "eslint",
@@ -43,6 +44,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "tailwindcss": "^4",
+    "esbuild": "^0.25.0",
     "typescript": "^5",
     "vitest": "^4.1.9"
   }

@@ -177,7 +177,35 @@ Public endpoint (no session auth):
 POST https://<your-domain>/api/channels/website/stream
 ```
 
-Requires `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY` (for AI replies), and `WEBSITE_CHAT_HOTEL_ID` or `DEFAULT_HOTEL_ID`.
+Requires `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY` (for AI replies), and `hotel_id` in each guest frame.
+
+### Widget production hardening
+
+Before embedding `widget.js` on customer sites:
+
+1. Set **`WEBSITE_WIDGET_ALLOWED_ORIGINS`** — multiline list of allowed embed origins:
+
+```env
+WEBSITE_WIDGET_ALLOWED_ORIGINS=https://customer-hotel.com
+https://www.customer-hotel.com
+https://*.hotelai.app
+```
+
+2. Optional rate limits and message size:
+
+```env
+WEBSITE_WIDGET_SESSION_RATE_LIMIT=30
+WEBSITE_WIDGET_IP_RATE_LIMIT=60
+WEBSITE_WIDGET_MAX_MESSAGE_LENGTH=4000
+```
+
+3. Ensure each customer's `hotelId` exists in the `hotels` table (seeded via migrations).
+
+4. In development (`NODE_ENV=development`), `http://localhost:*` origins are allowed automatically.
+
+Rejected requests return JSON (not SSE): `403` (origin), `404` (unknown hotel), `429` (rate limit), `400` (invalid payload).
+
+Full widget guide: [`docs/WIDGET.md`](docs/WIDGET.md).
 
 ---
 

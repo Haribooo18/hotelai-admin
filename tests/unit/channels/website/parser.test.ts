@@ -26,6 +26,19 @@ describe("parseWebsiteInboundFrame", () => {
     });
   });
 
+  it("parses optional hotel_id for widget routing", () => {
+    const parsed = parseWebsiteInboundFrame({
+      type: "guest_message",
+      session_id: "sess-abc",
+      message_id: "msg-1",
+      guest_name: "Maria",
+      body: "Привет",
+      hotel_id: " hotel_aurora ",
+    });
+
+    expect(parsed?.hotel_id).toBe("hotel_aurora");
+  });
+
   it("returns null for non-guest frames", () => {
     expect(parseWebsiteInboundFrame({ type: "ping" })).toBeNull();
     expect(parseWebsiteInboundFrame(null)).toBeNull();

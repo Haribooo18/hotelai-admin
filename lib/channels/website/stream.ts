@@ -3,6 +3,7 @@ import type { ChannelInboundMessage } from "@/lib/channels/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Conversation } from "@/types/conversation";
 
+import { logWebsiteWidget, toPublicWebsiteErrorMessage } from "./logger";
 import { parseWebsiteInboundFrame, toChannelInboundMessage } from "./parser";
 import {
   mapOrchestratorEventToWebsite,
@@ -180,7 +181,12 @@ export async function processWebsiteGuestMessage(
   send: WebsiteSendFn,
   signal?: AbortSignal
 ): Promise<void> {
-  const hotelId = getWebsiteHotelId();
+  const hotelId = frame.hotel_id?.trim();
+  if (!hotelId) {
+    sendWebsiteError(send, "hotel_id is required");
+    return;
+  }
+
   const inbound = toChannelInboundMessage(frame);
 
   const connection = registerWebsiteConnection(frame.session_id, hotelId);
@@ -242,8 +248,12 @@ export async function handleWebsiteStream(
     if (signal?.aborted) {
       return;
     }
-    const message = err instanceof Error ? err.message : "Ошибка обработки";
-    sendWebsiteError(send, message);
+    logWebsiteWidget("disconnect", {
+      session_id: frame.session_id,
+      hotel_id: frame.hotel_id,
+      reason: "processing_error",
+    });
+    sendWebsiteError(send, toPublicWebsiteErrorMessage(err));
   }
 }
 

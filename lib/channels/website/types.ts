@@ -5,6 +5,7 @@ export type WebsiteInboundFrame = {
   guest_name: string;
   guest_email?: string | null;
   body: string;
+  hotel_id?: string;
 };
 
 export type WebsiteOutboundEvent =

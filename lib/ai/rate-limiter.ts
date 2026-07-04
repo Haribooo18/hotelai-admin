@@ -25,6 +25,15 @@ export class RateLimiter {
     buckets.set(key, bucket);
     return { allowed: true, retryAfterMs: 0 };
   }
+
+  reset(key?: string): void {
+    if (key) {
+      buckets.delete(key);
+      return;
+    }
+
+    buckets.clear();
+  }
 }
 
 export const hotelRateLimiter = new RateLimiter();

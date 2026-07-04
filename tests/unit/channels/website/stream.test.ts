@@ -84,6 +84,7 @@ const guestFrame = {
   message_id: "msg-1",
   guest_name: "Website Guest",
   body: "Есть ли завтрак?",
+  hotel_id: "hotel_test",
 };
 
 describe("website connection lifecycle", () => {
@@ -299,6 +300,6 @@ describe("handleWebsiteStream", () => {
     const events: unknown[] = [];
     await handleWebsiteStream(guestFrame, (event) => events.push(event));
 
-    expect(events).toEqual([{ type: "error", message: "db down" }]);
+    expect(events).toEqual([{ type: "error", message: "Ошибка обработки" }]);
   });
 });

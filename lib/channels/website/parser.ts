@@ -28,6 +28,8 @@ export function parseWebsiteInboundFrame(
 
   const guestEmail =
     typeof frame.guest_email === "string" ? frame.guest_email.trim() : null;
+  const hotelId =
+    typeof frame.hotel_id === "string" ? frame.hotel_id.trim() : undefined;
 
   return {
     type: "guest_message",
@@ -36,6 +38,7 @@ export function parseWebsiteInboundFrame(
     guest_name: guestName,
     guest_email: guestEmail || null,
     body,
+    hotel_id: hotelId || undefined,
   };
 }
 

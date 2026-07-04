@@ -2,22 +2,66 @@ import {
   cleanupWebsiteStream,
   handleWebsiteStream,
 } from "@/lib/channels/website/stream";
+import {
+  jsonWebsiteError,
+  preflightWebsiteStreamRequest,
+} from "@/lib/channels/website/guards";
+import { logWebsiteWidget } from "@/lib/channels/website/logger";
+import {
+  buildWebsiteWidgetCorsHeaders,
+  evaluateWebsiteWidgetOrigin,
+} from "@/lib/channels/website/cors";
 import type { WebsiteOutboundEvent } from "@/lib/channels/website/types";
 
 export const runtime = "nodejs";
+
+export async function OPTIONS(request: Request) {
+  const originDecision = evaluateWebsiteWidgetOrigin(
+    request.headers.get("origin")
+  );
+
+  if (!originDecision.allowed) {
+    return new Response(null, { status: 403 });
+  }
+
+  return new Response(null, {
+    status: 204,
+    headers: buildWebsiteWidgetCorsHeaders(originDecision.origin),
+  });
+}
 
 export async function POST(request: Request) {
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Некорректный JSON" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
+    const corsHeaders = buildWebsiteWidgetCorsHeaders(
+      evaluateWebsiteWidgetOrigin(request.headers.get("origin")).allowed
+        ? request.headers.get("origin")
+        : null
+    );
+    return jsonWebsiteError(400, "Invalid JSON", corsHeaders);
   }
 
+  const preflight = await preflightWebsiteStreamRequest(request, body);
+  if (!preflight.ok) {
+    return jsonWebsiteError(
+      preflight.status,
+      preflight.error,
+      preflight.corsHeaders,
+      preflight.retryAfterMs
+    );
+  }
+
+  const { frame, corsHeaders, sessionId, hotelId } = preflight;
+  logWebsiteWidget("connection_start", {
+    session_id: sessionId,
+    hotel_id: hotelId,
+    ip: preflight.ipAddress,
+  });
+
   const encoder = new TextEncoder();
+  let disconnectReason = "completed";
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -29,49 +73,46 @@ export async function POST(request: Request) {
       };
 
       try {
-        await handleWebsiteStream(body, send, request.signal);
+        await handleWebsiteStream(frame, send, request.signal);
         if (!request.signal.aborted) {
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+        } else {
+          disconnectReason = "aborted";
         }
-      } catch (err) {
-        if (!request.signal.aborted) {
-          const message =
-            err instanceof Error ? err.message : "Ошибка SSE-потока";
-          send({ type: "error", message });
+      } catch {
+        if (request.signal.aborted) {
+          disconnectReason = "aborted";
+        } else {
+          disconnectReason = "error";
+          send({ type: "error", message: "Ошибка обработки" });
         }
       } finally {
-        const sessionId =
-          typeof body === "object" &&
-          body !== null &&
-          "session_id" in body &&
-          typeof (body as { session_id?: unknown }).session_id === "string"
-            ? (body as { session_id: string }).session_id
-            : null;
-
-        if (request.signal.aborted && sessionId) {
-          await cleanupWebsiteStream(sessionId);
-        }
-
+        logWebsiteWidget(
+          request.signal.aborted ? "disconnect" : "connection_end",
+          {
+            session_id: sessionId,
+            hotel_id: hotelId,
+            reason: disconnectReason,
+          }
+        );
+        await cleanupWebsiteStream(sessionId);
         controller.close();
       }
     },
     async cancel() {
-      const sessionId =
-        typeof body === "object" &&
-        body !== null &&
-        "session_id" in body &&
-        typeof (body as { session_id?: unknown }).session_id === "string"
-          ? (body as { session_id: string }).session_id
-          : null;
-
-      if (sessionId) {
-        await cleanupWebsiteStream(sessionId);
-      }
+      disconnectReason = "cancelled";
+      logWebsiteWidget("disconnect", {
+        session_id: sessionId,
+        hotel_id: hotelId,
+        reason: disconnectReason,
+      });
+      await cleanupWebsiteStream(sessionId);
     },
   });
 
   return new Response(stream, {
     headers: {
+      ...corsHeaders,
       "Content-Type": "text/event-stream",
       "Cache-Control": "no-cache",
       Connection: "keep-alive",
