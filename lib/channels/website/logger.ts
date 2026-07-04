@@ -13,10 +13,4 @@ export function logWebsiteWidget(
   console.info("[HotelAI widget]", event, meta);
 }
 
-export function toPublicWebsiteErrorMessage(error: unknown): string {
-  if (error instanceof Error && error.message === "AI_DISABLED") {
-    return "AI-ресепшн недоступен";
-  }
-
-  return "Ошибка обработки";
-}
+export const PUBLIC_WEBSITE_ERROR_MESSAGE = "Ошибка обработки";

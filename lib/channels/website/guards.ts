@@ -10,28 +10,24 @@ import {
 import type { WebsiteInboundFrame } from "./types";
 import { validateWebsiteRequiredFields } from "./validation";
 
-export type WebsitePreflightSuccess = {
-  ok: true;
-  frame: WebsiteInboundFrame;
-  corsHeaders: Record<string, string>;
-  sessionId: string;
-  hotelId: string;
-  ipAddress: string;
-};
+type WebsitePreflightResult =
+  | {
+      ok: true;
+      frame: WebsiteInboundFrame;
+      corsHeaders: Record<string, string>;
+      sessionId: string;
+      hotelId: string;
+      ipAddress: string;
+    }
+  | {
+      ok: false;
+      status: number;
+      error: string;
+      corsHeaders: Record<string, string>;
+      retryAfterMs?: number;
+    };
 
-export type WebsitePreflightFailure = {
-  ok: false;
-  status: number;
-  error: string;
-  corsHeaders: Record<string, string>;
-  retryAfterMs?: number;
-};
-
-export type WebsitePreflightResult =
-  | WebsitePreflightSuccess
-  | WebsitePreflightFailure;
-
-export function getClientIpAddress(request: Request): string {
+function getClientIpAddress(request: Request): string {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
     return forwarded.split(",")[0]?.trim() || "unknown";

@@ -1,14 +1,14 @@
 import { RateLimiter } from "@/lib/ai/rate-limiter";
 
-export const websiteSessionRateLimiter = new RateLimiter();
-export const websiteIpRateLimiter = new RateLimiter();
+const websiteSessionRateLimiter = new RateLimiter();
+const websiteIpRateLimiter = new RateLimiter();
 
-export type WebsiteRateLimitConfig = {
+type WebsiteRateLimitConfig = {
   sessionPerMinute: number;
   ipPerMinute: number;
 };
 
-export function getWebsiteWidgetRateLimitConfig(): WebsiteRateLimitConfig {
+function getWebsiteWidgetRateLimitConfig(): WebsiteRateLimitConfig {
   const sessionPerMinute = parsePositiveInt(
     process.env.WEBSITE_WIDGET_SESSION_RATE_LIMIT,
     30
@@ -26,7 +26,7 @@ function parsePositiveInt(raw: string | undefined, fallback: number): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
 }
 
-export type WebsiteRateLimitResult =
+type WebsiteRateLimitResult =
   | { allowed: true }
   | { allowed: false; scope: "session" | "ip"; retryAfterMs: number };
 

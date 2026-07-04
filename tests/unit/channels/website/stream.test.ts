@@ -280,17 +280,6 @@ describe("handleWebsiteStream", () => {
     vi.stubEnv("DEFAULT_HOTEL_ID", "hotel_test");
   });
 
-  it("returns an error for invalid payloads", async () => {
-    const events: unknown[] = [];
-    await handleWebsiteStream({ type: "ping" }, (event) =>
-      events.push(event)
-    );
-
-    expect(events).toEqual([
-      { type: "error", message: "Некорректное сообщение" },
-    ]);
-  });
-
   it("surfaces processing errors to the widget", async () => {
     queryResults[key("conversations", "select")] = {
       data: null,

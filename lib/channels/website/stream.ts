@@ -3,8 +3,8 @@ import type { ChannelInboundMessage } from "@/lib/channels/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Conversation } from "@/types/conversation";
 
-import { logWebsiteWidget, toPublicWebsiteErrorMessage } from "./logger";
-import { parseWebsiteInboundFrame, toChannelInboundMessage } from "./parser";
+import { logWebsiteWidget, PUBLIC_WEBSITE_ERROR_MESSAGE } from "./logger";
+import { toChannelInboundMessage } from "./parser";
 import {
   mapOrchestratorEventToWebsite,
   sendWebsiteError,
@@ -12,7 +12,7 @@ import {
 } from "./sender";
 import type { WebsiteInboundFrame } from "./types";
 
-export type WebsiteConnectionState = {
+type WebsiteConnectionState = {
   sessionId: string;
   hotelId: string;
   conversationId: string | null;
@@ -46,12 +46,6 @@ export function registerWebsiteConnection(
   };
   connections.set(sessionId, state);
   return state;
-}
-
-export function getWebsiteConnection(
-  sessionId: string
-): WebsiteConnectionState | undefined {
-  return connections.get(sessionId);
 }
 
 export async function cleanupWebsiteStream(sessionId: string): Promise<void> {
@@ -232,19 +226,13 @@ export async function processWebsiteGuestMessage(
 }
 
 export async function handleWebsiteStream(
-  raw: unknown,
+  frame: WebsiteInboundFrame,
   send: WebsiteSendFn,
   signal?: AbortSignal
 ): Promise<void> {
-  const frame = parseWebsiteInboundFrame(raw);
-  if (!frame) {
-    sendWebsiteError(send, "Некорректное сообщение");
-    return;
-  }
-
   try {
     await processWebsiteGuestMessage(frame, send, signal);
-  } catch (err) {
+  } catch {
     if (signal?.aborted) {
       return;
     }
@@ -253,7 +241,7 @@ export async function handleWebsiteStream(
       hotel_id: frame.hotel_id,
       reason: "processing_error",
     });
-    sendWebsiteError(send, toPublicWebsiteErrorMessage(err));
+    sendWebsiteError(send, PUBLIC_WEBSITE_ERROR_MESSAGE);
   }
 }
 

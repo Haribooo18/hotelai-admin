@@ -6,11 +6,15 @@ import {
   jsonWebsiteError,
   preflightWebsiteStreamRequest,
 } from "@/lib/channels/website/guards";
-import { logWebsiteWidget } from "@/lib/channels/website/logger";
+import {
+  logWebsiteWidget,
+  PUBLIC_WEBSITE_ERROR_MESSAGE,
+} from "@/lib/channels/website/logger";
 import {
   buildWebsiteWidgetCorsHeaders,
   evaluateWebsiteWidgetOrigin,
 } from "@/lib/channels/website/cors";
+import { serializeWebsiteEvent } from "@/lib/channels/website/sender";
 import type { WebsiteOutboundEvent } from "@/lib/channels/website/types";
 
 export const runtime = "nodejs";
@@ -68,7 +72,7 @@ export async function POST(request: Request) {
       const send = (event: WebsiteOutboundEvent) => {
         if (request.signal.aborted) return;
         controller.enqueue(
-          encoder.encode(`data: ${JSON.stringify(event)}\n\n`)
+          encoder.encode(`data: ${serializeWebsiteEvent(event)}\n\n`)
         );
       };
 
@@ -84,7 +88,7 @@ export async function POST(request: Request) {
           disconnectReason = "aborted";
         } else {
           disconnectReason = "error";
-          send({ type: "error", message: "Ошибка обработки" });
+          send({ type: "error", message: PUBLIC_WEBSITE_ERROR_MESSAGE });
         }
       } finally {
         logWebsiteWidget(
