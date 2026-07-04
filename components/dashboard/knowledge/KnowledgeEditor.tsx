@@ -1,0 +1,422 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  Archive,
+  ArrowLeft,
+  Copy,
+  Eye,
+  FileText,
+  Save,
+  Upload,
+  X,
+} from "lucide-react";
+import { toast } from "sonner";
+
+import type { KnowledgeArticle } from "@/types/knowledge-article";
+
+import {
+  countWords,
+  DEFAULT_KNOWLEDGE_CATEGORIES,
+  KNOWLEDGE_LANGUAGES,
+  KNOWLEDGE_PRIORITIES,
+  KNOWLEDGE_PRIORITY_LABELS,
+} from "@/lib/knowledge";
+import {
+  archiveKnowledgeArticle,
+  autosaveKnowledgeArticle,
+  duplicateKnowledgeArticle,
+  publishKnowledgeArticle,
+  unpublishKnowledgeArticle,
+  updateKnowledgeArticle,
+} from "@/lib/services/knowledge.mutations";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+
+import { KnowledgePreview } from "./KnowledgePreview";
+import { KnowledgeStatusBadge } from "./KnowledgeStatusBadge";
+
+type Props = {
+  article: KnowledgeArticle;
+};
+
+type EditorTab = "edit" | "preview";
+
+const AUTOSAVE_MS = 2000;
+
+export function KnowledgeEditor({ article: initial }: Props) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+  const [tab, setTab] = useState<EditorTab>("edit");
+  const [saved, setSaved] = useState(true);
+
+  const [title, setTitle] = useState(initial.title);
+  const [content, setContent] = useState(initial.content);
+  const [category, setCategory] = useState(initial.category ?? "");
+  const [language, setLanguage] = useState(initial.language);
+  const [priority, setPriority] = useState(initial.priority);
+  const [tags, setTags] = useState(initial.tags.join(", "));
+  const [keywords, setKeywords] = useState(
+    initial.search_keywords.join(", ")
+  );
+  const [tagInput, setTagInput] = useState("");
+
+  const autosaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSavedRef = useRef(JSON.stringify(initial));
+
+  const wordCount = countWords(content);
+
+  const scheduleAutosave = useCallback(() => {
+    setSaved(false);
+    if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    autosaveTimer.current = setTimeout(() => {
+      const payload = {
+        id: initial.id,
+        title,
+        content,
+        category,
+        language,
+        priority,
+        tags: parseList(tags),
+        search_keywords: parseList(keywords),
+      };
+      const snapshot = JSON.stringify(payload);
+      if (snapshot === lastSavedRef.current) {
+        setSaved(true);
+        return;
+      }
+
+      startTransition(async () => {
+        try {
+          await autosaveKnowledgeArticle(payload);
+          lastSavedRef.current = snapshot;
+          setSaved(true);
+        } catch {
+          toast.error("Ошибка автосохранения");
+        }
+      });
+    }, AUTOSAVE_MS);
+  }, [
+    initial.id,
+    title,
+    content,
+    category,
+    language,
+    priority,
+    tags,
+    keywords,
+    startTransition,
+  ]);
+
+  useEffect(() => {
+    scheduleAutosave();
+    return () => {
+      if (autosaveTimer.current) clearTimeout(autosaveTimer.current);
+    };
+  }, [scheduleAutosave]);
+
+  function parseList(value: string): string[] {
+    return value
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  function addTag() {
+    const t = tagInput.trim();
+    if (!t) return;
+    const current = parseList(tags);
+    if (!current.includes(t)) {
+      setTags([...current, t].join(", "));
+    }
+    setTagInput("");
+  }
+
+  function removeTag(tag: string) {
+    setTags(parseList(tags).filter((t) => t !== tag).join(", "));
+  }
+
+  function handleSave() {
+    startTransition(async () => {
+      try {
+        await updateKnowledgeArticle({
+          id: initial.id,
+          title,
+          slug: initial.slug ?? "",
+          content,
+          category,
+          language,
+          priority,
+          status: initial.status,
+          is_pinned: initial.is_pinned,
+          tags: parseList(tags),
+          search_keywords: parseList(keywords),
+        });
+        toast.success("Статья сохранена");
+        router.refresh();
+      } catch {
+        toast.error("Не удалось сохранить");
+      }
+    });
+  }
+
+  function handlePublish() {
+    startTransition(async () => {
+      try {
+        await publishKnowledgeArticle(initial.id);
+        toast.success("Статья опубликована");
+        router.refresh();
+      } catch {
+        toast.error("Не удалось опубликовать");
+      }
+    });
+  }
+
+  function handleUnpublish() {
+    startTransition(async () => {
+      try {
+        await unpublishKnowledgeArticle(initial.id);
+        toast.success("Статья снята с публикации");
+        router.refresh();
+      } catch {
+        toast.error("Не удалось снять с публикации");
+      }
+    });
+  }
+
+  function handleArchive() {
+    startTransition(async () => {
+      try {
+        await archiveKnowledgeArticle(initial.id);
+        toast.success("Статья архивирована");
+        router.push("/knowledge");
+      } catch {
+        toast.error("Не удалось архивировать");
+      }
+    });
+  }
+
+  function handleDuplicate() {
+    startTransition(async () => {
+      try {
+        const id = await duplicateKnowledgeArticle(initial.id);
+        toast.success("Копия создана");
+        router.push(`/knowledge/${id}`);
+      } catch {
+        toast.error("Не удалось дублировать");
+      }
+    });
+  }
+
+  const allCategories = Array.from(
+    new Set([
+      ...DEFAULT_KNOWLEDGE_CATEGORIES,
+      ...(category ? [category] : []),
+    ])
+  );
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/knowledge"
+            className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
+            aria-label="Назад к списку"
+          >
+            <ArrowLeft size={18} />
+          </Link>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl font-semibold">Редактор статьи</h1>
+              <KnowledgeStatusBadge status={initial.status} />
+              <span className="text-xs text-zinc-500">v{initial.version}</span>
+            </div>
+            <p className="text-xs text-zinc-500">
+              {saved ? "Сохранено" : "Сохранение…"} · {wordCount} слов
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" size="sm" onClick={handleDuplicate} disabled={pending}>
+            <Copy size={14} className="mr-1" />
+            Дублировать
+          </Button>
+          {initial.status === "published" ? (
+            <Button variant="outline" size="sm" onClick={handleUnpublish} disabled={pending}>
+              <X size={14} className="mr-1" />
+              Снять
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm" onClick={handlePublish} disabled={pending}>
+              <Upload size={14} className="mr-1" />
+              Опубликовать
+            </Button>
+          )}
+          <Button variant="outline" size="sm" onClick={handleArchive} disabled={pending}>
+            <Archive size={14} className="mr-1" />
+            В архив
+          </Button>
+          <Button size="sm" onClick={handleSave} disabled={pending}>
+            <Save size={14} className="mr-1" />
+            Сохранить
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
+        <aside className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+          <div className="space-y-2">
+            <label htmlFor="kb-edit-title" className="block text-sm text-zinc-400">
+              Заголовок
+            </label>
+            <Input
+              id="kb-edit-title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="kb-edit-category" className="block text-sm text-zinc-400">
+              Категория
+            </label>
+            <Select
+              id="kb-edit-category"
+              value={category}
+              onChange={setCategory}
+              placeholder="Без категории"
+              options={allCategories.map((c) => ({ value: c, label: c }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="kb-edit-language" className="block text-sm text-zinc-400">
+              Язык
+            </label>
+            <Select
+              id="kb-edit-language"
+              value={language}
+              onChange={setLanguage}
+              options={KNOWLEDGE_LANGUAGES.map((l) => ({
+                value: l.code,
+                label: l.label,
+              }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="kb-edit-priority" className="block text-sm text-zinc-400">
+              Приоритет
+            </label>
+            <Select
+              id="kb-edit-priority"
+              value={priority}
+              onChange={(v) => setPriority(v as typeof priority)}
+              options={KNOWLEDGE_PRIORITIES.map((p) => ({
+                value: p,
+                label: KNOWLEDGE_PRIORITY_LABELS[p],
+              }))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <span className="block text-sm text-zinc-400">Теги</span>
+            <div className="flex gap-2">
+              <Input
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                placeholder="Добавить тег"
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
+              />
+              <Button type="button" variant="outline" size="sm" onClick={addTag}>
+                +
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {parseList(tags).map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-xs"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => removeTag(tag)}
+                    className="text-zinc-500 hover:text-zinc-200"
+                    aria-label={`Удалить тег ${tag}`}
+                  >
+                    <X size={10} />
+                  </button>
+                </span>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <label htmlFor="kb-keywords" className="block text-sm text-zinc-400">
+              Ключевые слова (поиск)
+            </label>
+            <Input
+              id="kb-keywords"
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
+              placeholder="заезд, checkout, wifi"
+            />
+            <p className="text-xs text-zinc-500">Через запятую</p>
+          </div>
+        </aside>
+
+        <div className="space-y-3">
+          <div className="flex gap-2 border-b border-zinc-800">
+            <button
+              type="button"
+              className={cn(
+                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition",
+                tab === "edit"
+                  ? "border-zinc-100 text-zinc-100"
+                  : "border-transparent text-zinc-500 hover:text-zinc-300"
+              )}
+              onClick={() => setTab("edit")}
+            >
+              <FileText size={14} />
+              Markdown
+            </button>
+            <button
+              type="button"
+              className={cn(
+                "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition",
+                tab === "preview"
+                  ? "border-zinc-100 text-zinc-100"
+                  : "border-transparent text-zinc-500 hover:text-zinc-300"
+              )}
+              onClick={() => setTab("preview")}
+            >
+              <Eye size={14} />
+              Предпросмотр
+            </button>
+          </div>
+
+          {tab === "edit" ? (
+            <Textarea
+              className="min-h-[480px] font-mono text-sm"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Напишите статью в формате Markdown…"
+              aria-label="Содержание статьи"
+            />
+          ) : (
+            <KnowledgePreview content={content} title={title} />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}

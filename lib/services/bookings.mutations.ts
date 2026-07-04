@@ -110,7 +110,7 @@ export async function createBooking(input: BookingCreateInput) {
     check_out
   );
 
-  const { error } = await supabase.from("bookings").insert({
+  const { data, error } = await supabase.from("bookings").insert({
     hotel_id: hotelId,
     room_id,
     guest_name,
@@ -120,11 +120,12 @@ export async function createBooking(input: BookingCreateInput) {
     check_out,
     total_price: totalPrice,
     status: "confirmed",
-  });
+  }).select("id, total_price").single();
 
   if (error) throw error;
 
   revalidateBookings();
+  return { id: data.id as string, total_price: data.total_price as number };
 }
 
 export async function updateBooking(input: BookingUpdateInput) {

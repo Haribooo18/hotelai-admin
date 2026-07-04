@@ -44,10 +44,10 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | B-031 | Link bookings to guest records                   | Guests      | Replace inline guest fields |
 | B-032 | Booking notes and special requests field         | Bookings    | DB column + form |
 | B-033 | Email notification on booking create             | Bookings    | Supabase Edge Function or Resend |
-| B-034 | FAQ / Knowledge base page (`/knowledge`)           | AI          | Nav link exists; DB + inbox panel done (Sprint 6) |
+| B-034 | ~~FAQ / Knowledge base page (`/knowledge`)~~       | AI          | ✅ Sprint 7 — admin CRUD at `/knowledge`   |
 | B-060 | OpenAI provider adapter (`lib/ai/providers/`)      | AI          | Implement `AIProvider.complete()`              |
 | B-061 | Channel webhooks → `messages` ingest               | AI          | WhatsApp, Telegram, etc.                       |
-| B-062 | Knowledge article editor UI                        | AI          | Mutations exist; no dedicated editor route     |
+| B-062 | ~~Knowledge article editor UI~~                    | AI          | ✅ Sprint 7 — `/knowledge/[id]` editor       |
 | B-063 | Realtime sync for `messages` table                 | AI          | Supabase realtime subscription in inbox        |
 | B-035 | Revenue chart with real booking data               | Dashboard   | Replace mock `DashboardCharts` data |
 | B-036 | Date-range filter for dashboard KPIs               | Dashboard   | |

@@ -10,13 +10,15 @@ export type AIRequest = {
   knowledgeSnippets: Pick<KnowledgeArticle, "id" | "title" | "content">[];
   systemPrompt: string;
   tools: AIToolDefinition[];
+  /** Resolved response language. */
+  language: string;
+  /** Formatted conversation transcript for providers that prefer plain text. */
+  transcript: string;
 };
 
 export type AIResponse = {
-  /** Text to send to the guest. Null when the model only invoked tools. */
   content: string | null;
   toolCalls: AIToolCall[];
-  /** Provider-specific metadata (token usage, model id, etc.). */
   metadata: Record<string, unknown>;
 };
 
@@ -34,8 +36,7 @@ export type AIToolCall = {
 
 /**
  * Provider-agnostic AI completion contract.
- * Implementations (e.g. OpenAI) are wired via dependency injection — never imported
- * directly by feature code.
+ * Implementations (e.g. OpenAI) are wired via dependency injection.
  */
 export type AIProvider = {
   readonly name: string;

@@ -8,6 +8,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Knowledge Base & AI Tools (Sprint 7)
+
+- **Knowledge CRUD module** (`components/dashboard/knowledge/`) — `KnowledgePage`, `KnowledgeTable`, `KnowledgeEditor`, create/delete dialogs, filters, search, categories, preview, status badge, empty/loading/error states.
+- **Routes** `/knowledge` + `/knowledge/[id]` with `loading.tsx` + `error.tsx`.
+- **Migration `0008_knowledge_base.sql`** — extends `knowledge_articles`: `language`, `priority`, `status`, `version`, `created_by`, `updated_by`, `search_keywords` + indexes.
+- **Editor** — Markdown + preview, autosave, word count, tags/keywords, publish/unpublish, duplicate, archive.
+- **Search pipeline** — `lib/knowledge-search.ts` ranked lexical search (title, body, tags, category, keywords, priority, language); prepared for embeddings.
+- **AI intelligence layer** — `PromptAssembler`, `ContextBuilder`, `SystemPromptBuilder`, `ConversationMemory`, `ToolRegistry`/`ToolResolver`/`ToolExecutor`, 7 built-in tools in `lib/ai/tools/`.
+- **Validation** — `lib/validations/ai-tools.ts` (tool input/output Zod schemas).
+- **Inbox** — `KnowledgePanel` now shows published articles only; link to `/knowledge` when empty.
+
+### Migration notes (Sprint 7)
+
+- Apply `supabase/migrations/0008_knowledge_base.sql` after `0007`.
+- OpenAI is **not** wired; `PromptAssembler` prepares `AIRequest` only.
+- `ai_actions` population awaits provider integration (B-060).
+
 ### AI Receptionist foundation (Sprint 6)
 
 - **New AI module** (`components/dashboard/ai/`) — production inbox UI: `AIInboxPage`, `ConversationList`, `ConversationView`, `MessageBubble`, `MessageComposer`, `ConversationHeader`, `LeadCard`, `KnowledgePanel`, `QuickActions`, `TypingIndicator`, `EmptyConversation`, `AIStatusBadge`.

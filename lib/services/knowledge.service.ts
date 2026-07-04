@@ -1,7 +1,14 @@
 import { createClient } from "@/lib/supabase/server";
+import {
+  rankKnowledgeArticles,
+  type KnowledgeSearchFilters,
+} from "@/lib/knowledge-search";
 import { getCurrentHotelId } from "@/lib/tenant";
 
-import type { KnowledgeArticle } from "@/types/knowledge-article";
+import type {
+  KnowledgeArticle,
+  KnowledgeSearchResult,
+} from "@/types/knowledge-article";
 
 function formatError(error: {
   code?: string;
@@ -32,6 +39,13 @@ export async function getKnowledgeArticles(): Promise<KnowledgeArticle[]> {
   return (data ?? []) as KnowledgeArticle[];
 }
 
+export async function getPublishedKnowledgeArticles(): Promise<
+  KnowledgeArticle[]
+> {
+  const articles = await getKnowledgeArticles();
+  return articles.filter((a) => a.status === "published");
+}
+
 export async function getKnowledgeArticle(
   id: string
 ): Promise<KnowledgeArticle | null> {
@@ -52,28 +66,37 @@ export async function getKnowledgeArticle(
 }
 
 export async function searchKnowledgeArticles(
-  query: string
-): Promise<KnowledgeArticle[]> {
+  query: string,
+  filters: Omit<KnowledgeSearchFilters, "query"> = {}
+): Promise<KnowledgeSearchResult[]> {
   const articles = await getKnowledgeArticles();
-  const q = query.trim().toLowerCase();
-  if (!q) return articles;
+  return rankKnowledgeArticles(articles, { ...filters, query });
+}
 
-  return articles.filter((a) => {
-    const haystack = [a.title, a.content, a.category ?? "", ...a.tags]
-      .join(" ")
-      .toLowerCase();
-    return haystack.includes(q);
-  });
+export async function searchPublishedKnowledge(
+  query: string,
+  limit = 5
+): Promise<KnowledgeSearchResult[]> {
+  return searchKnowledgeArticles(query, { publishedOnly: true, limit });
 }
 
 export async function getPinnedKnowledgeArticles(): Promise<KnowledgeArticle[]> {
-  const articles = await getKnowledgeArticles();
+  const articles = await getPublishedKnowledgeArticles();
   return articles.filter((a) => a.is_pinned);
 }
 
 export async function getRecentKnowledgeArticles(
   limit = 5
 ): Promise<KnowledgeArticle[]> {
-  const articles = await getKnowledgeArticles();
+  const articles = await getPublishedKnowledgeArticles();
   return articles.slice(0, limit);
+}
+
+export async function getKnowledgeCategories(): Promise<string[]> {
+  const articles = await getKnowledgeArticles();
+  const set = new Set<string>();
+  for (const a of articles) {
+    if (a.category) set.add(a.category);
+  }
+  return Array.from(set).sort();
 }

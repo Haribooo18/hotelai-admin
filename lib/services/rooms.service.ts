@@ -24,6 +24,28 @@ export async function getRooms(): Promise<Room[]> {
   return (data ?? []) as Room[];
 }
 
+export async function getRoom(id: string): Promise<Room | null> {
+  const supabase = await createClient();
+  const hotelId = await getCurrentHotelId();
+
+  const { data, error } = await supabase
+    .from("rooms")
+    .select("*")
+    .eq("id", id)
+    .eq("hotel_id", hotelId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(
+      `${error.code}: ${error.message}${
+        error.details ? ` (${error.details})` : ""
+      }`
+    );
+  }
+
+  return (data as Room | null) ?? null;
+}
+
 export async function getAvailableRooms() {
   const supabase = await createClient();
   const hotelId = await getCurrentHotelId();

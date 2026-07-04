@@ -157,8 +157,13 @@ Roadmap organized by feature area. Status key: ✅ Done · 🚧 In Progress · �
 | OpenAI / LLM integration                  | 📋 Planned    | Implement `AIProvider` adapter             |
 | Channel webhooks (WhatsApp, Telegram…)    | 📋 Planned    | Ingest guest messages → `messages`         |
 | Realtime message sync                     | 📋 Planned    | Supabase realtime on `messages`            |
-| Knowledge article editor UI               | 📋 Planned    | CRUD UI beyond inbox panel                 |
-| FAQ / Knowledge public page               | 📋 Planned    | Nav link exists (`/knowledge`)             |
+| Knowledge base admin CRUD (`/knowledge`)  | ✅ Done (Sprint 7) | Editor, publish workflow, search ranking   |
+| Knowledge article editor UI               | ✅ Done (Sprint 7) | `/knowledge/[id]`, autosave, Markdown      |
+| AI tool framework (7 tools + registry)    | ✅ Done (Sprint 7) | `lib/ai/tools/`, no provider calls yet     |
+| Prompt / context pipeline                 | ✅ Done (Sprint 7) | `PromptAssembler` → `AIRequest`            |
+| Lexical knowledge search + ranking        | ✅ Done (Sprint 7) | `lib/knowledge-search.ts`                  |
+| Knowledge embeddings                      | 📋 Planned    | Hybrid retrieval after pgvector            |
+| FAQ / Knowledge public page (guest-facing)| 📋 Planned    | Admin CRUD at `/knowledge` done (Sprint 7) |
 | AI-suggested responses for staff          | 📋 Planned    | Requires OpenAI provider                   |
 | Demand forecasting                        | 🔮 Future     |                                            |
 

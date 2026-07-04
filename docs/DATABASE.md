@@ -15,6 +15,7 @@ Multi-tenancy: domain tables include `hotel_id`, enforced in the app (query scop
 > - `0005_realtime_leads.sql` — `leads` replica identity + realtime publication.
 > - `0006_guests_crm.sql` — guest CRM columns (`tags`, `is_vip`, `is_favorite`, `avatar_url`, `deleted_at`) + supporting indexes (Sprint 4).
 > - `0007_ai_receptionist.sql` — AI Receptionist tables (`conversations`, `messages`, `knowledge_articles`, `ai_actions`, `conversation_tags`, `conversation_assignments`) + RLS (Sprint 6).
+> - `0008_knowledge_base.sql` — extends `knowledge_articles` with language, priority, status, version, audit columns, search keywords + indexes (Sprint 7).
 
 ---
 
@@ -274,21 +275,30 @@ Messages within a conversation.
 
 Hotel knowledge base for RAG / staff reference.
 
-| Column       | Type          | Nullable | Description |
-|--------------|---------------|----------|-------------|
-| `id`         | `uuid`        | NO       | Primary key |
-| `hotel_id`   | `text`        | NO       | Tenant |
-| `title`      | `text`        | NO       | |
-| `slug`       | `text`        | YES      | |
-| `content`    | `text`        | NO       | |
-| `category`   | `text`        | YES      | |
-| `is_pinned`  | `boolean`     | NO       | |
-| `tags`       | `text[]`      | NO       | |
-| `deleted_at` | `timestamptz` | YES      | Soft delete |
-| `created_at` | `timestamptz` | NO       | |
-| `updated_at` | `timestamptz` | NO       | |
+| Column            | Type          | Nullable | Description |
+|-------------------|---------------|----------|-------------|
+| `id`              | `uuid`        | NO       | Primary key |
+| `hotel_id`        | `text`        | NO       | Tenant |
+| `title`           | `text`        | NO       | |
+| `slug`            | `text`        | YES      | |
+| `content`         | `text`        | NO       | Markdown body |
+| `category`        | `text`        | YES      | |
+| `language`        | `text`        | NO       | ISO-ish code, default `ru` (Sprint 7) |
+| `priority`        | `text`        | NO       | `low` \| `normal` \| `high` (Sprint 7) |
+| `status`          | `text`        | NO       | `draft` \| `published` \| `archived` (Sprint 7) |
+| `version`         | `integer`     | NO       | Incremented on publish (Sprint 7) |
+| `is_pinned`       | `boolean`     | NO       | |
+| `tags`            | `text[]`      | NO       | |
+| `search_keywords` | `text[]`      | NO       | Manual search terms; embeddings later (Sprint 7) |
+| `created_by`      | `uuid`        | YES      | `auth.users` (Sprint 7) |
+| `updated_by`      | `uuid`        | YES      | `auth.users` (Sprint 7) |
+| `deleted_at`      | `timestamptz` | YES      | Soft delete |
+| `created_at`      | `timestamptz` | NO       | |
+| `updated_at`      | `timestamptz` | NO       | |
 
-**Used by:** `lib/services/knowledge.service.ts`, `lib/services/knowledge.mutations.ts`, `lib/ai/server-knowledge-retriever.ts`
+**Indexes (Sprint 7):** `knowledge_articles_hotel_status_idx`, `knowledge_articles_hotel_language_idx`, `knowledge_articles_hotel_category_idx`, `knowledge_articles_hotel_priority_idx`, `knowledge_articles_search_keywords_gin_idx`.
+
+**Used by:** `lib/services/knowledge.service.ts`, `lib/services/knowledge.mutations.ts`, `lib/ai/server-knowledge-retriever.ts`, `lib/knowledge-search.ts`
 
 ### `ai_actions`
 

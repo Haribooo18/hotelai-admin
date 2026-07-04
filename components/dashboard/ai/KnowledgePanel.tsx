@@ -58,7 +58,10 @@ export function KnowledgePanel({ articles }: Props) {
       <div className="flex-1 overflow-y-auto p-4">
         {articles.length === 0 ? (
           <p className="text-center text-sm text-zinc-500">
-            Нет статей. Добавьте знания для AI.
+            Нет опубликованных статей.{" "}
+            <a href="/knowledge" className="text-blue-400 hover:underline">
+              Добавить в базе знаний
+            </a>
           </p>
         ) : (
           <div className="space-y-6">

@@ -526,10 +526,31 @@ Feature folder: `components/dashboard/ai/`. Provider-agnostic AI contracts live 
 | `AIProvider`         | `types.ts`                | `complete(AIRequest) → AIResponse` |
 | `AITool`             | `tools.ts`                | Executable tools with JSON schema |
 | `KnowledgeRetriever` | `knowledge-retriever.ts`  | RAG snippet retrieval |
-| `PromptBuilder`      | `prompt-builder.ts`       | System prompt assembly |
+| `PromptBuilder`      | `prompt-assembler.ts`     | Legacy `buildSystemPrompt`; full `AIRequest` via `PromptAssembler` |
 | DI container         | `index.ts`                | `configureAIServices()` / `getAIServices()` |
 
 Wire production implementations via `configureAIServices()` at server bootstrap (Server Action or Edge Function). `server-knowledge-retriever.ts` is the reference retriever implementation.
+
+### Intelligence layer (Sprint 7)
+
+Context preparation only — **no OpenAI calls**.
+
+| Component              | File                         | Purpose |
+|------------------------|------------------------------|---------|
+| `PromptAssembler`      | `prompt-assembler.ts`        | Builds full `AIRequest` from hotel, guest, knowledge, history, tools |
+| `SystemPromptBuilder`  | `system-prompt-builder.ts`   | System instructions + context blocks |
+| `ContextBuilder`       | `context-builder.ts`         | Hotel profile, guest, knowledge, date, language, tools |
+| `ConversationMemory`   | `conversation-memory.ts`     | Truncate/format message history |
+| `ToolRegistry`         | `tool-registry.ts`           | Auto-discovered tool registration |
+| `ToolResolver`         | `tool-registry.ts`           | Resolve tool by name |
+| `ToolExecutor`         | `tool-registry.ts`           | Validate input, permissions, tenant scope, execute |
+| Built-in tools         | `tools/*.ts`                 | 7 tenant-safe tools (bookings, guests, rooms, knowledge) |
+
+**Prompt pipeline:** `PromptAssembler.build()` → retrieves ranked knowledge → assembles context → returns `AIRequest` with `systemPrompt`, `knowledgeSnippets`, `tools`, `transcript`, `language`.
+
+**Tool discovery:** `lib/ai/tools/index.ts` exports `discoveredTools`; registered automatically in `configureAIServices()` default bootstrap.
+
+**Search:** `lib/knowledge-search.ts` — lexical ranking (title, body, tags, category, keywords, priority, language). Prepared for future embeddings; not implemented.
 
 ### Conversation lifecycle
 
@@ -539,12 +560,31 @@ Channels: `website`, `whatsapp`, `telegram`, `instagram`, `facebook_messenger`, 
 
 ---
 
+## Knowledge Base
+
+Feature folder: `components/dashboard/knowledge/`. Route: `/knowledge` (admin CRUD); `/knowledge/[id]` (editor).
+
+### Data flow
+
+1. `app/knowledge/page.tsx` fetches all articles + categories via `knowledge.service.ts`.
+2. `KnowledgePage` — search, filters, category chips, table, create dialog.
+3. `KnowledgeEditor` — Markdown editor, preview, autosave (`autosaveKnowledgeArticle`), publish/unpublish, duplicate, archive.
+4. AI inbox (`KnowledgePanel`) shows **published** articles only via `getPublishedKnowledgeArticles()`.
+
+### Article model
+
+`title`, `content` (Markdown), `category`, `tags`, `language`, `priority`, `status` (`draft` \| `published` \| `archived`), `is_pinned`, `version`, `search_keywords`, `created_by`, `updated_by`.
+
+Mutations: `knowledge.mutations.ts` — create, update, autosave, publish, unpublish, archive, duplicate, pin, soft delete. All Zod-validated, tenant-scoped, `revalidatePath('/knowledge')` + `/ai`.
+
+---
+
 ## Future Architecture Goals
 
 1. ~~**Auth layer** — Supabase Auth + RLS; remove hardcoded `hotel_id`.~~ ✅ Delivered in Sprint 1.
 2. ~~**Consolidate leads** — move `Lead` type to `types/lead.ts`.~~ ✅ `types/lead.ts` added; feature folder `components/dashboard/leads/` still pending.
 3. ~~**Zod validation** — shared schemas in `lib/validations/`.~~ ✅ Sprint 3 (`room`/`booking` schemas).
-4. **Error boundaries** — per-route `error.tsx` and `loading.tsx`. ✅ `/rooms`, `/bookings` (Sprint 3), `/guests` (Sprint 4), `/calendar` (Sprint 5), `/ai` (Sprint 6); `/` (leads) pending (TD-15).
+4. **Error boundaries** — per-route `error.tsx` and `loading.tsx`. ✅ `/rooms`, `/bookings` (Sprint 3), `/guests` (Sprint 4), `/calendar` (Sprint 5), `/ai` (Sprint 6), `/knowledge` (Sprint 7); `/` (leads) pending (TD-15).
 5. **Hooks folder** — `hooks/useBookings.ts` for client-side data when needed.
 6. **i18n** — extract Russian UI strings to locale files.
 7. **Roles** — use the `memberships.role` column for owner/manager/staff authorization.

@@ -9,7 +9,7 @@ import {
   getMessages,
 } from "@/lib/services/ai.service";
 import {
-  getKnowledgeArticles,
+  getPublishedKnowledgeArticles,
 } from "@/lib/services/knowledge.service";
 import { getCurrentHotel, requireUser } from "@/lib/tenant";
 
@@ -27,7 +27,7 @@ export default async function AIRoute({ searchParams }: Props) {
     getCurrentHotel(),
     requireUser(),
     getConversations(),
-    getKnowledgeArticles(),
+    getPublishedKnowledgeArticles(),
   ]);
 
   let selectedConversation = null;
