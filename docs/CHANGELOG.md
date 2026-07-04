@@ -8,6 +8,14 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Website Chat (Sprint 11)
+
+- **Website channel** — `lib/channels/website/` with parser, SSE sender mapping, and SSE stream lifecycle handler (`stream.ts`).
+- **Streaming endpoint (SSE)** — `POST /api/channels/website/stream` (public, hotel-scoped via `WEBSITE_CHAT_HOTEL_ID`).
+- **Streaming AI** — `streamAIResponseForHotel()` in `tenant-ai.service.ts` delegates to `AIOrchestrator.stream()`.
+- **Tests** — parser, SSE stream lifecycle, conversation reuse, AI trigger, streaming events, disconnect cleanup.
+- **Docs** — README website chat setup, `.env.example`, ARCHITECTURE website flow.
+
 ### Telegram Integration (Sprint 10)
 
 - **Channel layer** — `lib/channels/` with Telegram parser, webhook handler, and Bot API sender.

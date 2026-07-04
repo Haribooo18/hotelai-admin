@@ -209,6 +209,35 @@ Inbound Telegram messages create or reuse a `conversations` row (`channel: teleg
 
 ---
 
+## Website chat channel
+
+Public streaming endpoint (SSE): `POST /api/channels/website/stream` (no auth session; hotel scoped via `WEBSITE_CHAT_HOTEL_ID` or `DEFAULT_HOTEL_ID`).
+
+Widget flow:
+
+1. POST a JSON guest frame to `/api/channels/website/stream`.
+2. Server opens an SSE stream (`text/event-stream`) with `WebsiteOutboundEvent` frames.
+3. Each `session_id` reuses the same `conversations` row (`channel: website`, `guest_phone` = session id).
+4. Guest message is inserted, then `streamAIResponseForHotel()` streams through the existing `AIOrchestrator.stream()` pipeline.
+5. AI tokens arrive as `text_delta` / `text_final`; stream ends with `done` or `[DONE]`.
+
+Example request body:
+
+```json
+{
+  "type": "guest_message",
+  "session_id": "visitor-abc123",
+  "message_id": "msg-001",
+  "guest_name": "Maria",
+  "guest_email": "maria@example.com",
+  "body": "Есть ли парковка?"
+}
+```
+
+Set `WEBSITE_CHAT_HOTEL_ID`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY`; enable AI for the hotel at `/settings`.
+
+---
+
 ## License
 
 Private — not for public distribution unless otherwise stated by the repository owner.

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { aiOrchestrator } from "@/lib/ai/orchestrator";
+import type { OrchestratorStreamEvent } from "@/lib/ai/orchestrator";
 import { DEFAULT_AI_SETTINGS } from "@/lib/ai/config";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Conversation } from "@/types/conversation";
@@ -230,4 +231,44 @@ export async function generateAIResponseForHotel(
     await setAITyping(supabase, hotelId, conversationId, false);
     throw err;
   }
+}
+
+export type StreamAIResponseForHotelOptions = {
+  signal?: AbortSignal;
+};
+
+/**
+ * Streams AI completion events for channel widgets (website chat).
+ * Delegates to AIOrchestrator.stream() — typing, persistence, and logging
+ * remain in the orchestrator layer.
+ */
+export async function* streamAIResponseForHotel(
+  hotelId: string,
+  conversationId: string,
+  options: StreamAIResponseForHotelOptions = {}
+): AsyncGenerator<OrchestratorStreamEvent> {
+  const supabase = createAdminClient();
+
+  const settings = await getHotelAISettingsForHotel(hotelId, supabase);
+  if (!settings.enabled) {
+    return;
+  }
+
+  const [hotelName, conversation, messages] = await Promise.all([
+    resolveHotelName(hotelId, supabase),
+    getConversationForHotel(hotelId, conversationId, supabase),
+    getMessagesForHotel(hotelId, conversationId, supabase),
+  ]);
+
+  if (!conversation) {
+    throw new Error("Диалог не найден");
+  }
+
+  yield* aiOrchestrator.stream({
+    hotel: { id: hotelId, name: hotelName },
+    conversation,
+    messages,
+    settings,
+    signal: options.signal,
+  });
 }

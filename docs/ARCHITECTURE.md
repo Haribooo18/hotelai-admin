@@ -592,7 +592,7 @@ Channels: `website`, `whatsapp`, `telegram`, `instagram`, `facebook_messenger`, 
 
 ---
 
-## Communication Channels (Sprint 10)
+## Communication Channels (Sprint 10–11)
 
 Channel integrations are a **transport layer only** — they do not duplicate AI logic. All completions go through the existing `AIOrchestrator`, `conversations`, `messages`, and `ai_actions` tables.
 
@@ -605,6 +605,11 @@ lib/channels/
     parser.ts           # parseTelegramUpdate() → ChannelInboundMessage
     sender.ts           # sendTelegramMessage() via Bot API
     webhook.ts          # validate secret, find/create conversation, AI trigger, outbound send
+  website/
+    types.ts            # WebsiteInboundFrame, WebsiteOutboundEvent
+    parser.ts           # parseWebsiteInboundFrame() → ChannelInboundMessage
+    sender.ts           # mapOrchestratorEventToWebsite(), SSE serialization
+    stream.ts           # session registry, ingress, SSE stream relay (no AI logic)
 ```
 
 ### Telegram inbound flow
@@ -626,6 +631,27 @@ POST /api/channels/telegram/webhook
 **Public route:** `/api/channels/telegram/webhook` is listed in `lib/supabase/session.ts` `PUBLIC_PATHS` (secret-validated, not session-authenticated).
 
 **Env:** `TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_HOTEL_ID` (optional), `SUPABASE_SERVICE_ROLE_KEY` (required for webhooks).
+
+### Website chat inbound flow (Sprint 11)
+
+```
+POST /api/channels/website/stream  (SSE response)
+  ├─ parseWebsiteInboundFrame()
+  ├─ resolve hotel_id (WEBSITE_CHAT_HOTEL_ID → DEFAULT_HOTEL_ID)
+  ├─ registerWebsiteConnection(session_id) — abort prior stream on reconnect
+  ├─ findOrCreateWebsiteConversation() — channel=website, guest_phone=session_id
+  ├─ insert guest message (messages.role=guest, hotel_id scoped)
+  ├─ streamAIResponseForHotel() → tenant-ai.service
+  │    └─ AIOrchestrator.stream() + typing/status/persist (unchanged pipeline)
+  ├─ mapOrchestratorEventToWebsite() → SSE frames (ack, text_delta, done, …)
+  └─ cleanupWebsiteStream() on client disconnect / abort
+```
+
+**Transport only:** `stream.ts` owns SSE stream lifecycle and protocol mapping; it does not call `PromptAssembler`, providers, or tools directly.
+
+**Public route:** `/api/channels/website/stream` is listed in `lib/supabase/session.ts` `PUBLIC_PATHS`.
+
+**Env:** `WEBSITE_CHAT_HOTEL_ID` (optional), `SUPABASE_SERVICE_ROLE_KEY`, `OPENAI_API_KEY`.
 
 ---
 
