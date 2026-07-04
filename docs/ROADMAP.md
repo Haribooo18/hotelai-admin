@@ -154,7 +154,11 @@ Roadmap organized by feature area. Status key: ✅ Done · 🚧 In Progress · �
 | Provider-agnostic AI layer                | ✅ Done (Sprint 6) | `lib/ai/` interfaces + DI, no OpenAI yet   |
 | AI actions audit log                      | ✅ Done (Sprint 6) | `ai_actions` table (empty until wired)     |
 | Lead capture from AI conversations        | ✅ Done       | `leads` table; inbox links via `lead_id`   |
-| OpenAI / LLM integration                  | 📋 Planned    | Implement `AIProvider` adapter             |
+| OpenAI / LLM integration                  | ✅ Done (Sprint 8) | Responses API provider + orchestrator        |
+| AI settings & prompt test                 | ✅ Done (Sprint 8) | `/settings` page                           |
+| Streaming AI responses                  | ✅ Done (Sprint 8) | `/api/ai/stream` SSE                         |
+| AI health diagnostics                     | ✅ Done (Sprint 8) | `/api/ai/health` + settings panel            |
+| Conversation replay (ai_actions)          | ✅ Done (Sprint 8) | Sidebar in `ConversationView`                |
 | Channel webhooks (WhatsApp, Telegram…)    | 📋 Planned    | Ingest guest messages → `messages`         |
 | Realtime message sync                     | 📋 Planned    | Supabase realtime on `messages`            |
 | Knowledge base admin CRUD (`/knowledge`)  | ✅ Done (Sprint 7) | Editor, publish workflow, search ranking   |

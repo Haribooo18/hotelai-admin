@@ -15,6 +15,7 @@ import {
 } from "./tool-registry";
 import { discoveredTools } from "./tools/index";
 import type { AITool } from "./tools";
+import { bootstrapAIServices, isOpenAIConfigured } from "./bootstrap";
 
 export type AIServices = {
   provider: AIProvider;
@@ -98,6 +99,8 @@ export {
   ToolExecutor,
   createToolRegistry,
   createToolExecutor,
+  bootstrapAIServices,
+  isOpenAIConfigured,
 };
 
 export type { PromptBuilder } from "./prompt-assembler";

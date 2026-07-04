@@ -8,6 +8,24 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### OpenAI Integration (Sprint 8)
+
+- **OpenAI provider** (`lib/ai/providers/openai.ts`) — Responses API, streaming SSE events, tool-call follow-up via `completeWithToolOutputs`.
+- **Orchestrator** (`lib/ai/orchestrator.ts`) — `PromptAssembler` → provider → `ToolExecutor` loop; anti-hallucination instructions; logs every completion/tool call to `ai_actions`.
+- **Bootstrap** (`lib/ai/bootstrap.ts`) — wires OpenAI when `OPENAI_API_KEY` is set (server-side only).
+- **Migration `0009_ai_openai.sql`** — `hotel_ai_settings`, `ai_observability_logs`, extends `ai_actions` (tokens, cost, duration), `conversations.is_ai_typing`.
+- **Services** — `ai-completion.service.ts` (generateAIResponse, sendGuestMessage, testAIPrompt), `ai-settings.service/mutations.ts`.
+- **API routes** — `/api/ai/respond`, `/api/ai/stream` (SSE), `/api/ai/health`.
+- **Resilience** — retry with backoff, timeout, per-hotel rate limiting, token usage + cost estimation.
+- **Settings** (`/settings`) — model config, enable toggle, prompt test, health diagnostics, observability log.
+- **Inbox** — «AI ответить», guest message simulation, streaming preview, AI typing indicator, conversation replay (`ConversationReplay`).
+
+### Migration notes (Sprint 8)
+
+- Apply `supabase/migrations/0009_ai_openai.sql` after `0008`.
+- Set `OPENAI_API_KEY` in server env (never expose to client).
+- Enable AI per hotel at `/settings`.
+
 ### Knowledge Base & AI Tools (Sprint 7)
 
 - **Knowledge CRUD module** (`components/dashboard/knowledge/`) — `KnowledgePage`, `KnowledgeTable`, `KnowledgeEditor`, create/delete dialogs, filters, search, categories, preview, status badge, empty/loading/error states.

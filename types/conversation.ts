@@ -37,6 +37,7 @@ export type Conversation = {
 
   assigned_to: string | null;
   is_guest_typing: boolean;
+  is_ai_typing: boolean;
   internal_notes: string | null;
 
   deleted_at: string | null;

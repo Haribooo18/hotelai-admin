@@ -15,7 +15,8 @@ Multi-tenancy: domain tables include `hotel_id`, enforced in the app (query scop
 > - `0005_realtime_leads.sql` — `leads` replica identity + realtime publication.
 > - `0006_guests_crm.sql` — guest CRM columns (`tags`, `is_vip`, `is_favorite`, `avatar_url`, `deleted_at`) + supporting indexes (Sprint 4).
 > - `0007_ai_receptionist.sql` — AI Receptionist tables (`conversations`, `messages`, `knowledge_articles`, `ai_actions`, `conversation_tags`, `conversation_assignments`) + RLS (Sprint 6).
-> - `0008_knowledge_base.sql` — extends `knowledge_articles` with language, priority, status, version, audit columns, search keywords + indexes (Sprint 7).
+> - `0008_knowledge_base.sql` — extends `knowledge_articles` (Sprint 7).
+> - `0009_ai_openai.sql` — `hotel_ai_settings`, `ai_observability_logs`, extends `ai_actions`, `is_ai_typing` (Sprint 8).
 
 ---
 

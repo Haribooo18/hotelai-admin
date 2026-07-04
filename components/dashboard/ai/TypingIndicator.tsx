@@ -1,12 +1,23 @@
-export function TypingIndicator() {
+type Props = {
+  label?: string;
+  actor?: "guest" | "ai";
+};
+
+export function TypingIndicator({
+  label,
+  actor = "guest",
+}: Props) {
+  const defaultLabel =
+    actor === "ai" ? "AI печатает" : "Гость печатает";
+
   return (
     <div
       className="flex items-center gap-1.5 px-4 py-2"
       role="status"
       aria-live="polite"
-      aria-label="Гость печатает"
+      aria-label={label ?? defaultLabel}
     >
-      <span className="text-sm text-zinc-500">Гость печатает</span>
+      <span className="text-sm text-zinc-500">{label ?? defaultLabel}</span>
       <span className="flex gap-1">
         {[0, 1, 2].map((i) => (
           <span

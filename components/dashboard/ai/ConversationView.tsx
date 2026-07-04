@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useRef, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import type { Conversation } from "@/types/conversation";
 import type { Message } from "@/types/message";
 import type { Lead } from "@/types/lead";
+import type { AIAction } from "@/types/ai-action";
 
 import { markConversationRead } from "@/lib/services/ai.mutations";
+
+import { ConversationReplay } from "@/components/dashboard/settings/ConversationReplay";
 
 import { ConversationHeader } from "./ConversationHeader";
 import { LeadCard } from "./LeadCard";
@@ -21,6 +24,8 @@ type Props = {
   messages: Message[];
   lead: Lead | null;
   currentUserId: string;
+  aiActions?: AIAction[];
+  aiEnabled?: boolean;
 };
 
 export function ConversationView({
@@ -28,14 +33,18 @@ export function ConversationView({
   messages,
   lead,
   currentUserId,
+  aiActions = [],
+  aiEnabled = false,
 }: Props) {
   const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [, startTransition] = useTransition();
+  const [streaming, setStreaming] = useState(false);
+  const [streamText, setStreamText] = useState("");
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages.length]);
+  }, [messages.length, streamText]);
 
   useEffect(() => {
     if (conversation.unread_count <= 0) return;
@@ -48,11 +57,12 @@ export function ConversationView({
         console.error(error);
       }
     });
-    // Mark read once when opening a conversation.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation.id]);
 
   const visibleMessages = messages.filter((m) => !m.deleted_at);
+  const showAiTyping =
+    conversation.is_ai_typing || streaming;
 
   return (
     <div className="flex h-full min-h-0 flex-1 flex-col">
@@ -62,6 +72,11 @@ export function ConversationView({
         <QuickActions
           conversation={conversation}
           currentUserId={currentUserId}
+          aiEnabled={aiEnabled}
+          onAIStreamStart={() => {
+            setStreaming(true);
+            setStreamText("");
+          }}
         />
       </div>
 
@@ -83,12 +98,29 @@ export function ConversationView({
               ))
             )}
 
-            {conversation.is_guest_typing && <TypingIndicator />}
+            {streaming && streamText && (
+              <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-zinc-200">
+                {streamText}
+              </div>
+            )}
+
+            {showAiTyping && <TypingIndicator actor="ai" />}
+            {conversation.is_guest_typing && (
+              <TypingIndicator actor="guest" />
+            )}
 
             <div ref={bottomRef} />
           </div>
 
-          <MessageComposer conversationId={conversation.id} />
+          <MessageComposer
+            conversationId={conversation.id}
+            aiEnabled={aiEnabled}
+            onStreamDelta={setStreamText}
+            onStreamEnd={() => {
+              setStreaming(false);
+              setStreamText("");
+            }}
+          />
         </div>
 
         <aside className="hidden w-64 shrink-0 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 lg:block">
@@ -104,6 +136,13 @@ export function ConversationView({
               </p>
             </div>
           )}
+
+          <div className="mt-4">
+            <p className="mb-2 text-xs uppercase tracking-widest text-zinc-500">
+              AI Replay
+            </p>
+            <ConversationReplay actions={aiActions} />
+          </div>
         </aside>
       </div>
     </div>

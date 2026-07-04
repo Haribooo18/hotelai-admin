@@ -36,6 +36,8 @@ type Props = {
   messages: Message[];
   lead: Lead | null;
   currentUserId: string;
+  aiActions?: import("@/types/ai-action").AIAction[];
+  aiEnabled?: boolean;
 };
 
 export function AIInboxPage({
@@ -45,6 +47,8 @@ export function AIInboxPage({
   messages,
   lead,
   currentUserId,
+  aiActions = [],
+  aiEnabled = false,
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -154,6 +158,8 @@ export function AIInboxPage({
               messages={messages}
               lead={lead}
               currentUserId={currentUserId}
+              aiActions={aiActions}
+              aiEnabled={aiEnabled}
             />
           ) : (
             <EmptyConversation />

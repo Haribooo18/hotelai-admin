@@ -11,6 +11,11 @@ import {
 import {
   getPublishedKnowledgeArticles,
 } from "@/lib/services/knowledge.service";
+import {
+  getAIActions,
+  getHotelAISettings,
+} from "@/lib/services/ai-settings.service";
+import { bootstrapAIServices } from "@/lib/ai/bootstrap";
 import { getCurrentHotel, requireUser } from "@/lib/tenant";
 
 type Props = {
@@ -23,26 +28,32 @@ export default async function AIRoute({ searchParams }: Props) {
   const conversationId =
     typeof conversationParam === "string" ? conversationParam : undefined;
 
-  const [hotel, user, conversations, articles] = await Promise.all([
+  const [hotel, user, conversations, articles, aiSettings] = await Promise.all([
     getCurrentHotel(),
     requireUser(),
     getConversations(),
     getPublishedKnowledgeArticles(),
+    getHotelAISettings(),
   ]);
+
+  bootstrapAIServices();
 
   let selectedConversation = null;
   let messages: Awaited<ReturnType<typeof getMessages>> = [];
   let lead = null;
 
+  let aiActions: Awaited<ReturnType<typeof getAIActions>> = [];
+
   if (conversationId) {
     selectedConversation = await getConversation(conversationId);
 
     if (selectedConversation) {
-      [messages, lead] = await Promise.all([
+      [messages, lead, aiActions] = await Promise.all([
         getMessages(conversationId),
         selectedConversation.lead_id
           ? getLinkedLead(selectedConversation.lead_id)
           : Promise.resolve(null),
+        getAIActions(conversationId),
       ]);
     }
   }
@@ -57,6 +68,8 @@ export default async function AIRoute({ searchParams }: Props) {
           messages={messages}
           lead={lead}
           currentUserId={user.id}
+          aiActions={aiActions}
+          aiEnabled={aiSettings.enabled}
         />
       </Suspense>
     </AppShell>

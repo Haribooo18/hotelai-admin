@@ -531,9 +531,32 @@ Feature folder: `components/dashboard/ai/`. Provider-agnostic AI contracts live 
 
 Wire production implementations via `configureAIServices()` at server bootstrap (Server Action or Edge Function). `server-knowledge-retriever.ts` is the reference retriever implementation.
 
-### Intelligence layer (Sprint 7)
+### Intelligence layer (Sprint 7–8)
 
-Context preparation only — **no OpenAI calls**.
+```
+Guest/staff trigger → generateAIResponse / /api/ai/stream
+  ├─ bootstrapAIServices() (OPENAI_API_KEY server-only)
+  ├─ hotel_ai_settings (model, limits, enabled)
+  ├─ RateLimiter (per hotel)
+  ├─ PromptAssembler → AIRequest
+  ├─ AIOrchestrator
+  │    ├─ OpenAI Responses API (complete / stream)
+  │    ├─ ToolExecutor loop (max_tool_rounds)
+  │    ├─ ai_actions audit (tokens, cost, duration)
+  │    └─ messages insert (role: ai)
+  └─ conversations status → ai_answering → waiting_guest
+```
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| `createOpenAIProvider` | `providers/openai.ts` | Responses API + streaming |
+| `AIOrchestrator` | `orchestrator.ts` | Tool loop, logging, anti-hallucination |
+| `bootstrapAIServices` | `bootstrap.ts` | DI wiring from env |
+| Settings UI | `/settings` | Model, limits, prompt test, health |
+
+API key: `OPENAI_API_KEY` env var only — never sent to client.
+
+#### Context preparation (Sprint 7)
 
 | Component              | File                         | Purpose |
 |------------------------|------------------------------|---------|

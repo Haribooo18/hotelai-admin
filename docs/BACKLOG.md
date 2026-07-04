@@ -45,7 +45,7 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | B-032 | Booking notes and special requests field         | Bookings    | DB column + form |
 | B-033 | Email notification on booking create             | Bookings    | Supabase Edge Function or Resend |
 | B-034 | ~~FAQ / Knowledge base page (`/knowledge`)~~       | AI          | ✅ Sprint 7 — admin CRUD at `/knowledge`   |
-| B-060 | OpenAI provider adapter (`lib/ai/providers/`)      | AI          | Implement `AIProvider.complete()`              |
+| B-060 | ~~OpenAI provider adapter (`lib/ai/providers/`)~~  | AI          | ✅ Sprint 8 — Responses API                  |
 | B-061 | Channel webhooks → `messages` ingest               | AI          | WhatsApp, Telegram, etc.                       |
 | B-062 | ~~Knowledge article editor UI~~                    | AI          | ✅ Sprint 7 — `/knowledge/[id]` editor       |
 | B-063 | Realtime sync for `messages` table                 | AI          | Supabase realtime subscription in inbox        |
@@ -106,7 +106,7 @@ Prioritized work items derived from the roadmap and current technical debt. Use 
 | TD-21 | Calendar drag/resize is same-room only | Cross-room drag (change `room_id` by dragging vertically) — currently done via `BookingEditDialog` |
 | TD-22 | Calendar reads all bookings, filtered client-side by visible range | Add a date-bounded `getBookingsInRange(from, to)` service query for large datasets |
 | TD-23 | No channel webhook ingest for guest messages | External channels must write to `messages` + bump `conversations.unread_count` |
-| TD-24 | `ai_actions` table unused until OpenAI ships | Wire tool-call logging in the provider adapter |
+| TD-24 | ~~`ai_actions` table unused until OpenAI ships~~ | ✅ Sprint 8 — completion + tool_call logging |
 | TD-25 | Knowledge panel is read-only in inbox | Add article create/edit UI (mutations already exist) |
 | TD-26 | `is_guest_typing` not updated by any channel | Set via webhook or realtime when channels integrate |
 | TD-27 | Lead ↔ conversation link is manual (`lead_id` text) | Auto-link when lead created from same email/phone |

@@ -1,8 +1,17 @@
 import type { Conversation } from "@/types/conversation";
 import type { Message } from "@/types/message";
 import type { KnowledgeArticle } from "@/types/knowledge-article";
+import type { AITokenUsage } from "@/types/ai-settings";
 
-/** Context passed to the AI provider for a single completion request. */
+export type AIProviderOptions = {
+  model?: string;
+  maxOutputTokens?: number;
+  temperature?: number;
+  timeoutMs?: number;
+  maxRetries?: number;
+  signal?: AbortSignal;
+};
+
 export type AIRequest = {
   hotelId: string;
   conversation: Conversation;
@@ -10,16 +19,19 @@ export type AIRequest = {
   knowledgeSnippets: Pick<KnowledgeArticle, "id" | "title" | "content">[];
   systemPrompt: string;
   tools: AIToolDefinition[];
-  /** Resolved response language. */
   language: string;
-  /** Formatted conversation transcript for providers that prefer plain text. */
   transcript: string;
 };
 
 export type AIResponse = {
   content: string | null;
   toolCalls: AIToolCall[];
-  metadata: Record<string, unknown>;
+  metadata: Record<string, unknown> & {
+    model?: string;
+    request_id?: string;
+    usage?: AITokenUsage;
+    provider?: string;
+  };
 };
 
 export type AIToolDefinition = {
@@ -34,11 +46,23 @@ export type AIToolCall = {
   arguments: Record<string, unknown>;
 };
 
+export type AIStreamEvent =
+  | { type: "text_delta"; delta: string }
+  | { type: "completed"; response: AIResponse }
+  | { type: "error"; message: string };
+
 /**
  * Provider-agnostic AI completion contract.
- * Implementations (e.g. OpenAI) are wired via dependency injection.
+ * Implementations (e.g. OpenAI Responses API) are wired via DI.
  */
 export type AIProvider = {
   readonly name: string;
-  complete(request: AIRequest): Promise<AIResponse>;
+  complete(
+    request: AIRequest,
+    options?: AIProviderOptions
+  ): Promise<AIResponse>;
+  stream?(
+    request: AIRequest,
+    options?: AIProviderOptions
+  ): AsyncGenerator<AIStreamEvent>;
 };
