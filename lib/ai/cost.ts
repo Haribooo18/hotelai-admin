@@ -1,19 +1,11 @@
 import type { AITokenUsage } from "@/types/ai-settings";
 
-/** USD per 1M tokens — update when OpenAI pricing changes. */
-const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-  "gpt-4o-mini": { input: 0.15, output: 0.6 },
-  "gpt-4o": { input: 2.5, output: 10 },
-  "gpt-4.1-mini": { input: 0.4, output: 1.6 },
-  "gpt-4.1": { input: 2.0, output: 8.0 },
-};
-
-const DEFAULT_PRICING = { input: 0.5, output: 1.5 };
+import { getModelPricing } from "./models";
 
 export function estimateCostUsd(model: string, usage: AITokenUsage): number {
-  const rates = MODEL_PRICING[model] ?? DEFAULT_PRICING;
-  const inputCost = (usage.input_tokens / 1_000_000) * rates.input;
-  const outputCost = (usage.output_tokens / 1_000_000) * rates.output;
+  const rates = getModelPricing(model);
+  const inputCost = (usage.input_tokens / 1_000_000) * rates.inputCost;
+  const outputCost = (usage.output_tokens / 1_000_000) * rates.outputCost;
   return Math.round((inputCost + outputCost) * 1_000_000) / 1_000_000;
 }
 

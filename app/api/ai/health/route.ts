@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-import { bootstrapAIServices } from "@/lib/ai/bootstrap";
 import { getAIHealthStatus } from "@/lib/services/ai-settings.service";
 import { createClient } from "@/lib/supabase/server";
 
@@ -14,7 +13,6 @@ export async function GET() {
     return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
   }
 
-  bootstrapAIServices();
   const health = await getAIHealthStatus();
   return NextResponse.json(health);
 }

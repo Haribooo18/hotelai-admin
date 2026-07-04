@@ -52,6 +52,28 @@ function buildTools(request: AIRequest) {
   }));
 }
 
+function resolveRequestParams(
+  request: AIRequest,
+  options?: AIProviderOptions
+) {
+  const toolChoice = options?.toolChoice ?? "auto";
+  const includeTools = toolChoice !== "none" && request.tools.length > 0;
+
+  return {
+    instructions: request.systemPrompt,
+    input: buildInput(request),
+    ...(includeTools
+      ? {
+          tools: buildTools(request),
+          tool_choice: toolChoice === "required" ? ("required" as const) : undefined,
+        }
+      : {}),
+    temperature: options?.temperature,
+    top_p: options?.topP,
+    max_output_tokens: options?.maxOutputTokens,
+  };
+}
+
 function extractUsage(raw: unknown): AITokenUsage {
   const usage = (raw as { usage?: Record<string, number> })?.usage;
   if (!usage) return { ...EMPTY_TOKEN_USAGE };
@@ -119,11 +141,7 @@ export function createOpenAIProvider(
           withTimeout(
             client.responses.create({
               model,
-              instructions: request.systemPrompt,
-              input: buildInput(request),
-              tools: buildTools(request),
-              temperature: options?.temperature,
-              max_output_tokens: options?.maxOutputTokens,
+              ...resolveRequestParams(request, options),
             }),
             timeoutMs,
             options?.signal
@@ -159,11 +177,7 @@ export function createOpenAIProvider(
       const stream = await withTimeout(
         client.responses.create({
           model,
-          instructions: request.systemPrompt,
-          input: buildInput(request),
-          tools: buildTools(request),
-          temperature: options?.temperature,
-          max_output_tokens: options?.maxOutputTokens,
+          ...resolveRequestParams(request, options),
           stream: true,
         }),
         timeoutMs,
@@ -177,6 +191,10 @@ export function createOpenAIProvider(
       const toolArgs = new Map<string, { name: string; args: string }>();
 
       for await (const event of stream) {
+        if (options?.signal?.aborted) {
+          break;
+        }
+
         const ev = event as unknown as Record<string, unknown>;
 
         if (ev.type === "response.created") {
@@ -245,12 +263,13 @@ export function createOpenAIProvider(
         type: "completed",
         response: {
           content: null,
-          toolCalls,
+          toolCalls: options?.signal?.aborted ? [] : toolCalls,
           metadata: {
             model: modelUsed,
             request_id: requestId,
             usage,
             provider: "openai",
+            aborted: options?.signal?.aborted ?? false,
           },
         },
       } satisfies AIStreamEvent;
@@ -268,25 +287,20 @@ export function createOpenAIProvider(
       const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;
       const maxRetries = options?.maxRetries ?? config.defaultMaxRetries ?? 2;
 
-      const input: ResponseInputItem[] = [
-        ...buildInput(request),
-        ...toolOutputs.map((t) => ({
-          type: "function_call_output" as const,
-          call_id: t.call_id,
-          output: t.output,
-        })),
-      ];
-
       const response = await withRetry(
         async () =>
           withTimeout(
             client.responses.create({
               model,
-              instructions: request.systemPrompt,
-              input,
-              tools: buildTools(request),
-              temperature: options?.temperature,
-              max_output_tokens: options?.maxOutputTokens,
+              ...resolveRequestParams(request, options),
+              input: [
+                ...buildInput(request),
+                ...toolOutputs.map((t) => ({
+                  type: "function_call_output" as const,
+                  call_id: t.call_id,
+                  output: t.output,
+                })),
+              ],
             }),
             timeoutMs,
             options?.signal

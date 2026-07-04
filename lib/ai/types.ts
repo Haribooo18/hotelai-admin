@@ -7,6 +7,8 @@ export type AIProviderOptions = {
   model?: string;
   maxOutputTokens?: number;
   temperature?: number;
+  topP?: number;
+  toolChoice?: "auto" | "none" | "required";
   timeoutMs?: number;
   maxRetries?: number;
   signal?: AbortSignal;

@@ -1,9 +1,14 @@
+export type AIToolChoice = "auto" | "none" | "required";
+
 export type HotelAISettings = {
   hotel_id: string;
   enabled: boolean;
   model: string;
   max_output_tokens: number;
   temperature: number;
+  top_p: number;
+  tool_choice: AIToolChoice;
+  system_language: string;
   rate_limit_per_minute: number;
   timeout_ms: number;
   max_tool_rounds: number;

@@ -1,6 +1,6 @@
 import { AppShell } from "@/components/dashboard/AppShell";
 import { SettingsPage } from "@/components/dashboard/settings";
-import { isOpenAIConfigured } from "@/lib/ai/bootstrap";
+import { isOpenAIConfigured } from "@/lib/ai/config";
 import {
   getAIHealthStatus,
   getAIObservabilityLogs,

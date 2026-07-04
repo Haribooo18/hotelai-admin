@@ -38,7 +38,23 @@ export async function getHotelAISettings(): Promise<HotelAISettings> {
     };
   }
 
-  return data as HotelAISettings;
+  return {
+    hotel_id: data.hotel_id,
+    enabled: data.enabled,
+    model: data.model,
+    max_output_tokens: data.max_output_tokens,
+    temperature: Number(data.temperature),
+    top_p: Number(data.top_p ?? DEFAULT_AI_SETTINGS.top_p),
+    tool_choice: (data.tool_choice ?? DEFAULT_AI_SETTINGS.tool_choice) as HotelAISettings["tool_choice"],
+    system_language: data.system_language ?? DEFAULT_AI_SETTINGS.system_language,
+    rate_limit_per_minute: data.rate_limit_per_minute,
+    timeout_ms: data.timeout_ms,
+    max_tool_rounds: data.max_tool_rounds,
+    max_retries: data.max_retries,
+    extra_instructions: data.extra_instructions,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+  };
 }
 
 export async function getAIActions(
@@ -96,7 +112,7 @@ export async function getAIHealthStatus(): Promise<AIHealthStatus> {
     0
   );
 
-  const { isOpenAIConfigured } = await import("@/lib/ai/bootstrap");
+  const { isOpenAIConfigured } = await import("@/lib/ai/config");
 
   return {
     configured: isOpenAIConfigured(),

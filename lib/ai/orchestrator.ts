@@ -5,11 +5,11 @@ import type { AITokenUsage } from "@/types/ai-settings";
 import type { HotelAISettings } from "@/types/ai-settings";
 
 import { estimateCostUsd, mergeTokenUsage, EMPTY_TOKEN_USAGE } from "./cost";
-import { getOpenAIApiKey, resolveProviderOptions } from "./config";
+import { resolveProviderOptions } from "./config";
 import { logAIObservability } from "./observability";
 import { hotelRateLimiter } from "./rate-limiter";
 import type { OpenAIProvider } from "./providers/openai";
-import { getAIServices } from "./index";
+import { getAIServices } from "./container";
 import type { AIRequest, AIResponse } from "./types";
 import type { ToolContext } from "./tools";
 
@@ -20,6 +20,7 @@ export type OrchestratorInput = {
   settings: HotelAISettings;
   retrievalQuery?: string;
   stream?: boolean;
+  signal?: AbortSignal;
 };
 
 export type OrchestratorResult = {
@@ -69,6 +70,7 @@ export class AIOrchestrator {
       conversation: input.conversation,
       messages: input.messages,
       retrievalQuery: input.retrievalQuery,
+      language: opts.language,
       instructions: [
         ...ANTI_HALLUCINATION,
         ...(input.settings.extra_instructions
@@ -108,8 +110,11 @@ export class AIOrchestrator {
         model: opts.model,
         maxOutputTokens: opts.maxOutputTokens,
         temperature: opts.temperature,
+        topP: opts.topP,
+        toolChoice: opts.toolChoice,
         timeoutMs: opts.timeoutMs,
         maxRetries: opts.maxRetries,
+        signal: input.signal,
       });
 
       usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);
@@ -122,6 +127,10 @@ export class AIOrchestrator {
         response.toolCalls.length > 0 &&
         toolRounds < input.settings.max_tool_rounds
       ) {
+        if (input.signal?.aborted) {
+          throw new Error("Запрос отменён");
+        }
+
         const toolOutputs = await this.executeTools(
           response,
           aiRequest,
@@ -152,8 +161,11 @@ export class AIOrchestrator {
           model: opts.model,
           maxOutputTokens: opts.maxOutputTokens,
           temperature: opts.temperature,
+          topP: opts.topP,
+          toolChoice: opts.toolChoice,
           timeoutMs: opts.timeoutMs,
           maxRetries: opts.maxRetries,
+          signal: input.signal,
         });
 
         usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);

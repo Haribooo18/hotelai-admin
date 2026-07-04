@@ -8,6 +8,19 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### AI Infrastructure Hardening (Sprint 8.1)
+
+- **Lazy singleton bootstrap** — `ensureAIServicesInitialized()` in `bootstrap.ts` runs once inside `getAIServices()` (`container.ts`). Removed scattered `bootstrapAIServices()` calls from pages, API routes, and services.
+- **Centralized model pricing** — `lib/ai/models.ts` (`AI_MODELS`); `estimateCostUsd()` reads rates from this file only.
+- **Extended `hotel_ai_settings`** — `top_p`, `tool_choice`, `system_language`; migration `0010_ai_settings_hardening.sql`; validation, types, settings form, provider options.
+- **Streaming cancellation** — `/api/ai/stream` passes `request.signal` via `AbortController`; provider and orchestrator stop on disconnect; no message persisted after abort.
+- **`npm run typecheck`** — `tsc --noEmit` script added.
+
+### Migration notes (Sprint 8.1)
+
+- Apply `supabase/migrations/0010_ai_settings_hardening.sql` after `0009`.
+- Existing rows receive defaults: `top_p=1`, `tool_choice=auto`, `system_language=ru`.
+
 ### OpenAI Integration (Sprint 8)
 
 - **OpenAI provider** (`lib/ai/providers/openai.ts`) — Responses API, streaming SSE events, tool-call follow-up via `completeWithToolOutputs`.

@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 
-import { bootstrapAIServices } from "@/lib/ai/bootstrap";
 import { generateAIResponse } from "@/lib/services/ai-completion.service";
 import { aiRespondSchema } from "@/lib/validations/ai-settings";
 import { createClient } from "@/lib/supabase/server";
@@ -31,7 +30,6 @@ export async function POST(request: Request) {
   }
 
   try {
-    bootstrapAIServices();
     const result = await generateAIResponse(parsed.data.conversation_id);
     return NextResponse.json(result);
   } catch (err) {

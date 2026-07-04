@@ -1,13 +1,17 @@
-import { configureAIServices } from "./index";
+import { configureAIServices } from "./container";
+import { getOpenAIApiKey } from "./config";
+import { DEFAULT_MODEL_ID } from "./models";
 import { createOpenAIProvider } from "./providers/openai";
-import { getOpenAIApiKey, isOpenAIConfigured } from "./config";
 
-let bootstrapped = false;
+let initialized = false;
 
-/** Wire OpenAI provider when OPENAI_API_KEY is set (server-side only). */
-export function bootstrapAIServices() {
-  if (bootstrapped) return;
-  bootstrapped = true;
+/**
+ * Lazy singleton bootstrap — the only place providers are wired.
+ * Called exclusively from `getAIServices()` in `container.ts`.
+ */
+export function ensureAIServicesInitialized(): void {
+  if (initialized) return;
+  initialized = true;
 
   const apiKey = getOpenAIApiKey();
   if (!apiKey) return;
@@ -15,11 +19,9 @@ export function bootstrapAIServices() {
   configureAIServices({
     provider: createOpenAIProvider({
       apiKey,
-      defaultModel: "gpt-4o-mini",
+      defaultModel: DEFAULT_MODEL_ID,
       defaultTimeoutMs: 60_000,
       defaultMaxRetries: 2,
     }),
   });
 }
-
-export { isOpenAIConfigured };

@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 
-import { bootstrapAIServices } from "@/lib/ai/bootstrap";
 import { aiOrchestrator } from "@/lib/ai/orchestrator";
 import { getConversation, getMessages } from "@/lib/services/ai.service";
 import { getHotelAISettings } from "@/lib/services/ai-settings.service";
@@ -78,8 +77,6 @@ async function saveAIMessage(
 }
 
 export async function generateAIResponse(conversationId: string) {
-  bootstrapAIServices();
-
   const [hotel, conversation, messages, settings] = await Promise.all([
     getCurrentHotel(),
     getConversation(conversationId),
@@ -173,8 +170,6 @@ export async function testAIPrompt(input: {
   guest_name?: string;
   language?: string;
 }) {
-  bootstrapAIServices();
-
   const parsed = aiPromptTestSchema.safeParse(input);
   if (!parsed.success) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");

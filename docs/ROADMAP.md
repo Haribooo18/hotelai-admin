@@ -159,6 +159,10 @@ Roadmap organized by feature area. Status key: ✅ Done · 🚧 In Progress · �
 | Streaming AI responses                  | ✅ Done (Sprint 8) | `/api/ai/stream` SSE                         |
 | AI health diagnostics                     | ✅ Done (Sprint 8) | `/api/ai/health` + settings panel            |
 | Conversation replay (ai_actions)          | ✅ Done (Sprint 8) | Sidebar in `ConversationView`                |
+| Lazy singleton AI bootstrap               | ✅ Done (Sprint 8.1) | `getAIServices()` → `ensureAIServicesInitialized()` |
+| Centralized model pricing (`models.ts`)   | ✅ Done (Sprint 8.1) | `estimateCostUsd()` reads `AI_MODELS` only   |
+| Configurable sampling & tool choice       | ✅ Done (Sprint 8.1) | `top_p`, `tool_choice`, `system_language` in settings |
+| Streaming abort on disconnect             | ✅ Done (Sprint 8.1) | `AbortSignal` in `/api/ai/stream`            |
 | Channel webhooks (WhatsApp, Telegram…)    | 📋 Planned    | Ingest guest messages → `messages`         |
 | Realtime message sync                     | 📋 Planned    | Supabase realtime on `messages`            |
 | Knowledge base admin CRUD (`/knowledge`)  | ✅ Done (Sprint 7) | Editor, publish workflow, search ranking   |

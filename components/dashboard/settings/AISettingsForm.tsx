@@ -5,14 +5,21 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import type { HotelAISettings } from "@/types/ai-settings";
+import type { AIModelId } from "@/lib/ai/models";
 
-import { AI_MODELS } from "@/lib/validations/ai-settings";
+import { AI_MODELS, AI_MODEL_IDS } from "@/lib/ai/models";
 import { updateHotelAISettings } from "@/lib/services/ai-settings.mutations";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+
+const TOOL_CHOICE_OPTIONS = [
+  { value: "auto", label: "Авто" },
+  { value: "none", label: "Без инструментов" },
+  { value: "required", label: "Обязательно" },
+] as const;
 
 type Props = {
   settings: HotelAISettings;
@@ -29,6 +36,11 @@ export function AISettingsForm({ settings, configured }: Props) {
     String(settings.max_output_tokens)
   );
   const [temperature, setTemperature] = useState(String(settings.temperature));
+  const [topP, setTopP] = useState(String(settings.top_p ?? 1));
+  const [toolChoice, setToolChoice] = useState(settings.tool_choice ?? "auto");
+  const [systemLanguage, setSystemLanguage] = useState(
+    settings.system_language ?? "ru"
+  );
   const [rateLimit, setRateLimit] = useState(
     String(settings.rate_limit_per_minute)
   );
@@ -41,6 +53,11 @@ export function AISettingsForm({ settings, configured }: Props) {
     settings.extra_instructions ?? ""
   );
 
+  const modelOptions = AI_MODEL_IDS.map((id) => ({
+    value: id,
+    label: AI_MODELS[id].label,
+  }));
+
   function handleSave(e: React.FormEvent) {
     e.preventDefault();
 
@@ -48,9 +65,12 @@ export function AISettingsForm({ settings, configured }: Props) {
       try {
         await updateHotelAISettings({
           enabled,
-          model: model as (typeof AI_MODELS)[number],
+          model: model as AIModelId,
           max_output_tokens: Number(maxOutputTokens),
           temperature: Number(temperature),
+          top_p: Number(topP),
+          tool_choice: toolChoice,
+          system_language: systemLanguage,
           rate_limit_per_minute: Number(rateLimit),
           timeout_ms: Number(timeoutMs),
           max_tool_rounds: Number(maxToolRounds),
@@ -99,7 +119,7 @@ export function AISettingsForm({ settings, configured }: Props) {
             id="ai-model"
             value={model}
             onChange={setModel}
-            options={AI_MODELS.map((m) => ({ value: m, label: m }))}
+            options={modelOptions}
           />
         </div>
 
@@ -127,6 +147,50 @@ export function AISettingsForm({ settings, configured }: Props) {
             max="2"
             value={temperature}
             onChange={(e) => setTemperature(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="ai-top-p" className="block text-sm text-zinc-400">
+            Top P
+          </label>
+          <Input
+            id="ai-top-p"
+            type="number"
+            step="0.05"
+            min="0"
+            max="1"
+            value={topP}
+            onChange={(e) => setTopP(e.target.value)}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="ai-tool-choice" className="block text-sm text-zinc-400">
+            Выбор инструментов
+          </label>
+          <Select
+            id="ai-tool-choice"
+            value={toolChoice}
+            onChange={(value) =>
+              setToolChoice(value as HotelAISettings["tool_choice"])
+            }
+            options={TOOL_CHOICE_OPTIONS.map((o) => ({
+              value: o.value,
+              label: o.label,
+            }))}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label htmlFor="ai-lang" className="block text-sm text-zinc-400">
+            Язык системы
+          </label>
+          <Input
+            id="ai-lang"
+            value={systemLanguage}
+            onChange={(e) => setSystemLanguage(e.target.value)}
+            placeholder="ru"
           />
         </div>
 

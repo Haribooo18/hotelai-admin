@@ -1,4 +1,3 @@
-import { bootstrapAIServices } from "@/lib/ai/bootstrap";
 import { getAIServices } from "@/lib/ai";
 import { aiOrchestrator } from "@/lib/ai/orchestrator";
 import { resolveProviderOptions } from "@/lib/ai/config";
@@ -45,13 +44,28 @@ export async function POST(request: Request) {
   const stream = new ReadableStream({
     async start(controller) {
       const send = (data: unknown) => {
+        if (request.signal.aborted) return;
         controller.enqueue(
           encoder.encode(`data: ${JSON.stringify(data)}\n\n`)
         );
       };
 
+      const cleanupTyping = async () => {
+        try {
+          const hotelId = await getCurrentHotelId();
+          await supabase
+            .from("conversations")
+            .update({ is_ai_typing: false })
+            .eq("id", conversationId)
+            .eq("hotel_id", hotelId);
+        } catch {
+          // ignore cleanup errors
+        }
+      };
+
       try {
-        bootstrapAIServices();
+        if (request.signal.aborted) return;
+
         send({ type: "status", status: "ai_answering" });
 
         const hotelId = await getCurrentHotelId();
@@ -78,34 +92,56 @@ export async function POST(request: Request) {
           hotel,
           conversation,
           messages,
+          language: opts.language,
         });
 
         let fullText = "";
+        let aborted = false;
 
         if (provider.stream) {
           for await (const event of provider.stream(aiRequest, {
             model: opts.model,
             maxOutputTokens: opts.maxOutputTokens,
             temperature: opts.temperature,
+            topP: opts.topP,
+            toolChoice: opts.toolChoice,
             timeoutMs: opts.timeoutMs,
             maxRetries: opts.maxRetries,
+            signal: request.signal,
           })) {
+            if (request.signal.aborted) {
+              aborted = true;
+              break;
+            }
+
             if (event.type === "text_delta") {
               fullText += event.delta;
               send({ type: "text_delta", delta: event.delta });
             }
+
             if (event.type === "completed" && event.response.toolCalls.length > 0) {
+              if (request.signal.aborted) {
+                aborted = true;
+                break;
+              }
+
               send({ type: "status", status: "tool_calls" });
               const result = await aiOrchestrator.run({
                 hotel,
                 conversation,
                 messages,
                 settings,
+                signal: request.signal,
               });
               fullText = result.content;
               send({ type: "text_final", content: result.content });
             }
           }
+        }
+
+        if (request.signal.aborted || aborted) {
+          await cleanupTyping();
+          return;
         }
 
         if (!fullText) {
@@ -114,18 +150,15 @@ export async function POST(request: Request) {
             conversation,
             messages,
             settings,
+            signal: request.signal,
           });
           fullText = result.content;
           send({ type: "text_final", content: result.content });
-        } else if (!provider.stream) {
-          const result = await aiOrchestrator.run({
-            hotel,
-            conversation,
-            messages,
-            settings,
-          });
-          fullText = result.content;
-          send({ type: "text_final", content: result.content });
+        }
+
+        if (request.signal.aborted) {
+          await cleanupTyping();
+          return;
         }
 
         const { data: msg, error: msgErr } = await supabase
@@ -156,22 +189,20 @@ export async function POST(request: Request) {
         send({ type: "done", messageId: msg.id });
         controller.enqueue(encoder.encode("data: [DONE]\n\n"));
       } catch (err) {
+        if (request.signal.aborted) {
+          await cleanupTyping();
+          return;
+        }
+
         const message = err instanceof Error ? err.message : "Ошибка AI";
         send({ type: "error", message });
-
-        try {
-          const hotelId = await getCurrentHotelId();
-          await supabase
-            .from("conversations")
-            .update({ is_ai_typing: false })
-            .eq("id", conversationId)
-            .eq("hotel_id", hotelId);
-        } catch {
-          // ignore cleanup errors
-        }
+        await cleanupTyping();
       } finally {
         controller.close();
       }
+    },
+    cancel() {
+      // Client disconnected — request.signal aborts provider loops.
     },
   });
 

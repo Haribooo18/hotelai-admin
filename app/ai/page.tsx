@@ -15,7 +15,6 @@ import {
   getAIActions,
   getHotelAISettings,
 } from "@/lib/services/ai-settings.service";
-import { bootstrapAIServices } from "@/lib/ai/bootstrap";
 import { getCurrentHotel, requireUser } from "@/lib/tenant";
 
 type Props = {
@@ -35,8 +34,6 @@ export default async function AIRoute({ searchParams }: Props) {
     getPublishedKnowledgeArticles(),
     getHotelAISettings(),
   ]);
-
-  bootstrapAIServices();
 
   let selectedConversation = null;
   let messages: Awaited<ReturnType<typeof getMessages>> = [];

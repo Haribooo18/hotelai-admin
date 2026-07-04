@@ -517,7 +517,7 @@ Feature folder: `components/dashboard/ai/`. Provider-agnostic AI contracts live 
 
 1. `app/ai/page.tsx` fetches `conversations`, `knowledge_articles`, and (when `?conversation=` is set) `messages` + linked `lead`.
 2. `AIInboxPage` is the client orchestrator: three-pane inbox (list · conversation · knowledge).
-3. Staff messages go through `sendMessage` (`ai.mutations.ts`). **No AI provider is invoked yet** — `lib/ai/index.ts` exports `unconfiguredAIProvider` that throws `AIProviderNotConfiguredError`.
+3. Staff messages go through `sendMessage` (`ai.mutations.ts`). AI completions use `getAIServices()` — a lazy singleton that wires OpenAI on first access when `OPENAI_API_KEY` is set.
 
 ### Provider architecture (`lib/ai/`)
 
@@ -527,16 +527,17 @@ Feature folder: `components/dashboard/ai/`. Provider-agnostic AI contracts live 
 | `AITool`             | `tools.ts`                | Executable tools with JSON schema |
 | `KnowledgeRetriever` | `knowledge-retriever.ts`  | RAG snippet retrieval |
 | `PromptBuilder`      | `prompt-assembler.ts`     | Legacy `buildSystemPrompt`; full `AIRequest` via `PromptAssembler` |
-| DI container         | `index.ts`                | `configureAIServices()` / `getAIServices()` |
+| DI container         | `container.ts`            | `getAIServices()` — lazy init via `ensureAIServicesInitialized()` |
+| Model pricing        | `models.ts`               | Per-model USD rates; single source for `estimateCostUsd()` |
 
-Wire production implementations via `configureAIServices()` at server bootstrap (Server Action or Edge Function). `server-knowledge-retriever.ts` is the reference retriever implementation.
+**Bootstrap rule (Sprint 8.1):** `ensureAIServicesInitialized()` in `bootstrap.ts` is the **only** wiring entry point. It runs once inside `getAIServices()` — never from pages, Server Components, or API routes.
 
-### Intelligence layer (Sprint 7–8)
+### Intelligence layer (Sprint 7–8.1)
 
 ```
 Guest/staff trigger → generateAIResponse / /api/ai/stream
-  ├─ bootstrapAIServices() (OPENAI_API_KEY server-only)
-  ├─ hotel_ai_settings (model, limits, enabled)
+  ├─ getAIServices() → ensureAIServicesInitialized() (once)
+  ├─ hotel_ai_settings (model, temperature, top_p, tool_choice, system_language, limits, enabled)
   ├─ RateLimiter (per hotel)
   ├─ PromptAssembler → AIRequest
   ├─ AIOrchestrator
@@ -549,12 +550,16 @@ Guest/staff trigger → generateAIResponse / /api/ai/stream
 
 | Component | File | Purpose |
 |-----------|------|---------|
-| `createOpenAIProvider` | `providers/openai.ts` | Responses API + streaming |
+| `createOpenAIProvider` | `providers/openai.ts` | Responses API + streaming; respects `AbortSignal` |
 | `AIOrchestrator` | `orchestrator.ts` | Tool loop, logging, anti-hallucination |
-| `bootstrapAIServices` | `bootstrap.ts` | DI wiring from env |
-| Settings UI | `/settings` | Model, limits, prompt test, health |
+| `ensureAIServicesInitialized` | `bootstrap.ts` | One-time DI wiring from `OPENAI_API_KEY` |
+| `getAIServices` | `container.ts` | Shared service container; triggers lazy bootstrap |
+| `AI_MODELS` | `models.ts` | Centralized per-1M-token pricing |
+| Settings UI | `/settings` | Model, sampling, tool choice, language, limits, prompt test, health |
 
 API key: `OPENAI_API_KEY` env var only — never sent to client.
+
+**Streaming cancellation:** `/api/ai/stream` passes `request.signal` to the provider and orchestrator. On client disconnect, generation stops and no AI message is persisted.
 
 #### Context preparation (Sprint 7)
 
