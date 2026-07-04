@@ -655,6 +655,58 @@ POST /api/channels/website/stream  (SSE response)
 
 ---
 
+## Stripe Billing (Sprint 12)
+
+Billing is tenant-scoped: one `subscriptions` row per `hotel_id`. Webhook ingress uses the service-role client; staff reads subscription state via RLS.
+
+```
+lib/billing/
+  stripe.ts             # Stripe client + env helpers
+  plans.ts              # Plan/price mapping, status labels
+  checkout.ts           # Create Checkout session (customer + subscription)
+  portal.ts             # Create Billing Portal session
+  webhooks.ts           # Signature verify, upsert subscription, audit events
+```
+
+### Checkout flow
+
+```
+POST /api/billing/checkout  (authenticated)
+  ├─ resolve hotel_id via getCurrentHotel()
+  ├─ findOrCreateStripeCustomer() — subscriptions.stripe_customer_id
+  ├─ stripe.checkout.sessions.create(mode=subscription)
+  └─ return { url } → redirect to Stripe Checkout
+```
+
+### Webhook flow
+
+```
+POST /api/billing/webhook  (public, signature-validated)
+  ├─ verifyStripeWebhookSignature()
+  ├─ handleStripeWebhookEvent()
+  │    ├─ checkout.session.completed → upsert subscription
+  │    ├─ customer.subscription.* → upsert subscription status/period
+  │    └─ persist subscription_events (idempotent by stripe_event_id)
+  └─ revalidatePath('/settings') when hotel_id resolved
+```
+
+### Portal flow
+
+```
+POST /api/billing/portal  (authenticated)
+  ├─ load stripe_customer_id for hotel_id
+  ├─ stripe.billingPortal.sessions.create()
+  └─ return { url } → redirect to Stripe Billing Portal
+```
+
+**Schema:** `subscriptions`, `subscription_events` (migration `0011_billing.sql`).
+
+**Settings UI:** `/settings` → Billing tab (`BillingPanel`) shows plan, status, renewal date, manage subscription.
+
+**Env:** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_ENTERPRISE`, `SUPABASE_SERVICE_ROLE_KEY`.
+
+---
+
 ## Knowledge Base
 
 Feature folder: `components/dashboard/knowledge/`. Route: `/knowledge` (admin CRUD); `/knowledge/[id]` (editor).

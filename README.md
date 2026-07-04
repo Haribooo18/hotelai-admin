@@ -238,6 +238,23 @@ Set `WEBSITE_CHAT_HOTEL_ID`, `SUPABASE_SERVICE_ROLE_KEY`, and `OPENAI_API_KEY`; 
 
 ---
 
+## Stripe billing
+
+Authenticated routes:
+
+- `POST /api/billing/checkout` — create Stripe Checkout session for `starter`, `pro`, or `enterprise`
+- `POST /api/billing/portal` — open Stripe Billing Portal for the current hotel
+
+Public webhook: `POST /api/billing/webhook` (Stripe signature verified via `STRIPE_WEBHOOK_SECRET`).
+
+1. Create products/prices in Stripe Dashboard and set `STRIPE_PRICE_STARTER`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_ENTERPRISE`.
+2. Set `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, and `SUPABASE_SERVICE_ROLE_KEY`.
+3. Run migration `0011_billing.sql`.
+4. Register the webhook endpoint in Stripe Dashboard pointing to `/api/billing/webhook`.
+5. Manage subscription from `/settings` → **Биллинг** tab.
+
+---
+
 ## License
 
 Private — not for public distribution unless otherwise stated by the repository owner.

@@ -6,6 +6,7 @@ const PUBLIC_PATHS = [
   "/auth",
   "/api/channels/telegram/webhook",
   "/api/channels/website/stream",
+  "/api/billing/webhook",
 ];
 
 function isPublicPath(pathname: string) {

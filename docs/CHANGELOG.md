@@ -8,6 +8,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Stripe Billing (Sprint 12)
+
+- **Billing layer** — `lib/billing/` with Stripe client, checkout, portal, webhook handlers, and plan mapping.
+- **Database** — migration `0011_billing.sql` (`subscriptions`, `subscription_events`) with tenant RLS.
+- **API routes** — `POST /api/billing/checkout`, `/api/billing/portal`, `/api/billing/webhook`.
+- **Settings UI** — Billing tab on `/settings` (plan, status, renewal, manage subscription).
+- **Tests** — checkout, portal, webhook verification/handling, subscription status mapping.
+- **Docs** — README Stripe setup, `.env.example`, ARCHITECTURE billing flows.
+
 ### Website Chat (Sprint 11)
 
 - **Website channel** — `lib/channels/website/` with parser, SSE sender mapping, and SSE stream lifecycle handler (`stream.ts`).

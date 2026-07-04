@@ -18,6 +18,7 @@ Multi-tenancy: domain tables include `hotel_id`, enforced in the app (query scop
 > - `0008_knowledge_base.sql` — extends `knowledge_articles` (Sprint 7).
 > - `0009_ai_openai.sql` — `hotel_ai_settings`, `ai_observability_logs`, extends `ai_actions`, `is_ai_typing` (Sprint 8).
 > - `0010_ai_settings_hardening.sql` — `top_p`, `tool_choice`, `system_language` on `hotel_ai_settings` (Sprint 8.1).
+> - `0011_billing.sql` — `subscriptions`, `subscription_events` (Sprint 12).
 
 ---
 
