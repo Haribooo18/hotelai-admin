@@ -8,6 +8,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Continuous Integration (Sprint 8.3)
+
+- **GitHub Actions** — `.github/workflows/ci.yml` runs on every `push` and `pull_request`.
+- **Node.js 22** with npm dependency caching (`actions/setup-node`, `cache: npm`).
+- **Pipeline** — `npm ci` → `npm run typecheck` → `npm run lint` → `npm run build`; fails on first error.
+- **Build env** — placeholder `NEXT_PUBLIC_SUPABASE_*` values in CI only (no secrets, no deployment).
+
 ### Architecture & Code Quality Audit (Sprint 8.2)
 
 - Removed dead code: legacy `PromptBuilder` shim, unused knowledge service helpers, `KnowledgePageHeaderIcon`.
