@@ -39,6 +39,13 @@ type MessageInsertRow = {
 export class ConversationsRepository {
   constructor(private readonly ctx: RepositoryContext) {}
 
+  private async requireConversationInTenant(conversationId: string): Promise<void> {
+    const conversation = await this.getById(conversationId);
+    if (!conversation) {
+      throw new Error("Диалог не найден");
+    }
+  }
+
   private async attachTags(
     conversations: Conversation[]
   ): Promise<Conversation[]> {
@@ -164,6 +171,8 @@ export class ConversationsRepository {
   }
 
   async getMessages(conversationId: string): Promise<Message[]> {
+    await this.requireConversationInTenant(conversationId);
+
     const { data, error } = await this.ctx.supabase
       .from("messages")
       .select("*")
@@ -204,6 +213,8 @@ export class ConversationsRepository {
   }
 
   async sendMessage(row: MessageInsertRow): Promise<{ id: string; created_at: string }> {
+    await this.requireConversationInTenant(row.conversation_id);
+
     const { data: message, error: msgError } = await this.ctx.supabase
       .from("messages")
       .insert({
@@ -244,12 +255,16 @@ export class ConversationsRepository {
     userId: string,
     assignedBy: string
   ): Promise<void> {
-    await this.ctx.supabase
+    await this.requireConversationInTenant(conversationId);
+
+    const { error: deactivateError } = await this.ctx.supabase
       .from("conversation_assignments")
       .update({ is_active: false, unassigned_at: new Date().toISOString() })
       .eq("conversation_id", conversationId)
       .eq("hotel_id", this.ctx.hotelId)
       .eq("is_active", true);
+
+    if (deactivateError) throwRepositoryError(deactivateError);
 
     const { error: assignError } = await this.ctx.supabase
       .from("conversation_assignments")
@@ -270,6 +285,8 @@ export class ConversationsRepository {
   }
 
   async addTag(conversationId: string, tag: string): Promise<void> {
+    await this.requireConversationInTenant(conversationId);
+
     const { error } = await this.ctx.supabase.from("conversation_tags").insert({
       hotel_id: this.ctx.hotelId,
       conversation_id: conversationId,

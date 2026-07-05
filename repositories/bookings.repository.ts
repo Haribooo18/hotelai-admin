@@ -66,6 +66,20 @@ export class BookingsRepository {
     this.payments = new PaymentsRepository(ctx);
   }
 
+  private async requireRoomInTenant(roomId: string): Promise<void> {
+    const { data, error } = await this.ctx.supabase
+      .from("rooms")
+      .select("id")
+      .eq("id", roomId)
+      .eq("hotel_id", this.ctx.hotelId)
+      .maybeSingle();
+
+    if (error) throwRepositoryError(error);
+    if (!data) {
+      throw new Error("Номер не найден");
+    }
+  }
+
   private async getGuestById(guestId: string): Promise<GuestLink | null> {
     const { data, error } = await this.ctx.supabase
       .from("guests")
@@ -204,6 +218,8 @@ export class BookingsRepository {
   }
 
   async create(row: BookingInsertRow): Promise<{ id: string; total_price: number }> {
+    await this.requireRoomInTenant(row.room_id);
+
     const status = row.status ?? "confirmed";
     const guestLink = await this.resolveGuestLink(
       row.guest_email,
@@ -250,6 +266,8 @@ export class BookingsRepository {
   }
 
   async update(id: string, row: BookingUpdateRow): Promise<void> {
+    await this.requireRoomInTenant(row.room_id);
+
     const existing = await this.getRawById(id);
     const guestLink = await this.resolveGuestLink(
       row.guest_email,
@@ -284,6 +302,8 @@ export class BookingsRepository {
   }
 
   async reschedule(id: string, row: BookingRescheduleRow): Promise<void> {
+    await this.requireRoomInTenant(row.room_id);
+
     const existing = await this.getRawById(id);
     const normalized = bookingNormalizedWriteFields({
       status: existing?.status ?? "confirmed",
