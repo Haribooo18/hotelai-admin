@@ -2,7 +2,6 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -25,15 +24,6 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
-
-export function KnowledgeCreateButton({ onClick }: { onClick: () => void }) {
-  return (
-    <Button onClick={onClick}>
-      <Plus size={16} className="mr-2" />
-      New article
-    </Button>
-  );
-}
 
 export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
   const router = useRouter();

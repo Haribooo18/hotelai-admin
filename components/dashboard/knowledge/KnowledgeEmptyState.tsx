@@ -9,17 +9,19 @@ type Props = {
 
 export function KnowledgeEmptyState({ onCreate }: Props) {
   return (
-    <DashboardEmptyState
-      title="Knowledge base is empty"
-      description="Create articles with answers to common questions — the AI receptionist will use them when talking to guests."
-      icon={<BookOpen size={20} />}
-      action={
-        onCreate ? (
-          <Button size="sm" onClick={onCreate}>
-            Create article
-          </Button>
-        ) : undefined
-      }
-    />
+    <div className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 p-6 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
+      <DashboardEmptyState
+        title="База знаний пуста"
+        description="Создайте статьи с ответами на частые вопросы — AI-ресепшен будет использовать их при общении с гостями."
+        icon={<BookOpen size={20} />}
+        action={
+          onCreate ? (
+            <Button size="sm" onClick={onCreate}>
+              Создать статью
+            </Button>
+          ) : undefined
+        }
+      />
+    </div>
   );
 }
