@@ -1,13 +1,15 @@
 import { createClient as createServerClient } from "@/lib/supabase/server";
-import { getCurrentHotelId } from "@/lib/tenant";
 
-import type { RepositoryContext } from "./context.types";
+import type { TenantContext } from "@/lib/tenant/context";
 
-export async function createServerRepositoryContext(): Promise<RepositoryContext> {
-  const [supabase, hotelId] = await Promise.all([
-    createServerClient(),
-    getCurrentHotelId(),
-  ]);
+import {
+  createRepositoryContext,
+  type RepositoryContext,
+} from "./context.types";
 
-  return { supabase, hotelId };
+export async function createServerRepositoryContext(
+  tenant: TenantContext
+): Promise<RepositoryContext> {
+  const supabase = await createServerClient();
+  return createRepositoryContext(supabase, tenant);
 }

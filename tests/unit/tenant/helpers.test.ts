@@ -1,7 +1,11 @@
 import type { User } from "@supabase/supabase-js";
 import { describe, expect, it, vi } from "vitest";
 
-import { getCurrentHotelId, resolveHotelId } from "@/lib/tenant";
+import {
+  buildTenantContext,
+  getTenantContext,
+  resolveHotelId,
+} from "@/lib/tenant/context";
 
 function makeUser(metadata: {
   app?: Record<string, unknown>;
@@ -9,6 +13,7 @@ function makeUser(metadata: {
 }): User {
   return {
     id: "user-1",
+    email: "admin@hotel.com",
     app_metadata: metadata.app ?? {},
     user_metadata: metadata.user ?? {},
     aud: "authenticated",
@@ -49,6 +54,27 @@ describe("resolveHotelId", () => {
   });
 });
 
+describe("buildTenantContext", () => {
+  it("maps hotel and user fields from auth metadata", () => {
+    const user = makeUser({
+      app: {
+        hotel_id: "hotel_app",
+        hotel_name: "App Hotel",
+        role: "admin",
+      },
+    });
+
+    expect(buildTenantContext(user)).toEqual({
+      tenantId: "hotel_app",
+      hotelId: "hotel_app",
+      userId: "user-1",
+      userEmail: "admin@hotel.com",
+      role: "admin",
+      hotelName: "App Hotel",
+    });
+  });
+});
+
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
 }));
@@ -57,8 +83,8 @@ vi.mock("@/lib/supabase/server", () => ({
   createClient: vi.fn(),
 }));
 
-describe("getCurrentHotelId", () => {
-  it("returns resolved hotel id for authenticated user", async () => {
+describe("getTenantContext", () => {
+  it("returns resolved tenant context for authenticated user", async () => {
     const { createClient } = await import("@/lib/supabase/server");
     vi.mocked(createClient).mockResolvedValue({
       auth: {
@@ -70,6 +96,10 @@ describe("getCurrentHotelId", () => {
       },
     } as never);
 
-    await expect(getCurrentHotelId()).resolves.toBe("hotel_from_auth");
+    await expect(getTenantContext()).resolves.toMatchObject({
+      hotelId: "hotel_from_auth",
+      tenantId: "hotel_from_auth",
+      userId: "user-1",
+    });
   });
 });

@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createRoomsRepository } from "@/repositories/rooms.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 import {
   roomCreateSchema,
   roomUpdateSchema,
@@ -23,9 +24,8 @@ export async function createRoom(input: RoomCreateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createRoomsRepository();
-
-  await repo.create({
+  const ctx = await getRepositoryContext();
+  await createRoomsRepository(ctx).create({
     room_type: parsed.data.room_type,
     capacity: parsed.data.capacity,
     price: parsed.data.price,
@@ -41,9 +41,8 @@ export async function updateRoom(input: RoomUpdateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createRoomsRepository();
-
-  await repo.update(parsed.data.id, {
+  const ctx = await getRepositoryContext();
+  await createRoomsRepository(ctx).update(parsed.data.id, {
     room_type: parsed.data.room_type,
     capacity: parsed.data.capacity,
     price: parsed.data.price,
@@ -53,7 +52,7 @@ export async function updateRoom(input: RoomUpdateInput) {
 }
 
 export async function deleteRoom(id: string) {
-  const repo = await createRoomsRepository();
-  await repo.delete(id);
+  const ctx = await getRepositoryContext();
+  await createRoomsRepository(ctx).delete(id);
   revalidateRooms();
 }

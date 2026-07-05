@@ -10,8 +10,9 @@ import {
   GuestStats,
 } from "@/components/dashboard/guests";
 import { createGuestsRepository } from "@/repositories/guests.repository.server";
+import { createServerRepositoryContext } from "@/repositories/context.server";
 import { computeGuestStats } from "@/lib/guest-stats";
-import { getCurrentHotel, getCurrentUserEmail } from "@/lib/tenant";
+import { getTenantContext } from "@/lib/tenant/context";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -19,12 +20,9 @@ type Props = {
 
 export default async function GuestProfileRoute({ params }: Props) {
   const { id } = await params;
-
-  const [hotel, userEmail, guestsRepo] = await Promise.all([
-    getCurrentHotel(),
-    getCurrentUserEmail(),
-    createGuestsRepository(),
-  ]);
+  const tenant = await getTenantContext();
+  const repositoryContext = await createServerRepositoryContext(tenant);
+  const guestsRepo = createGuestsRepository(repositoryContext);
   const guest = await guestsRepo.getById(id);
 
   if (!guest) {
@@ -40,7 +38,10 @@ export default async function GuestProfileRoute({ params }: Props) {
   const stats = computeGuestStats(bookings);
 
   return (
-    <AppShell hotel={hotel} userEmail={userEmail}>
+    <AppShell
+      hotel={{ id: tenant.hotelId, name: tenant.hotelName }}
+      userEmail={tenant.userEmail}
+    >
       <div className="space-y-8">
         <Link
           href="/guests"

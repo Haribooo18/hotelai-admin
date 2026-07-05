@@ -2,6 +2,7 @@ import {
   createConversationsRepository,
   type ConversationFilters,
 } from "@/repositories/conversations.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 
 import type { Conversation } from "@/types/conversation";
 import type { Message } from "@/types/message";
@@ -12,29 +13,29 @@ export type { ConversationFilters };
 export async function getConversations(
   filters: ConversationFilters = {}
 ): Promise<Conversation[]> {
-  const repo = await createConversationsRepository();
-  return repo.getAll(filters);
+  const ctx = await getRepositoryContext();
+  return createConversationsRepository(ctx).getAll(filters);
 }
 
 export async function getConversation(
   id: string
 ): Promise<Conversation | null> {
-  const repo = await createConversationsRepository();
-  return repo.getById(id);
+  const ctx = await getRepositoryContext();
+  return createConversationsRepository(ctx).getById(id);
 }
 
 export async function getMessages(conversationId: string): Promise<Message[]> {
-  const repo = await createConversationsRepository();
-  return repo.getMessages(conversationId);
+  const ctx = await getRepositoryContext();
+  return createConversationsRepository(ctx).getMessages(conversationId);
 }
 
 /** Fetches a linked lead when conversation.lead_id is set. */
 export async function getLinkedLead(leadId: string): Promise<Lead | null> {
-  const repo = await createConversationsRepository();
-  return repo.getLinkedLead(leadId);
+  const ctx = await getRepositoryContext();
+  return createConversationsRepository(ctx).getLinkedLead(leadId);
 }
 
 export async function getUnreadConversationCount(): Promise<number> {
-  const repo = await createConversationsRepository();
-  return repo.getUnreadCount();
+  const ctx = await getRepositoryContext();
+  return createConversationsRepository(ctx).getUnreadCount();
 }

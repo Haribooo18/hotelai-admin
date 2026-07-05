@@ -5,7 +5,8 @@ import { createBookingsRepository } from "@/repositories/bookings.repository.ser
 import { createGuestsRepository } from "@/repositories/guests.repository.server";
 import { createLeadsRepository } from "@/repositories/leads.repository.server";
 import { createRoomsRepository } from "@/repositories/rooms.repository.server";
-import { getCurrentHotel, getCurrentUserEmail } from "@/lib/tenant";
+import { createServerRepositoryContext } from "@/repositories/context.server";
+import { getTenantContext } from "@/lib/tenant/context";
 
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
@@ -13,10 +14,8 @@ import type { Lead } from "@/types/lead";
 import type { Room } from "@/types/room";
 
 export default async function DashboardRoute() {
-  const [hotel, userEmail] = await Promise.all([
-    getCurrentHotel(),
-    getCurrentUserEmail(),
-  ]);
+  const tenant = await getTenantContext();
+  const repositoryContext = await createServerRepositoryContext(tenant);
 
   let leads: Lead[] = [];
   let bookings: Booking[] = [];
@@ -26,17 +25,20 @@ export default async function DashboardRoute() {
 
   try {
     [leads, bookings, rooms, guests] = await Promise.all([
-      createLeadsRepository().then((repo) => repo.getAll(50)),
-      createBookingsRepository().then((repo) => repo.getAll()),
-      createRoomsRepository().then((repo) => repo.getAll()),
-      createGuestsRepository().then((repo) => repo.getAll()),
+      createLeadsRepository(repositoryContext).getAll(50),
+      createBookingsRepository(repositoryContext).getAll(),
+      createRoomsRepository(repositoryContext).getAll(),
+      createGuestsRepository(repositoryContext).getAll(),
     ]);
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : "Unknown error";
   }
 
   return (
-    <AppShell hotel={hotel} userEmail={userEmail}>
+    <AppShell
+      hotel={{ id: tenant.hotelId, name: tenant.hotelName }}
+      userEmail={tenant.userEmail}
+    >
       {errorMessage ? (
         <div className="rounded-[var(--ds-radius)] border border-red-800 bg-red-950/40 p-6">
           <h1 className="text-2xl font-bold text-red-400">Connection error</h1>
@@ -51,7 +53,7 @@ export default async function DashboardRoute() {
           bookings={bookings}
           rooms={rooms}
           guests={guests}
-          hotelId={hotel.id}
+          hotelId={tenant.hotelId}
         />
       )}
     </AppShell>

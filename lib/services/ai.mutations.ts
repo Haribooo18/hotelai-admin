@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createConversationsRepository } from "@/repositories/conversations.repository.server";
-import { requireUser } from "@/lib/tenant";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 import {
   addConversationTagSchema,
   conversationAssignSchema,
@@ -29,8 +29,8 @@ export async function createConversation(input: ConversationCreateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createConversationsRepository();
-  const id = await repo.create({
+  const ctx = await getRepositoryContext();
+  const id = await createConversationsRepository(ctx).create({
     guest_name: parsed.data.guest_name,
     guest_email: parsed.data.guest_email || null,
     guest_phone: parsed.data.guest_phone || null,
@@ -51,7 +51,8 @@ export async function sendMessage(input: SendMessageInput) {
   }
 
   const { conversation_id, body, is_internal } = parsed.data;
-  const repo = await createConversationsRepository();
+  const ctx = await getRepositoryContext();
+  const repo = createConversationsRepository(ctx);
 
   const message = await repo.sendMessage({
     conversation_id,
@@ -77,8 +78,8 @@ export async function sendMessage(input: SendMessageInput) {
 }
 
 export async function markConversationRead(conversationId: string) {
-  const repo = await createConversationsRepository();
-  await repo.markRead(conversationId);
+  const ctx = await getRepositoryContext();
+  await createConversationsRepository(ctx).markRead(conversationId);
   revalidateAI(conversationId);
 }
 
@@ -91,8 +92,11 @@ export async function updateConversationStatus(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createConversationsRepository();
-  await repo.updateStatus(parsed.data.id, parsed.data.status);
+  const ctx = await getRepositoryContext();
+  await createConversationsRepository(ctx).updateStatus(
+    parsed.data.id,
+    parsed.data.status
+  );
   revalidateAI(parsed.data.id);
 }
 
@@ -105,8 +109,11 @@ export async function updateConversationPriority(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createConversationsRepository();
-  await repo.updatePriority(parsed.data.id, parsed.data.priority);
+  const ctx = await getRepositoryContext();
+  await createConversationsRepository(ctx).updatePriority(
+    parsed.data.id,
+    parsed.data.priority
+  );
   revalidateAI(parsed.data.id);
 }
 
@@ -119,13 +126,11 @@ export async function assignConversation(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const user = await requireUser();
-  const repo = await createConversationsRepository();
-
-  await repo.assignConversation(
+  const ctx = await getRepositoryContext();
+  await createConversationsRepository(ctx).assignConversation(
     parsed.data.conversation_id,
     parsed.data.user_id,
-    user.id
+    ctx.userId
   );
 
   revalidateAI(parsed.data.conversation_id);
@@ -140,8 +145,8 @@ export async function updateInternalNotes(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createConversationsRepository();
-  await repo.update(parsed.data.id, {
+  const ctx = await getRepositoryContext();
+  await createConversationsRepository(ctx).update(parsed.data.id, {
     internal_notes: parsed.data.internal_notes || null,
   });
 
@@ -157,8 +162,11 @@ export async function addConversationTag(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createConversationsRepository();
-  await repo.addTag(parsed.data.conversation_id, parsed.data.tag);
+  const ctx = await getRepositoryContext();
+  await createConversationsRepository(ctx).addTag(
+    parsed.data.conversation_id,
+    parsed.data.tag
+  );
   revalidateAI(parsed.data.conversation_id);
 }
 
@@ -172,7 +180,7 @@ export async function deleteConversation(id: string) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createConversationsRepository();
-  await repo.delete(parsed.data.id);
+  const ctx = await getRepositoryContext();
+  await createConversationsRepository(ctx).delete(parsed.data.id);
   revalidateAI(parsed.data.id);
 }

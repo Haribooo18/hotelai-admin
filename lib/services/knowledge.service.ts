@@ -3,6 +3,7 @@ import {
   type KnowledgeSearchFilters,
 } from "@/lib/knowledge-search";
 import { createKnowledgeRepository } from "@/repositories/knowledge.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 
 import type {
   KnowledgeArticle,
@@ -10,22 +11,22 @@ import type {
 } from "@/types/knowledge-article";
 
 export async function getKnowledgeArticles(): Promise<KnowledgeArticle[]> {
-  const repo = await createKnowledgeRepository();
-  return repo.getAll();
+  const ctx = await getRepositoryContext();
+  return createKnowledgeRepository(ctx).getAll();
 }
 
 export async function getPublishedKnowledgeArticles(): Promise<
   KnowledgeArticle[]
 > {
-  const repo = await createKnowledgeRepository();
-  return repo.getPublished();
+  const ctx = await getRepositoryContext();
+  return createKnowledgeRepository(ctx).getPublished();
 }
 
 export async function getKnowledgeArticle(
   id: string
 ): Promise<KnowledgeArticle | null> {
-  const repo = await createKnowledgeRepository();
-  return repo.getById(id);
+  const ctx = await getRepositoryContext();
+  return createKnowledgeRepository(ctx).getById(id);
 }
 
 export async function searchKnowledgeArticles(
@@ -44,6 +45,6 @@ export async function searchPublishedKnowledge(
 }
 
 export async function getKnowledgeCategories(): Promise<string[]> {
-  const repo = await createKnowledgeRepository();
-  return repo.getCategories();
+  const ctx = await getRepositoryContext();
+  return createKnowledgeRepository(ctx).getCategories();
 }

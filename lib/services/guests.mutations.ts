@@ -3,12 +3,14 @@
 import { revalidatePath } from "next/cache";
 
 import { createGuestsRepository } from "@/repositories/guests.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 import {
   guestCreateSchema,
   guestUpdateSchema,
   type GuestCreateInput,
   type GuestUpdateInput,
 } from "@/lib/validations/guest";
+
 function revalidateGuests(id?: string) {
   revalidatePath("/guests");
   if (id) revalidatePath(`/guests/${id}`);
@@ -36,8 +38,8 @@ export async function createGuest(input: GuestCreateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createGuestsRepository();
-  await repo.create(toRow(parsed.data));
+  const ctx = await getRepositoryContext();
+  await createGuestsRepository(ctx).create(toRow(parsed.data));
 
   revalidateGuests();
 }
@@ -50,28 +52,28 @@ export async function updateGuest(input: GuestUpdateInput) {
 
   const { id, ...rest } = parsed.data;
 
-  const repo = await createGuestsRepository();
-  await repo.update(id, toRow(rest));
+  const ctx = await getRepositoryContext();
+  await createGuestsRepository(ctx).update(id, toRow(rest));
 
   revalidateGuests(id);
 }
 
 /** Soft delete — marks the guest as deleted, preserving history. */
 export async function deleteGuest(id: string) {
-  const repo = await createGuestsRepository();
-  await repo.delete(id);
+  const ctx = await getRepositoryContext();
+  await createGuestsRepository(ctx).delete(id);
   revalidateGuests(id);
 }
 
 export async function setGuestFavorite(id: string, value: boolean) {
-  const repo = await createGuestsRepository();
-  await repo.setFavorite(id, value);
+  const ctx = await getRepositoryContext();
+  await createGuestsRepository(ctx).setFavorite(id, value);
   revalidateGuests(id);
 }
 
 export async function setGuestVip(id: string, value: boolean) {
-  const repo = await createGuestsRepository();
-  await repo.setVip(id, value);
+  const ctx = await getRepositoryContext();
+  await createGuestsRepository(ctx).setVip(id, value);
   revalidateGuests(id);
 }
 
@@ -87,7 +89,8 @@ export async function mergeGuests(input: {
     throw new Error("Нельзя объединить гостя с самим собой");
   }
 
-  const repo = await createGuestsRepository();
+  const ctx = await getRepositoryContext();
+  const repo = createGuestsRepository(ctx);
   const guests = await repo.getByIds([input.targetId, input.sourceId]);
   const target = guests.find((g) => g.id === input.targetId);
   const source = guests.find((g) => g.id === input.sourceId);

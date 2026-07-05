@@ -49,6 +49,7 @@ export class ConversationsRepository {
     const { data, error } = await this.ctx.supabase
       .from("conversation_tags")
       .select("conversation_id, tag")
+      .eq("hotel_id", this.ctx.hotelId)
       .in("conversation_id", ids);
 
     if (error) throwRepositoryError(error);

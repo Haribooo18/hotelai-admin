@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { Hotel } from "lucide-react";
 
-import { getCurrentUser } from "@/lib/tenant";
+import { getAuthenticatedUser } from "@/lib/tenant/context";
 
 import { LoginForm } from "@/components/auth/LoginForm";
 
@@ -10,7 +10,7 @@ type Props = {
 };
 
 export default async function LoginPage({ searchParams }: Props) {
-  const user = await getCurrentUser();
+  const user = await getAuthenticatedUser();
 
   if (user) {
     redirect("/dashboard");

@@ -1,10 +1,8 @@
-import { createServerRepositoryContext } from "./context.server";
+import type { RepositoryContext } from "./context.types";
 import { GuestsRepository } from "./guests.repository";
 
-import type { RepositoryContext } from "./context.types";
-
-export async function createGuestsRepository(
-  context?: RepositoryContext
-): Promise<GuestsRepository> {
-  return new GuestsRepository(context ?? (await createServerRepositoryContext()));
+export function createGuestsRepository(
+  context: RepositoryContext
+): GuestsRepository {
+  return new GuestsRepository(context);
 }

@@ -3,8 +3,8 @@
 import { revalidatePath } from "next/cache";
 
 import { slugifyTitle } from "@/lib/knowledge";
-import { getCurrentUser } from "@/lib/tenant";
 import { createKnowledgeRepository } from "@/repositories/knowledge.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 import {
   knowledgeArticleCreateSchema,
   knowledgeArticleUpdateSchema,
@@ -45,9 +45,9 @@ export async function createKnowledgeArticle(input: KnowledgeArticleCreateInput)
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const user = await getCurrentUser();
-  const repo = await createKnowledgeRepository();
-  const row = toRow(parsed.data, user?.id ?? null);
+  const ctx = await getRepositoryContext();
+  const repo = createKnowledgeRepository(ctx);
+  const row = toRow(parsed.data, ctx.userId);
 
   const id = await repo.create({
     title: row.title,
@@ -75,9 +75,9 @@ export async function updateKnowledgeArticle(input: KnowledgeArticleUpdateInput)
   }
 
   const { id, ...rest } = parsed.data;
-  const user = await getCurrentUser();
-  const repo = await createKnowledgeRepository();
-  const row = toRow(rest, user?.id ?? null);
+  const ctx = await getRepositoryContext();
+  const repo = createKnowledgeRepository(ctx);
+  const row = toRow(rest, ctx.userId);
 
   await repo.update(id, {
     title: row.title,
@@ -118,58 +118,55 @@ export async function autosaveKnowledgeArticle(
   }
   if (fields.is_pinned !== undefined) patch.is_pinned = fields.is_pinned;
 
-  const user = await getCurrentUser();
-  patch.updated_by = user?.id ?? null;
+  const ctx = await getRepositoryContext();
+  patch.updated_by = ctx.userId;
 
-  const repo = await createKnowledgeRepository();
-  await repo.autosave(id, patch);
+  await createKnowledgeRepository(ctx).autosave(id, patch);
 }
 
 export async function deleteKnowledgeArticle(id: string) {
-  const repo = await createKnowledgeRepository();
-  await repo.delete(id);
+  const ctx = await getRepositoryContext();
+  await createKnowledgeRepository(ctx).delete(id);
   revalidateKnowledge();
 }
 
 export async function pinKnowledgeArticle(id: string, pinned: boolean) {
-  const repo = await createKnowledgeRepository();
-  await repo.setPinned(id, pinned);
+  const ctx = await getRepositoryContext();
+  await createKnowledgeRepository(ctx).setPinned(id, pinned);
   revalidateKnowledge();
 }
 
 export async function publishKnowledgeArticle(id: string) {
-  const user = await getCurrentUser();
-  const repo = await createKnowledgeRepository();
+  const ctx = await getRepositoryContext();
+  const repo = createKnowledgeRepository(ctx);
   const version = await repo.getVersion(id);
 
-  await repo.publish(id, version + 1, user?.id ?? null);
+  await repo.publish(id, version + 1, ctx.userId);
   revalidateKnowledge();
 }
 
 export async function unpublishKnowledgeArticle(id: string) {
-  const user = await getCurrentUser();
-  const repo = await createKnowledgeRepository();
-  await repo.unpublish(id, user?.id ?? null);
+  const ctx = await getRepositoryContext();
+  await createKnowledgeRepository(ctx).unpublish(id, ctx.userId);
   revalidateKnowledge();
 }
 
 export async function archiveKnowledgeArticle(id: string) {
-  const user = await getCurrentUser();
-  const repo = await createKnowledgeRepository();
-  await repo.archive(id, user?.id ?? null);
+  const ctx = await getRepositoryContext();
+  await createKnowledgeRepository(ctx).archive(id, ctx.userId);
   revalidateKnowledge();
 }
 
 export async function duplicateKnowledgeArticle(id: string) {
-  const user = await getCurrentUser();
-  const repo = await createKnowledgeRepository();
+  const ctx = await getRepositoryContext();
+  const repo = createKnowledgeRepository(ctx);
   const source = await repo.getById(id);
 
   if (!source) {
     throw new Error("Статья не найдена");
   }
 
-  const newId = await repo.duplicateFromSource(source, user?.id ?? null);
+  const newId = await repo.duplicateFromSource(source, ctx.userId);
   revalidateKnowledge();
   return newId;
 }

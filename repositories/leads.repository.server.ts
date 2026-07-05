@@ -1,10 +1,6 @@
-import { createServerRepositoryContext } from "./context.server";
+import type { RepositoryContext } from "./context.types";
 import { LeadsRepository } from "./leads.repository";
 
-import type { RepositoryContext } from "./context.types";
-
-export async function createLeadsRepository(
-  context?: RepositoryContext
-): Promise<LeadsRepository> {
-  return new LeadsRepository(context ?? (await createServerRepositoryContext()));
+export function createLeadsRepository(context: RepositoryContext): LeadsRepository {
+  return new LeadsRepository(context);
 }

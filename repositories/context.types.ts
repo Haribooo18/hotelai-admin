@@ -1,8 +1,15 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import type { TenantContext } from "@/lib/tenant/context";
+
 export type RepositoryContext = {
   supabase: SupabaseClient;
+  tenant: TenantContext;
+  tenantId: string;
   hotelId: string;
+  userId: string;
+  userEmail: string;
+  role: TenantContext["role"];
 };
 
 export type SupabaseErrorShape = {
@@ -17,4 +24,19 @@ export function throwRepositoryError(error: SupabaseErrorShape): never {
       error.details ? ` (${error.details})` : ""
     }`
   );
+}
+
+export function createRepositoryContext(
+  supabase: SupabaseClient,
+  tenant: TenantContext
+): RepositoryContext {
+  return {
+    supabase,
+    tenant,
+    tenantId: tenant.tenantId,
+    hotelId: tenant.hotelId,
+    userId: tenant.userId,
+    userEmail: tenant.userEmail,
+    role: tenant.role,
+  };
 }

@@ -1,10 +1,8 @@
-import { createServerRepositoryContext } from "./context.server";
+import type { RepositoryContext } from "./context.types";
 import { SettingsRepository } from "./settings.repository";
 
-import type { RepositoryContext } from "./context.types";
-
-export async function createSettingsRepository(
-  context?: RepositoryContext
-): Promise<SettingsRepository> {
-  return new SettingsRepository(context ?? (await createServerRepositoryContext()));
+export function createSettingsRepository(
+  context: RepositoryContext
+): SettingsRepository {
+  return new SettingsRepository(context);
 }

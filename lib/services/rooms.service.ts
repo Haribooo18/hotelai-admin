@@ -1,18 +1,19 @@
 import { createRoomsRepository } from "@/repositories/rooms.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 
 import type { Room } from "@/types/room";
 
 export async function getRooms(): Promise<Room[]> {
-  const repo = await createRoomsRepository();
-  return repo.getAll();
+  const ctx = await getRepositoryContext();
+  return createRoomsRepository(ctx).getAll();
 }
 
 export async function getRoom(id: string): Promise<Room | null> {
-  const repo = await createRoomsRepository();
-  return repo.getById(id);
+  const ctx = await getRepositoryContext();
+  return createRoomsRepository(ctx).getById(id);
 }
 
 export async function getAvailableRooms() {
-  const repo = await createRoomsRepository();
-  return repo.getAvailableSummaries();
+  const ctx = await getRepositoryContext();
+  return createRoomsRepository(ctx).getAvailableSummaries();
 }

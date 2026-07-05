@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { createSettingsRepository } from "@/repositories/settings.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 import {
   hotelAISettingsSchema,
   type HotelAISettingsInput,
@@ -20,9 +21,8 @@ export async function updateHotelAISettings(input: HotelAISettingsInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const repo = await createSettingsRepository();
-
-  await repo.updateSettings({
+  const ctx = await getRepositoryContext();
+  await createSettingsRepository(ctx).updateSettings({
     enabled: parsed.data.enabled,
     model: parsed.data.model,
     max_output_tokens: parsed.data.max_output_tokens,

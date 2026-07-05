@@ -1,10 +1,17 @@
 import { createClient as createBrowserClient } from "@/lib/supabase/client";
 
-import type { RepositoryContext } from "./context.types";
+import {
+  createRepositoryContext,
+  type RepositoryContext,
+} from "./context.types";
 
 export function createClientRepositoryContext(hotelId: string): RepositoryContext {
-  return {
-    supabase: createBrowserClient(),
+  return createRepositoryContext(createBrowserClient(), {
+    tenantId: hotelId,
     hotelId,
-  };
+    userId: "",
+    userEmail: "",
+    role: "staff",
+    hotelName: "",
+  });
 }

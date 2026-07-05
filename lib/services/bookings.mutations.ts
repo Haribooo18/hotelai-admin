@@ -8,6 +8,8 @@ import {
   formatAvailabilityConflictError,
 } from "@/lib/booking-logic";
 import { createBookingsRepository } from "@/repositories/bookings.repository.server";
+import type { BookingsRepository } from "@/repositories/bookings.repository";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 import {
   bookingCreateSchema,
   bookingUpdateSchema,
@@ -24,7 +26,7 @@ function revalidateBookings() {
 }
 
 async function ensureRoomAvailable(
-  repo: Awaited<ReturnType<typeof createBookingsRepository>>,
+  repo: BookingsRepository,
   roomId: string,
   checkIn: string,
   checkOut: string,
@@ -48,7 +50,8 @@ export async function createBooking(input: BookingCreateInput) {
   const { guest_name, guest_email, guest_phone, room_id, check_in, check_out } =
     parsed.data;
 
-  const repo = await createBookingsRepository();
+  const ctx = await getRepositoryContext();
+  const repo = createBookingsRepository(ctx);
 
   await ensureRoomAvailable(repo, room_id, check_in, check_out);
 
@@ -87,7 +90,8 @@ export async function updateBooking(input: BookingUpdateInput) {
     check_out,
   } = parsed.data;
 
-  const repo = await createBookingsRepository();
+  const ctx = await getRepositoryContext();
+  const repo = createBookingsRepository(ctx);
 
   await ensureRoomAvailable(repo, room_id, check_in, check_out, id);
 
@@ -116,7 +120,8 @@ export async function rescheduleBooking(input: BookingRescheduleInput) {
 
   const { id, room_id, check_in, check_out } = parsed.data;
 
-  const repo = await createBookingsRepository();
+  const ctx = await getRepositoryContext();
+  const repo = createBookingsRepository(ctx);
 
   await ensureRoomAvailable(repo, room_id, check_in, check_out, id);
 
@@ -134,7 +139,7 @@ export async function rescheduleBooking(input: BookingRescheduleInput) {
 }
 
 export async function deleteBooking(id: string) {
-  const repo = await createBookingsRepository();
-  await repo.delete(id);
+  const ctx = await getRepositoryContext();
+  await createBookingsRepository(ctx).delete(id);
   revalidateBookings();
 }

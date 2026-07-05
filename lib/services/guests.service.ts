@@ -1,16 +1,17 @@
 import { createGuestsRepository } from "@/repositories/guests.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
 
 export async function getGuests(): Promise<Guest[]> {
-  const repo = await createGuestsRepository();
-  return repo.getAll();
+  const ctx = await getRepositoryContext();
+  return createGuestsRepository(ctx).getAll();
 }
 
 export async function getGuest(id: string): Promise<Guest | null> {
-  const repo = await createGuestsRepository();
-  return repo.getById(id);
+  const ctx = await getRepositoryContext();
+  return createGuestsRepository(ctx).getById(id);
 }
 
 /**
@@ -18,6 +19,6 @@ export async function getGuest(id: string): Promise<Guest | null> {
  * so we match on email when available, otherwise on the full name.
  */
 export async function getGuestBookings(guest: Guest): Promise<Booking[]> {
-  const repo = await createGuestsRepository();
-  return repo.getBookingsForGuest(guest);
+  const ctx = await getRepositoryContext();
+  return createGuestsRepository(ctx).getBookingsForGuest(guest);
 }

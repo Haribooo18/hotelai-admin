@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { getCurrentHotelId } from "@/lib/tenant";
 import { createLeadsRepository } from "@/repositories/leads.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 
 import type { LeadStatus } from "@/types/lead";
 
@@ -13,10 +13,8 @@ type UpdateLeadStatusInput = {
 };
 
 export async function updateLeadStatus(input: UpdateLeadStatusInput) {
-  await getCurrentHotelId();
-
-  const repo = await createLeadsRepository();
-  await repo.updateStatus(input.leadId, input.status);
+  const ctx = await getRepositoryContext();
+  await createLeadsRepository(ctx).updateStatus(input.leadId, input.status);
 
   revalidatePath("/");
 }
