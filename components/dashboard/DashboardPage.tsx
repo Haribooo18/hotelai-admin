@@ -3,8 +3,11 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
-import { subscribeLeadsChanges } from "@/repositories/leads.repository.client";
+import { subscribeLeadsChanges } from "@/lib/realtime/leads";
+import type { Booking } from "@/types/booking";
+import type { Guest } from "@/types/guest";
 import type { Lead } from "@/types/lead";
+import type { Room } from "@/types/room";
 
 import {
   buildAiActivity,
@@ -26,7 +29,6 @@ import {
   DashboardRecentGuests,
   DashboardRoomStatus,
   DashboardTimeline,
-  useDashboardSupplement,
 } from "@/components/dashboard/home";
 import {
   AdminPageStack,
@@ -53,14 +55,21 @@ const DashboardOccupancyTrend = dynamic(
 
 type Props = {
   initialLeads: Lead[];
+  bookings: Booking[];
+  rooms: Room[];
+  guests: Guest[];
   hotelId: string;
 };
 
-export function DashboardPage({ initialLeads, hotelId }: Props) {
+export function DashboardPage({
+  initialLeads,
+  bookings,
+  rooms,
+  guests,
+  hotelId,
+}: Props) {
   const { t } = useI18n();
   const [leads, setLeads] = useState(initialLeads);
-
-  const { bookings, rooms, guests, loading } = useDashboardSupplement(hotelId);
 
   useEffect(() => {
     return subscribeLeadsChanges(hotelId, setLeads);
@@ -123,23 +132,23 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
       <DashboardExecutiveKpis
         metrics={metrics}
         aiConversations={aiConversations}
-        loading={loading}
+        loading={false}
       />
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
         <div className="space-y-4">
-          <DashboardRevenueTrend data={revenueTrend} loading={loading} />
-          <DashboardOccupancyTrend data={occupancyTrend} loading={loading} />
-          <DashboardTimeline items={timeline} loading={loading} />
+          <DashboardRevenueTrend data={revenueTrend} loading={false} />
+          <DashboardOccupancyTrend data={occupancyTrend} loading={false} />
+          <DashboardTimeline items={timeline} loading={false} />
         </div>
 
         <div className="space-y-4">
-          <DashboardAiActivity items={aiActivity} loading={loading} />
+          <DashboardAiActivity items={aiActivity} loading={false} />
           <DashboardLatestReservations
             bookings={latestBookings}
-            loading={loading}
+            loading={false}
           />
-          <DashboardAlerts alerts={alerts} loading={loading} />
+          <DashboardAlerts alerts={alerts} loading={false} />
           <div className="sticky top-[calc(var(--shell-header-height)+0.5rem)] z-10">
             <DashboardQuickActions />
           </div>
@@ -147,15 +156,15 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
-        <DashboardRecentGuests guests={recentGuests} loading={loading} />
+        <DashboardRecentGuests guests={recentGuests} loading={false} />
         <DashboardRecentBookings
           bookings={upcomingBookings}
-          loading={loading}
+          loading={false}
         />
         <DashboardRoomStatus
           rooms={rooms}
           bookings={bookings}
-          loading={loading}
+          loading={false}
         />
       </div>
     </AdminPageStack>

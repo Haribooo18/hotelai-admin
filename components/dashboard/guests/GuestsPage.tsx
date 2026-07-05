@@ -4,7 +4,9 @@ import { useCallback, useMemo, useOptimistic, useState, useTransition } from "re
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
+import type { Room } from "@/types/room";
 
 import { deleteGuest, setGuestFavorite } from "@/lib/services/guests.mutations";
 
@@ -32,13 +34,14 @@ import {
   type GuestStatusFilter,
   type GuestViewMode,
 } from "./guest-crm-metrics";
-import { useGuestsSupplement } from "./useGuestsSupplement";
 
 type Props = {
   guests: Guest[];
+  bookings: Booking[];
+  rooms: Room[];
 };
 
-export function GuestsPage({ guests }: Props) {
+export function GuestsPage({ guests, bookings, rooms }: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -62,9 +65,6 @@ export function GuestsPage({ guests }: Props) {
   const [country, setCountry] = useState("");
   const [sortKey, setSortKey] = useState<GuestSortKey>("newest");
   const [viewMode, setViewMode] = useState<GuestViewMode>("cards");
-
-  const hotelId = optimisticGuests[0]?.hotel_id;
-  const { bookings, rooms, loading } = useGuestsSupplement(hotelId);
 
   const tagOptions = useMemo(() => {
     const set = new Set<string>();
@@ -189,7 +189,7 @@ export function GuestsPage({ guests }: Props) {
         subtitle={t("pages.guests.subtitle")}
       />
 
-      <GuestsExecutiveKpis kpis={kpis} loading={loading} />
+      <GuestsExecutiveKpis kpis={kpis} loading={false} />
 
       <GuestToolbar
         search={search}
@@ -212,7 +212,7 @@ export function GuestsPage({ guests }: Props) {
       {viewMode === "cards" ? (
         <GuestsCardsView
           models={filteredModels}
-          loading={loading}
+          loading={false}
           onOpenGuest={handleOpenGuest}
           onEditGuest={handleEdit}
           onDeleteGuest={handleDeleteRequest}
@@ -221,7 +221,7 @@ export function GuestsPage({ guests }: Props) {
       ) : (
         <GuestsTable
           models={filteredModels}
-          loading={loading}
+          loading={false}
           onOpenGuest={handleOpenGuest}
           onEditGuest={handleEdit}
           onDeleteGuest={handleDeleteRequest}

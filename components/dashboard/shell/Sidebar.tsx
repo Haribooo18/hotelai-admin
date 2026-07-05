@@ -22,11 +22,12 @@ type Props = {
     id: string;
     name: string;
   };
+  userEmail?: string;
   onMobileClose?: () => void;
   className?: string;
 };
 
-function SidebarPanel({ hotel, onMobileClose, className }: Props) {
+function SidebarPanel({ hotel, userEmail, onMobileClose, className }: Props) {
   const pathname = usePathname();
   const { t } = useI18n();
 
@@ -75,13 +76,14 @@ function SidebarPanel({ hotel, onMobileClose, className }: Props) {
           hotelName={hotelName}
           hotels={hotels}
           activeHotelId={hotelId}
+          userEmail={userEmail}
         />
       </div>
     </aside>
   );
 }
 
-export function Sidebar({ hotel }: Pick<Props, "hotel">) {
+export function Sidebar({ hotel, userEmail }: Pick<Props, "hotel" | "userEmail">) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -99,7 +101,7 @@ export function Sidebar({ hotel }: Pick<Props, "hotel">) {
         className="fixed inset-y-0 left-0 z-40 hidden lg:block"
         style={{ width: SIDEBAR_WIDTH_PX }}
       >
-        <SidebarPanel hotel={hotel} className="h-svh" />
+        <SidebarPanel hotel={hotel} userEmail={userEmail} className="h-svh" />
       </div>
 
       {mobileOpen ? (
@@ -113,6 +115,7 @@ export function Sidebar({ hotel }: Pick<Props, "hotel">) {
           <div className="absolute left-0 top-0 h-svh">
             <SidebarPanel
               hotel={hotel}
+              userEmail={userEmail}
               onMobileClose={() => setMobileOpen(false)}
               className="h-svh shadow-[var(--shell-shadow-lg)]"
             />

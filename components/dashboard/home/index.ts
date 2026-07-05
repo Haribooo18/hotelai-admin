@@ -9,7 +9,6 @@ export { DashboardQuickActions } from "./DashboardQuickActions";
 export { DashboardRevenueTrend } from "./DashboardRevenueTrend";
 export { DashboardOccupancyTrend } from "./DashboardOccupancyTrend";
 export { DashboardLatestReservations } from "./DashboardLatestReservations";
-export { useDashboardSupplement } from "./useDashboardSupplement";
 export {
   buildAiActivity,
   buildDashboardAlerts,

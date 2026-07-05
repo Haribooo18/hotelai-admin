@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
+import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
 import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
@@ -25,13 +26,13 @@ import {
   type RoomSortKey,
   type RoomViewMode,
 } from "./room-ops-metrics";
-import { useRoomsSupplement } from "./useRoomsSupplement";
 
 type Props = {
   rooms: Room[];
+  bookings: Booking[];
 };
 
-export function RoomsPage({ rooms }: Props) {
+export function RoomsPage({ rooms, bookings }: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [refreshing, startRefresh] = useTransition();
@@ -51,9 +52,6 @@ export function RoomsPage({ rooms }: Props) {
   const [housekeeping, setHousekeeping] = useState("");
   const [sortKey, setSortKey] = useState<RoomSortKey>("type_asc");
   const [viewMode, setViewMode] = useState<RoomViewMode>("cards");
-
-  const hotelId = rooms[0]?.hotel_id;
-  const { bookings, loading } = useRoomsSupplement(hotelId);
 
   const cardModels = useMemo(
     () => buildRoomCardModels(rooms, bookings),
@@ -131,7 +129,7 @@ export function RoomsPage({ rooms }: Props) {
         subtitle={t("pages.rooms.subtitle")}
       />
 
-      <RoomsExecutiveKpis kpis={kpis} loading={loading || refreshing} />
+      <RoomsExecutiveKpis kpis={kpis} loading={refreshing} />
 
       <RoomToolbar
         search={search}
@@ -161,7 +159,7 @@ export function RoomsPage({ rooms }: Props) {
       <RoomsCardsView
         models={filteredModels}
         viewMode={viewMode}
-        loading={loading}
+        loading={false}
         onOpenRoom={handleOpen}
         onEditRoom={handleEdit}
       />

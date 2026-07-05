@@ -27,7 +27,7 @@ import {
   buildBookingCardModels,
   type BookingCardModel,
 } from "@/components/dashboard/bookings/booking-ops-metrics";
-import { useBookingsGuests } from "@/components/dashboard/bookings/useBookingsGuests";
+import type { Guest } from "@/types/guest";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   AdminPageStack,
@@ -48,6 +48,7 @@ import {
 type Props = {
   bookings: Booking[];
   rooms: Room[];
+  guests: Guest[];
 };
 
 function matchesSearch(booking: Booking, query: string): boolean {
@@ -61,13 +62,14 @@ function matchesSearch(booking: Booking, query: string): boolean {
   );
 }
 
-export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
+export function CalendarPage({
+  bookings: initialBookings,
+  rooms,
+  guests,
+}: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [, startTransition] = useTransition();
-
-  const hotelId = initialBookings[0]?.hotel_id ?? rooms[0]?.hotel_id ?? null;
-  const { guests, loading: guestsLoading } = useBookingsGuests(hotelId);
 
   const [bookings, setBookings] = useState(initialBookings);
   const [syncedFrom, setSyncedFrom] = useState(initialBookings);
@@ -245,7 +247,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
         subtitle={t("pages.calendar.subtitle")}
       />
 
-      <CalendarExecutiveKpis kpis={kpis} loading={guestsLoading} />
+      <CalendarExecutiveKpis kpis={kpis} loading={false} />
 
       <CalendarToolbar
         title={formatRangeTitle(days, view)}
@@ -274,7 +276,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
           bookings={filteredBookings}
           guests={guests}
           days={days}
-          loading={guestsLoading}
+          loading={false}
           scrollToTodayTick={scrollToTodayTick}
           onReschedule={handleReschedule}
           onOpen={openDrawer}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Building2,
@@ -28,7 +28,6 @@ import {
   type AdminLocale,
 } from "@/lib/i18n";
 import { signOut } from "@/lib/services/auth.mutations";
-import { getClientUserEmail } from "@/repositories/settings.repository.client";
 import { cn } from "@/lib/utils";
 
 import type { ShellHotelOption } from "./HotelSelector";
@@ -37,6 +36,7 @@ type Props = {
   hotelName: string;
   hotels: ShellHotelOption[];
   activeHotelId: string;
+  userEmail?: string;
   onSelectHotel?: (hotelId: string) => void;
 };
 
@@ -51,19 +51,12 @@ export function SidebarProfile({
   hotelName,
   hotels,
   activeHotelId,
+  userEmail = "admin@hotel.com",
   onSelectHotel,
 }: Props) {
   const router = useRouter();
   const { locale, setLocale, t } = useI18n();
   const [pending, startTransition] = useTransition();
-  const [email, setEmail] = useState("admin@hotel.com");
-
-  useEffect(() => {
-    void getClientUserEmail().then((userEmail) => {
-      if (!userEmail) return;
-      setEmail(userEmail);
-    });
-  }, []);
 
   function handleSignOut() {
     startTransition(() => {
@@ -91,7 +84,7 @@ export function SidebarProfile({
             {hotelName}
           </p>
           <p className="truncate text-[11px] text-[var(--shell-muted)]">
-            {email}
+            {userEmail}
           </p>
         </div>
 

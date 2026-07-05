@@ -12,9 +12,10 @@ type Props = {
     id: string;
     name: string;
   };
+  userEmail?: string;
 };
 
-export function AppShell({ children, hotel }: Props) {
+export function AppShell({ children, hotel, userEmail }: Props) {
   return (
     <I18nProvider>
       <a
@@ -24,7 +25,7 @@ export function AppShell({ children, hotel }: Props) {
         Перейти к содержимому
       </a>
       <div className="h-svh overflow-hidden bg-[var(--shell-bg)] font-sans text-[var(--shell-text)]">
-        <Sidebar hotel={hotel} />
+        <Sidebar hotel={hotel} userEmail={userEmail} />
 
         <div className="flex h-svh min-w-0 flex-col overflow-hidden bg-[var(--shell-content)] lg:pl-[252px]">
           <TopBar />

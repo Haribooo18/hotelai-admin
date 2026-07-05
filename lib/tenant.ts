@@ -98,3 +98,9 @@ export async function getCurrentHotel(): Promise<CurrentHotel> {
     name: readHotelName(user) ?? "Aurora Hotel",
   };
 }
+
+/** Cached per request for shell profile display. */
+export const getCurrentUserEmail = cache(async (): Promise<string> => {
+  const user = await requireUser();
+  return user.email ?? "admin@hotel.com";
+});

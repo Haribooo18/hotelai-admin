@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import type { Booking } from "@/types/booking";
+import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
 
 import { deleteBooking } from "@/lib/services/bookings.mutations";
@@ -33,11 +34,11 @@ import {
   type BookingCardModel,
   type BookingViewMode,
 } from "./booking-ops-metrics";
-import { useBookingsGuests } from "./useBookingsGuests";
 
 type Props = {
   bookings: Booking[];
   rooms: Room[];
+  guests: Guest[];
 };
 
 function isNewBooking(booking: Booking): boolean {
@@ -52,13 +53,10 @@ function isStayingOnDate(booking: Booking, date: string): boolean {
   return booking.check_in <= date && booking.check_out > date;
 }
 
-export function BookingsPage({ bookings, rooms }: Props) {
+export function BookingsPage({ bookings, rooms, guests }: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-
-  const hotelId = bookings[0]?.hotel_id ?? rooms[0]?.hotel_id ?? null;
-  const { guests, loading: guestsLoading } = useBookingsGuests(hotelId);
 
   const [optimisticBookings, removeOptimistic] = useOptimistic(
     bookings,
@@ -125,7 +123,7 @@ export function BookingsPage({ bookings, rooms }: Props) {
     [filteredBookings, rooms, guests]
   );
 
-  const loading = guestsLoading;
+  const loading = false;
 
   const openDrawer = useCallback((model: BookingCardModel) => {
     setSelectedModel(model);

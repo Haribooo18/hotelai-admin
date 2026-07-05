@@ -11,7 +11,7 @@ import {
 } from "@/components/dashboard/guests";
 import { createGuestsRepository } from "@/repositories/guests.repository.server";
 import { computeGuestStats } from "@/lib/guest-stats";
-import { getCurrentHotel } from "@/lib/tenant";
+import { getCurrentHotel, getCurrentUserEmail } from "@/lib/tenant";
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -20,8 +20,9 @@ type Props = {
 export default async function GuestProfileRoute({ params }: Props) {
   const { id } = await params;
 
-  const [hotel, guestsRepo] = await Promise.all([
+  const [hotel, userEmail, guestsRepo] = await Promise.all([
     getCurrentHotel(),
+    getCurrentUserEmail(),
     createGuestsRepository(),
   ]);
   const guest = await guestsRepo.getById(id);
@@ -39,7 +40,7 @@ export default async function GuestProfileRoute({ params }: Props) {
   const stats = computeGuestStats(bookings);
 
   return (
-    <AppShell hotel={hotel}>
+    <AppShell hotel={hotel} userEmail={userEmail}>
       <div className="space-y-8">
         <Link
           href="/guests"

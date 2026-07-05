@@ -4,7 +4,7 @@ import { isOpenAIConfigured } from "@/lib/ai/config";
 import { isStripeConfigured } from "@/lib/billing/stripe";
 import { computeAIHealthStatus } from "@/repositories/settings.repository";
 import { createSettingsRepository } from "@/repositories/settings.repository.server";
-import { getCurrentHotel } from "@/lib/tenant";
+import { getCurrentHotel, getCurrentUserEmail } from "@/lib/tenant";
 
 type SearchParams = Promise<{ tab?: string }>;
 
@@ -21,8 +21,9 @@ export default async function SettingsRoute({
         ? "appearance"
         : "ai";
 
-  const [hotel, settingsRepo] = await Promise.all([
+  const [hotel, userEmail, settingsRepo] = await Promise.all([
     getCurrentHotel(),
+    getCurrentUserEmail(),
     createSettingsRepository(),
   ]);
 
@@ -36,7 +37,7 @@ export default async function SettingsRoute({
   const health = await computeAIHealthStatus(settings, completionStats);
 
   return (
-    <AppShell hotel={hotel}>
+    <AppShell hotel={hotel} userEmail={userEmail}>
       <SettingsTabs
         settings={settings}
         health={health}
