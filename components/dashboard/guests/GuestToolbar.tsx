@@ -1,13 +1,8 @@
 "use client";
 
-import {
-  Filter,
-  LayoutGrid,
-  List,
-  Search,
-} from "lucide-react";
+import { Filter, LayoutGrid, List } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,14 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select } from "@/components/ui/select";
-import {
-  chipActiveClass,
-  chipClass,
-  chipIdleClass,
-  stickyToolbarClass,
-  toolbarControlClass,
-  toolbarInputClass,
-} from "@/lib/dashboard/design-system";
+import { FilterBar, FilterChip } from "@/components/ui/data/FilterBar";
+import { toolbarControlClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 import { GuestCreateButton } from "./GuestCreateDialog";
@@ -81,23 +70,18 @@ export function GuestToolbar({
     SORT_OPTIONS.find((option) => option.value === sortKey)?.label ?? "Sort";
 
   return (
-    <div className={stickyToolbarClass}>
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="relative min-w-0 flex-1 xl:max-w-md">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={17}
-          />
-          <Input
-            className={toolbarInputClass}
-            placeholder="Search by name, email, phone..."
-            aria-label="Search guests"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
+    <FilterBar
+      leading={
+        <SearchInput
+          containerClassName="flex-1 xl:max-w-md"
+          placeholder="Search by name, email, phone..."
+          aria-label="Search guests"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+      }
+      trailing={
+        <>
           <Select
             value={tag}
             onChange={onTagChange}
@@ -181,25 +165,21 @@ export function GuestToolbar({
             onClick={onCreateClick}
             className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-emerald-500"
           />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {GUEST_STATUS_FILTERS.map((option) => {
-          const active = status === option.value;
-
-          return (
-            <button
+        </>
+      }
+      filters={
+        <>
+          {GUEST_STATUS_FILTERS.map((option) => (
+            <FilterChip
               key={option.value || "all"}
-              type="button"
+              active={status === option.value}
               onClick={() => onStatusChange(option.value)}
-              className={cn(chipClass, active ? chipActiveClass : chipIdleClass)}
             >
               {option.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+            </FilterChip>
+          ))}
+        </>
+      }
+    />
   );
 }

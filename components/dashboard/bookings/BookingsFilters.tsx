@@ -1,31 +1,20 @@
 "use client";
 
-import {
-  Filter,
-  LayoutGrid,
-  List,
-  Plus,
-  Search,
-} from "lucide-react";
+import { Filter, LayoutGrid, List, Plus } from "lucide-react";
 
 import { BookingCreateButton } from "./BookingCreateDialog";
-import { Input } from "@/components/ui/input";
+import { Input } from "@/components/ui/core/Input";
+import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FilterBar, FilterChip } from "@/components/ui/data/FilterBar";
+import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
 import { BOOKING_STATUS_OPTIONS } from "@/lib/booking-status";
-import {
-  chipActiveClass,
-  chipClass,
-  chipIdleClass,
-  stickyToolbarClass,
-  toolbarControlClass,
-  toolbarInputClass,
-  viewToggleButtonClass,
-} from "@/lib/dashboard/design-system";
+import { toolbarControlClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 import type { BookingViewMode } from "./booking-ops-metrics";
@@ -77,24 +66,18 @@ export function BookingsFilters({
     "All statuses";
 
   return (
-    <div className={stickyToolbarClass}>
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="relative min-w-0 flex-1 xl:max-w-md">
-          <Search
-            aria-hidden
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={17}
-          />
-          <Input
-            className={toolbarInputClass}
-            placeholder="Search by guest, email, or phone"
-            aria-label="Search reservations"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
+    <FilterBar
+      leading={
+        <SearchInput
+          containerClassName="flex-1 xl:max-w-md"
+          placeholder="Search by guest, email, or phone"
+          aria-label="Search reservations"
+          value={search}
+          onChange={(e) => onSearchChange(e.target.value)}
+        />
+      }
+      trailing={
+        <>
           <Input
             type="date"
             value={dateFilter}
@@ -145,36 +128,22 @@ export function BookingsFilters({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]">
-            <button
-              type="button"
-              aria-label="Card view"
-              aria-pressed={viewMode === "cards"}
-              onClick={() => onViewModeChange("cards")}
-              className={cn(
-                viewToggleButtonClass,
-                viewMode === "cards"
-                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
-                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
-              )}
-            >
-              <LayoutGrid size={15} aria-hidden />
-            </button>
-            <button
-              type="button"
-              aria-label="Table view"
-              aria-pressed={viewMode === "table"}
-              onClick={() => onViewModeChange("table")}
-              className={cn(
-                viewToggleButtonClass,
-                viewMode === "table"
-                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
-                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
-              )}
-            >
-              <List size={15} aria-hidden />
-            </button>
-          </div>
+          <SegmentedControl
+            value={viewMode}
+            onChange={onViewModeChange}
+            options={[
+              {
+                value: "cards",
+                ariaLabel: "Card view",
+                label: <LayoutGrid size={15} aria-hidden />,
+              },
+              {
+                value: "table",
+                ariaLabel: "Table view",
+                label: <List size={15} aria-hidden />,
+              },
+            ]}
+          />
 
           <BookingCreateButton
             onClick={onCreateClick}
@@ -182,26 +151,21 @@ export function BookingsFilters({
             label="New reservation"
             icon={Plus}
           />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {CHIP_FILTERS.map((chip) => {
-          const active = chipFilter === chip.id;
-
-          return (
-            <button
+        </>
+      }
+      filters={
+        <>
+          {CHIP_FILTERS.map((chip) => (
+            <FilterChip
               key={chip.id}
-              type="button"
-              aria-pressed={active}
+              active={chipFilter === chip.id}
               onClick={() => onChipFilterChange(chip.id)}
-              className={cn(chipClass, active ? chipActiveClass : chipIdleClass)}
             >
               {chip.label}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+            </FilterChip>
+          ))}
+        </>
+      }
+    />
   );
 }

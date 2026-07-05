@@ -1,16 +1,20 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
 
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { Metric } from "@/components/ui/display/Metric";
 import {
-  glassClass,
-  pageStackClass,
-  sectionTitleClass,
-  shellEmptyStateClass,
-  surfaceClass,
-  surfaceStaticClass,
-} from "@/lib/dashboard/design-system";
+  Skeleton,
+  SkeletonGroup,
+} from "@/components/ui/display/Skeleton";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { Surface } from "@/components/ui/primitives/Surface";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
+import { pageStackClass } from "@/lib/dashboard/design-system";
+import { surfaceClass, surfaceStaticClass } from "@/lib/design/elevation";
+import { sectionTitleClass } from "@/lib/design/typography";
 import { cn } from "@/lib/utils";
 
 type ShellSurfaceProps = {
@@ -26,60 +30,39 @@ export function DashboardSurface({
   glass = false,
   interactive = true,
 }: ShellSurfaceProps) {
+  if (glass) {
+    return (
+      <Surface
+        interactive={interactive}
+        className={cn(
+          "bg-[var(--shell-glass)] backdrop-blur-xl",
+          className
+        )}
+      >
+        {children}
+      </Surface>
+    );
+  }
+
   return (
-    <div
-      className={cn(
-        interactive ? surfaceClass : surfaceStaticClass,
-        glass && "bg-[var(--shell-glass)] backdrop-blur-xl",
-        className
-      )}
-    >
+    <Surface interactive={interactive} className={className}>
       {children}
-    </div>
+    </Surface>
   );
 }
 
-type EmptyStateProps = {
-  title: string;
-  description: string;
-  icon?: ReactNode;
-  action?: ReactNode;
-};
-
-export function DashboardEmptyState({
-  title,
-  description,
-  icon,
-  action,
-}: EmptyStateProps) {
-  return (
-    <div className={shellEmptyStateClass}>
-      <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
-        {icon ? (
-          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)]">
-            {icon}
-          </div>
-        ) : null}
-        <p className="text-[14px] font-medium tracking-[-0.01em] text-[var(--shell-text)]">
-          {title}
-        </p>
-        <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-[var(--shell-muted)]">
-          {description}
-        </p>
-        {action ? <div className="mt-5">{action}</div> : null}
-      </div>
-    </div>
-  );
+export function DashboardEmptyState(
+  props: React.ComponentProps<typeof EmptyState>
+) {
+  return <EmptyState {...props} />;
 }
 
-export function DashboardSkeleton({ className }: { className?: string }) {
-  return (
-    <div className={cn("space-y-3", className)}>
-      <div className="ds-skeleton h-3.5 w-1/3" />
-      <div className="ds-skeleton h-7 w-1/2" />
-      <div className="ds-skeleton h-20 w-full" />
-    </div>
-  );
+export function DashboardSkeleton({
+  className,
+}: {
+  className?: string;
+}) {
+  return <SkeletonGroup className={className} />;
 }
 
 export function DashboardSkeletonBlock({
@@ -87,7 +70,7 @@ export function DashboardSkeletonBlock({
 }: {
   className?: string;
 }) {
-  return <div className={cn("ds-skeleton", className)} />;
+  return <Skeleton className={className} />;
 }
 
 export function DashboardGlassPanel({
@@ -100,81 +83,29 @@ export function DashboardGlassPanel({
   interactive?: boolean;
 }) {
   return (
-    <div
-      className={cn(
-        glassClass,
-        interactive && surfaceClass,
-        !interactive && "transition-[box-shadow,background-color] duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
-        className
-      )}
-    >
+    <GlassSurface interactive={interactive} className={className}>
       {children}
-    </div>
+    </GlassSurface>
   );
 }
 
-type AnimatedMetricProps = {
-  value: number;
-  formatter?: (value: number) => string;
-  duration?: number;
-  className?: string;
-};
-
-export function AnimatedMetric({
-  value,
-  formatter = (next) => String(Math.round(next)),
-  duration = 640,
-  className,
-}: AnimatedMetricProps) {
-  const [display, setDisplay] = useState(0);
-  const previousValue = useRef(0);
-  const isFirstMount = useRef(true);
-
-  useEffect(() => {
-    const start = isFirstMount.current ? 0 : previousValue.current;
-    isFirstMount.current = false;
-    const delta = value - start;
-
-    if (delta === 0) {
-      return;
-    }
-
-    const startTime = performance.now();
-    let frame = 0;
-
-    function tick(now: number) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - (1 - progress) ** 3;
-      setDisplay(start + delta * eased);
-
-      if (progress < 1) {
-        frame = requestAnimationFrame(tick);
-      } else {
-        previousValue.current = value;
-      }
-    }
-
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [value, duration]);
-
-  return <span className={className}>{formatter(display)}</span>;
+export function AnimatedMetric(
+  props: React.ComponentProps<typeof Metric>
+) {
+  return <Metric {...props} />;
 }
-
-type PanelHeaderProps = {
-  title: string;
-  subtitle?: string;
-  action?: ReactNode;
-  className?: string;
-};
 
 export function DashboardPanelHeader({
   title,
   subtitle,
   action,
   className,
-}: PanelHeaderProps) {
+}: {
+  title: string;
+  subtitle?: string;
+  action?: ReactNode;
+  className?: string;
+}) {
   return (
     <div className={cn("mb-4 flex items-start justify-between gap-3", className)}>
       <div className="min-w-0">
@@ -190,33 +121,12 @@ export function DashboardPanelHeader({
   );
 }
 
-export function DashboardPageHeader({
-  title,
-  subtitle,
-  actions,
-}: {
-  title: string;
-  subtitle?: string;
-  actions?: ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <h1 className="ds-display">{title}</h1>
-        {subtitle ? (
-          <p className="mt-1.5 text-[var(--type-body-size)] leading-[var(--type-body-leading)] tracking-[var(--type-body-tracking)] text-[var(--shell-muted)]">
-            {subtitle}
-          </p>
-        ) : null}
-      </div>
-      {actions ? (
-        <div className="flex flex-wrap items-center gap-2">{actions}</div>
-      ) : null}
-    </div>
-  );
+export function DashboardPageHeader(
+  props: React.ComponentProps<typeof PageHeader>
+) {
+  return <PageHeader {...props} />;
 }
 
-/** Consistent vertical page layout */
 export function AdminPageStack({
   children,
   className,
@@ -224,35 +134,36 @@ export function AdminPageStack({
   children: ReactNode;
   className?: string;
 }) {
-  return <div className={cn(pageStackClass, className)}>{children}</div>;
+  return <Stack gap="md" className={className}>{children}</Stack>;
 }
 
-/** Route-level loading skeleton */
 export function AdminPageSkeleton() {
   return (
     <div className={pageStackClass} aria-busy="true" aria-label="Loading">
-      <div className="ds-skeleton h-8 w-48 rounded-[var(--ds-radius-sm)]" />
-      <div className="ds-skeleton h-[88px] rounded-[var(--ds-radius)]" />
+      <Skeleton className="h-8 w-48 rounded-[var(--ds-radius-sm)]" />
+      <Skeleton className="h-[88px] rounded-[var(--ds-radius)]" />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
         <div className="space-y-4">
-          <div className="ds-skeleton h-64 rounded-[var(--ds-radius)]" />
-          <div className="ds-skeleton h-64 rounded-[var(--ds-radius)]" />
-          <div className="ds-skeleton h-72 rounded-[var(--ds-radius)]" />
+          <Skeleton className="h-64 rounded-[var(--ds-radius)]" />
+          <Skeleton className="h-64 rounded-[var(--ds-radius)]" />
+          <Skeleton className="h-72 rounded-[var(--ds-radius)]" />
         </div>
         <div className="space-y-4">
-          <div className="ds-skeleton h-52 rounded-[var(--ds-radius)]" />
-          <div className="ds-skeleton h-56 rounded-[var(--ds-radius)]" />
-          <div className="ds-skeleton h-40 rounded-[var(--ds-radius)]" />
+          <Skeleton className="h-52 rounded-[var(--ds-radius)]" />
+          <Skeleton className="h-56 rounded-[var(--ds-radius)]" />
+          <Skeleton className="h-40 rounded-[var(--ds-radius)]" />
         </div>
       </div>
       <div className="grid gap-4 lg:grid-cols-3">
         {Array.from({ length: 3 }).map((_, index) => (
-          <div
+          <Skeleton
             key={index}
-            className="ds-skeleton h-56 rounded-[var(--ds-radius)]"
+            className="h-56 rounded-[var(--ds-radius)]"
           />
         ))}
       </div>
     </div>
   );
 }
+
+export { surfaceClass, surfaceStaticClass };
