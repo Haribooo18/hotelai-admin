@@ -3,6 +3,8 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
+import type { AIHealthStatus } from "@/types/ai-settings";
+
 import {
   BILLING_PLAN_IDS,
   BILLING_PLANS,
@@ -12,12 +14,15 @@ import {
 import type { BillingPlan } from "@/types/subscription";
 import type { HotelSubscription } from "@/types/subscription";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/core/Button";
+import { Badge } from "@/components/ui/display/Badge";
+import { Metric } from "@/components/ui/display/Metric";
+import { DataCard } from "@/components/ui/data/DataCard";
 
 type Props = {
   subscription: HotelSubscription | null;
   stripeConfigured: boolean;
+  health?: AIHealthStatus;
 };
 
 function formatRenewalDate(value: string | null): string {
@@ -29,7 +34,11 @@ function formatRenewalDate(value: string | null): string {
   });
 }
 
-export function BillingPanel({ subscription, stripeConfigured }: Props) {
+export function BillingPanel({
+  subscription,
+  stripeConfigured,
+  health,
+}: Props) {
   const [pending, startTransition] = useTransition();
   const [checkoutPlan, setCheckoutPlan] = useState<BillingPlan | null>(null);
 
@@ -85,64 +94,104 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
 
   if (!stripeConfigured) {
     return (
-      <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 p-4 text-sm text-amber-200">
-        Stripe is not configured. Set <code>STRIPE_SECRET_KEY</code> and price IDs in
-        the environment.
+      <div
+        className="rounded-[var(--ds-radius-sm)] border border-amber-900/50 bg-amber-950/30 p-4 text-sm text-amber-200"
+        role="alert"
+      >
+        Stripe is not configured. Set <code>STRIPE_SECRET_KEY</code> and price IDs
+        in the environment.
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface-raised)]/50 p-4">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <p className="text-sm text-[var(--shell-muted)]">Current plan</p>
-            <p className="mt-1 text-xl font-semibold">
-              {subscription ? formatPlanLabel(subscription.plan) : "Not selected"}
-            </p>
+    <div className="space-y-4">
+      <div className="grid gap-4 lg:grid-cols-2">
+        <DataCard interactive title="Subscription" subtitle="Current plan and renewal">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div>
+              <p className="text-sm text-[var(--shell-muted)]">Current plan</p>
+              <p className="mt-1 text-xl font-semibold text-[var(--shell-text)]">
+                {subscription ? formatPlanLabel(subscription.plan) : "Not selected"}
+              </p>
+            </div>
+            <Badge variant="outline">
+              {formatSubscriptionStatusLabel(subscription?.status ?? "none")}
+            </Badge>
           </div>
-          <Badge variant="secondary">
-            {formatSubscriptionStatusLabel(subscription?.status ?? "none")}
-          </Badge>
-        </div>
 
-        <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="text-[var(--shell-muted)]">Renewal date</dt>
-            <dd className="mt-1 text-[var(--shell-text)]">
-              {formatRenewalDate(subscription?.current_period_end ?? null)}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-[var(--shell-muted)]">Cancel at period end</dt>
-            <dd className="mt-1 text-[var(--shell-text)]">
-              {subscription?.cancel_at_period_end ? "Yes" : "No"}
-            </dd>
-          </div>
-        </dl>
+          <dl className="mt-4 grid gap-3 text-sm">
+            <div>
+              <dt className="text-[var(--shell-muted)]">Renewal date</dt>
+              <dd className="mt-1 text-[var(--shell-text)]">
+                {formatRenewalDate(subscription?.current_period_end ?? null)}
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--shell-muted)]">Cancel at period end</dt>
+              <dd className="mt-1 text-[var(--shell-text)]">
+                {subscription?.cancel_at_period_end ? "Yes" : "No"}
+              </dd>
+            </div>
+          </dl>
 
-        {hasActiveSubscription && (
-          <Button
-            className="mt-4"
-            onClick={openPortal}
-            disabled={pending}
-          >
-            Manage subscription
-          </Button>
-        )}
+          {hasActiveSubscription ? (
+            <Button className="mt-4" onClick={openPortal} disabled={pending}>
+              Manage subscription
+            </Button>
+          ) : null}
+        </DataCard>
+
+        <DataCard interactive title="Usage" subtitle="AI consumption in the last 24 hours">
+          <dl className="grid gap-3 text-sm">
+            <div>
+              <dt className="text-[var(--shell-muted)]">Requests</dt>
+              <dd className="mt-1 text-[var(--shell-text)]">
+                <Metric value={health?.recent_requests ?? 0} />
+              </dd>
+            </div>
+            <div>
+              <dt className="text-[var(--shell-muted)]">Estimated cost</dt>
+              <dd className="mt-1 text-[var(--shell-text)]">
+                ${(health?.total_cost_usd_24h ?? 0).toFixed(4)}
+              </dd>
+            </div>
+          </dl>
+        </DataCard>
+
+        <DataCard title="Invoices" subtitle="Billing documents">
+          <p className="text-[13px] text-[var(--shell-muted)]">
+            Invoice history is available in the Stripe customer portal after an active
+            subscription is created.
+          </p>
+        </DataCard>
+
+        <DataCard title="Payments" subtitle="Settlement status">
+          <p className="text-[13px] text-[var(--shell-muted)]">
+            {hasActiveSubscription
+              ? "Payments are managed through Stripe."
+              : "No active payment method until a plan is selected."}
+          </p>
+        </DataCard>
+
+        <DataCard title="Limits" subtitle="Plan constraints">
+          <p className="text-[13px] text-[var(--shell-muted)]">
+            Usage limits depend on the selected Monavel plan and connected AI volume.
+          </p>
+        </DataCard>
       </div>
 
-      {!hasActiveSubscription && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-medium text-[var(--shell-text)]">Choose a plan</h3>
+      {!hasActiveSubscription ? (
+        <DataCard title="Choose a plan" subtitle="Available subscriptions">
           <div className="grid gap-3 sm:grid-cols-3">
             {BILLING_PLAN_IDS.map((planId) => (
               <div
                 key={planId}
-                className="rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface-raised)]/40 p-4"
+                className="rounded-[var(--ds-radius-sm)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)]/40 p-4"
               >
-                <p className="font-medium">{BILLING_PLANS[planId].name}</p>
+                <p className="font-medium text-[var(--shell-text)]">
+                  {BILLING_PLANS[planId].name}
+                </p>
                 <p className="mt-1 text-sm text-[var(--shell-muted)]">
                   {BILLING_PLANS[planId].description}
                 </p>
@@ -159,8 +208,8 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
               </div>
             ))}
           </div>
-        </div>
-      )}
+        </DataCard>
+      ) : null}
     </div>
   );
 }

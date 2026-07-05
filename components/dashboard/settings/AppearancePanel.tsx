@@ -1,10 +1,9 @@
 "use client";
 
 import { useI18n } from "@/lib/i18n";
-import {
-  DashboardGlassPanel,
-  DashboardPanelHeader,
-} from "@/components/dashboard/home/DashboardPrimitives";
+
+import { Panel } from "@/components/ui/primitives/Panel";
+import { Section } from "@/components/ui/primitives/Section";
 
 import { LanguageSelector } from "./LanguageSelector";
 import { ThemeSelector } from "../shell/ThemeSelector";
@@ -16,23 +15,25 @@ export function AppearancePanel() {
 
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <DashboardGlassPanel className="p-[var(--ds-surface-padding)]">
-        <DashboardPanelHeader
+      <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
+        <Section
           title={t("settings.theme")}
           subtitle={t("settings.appearanceSubtitle")}
-          className="mb-4"
         />
-        <ThemeSelector value={theme} onChange={setTheme} />
-      </DashboardGlassPanel>
+        <div className="mt-4">
+          <ThemeSelector value={theme} onChange={setTheme} />
+        </div>
+      </Panel>
 
-      <DashboardGlassPanel className="p-[var(--ds-surface-padding)]">
-        <DashboardPanelHeader
+      <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
+        <Section
           title={t("settings.language")}
           subtitle={t("settings.languageHint")}
-          className="mb-4"
         />
-        <LanguageSelector />
-      </DashboardGlassPanel>
+        <div className="mt-4">
+          <LanguageSelector />
+        </div>
+      </Panel>
     </div>
   );
 }

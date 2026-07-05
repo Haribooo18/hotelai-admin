@@ -11,11 +11,11 @@ import { AI_MODELS, AI_MODEL_IDS } from "@/lib/ai/models";
 import { updateHotelAISettings } from "@/lib/services/ai-settings.mutations";
 import { shellFormLabelClass } from "@/lib/dashboard/design-system";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/core/Button";
+import { Input } from "@/components/ui/core/Input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DashboardPanelHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { Section } from "@/components/ui/primitives/Section";
 
 const TOOL_CHOICE_OPTIONS = [
   { value: "auto", label: "Авто" },
@@ -113,9 +113,9 @@ export function AISettingsForm({ settings, configured }: Props) {
       </label>
 
       <section className="space-y-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
-        <DashboardPanelHeader
-          title="Промпт и личность"
-          subtitle="Дополнительные инструкции для AI"
+        <Section
+          title="Prompt and personality"
+          subtitle="Additional instructions for AI"
         />
         <div className="space-y-1.5">
           <label htmlFor="ai-extra" className={shellFormLabelClass}>
@@ -132,9 +132,9 @@ export function AISettingsForm({ settings, configured }: Props) {
       </section>
 
       <section className="space-y-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
-        <DashboardPanelHeader
-          title="Температура и язык"
-          subtitle="Поведение и локализация ответов"
+        <Section
+          title="Temperature and language"
+          subtitle="Response behavior and localization"
         />
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-1.5">
@@ -166,9 +166,9 @@ export function AISettingsForm({ settings, configured }: Props) {
       </section>
 
       <section className="space-y-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
-        <DashboardPanelHeader
-          title="Модель и надёжность"
-          subtitle="Расширенные параметры"
+        <Section
+          title="Model and reliability"
+          subtitle="Advanced runtime parameters"
         />
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1.5">

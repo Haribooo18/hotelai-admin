@@ -7,20 +7,21 @@ import type { AIHealthStatus } from "@/types/ai-settings";
 import type { AIObservabilityLog } from "@/types/ai-settings";
 import type { HotelSubscription } from "@/types/subscription";
 
-import {
-  AdminPageStack,
-  DashboardPageHeader,
-} from "@/components/dashboard/home/DashboardPrimitives";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { useI18n } from "@/lib/i18n";
 
 import { SettingsExecutiveKpis } from "./SettingsExecutiveKpis";
+import { SettingsInspector } from "./SettingsInspector";
+import { SettingsOperations } from "./SettingsOperations";
 import { SettingsSidebar } from "./SettingsSidebar";
 import { SettingsWorkspace } from "./SettingsWorkspace";
 import {
+  buildSettingsOperationsSnapshot,
   computeSettingsOpsKpis,
   mapInitialTab,
-  type SettingsSection,
 } from "./settings-ops-metrics";
+import type { SettingsNavSection } from "./settings-ui";
 
 type Props = {
   settings: HotelAISettings;
@@ -42,7 +43,7 @@ export function SettingsTabs({
   initialTab,
 }: Props) {
   const { t } = useI18n();
-  const [activeSection, setActiveSection] = useState<SettingsSection>(
+  const [activeSection, setActiveSection] = useState<SettingsNavSection>(
     mapInitialTab(initialTab)
   );
 
@@ -51,28 +52,48 @@ export function SettingsTabs({
     [settings, health]
   );
 
+  const operations = useMemo(
+    () => buildSettingsOperationsSnapshot(health, logs, configured),
+    [health, logs, configured]
+  );
+
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.settings.title")}
         subtitle={t("pages.settings.subtitle")}
       />
 
       <SettingsExecutiveKpis kpis={kpis} />
 
-      <div className="grid gap-4 lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)]">
-        <SettingsSidebar active={activeSection} onChange={setActiveSection} />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">
+          <SettingsSidebar active={activeSection} onChange={setActiveSection} />
 
-        <SettingsWorkspace
-          section={activeSection}
-          settings={settings}
-          health={health}
-          logs={logs}
-          configured={configured}
-          subscription={subscription}
-          stripeConfigured={stripeConfigured}
-        />
+          <SettingsWorkspace
+            section={activeSection}
+            settings={settings}
+            health={health}
+            logs={logs}
+            configured={configured}
+            subscription={subscription}
+            stripeConfigured={stripeConfigured}
+          />
+        </div>
+
+        <div className="hidden xl:block">
+          <SettingsInspector
+            section={activeSection}
+            settings={settings}
+            health={health}
+            snapshot={operations}
+            subscription={subscription}
+            configured={configured}
+          />
+        </div>
       </div>
-    </AdminPageStack>
+
+      <SettingsOperations snapshot={operations} />
+    </Stack>
   );
 }
