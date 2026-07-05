@@ -3,10 +3,10 @@ export { GuestsTable } from "./GuestsTable";
 export { GuestsCardsView } from "./GuestsCardsView";
 export { GuestCard } from "./GuestCard";
 export { GuestToolbar } from "./GuestToolbar";
-export { GuestKpiGrid } from "./GuestKpiGrid";
+export { GuestsExecutiveKpis } from "./GuestsExecutiveKpis";
 export { GuestDetailDrawer } from "./GuestDetailDrawer";
+export { GuestSatisfactionBadge } from "./GuestSatisfactionBadge";
 export { GuestForm } from "./GuestForm";
-export { GuestFilters } from "./GuestFilters";
 export {
   GuestCreateDialog,
   GuestCreateButton,

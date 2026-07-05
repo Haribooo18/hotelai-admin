@@ -1,13 +1,10 @@
 "use client";
 
 import {
-  Crown,
   Filter,
   LayoutGrid,
   List,
   Search,
-  Star,
-  Trash2,
 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -19,6 +16,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Select } from "@/components/ui/select";
 import {
+  chipActiveClass,
+  chipClass,
+  chipIdleClass,
   stickyToolbarClass,
   toolbarControlClass,
   toolbarInputClass,
@@ -26,59 +26,59 @@ import {
 import { cn } from "@/lib/utils";
 
 import { GuestCreateButton } from "./GuestCreateDialog";
-import type { GuestSortKey, GuestViewMode } from "./guest-crm-metrics";
+import {
+  GUEST_STATUS_FILTERS,
+  type GuestSortKey,
+  type GuestStatusFilter,
+  type GuestViewMode,
+} from "./guest-crm-metrics";
 
 const SORT_OPTIONS: { value: GuestSortKey; label: string }[] = [
   { value: "newest", label: "Newest first" },
   { value: "name_asc", label: "Name A–Z" },
   { value: "name_desc", label: "Name Z–A" },
   { value: "activity", label: "Last activity" },
-  { value: "spent", label: "By total spent" },
-  { value: "visits", label: "By visits" },
+  { value: "spent", label: "By lifetime revenue" },
+  { value: "visits", label: "By total stays" },
 ];
 
 type Props = {
   search: string;
-  flag: string;
+  status: GuestStatusFilter;
   tag: string;
+  country: string;
   tagOptions: string[];
+  countryOptions: string[];
   sortKey: GuestSortKey;
   viewMode: GuestViewMode;
-  selectedCount: number;
   onSearchChange: (value: string) => void;
-  onFlagChange: (value: string) => void;
+  onStatusChange: (value: GuestStatusFilter) => void;
   onTagChange: (value: string) => void;
+  onCountryChange: (value: string) => void;
   onSortChange: (value: GuestSortKey) => void;
   onViewModeChange: (value: GuestViewMode) => void;
   onCreateClick: () => void;
-  onBulkDelete: () => void;
-  onBulkVip: () => void;
-  onBulkFavorite: () => void;
-  onClearSelection: () => void;
 };
 
 export function GuestToolbar({
   search,
-  flag,
+  status,
   tag,
+  country,
   tagOptions,
+  countryOptions,
   sortKey,
   viewMode,
-  selectedCount,
   onSearchChange,
-  onFlagChange,
+  onStatusChange,
   onTagChange,
+  onCountryChange,
   onSortChange,
   onViewModeChange,
   onCreateClick,
-  onBulkDelete,
-  onBulkVip,
-  onBulkFavorite,
-  onClearSelection,
 }: Props) {
   const activeSort =
-    SORT_OPTIONS.find((option) => option.value === sortKey)?.label ??
-    "Sort";
+    SORT_OPTIONS.find((option) => option.value === sortKey)?.label ?? "Sort";
 
   return (
     <div className={stickyToolbarClass}>
@@ -86,7 +86,7 @@ export function GuestToolbar({
         <div className="relative min-w-0 flex-1 xl:max-w-md">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={18}
+            size={17}
           />
           <Input
             className={toolbarInputClass}
@@ -99,29 +99,26 @@ export function GuestToolbar({
 
         <div className="flex flex-wrap items-center gap-2">
           <Select
-            value={flag}
-            onChange={onFlagChange}
-            placeholder="All guests"
-            aria-label="Filter by flag"
-            className="h-[var(--ds-input-height)] min-w-[140px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
-            options={[
-              { value: "vip", label: "VIP only" },
-              { value: "favorite", label: "Favorites only" },
-            ]}
-          />
-
-          <Select
             value={tag}
             onChange={onTagChange}
             placeholder="All tags"
             aria-label="Filter by tag"
-            className="h-[var(--ds-input-height)] min-w-[140px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
+            className="h-[var(--ds-input-height)] min-w-[130px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
             options={tagOptions.map((value) => ({ value, label: value }))}
+          />
+
+          <Select
+            value={country}
+            onChange={onCountryChange}
+            placeholder="All countries"
+            aria-label="Filter by country"
+            className="h-[var(--ds-input-height)] min-w-[140px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+            options={countryOptions.map((value) => ({ value, label: value }))}
           />
 
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={16} className="text-[var(--shell-muted)]" />
+              <Filter size={15} className="text-[var(--shell-muted)]" />
               {activeSort}
             </DropdownMenuTrigger>
 
@@ -146,82 +143,60 @@ export function GuestToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-sm)]">
+          <div className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]">
             <button
               type="button"
-              aria-label="Grid"
-              aria-pressed={viewMode === "grid"}
-              onClick={() => onViewModeChange("grid")}
+              aria-label="Cards view"
+              aria-pressed={viewMode === "cards"}
+              onClick={() => onViewModeChange("cards")}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration-slow)] ease-out",
-                viewMode === "grid"
-                  ? "bg-[var(--shell-nav-active-bg)] text-emerald-500"
+                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+                viewMode === "cards"
+                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
                   : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
               )}
             >
-              <LayoutGrid size={16} />
+              <LayoutGrid size={15} />
             </button>
             <button
               type="button"
-              aria-label="List"
-              aria-pressed={viewMode === "list"}
-              onClick={() => onViewModeChange("list")}
+              aria-label="Table view"
+              aria-pressed={viewMode === "table"}
+              onClick={() => onViewModeChange("table")}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration-slow)] ease-out",
-                viewMode === "list"
-                  ? "bg-[var(--shell-nav-active-bg)] text-emerald-500"
+                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+                viewMode === "table"
+                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
                   : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
               )}
             >
-              <List size={16} />
+              <List size={15} />
             </button>
           </div>
 
           <GuestCreateButton
             onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-emerald-500"
+            className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-emerald-500"
           />
         </div>
       </div>
 
-      {selectedCount > 0 ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] px-4 py-3 shadow-[var(--shell-shadow-sm)]">
-          <span className="text-[13px] font-medium text-[var(--shell-text)]">
-            Selected: {selectedCount}
-          </span>
-          <button
-            type="button"
-            onClick={onBulkVip}
-            className="inline-flex items-center gap-1.5 rounded-[10px] bg-[var(--shell-nav-hover-bg)] px-3 py-1.5 text-[12px] font-medium text-[var(--shell-text)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-[var(--shell-nav-active-bg)]"
-          >
-            <Crown size={14} />
-            VIP
-          </button>
-          <button
-            type="button"
-            onClick={onBulkFavorite}
-            className="inline-flex items-center gap-1.5 rounded-[10px] bg-[var(--shell-nav-hover-bg)] px-3 py-1.5 text-[12px] font-medium text-[var(--shell-text)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-[var(--shell-nav-active-bg)]"
-          >
-            <Star size={14} />
-            Add to favorites
-          </button>
-          <button
-            type="button"
-            onClick={onBulkDelete}
-            className="inline-flex items-center gap-1.5 rounded-[10px] bg-red-500/10 px-3 py-1.5 text-[12px] font-medium text-red-400 transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-red-500/15"
-          >
-            <Trash2 size={14} />
-            Delete
-          </button>
-          <button
-            type="button"
-            onClick={onClearSelection}
-            className="ml-auto text-[12px] text-[var(--shell-muted)] transition-opacity duration-[var(--ds-duration-slow)] ease-out hover:opacity-80"
-          >
-            Clear selection
-          </button>
-        </div>
-      ) : null}
+      <div className="flex flex-wrap gap-2">
+        {GUEST_STATUS_FILTERS.map((option) => {
+          const active = status === option.value;
+
+          return (
+            <button
+              key={option.value || "all"}
+              type="button"
+              onClick={() => onStatusChange(option.value)}
+              className={cn(chipClass, active ? chipActiveClass : chipIdleClass)}
+            >
+              {option.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -15,15 +15,27 @@ export type GuestSortKey =
   | "visits"
   | "newest";
 
-export type GuestViewMode = "grid" | "list";
+export type GuestViewMode = "cards" | "table";
+
+export type GuestStatusFilter = "" | "active" | "returning" | "vip";
+
+export const GUEST_STATUS_FILTERS: { value: GuestStatusFilter; label: string }[] =
+  [
+    { value: "", label: "All statuses" },
+    { value: "active", label: "Active stays" },
+    { value: "returning", label: "Returning" },
+    { value: "vip", label: "VIP only" },
+  ];
+
+export type GuestSatisfaction = "excellent" | "good" | "neutral" | "new";
 
 export type GuestCrmKpis = {
   total: number;
-  stayingNow: number;
-  vip: number;
-  newThisMonth: number;
-  averageStayNights: number;
+  activeGuests: number;
   returning: number;
+  vip: number;
+  averageStayNights: number;
+  lifetimeRevenue: number;
 };
 
 export type GuestCardModel = {
@@ -32,15 +44,10 @@ export type GuestCardModel = {
   stats: GuestStats;
   activeBooking: Booking | null;
   roomLabel: string | null;
-  statusLabel: string;
 };
 
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
-}
-
-function monthKey(date: Date): string {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
 
 function isStayingToday(booking: Booking, today: string): boolean {
@@ -54,23 +61,6 @@ function isStayingToday(booking: Booking, today: string): boolean {
 function resolveRoomLabel(roomId: string, rooms: Room[]): string | null {
   const room = rooms.find((item) => item.id === roomId);
   return room?.room_type ?? null;
-}
-
-function resolveStatusLabel(booking: Booking | null): string {
-  if (!booking) return "No active stay";
-
-  switch (booking.status) {
-    case "checked_in":
-      return "Checked in";
-    case "confirmed":
-      return "Confirmed";
-    case "checked_out":
-      return "Checked out";
-    case "cancelled":
-      return "Cancelled";
-    default:
-      return booking.status;
-  }
 }
 
 export function buildGuestCardModels(
@@ -99,19 +89,15 @@ export function buildGuestCardModels(
       roomLabel: activeBooking
         ? resolveRoomLabel(activeBooking.room_id, rooms)
         : null,
-      statusLabel: resolveStatusLabel(activeBooking),
     };
   });
 }
 
 export function computeGuestCrmKpis(models: GuestCardModel[]): GuestCrmKpis {
-  const currentMonth = monthKey(new Date());
-
-  const stayingNow = models.filter((model) => model.activeBooking !== null).length;
-  const vip = models.filter((model) => model.guest.is_vip).length;
-  const newThisMonth = models.filter((model) =>
-    model.guest.created_at.startsWith(currentMonth)
+  const activeGuests = models.filter(
+    (model) => model.activeBooking !== null
   ).length;
+  const vip = models.filter((model) => model.guest.is_vip).length;
 
   const returning = models.filter(
     (model) => model.guest.total_bookings > 1
@@ -129,14 +115,43 @@ export function computeGuestCrmKpis(models: GuestCardModel[]): GuestCrmKpis {
         )
       : 0;
 
+  const lifetimeRevenue = models.reduce(
+    (sum, model) => sum + model.guest.total_spent,
+    0
+  );
+
   return {
     total: models.length,
-    stayingNow,
+    activeGuests,
     vip,
-    newThisMonth,
     averageStayNights,
     returning,
+    lifetimeRevenue,
   };
+}
+
+export function deriveSatisfaction(model: GuestCardModel): GuestSatisfaction {
+  const { guest, stats } = model;
+
+  if (guest.is_vip || guest.total_spent >= 5000 || stats.totalBookings >= 5) {
+    return "excellent";
+  }
+
+  if (guest.total_bookings >= 2 || guest.total_spent >= 1000) {
+    return "good";
+  }
+
+  if (stats.totalBookings > 0) {
+    return "neutral";
+  }
+
+  return "new";
+}
+
+export function extractCountryOptions(guests: Guest[]): string[] {
+  return Array.from(
+    new Set(guests.map((guest) => guest.country).filter(Boolean) as string[])
+  ).sort((a, b) => a.localeCompare(b, "ru"));
 }
 
 export function sortGuestModels(

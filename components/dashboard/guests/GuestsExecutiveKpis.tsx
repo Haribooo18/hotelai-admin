@@ -1,0 +1,120 @@
+"use client";
+
+import {
+  Crown,
+  Moon,
+  RefreshCcw,
+  Users,
+  Wallet,
+} from "lucide-react";
+
+import {
+  AnimatedMetric,
+  DashboardGlassPanel,
+  DashboardSkeletonBlock,
+} from "@/components/dashboard/home/DashboardPrimitives";
+import { cn } from "@/lib/utils";
+
+import {
+  formatGuestCurrency,
+  type GuestCrmKpis,
+} from "./guest-crm-metrics";
+
+type Props = {
+  kpis: GuestCrmKpis;
+  loading?: boolean;
+};
+
+const KPI_ITEMS: Array<{
+  key: keyof GuestCrmKpis;
+  label: string;
+  icon: typeof Users;
+  format: (value: number) => string;
+}> = [
+  {
+    key: "total",
+    label: "Total guests",
+    icon: Users,
+    format: (value) => String(Math.round(value)),
+  },
+  {
+    key: "activeGuests",
+    label: "Active guests",
+    icon: Users,
+    format: (value) => String(Math.round(value)),
+  },
+  {
+    key: "returning",
+    label: "Returning guests",
+    icon: RefreshCcw,
+    format: (value) => String(Math.round(value)),
+  },
+  {
+    key: "vip",
+    label: "VIP guests",
+    icon: Crown,
+    format: (value) => String(Math.round(value)),
+  },
+  {
+    key: "averageStayNights",
+    label: "Average stay",
+    icon: Moon,
+    format: (value) => `${Math.round(value)}n`,
+  },
+  {
+    key: "lifetimeRevenue",
+    label: "Lifetime revenue",
+    icon: Wallet,
+    format: formatGuestCurrency,
+  },
+];
+
+export function GuestsExecutiveKpis({ kpis, loading = false }: Props) {
+  if (loading) {
+    return (
+      <DashboardGlassPanel className="p-[var(--ds-surface-padding)]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div key={index} className="space-y-2 px-2 py-1">
+              <DashboardSkeletonBlock className="h-3 w-20" />
+              <DashboardSkeletonBlock className="h-7 w-16" />
+            </div>
+          ))}
+        </div>
+      </DashboardGlassPanel>
+    );
+  }
+
+  return (
+    <DashboardGlassPanel className="overflow-hidden p-[var(--ds-surface-padding)]">
+      <div className="grid gap-1 sm:grid-cols-2 xl:grid-cols-6">
+        {KPI_ITEMS.map((item, index) => {
+          const Icon = item.icon;
+          const value = kpis[item.key];
+
+          return (
+            <div
+              key={item.key}
+              className={cn(
+                "group px-3 py-2 transition-[transform,opacity] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px",
+                index > 0 && "xl:border-l xl:border-[var(--shell-border)]/60"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)] transition-transform duration-[var(--ds-duration)] ease-[var(--ds-ease)] group-hover:scale-[1.04]">
+                  <Icon size={15} />
+                </div>
+                <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
+                  {item.label}
+                </p>
+              </div>
+              <p className="mt-2.5 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] leading-[var(--type-kpi-leading)] tracking-[var(--type-kpi-tracking)] text-[var(--shell-text)]">
+                <AnimatedMetric value={value} formatter={item.format} />
+              </p>
+            </div>
+          );
+        })}
+      </div>
+    </DashboardGlassPanel>
+  );
+}
