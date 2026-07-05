@@ -4,6 +4,7 @@ import type { Booking } from "@/types/booking";
 import type { Lead } from "@/types/lead";
 import type { Room } from "@/types/room";
 
+import { PaymentsRepository } from "./payments.repository";
 import type { RepositoryContext } from "./context.types";
 
 export type RpcDashboardMetricsRow = {
@@ -48,6 +49,24 @@ async function resolveFallbackData(
   return Promise.resolve(fallbackData);
 }
 
+async function computeFallbackMetrics(
+  ctx: RepositoryContext,
+  data: DashboardFallbackData
+): Promise<DashboardMetrics> {
+  const base = computeDashboardMetrics(data.bookings, data.rooms, data.leads);
+  const paymentsRepo = new PaymentsRepository(ctx);
+  const [revenueToday, revenueMonth] = await Promise.all([
+    paymentsRepo.resolveRevenueToday(data.bookings),
+    paymentsRepo.resolveRevenueMonth(data.bookings),
+  ]);
+
+  return {
+    ...base,
+    revenueToday,
+    revenueMonth,
+  };
+}
+
 export async function getDashboardMetrics(
   ctx: RepositoryContext,
   fallbackData: DashboardFallbackData | Promise<DashboardFallbackData>
@@ -60,7 +79,7 @@ export async function getDashboardMetrics(
   const [data, rpcResult] = await Promise.all([dataPromise, rpcPromise]);
 
   if (rpcResult.error || rpcResult.data == null) {
-    return computeDashboardMetrics(data.bookings, data.rooms, data.leads);
+    return computeFallbackMetrics(ctx, data);
   }
 
   const row = (Array.isArray(rpcResult.data) ? rpcResult.data[0] : rpcResult.data) as
@@ -68,7 +87,7 @@ export async function getDashboardMetrics(
     | undefined;
 
   if (!row) {
-    return computeDashboardMetrics(data.bookings, data.rooms, data.leads);
+    return computeFallbackMetrics(ctx, data);
   }
 
   return mapRpcRow(row, data.leads);

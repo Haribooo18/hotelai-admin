@@ -1,6 +1,12 @@
 import type { Room } from "@/types/room";
 import type { DbRoomRow } from "@/types/database/generated";
-import { toRoom } from "@/lib/database/mappers";
+import {
+  resolveHousekeepingStatus,
+  resolveMaintenanceStatus,
+  resolveRoomTypeName,
+  toRoom,
+  type DbRoomRowWithType,
+} from "@/lib/database/mappers";
 
 import {
   throwRepositoryError,
@@ -24,6 +30,8 @@ export type AvailableRoomSummary = {
   room_type: string;
   price: number;
 };
+
+const ROOM_SELECT = "*, room_types(name)";
 
 export class RoomsRepository {
   constructor(private readonly ctx: RepositoryContext) {}
@@ -53,19 +61,11 @@ export class RoomsRepository {
     return data.id as string;
   }
 
-  async getAll(): Promise<Room[]> {
-    const { data, error } = await this.ctx.supabase
-      .from("rooms")
-      .select("*")
-      .eq("hotel_id", this.ctx.hotelId)
-      .order("room_type", { ascending: true });
-
-    if (error) throwRepositoryError(error);
-
-    return ((data ?? []) as DbRoomRow[]).map(toRoom);
+  private mapRoom(row: DbRoomRowWithType): Room {
+    return toRoom(row);
   }
 
-  async getById(id: string): Promise<Room | null> {
+  private async getRawById(id: string): Promise<DbRoomRow | null> {
     const { data, error } = await this.ctx.supabase
       .from("rooms")
       .select("*")
@@ -75,7 +75,32 @@ export class RoomsRepository {
 
     if (error) throwRepositoryError(error);
 
-    return data ? toRoom(data as DbRoomRow) : null;
+    return (data as DbRoomRow | null) ?? null;
+  }
+
+  async getAll(): Promise<Room[]> {
+    const { data, error } = await this.ctx.supabase
+      .from("rooms")
+      .select(ROOM_SELECT)
+      .eq("hotel_id", this.ctx.hotelId)
+      .order("room_type", { ascending: true });
+
+    if (error) throwRepositoryError(error);
+
+    return ((data ?? []) as DbRoomRowWithType[]).map((row) => this.mapRoom(row));
+  }
+
+  async getById(id: string): Promise<Room | null> {
+    const { data, error } = await this.ctx.supabase
+      .from("rooms")
+      .select(ROOM_SELECT)
+      .eq("id", id)
+      .eq("hotel_id", this.ctx.hotelId)
+      .maybeSingle();
+
+    if (error) throwRepositoryError(error);
+
+    return data ? this.mapRoom(data as DbRoomRowWithType) : null;
   }
 
   async create(row: RoomInsertRow): Promise<void> {
@@ -93,6 +118,7 @@ export class RoomsRepository {
   }
 
   async update(id: string, row: RoomUpdateRow): Promise<void> {
+    const existing = await this.getRawById(id);
     const roomTypeId = await this.resolveRoomTypeId(row.room_type);
 
     const { error } = await this.ctx.supabase
@@ -100,6 +126,12 @@ export class RoomsRepository {
       .update({
         ...row,
         room_type_id: roomTypeId,
+        housekeeping_status: existing
+          ? resolveHousekeepingStatus(existing)
+          : "clean",
+        maintenance_status: existing
+          ? resolveMaintenanceStatus(existing)
+          : "operational",
       })
       .eq("id", id)
       .eq("hotel_id", this.ctx.hotelId);
@@ -120,12 +152,22 @@ export class RoomsRepository {
   async getAvailableSummaries(): Promise<AvailableRoomSummary[]> {
     const { data, error } = await this.ctx.supabase
       .from("rooms")
-      .select("id, room_type, price")
+      .select("id, room_type, room_type_id, price, room_types(name)")
       .eq("hotel_id", this.ctx.hotelId)
       .order("room_type", { ascending: true });
 
     if (error) throwRepositoryError(error);
 
-    return (data ?? []) as AvailableRoomSummary[];
+    return ((data ?? []) as unknown as Array<{
+      id: string;
+      room_type: string;
+      room_type_id: string | null;
+      price: number;
+      room_types?: { name: string } | { name: string }[] | null;
+    }>).map((row) => ({
+      id: row.id,
+      room_type: resolveRoomTypeName(row),
+      price: Number(row.price),
+    }));
   }
 }

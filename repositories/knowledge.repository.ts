@@ -5,7 +5,7 @@ import type {
 } from "@/types/knowledge-article";
 import type { DbKnowledgeArticleRow } from "@/types/database/generated";
 import {
-  computeKnowledgeQualityScore,
+  resolveKnowledgeMetrics,
   toKnowledgeArticle,
 } from "@/lib/database/mappers";
 
@@ -33,22 +33,39 @@ type KnowledgeUpdateRow = Omit<KnowledgeInsertRow, "created_by">;
 
 type KnowledgeAutosavePatch = Record<string, unknown>;
 
-function normalizedKnowledgeMetrics(row: {
+type KnowledgeMetricsInput = {
   status: string;
   priority: string;
   tags: string[];
   search_keywords: string[];
   content: string;
   is_pinned: boolean;
-}) {
-  return {
-    quality_score: computeKnowledgeQualityScore(row),
-    ai_indexed: row.status === "published",
-  };
-}
+};
 
 export class KnowledgeRepository {
   constructor(private readonly ctx: RepositoryContext) {}
+
+  private async getRawById(id: string): Promise<DbKnowledgeArticleRow | null> {
+    const { data, error } = await this.ctx.supabase
+      .from("knowledge_articles")
+      .select("*")
+      .eq("id", id)
+      .eq("hotel_id", this.ctx.hotelId)
+      .is("deleted_at", null)
+      .maybeSingle();
+
+    if (error) throwRepositoryError(error);
+
+    return (data as DbKnowledgeArticleRow | null) ?? null;
+  }
+
+  private metricsForWrite(
+    row: KnowledgeMetricsInput,
+    existing: DbKnowledgeArticleRow | null,
+    options?: { forceAiIndexed?: boolean }
+  ) {
+    return resolveKnowledgeMetrics(row, existing, options);
+  }
 
   async getAll(): Promise<KnowledgeArticle[]> {
     const { data, error } = await this.ctx.supabase
@@ -65,21 +82,13 @@ export class KnowledgeRepository {
   }
 
   async getById(id: string): Promise<KnowledgeArticle | null> {
-    const { data, error } = await this.ctx.supabase
-      .from("knowledge_articles")
-      .select("*")
-      .eq("id", id)
-      .eq("hotel_id", this.ctx.hotelId)
-      .is("deleted_at", null)
-      .maybeSingle();
+    const data = await this.getRawById(id);
 
-    if (error) throwRepositoryError(error);
-
-    return data ? toKnowledgeArticle(data as DbKnowledgeArticleRow) : null;
+    return data ? toKnowledgeArticle(data) : null;
   }
 
   async create(row: KnowledgeInsertRow): Promise<string> {
-    const metrics = normalizedKnowledgeMetrics(row);
+    const metrics = this.metricsForWrite(row, null);
 
     const { data, error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -87,7 +96,6 @@ export class KnowledgeRepository {
         hotel_id: this.ctx.hotelId,
         ...row,
         ...metrics,
-        usage_count: 0,
       })
       .select("id")
       .single();
@@ -98,7 +106,8 @@ export class KnowledgeRepository {
   }
 
   async update(id: string, row: KnowledgeUpdateRow): Promise<void> {
-    const metrics = normalizedKnowledgeMetrics(row);
+    const existing = await this.getRawById(id);
+    const metrics = this.metricsForWrite(row, existing);
 
     const { error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -113,11 +122,12 @@ export class KnowledgeRepository {
   }
 
   async autosave(id: string, patch: KnowledgeAutosavePatch): Promise<void> {
-    const article = await this.getById(id);
-    if (!article) {
+    const existing = await this.getRawById(id);
+    if (!existing) {
       throw new Error("Статья не найдена");
     }
 
+    const article = toKnowledgeArticle(existing);
     const merged = {
       status: (patch.status as string | undefined) ?? article.status,
       priority: (patch.priority as string | undefined) ?? article.priority,
@@ -130,7 +140,7 @@ export class KnowledgeRepository {
         (patch.is_pinned as boolean | undefined) ?? article.is_pinned,
     };
 
-    const metrics = normalizedKnowledgeMetrics(merged);
+    const metrics = this.metricsForWrite(merged, existing);
 
     const { error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -155,13 +165,20 @@ export class KnowledgeRepository {
   }
 
   async setPinned(id: string, pinned: boolean): Promise<void> {
-    const article = await this.getById(id);
-    if (!article) return;
+    const existing = await this.getRawById(id);
+    if (!existing) return;
 
-    const metrics = normalizedKnowledgeMetrics({
-      ...article,
-      is_pinned: pinned,
-    });
+    const metrics = this.metricsForWrite(
+      {
+        status: existing.status,
+        priority: existing.priority,
+        tags: existing.tags ?? [],
+        search_keywords: existing.search_keywords ?? [],
+        content: existing.content,
+        is_pinned: pinned,
+      },
+      existing
+    );
 
     const { error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -186,13 +203,21 @@ export class KnowledgeRepository {
   }
 
   async publish(id: string, version: number, updatedBy: string | null): Promise<void> {
-    const article = await this.getById(id);
-    if (!article) return;
+    const existing = await this.getRawById(id);
+    if (!existing) return;
 
-    const metrics = normalizedKnowledgeMetrics({
-      ...article,
-      status: "published",
-    });
+    const metrics = this.metricsForWrite(
+      {
+        status: "published",
+        priority: existing.priority,
+        tags: existing.tags ?? [],
+        search_keywords: existing.search_keywords ?? [],
+        content: existing.content,
+        is_pinned: existing.is_pinned,
+      },
+      existing,
+      { forceAiIndexed: true }
+    );
 
     const { error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -223,13 +248,21 @@ export class KnowledgeRepository {
   }
 
   async unpublish(id: string, updatedBy: string | null): Promise<void> {
-    const article = await this.getById(id);
-    if (!article) return;
+    const existing = await this.getRawById(id);
+    if (!existing) return;
 
-    const metrics = normalizedKnowledgeMetrics({
-      ...article,
-      status: "draft",
-    });
+    const metrics = this.metricsForWrite(
+      {
+        status: "draft",
+        priority: existing.priority,
+        tags: existing.tags ?? [],
+        search_keywords: existing.search_keywords ?? [],
+        content: existing.content,
+        is_pinned: existing.is_pinned,
+      },
+      existing,
+      { forceAiIndexed: false }
+    );
 
     const { error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -245,14 +278,21 @@ export class KnowledgeRepository {
   }
 
   async archive(id: string, updatedBy: string | null): Promise<void> {
-    const article = await this.getById(id);
-    if (!article) return;
+    const existing = await this.getRawById(id);
+    if (!existing) return;
 
-    const metrics = normalizedKnowledgeMetrics({
-      ...article,
-      status: "archived",
-      is_pinned: false,
-    });
+    const metrics = this.metricsForWrite(
+      {
+        status: "archived",
+        priority: existing.priority,
+        tags: existing.tags ?? [],
+        search_keywords: existing.search_keywords ?? [],
+        content: existing.content,
+        is_pinned: false,
+      },
+      existing,
+      { forceAiIndexed: false }
+    );
 
     const { error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -285,7 +325,7 @@ export class KnowledgeRepository {
       search_keywords: source.search_keywords,
     };
 
-    const metrics = normalizedKnowledgeMetrics(draftRow);
+    const metrics = this.metricsForWrite(draftRow, null);
 
     const { data, error } = await this.ctx.supabase
       .from("knowledge_articles")
@@ -294,7 +334,6 @@ export class KnowledgeRepository {
         ...draftRow,
         version: 1,
         ...metrics,
-        usage_count: 0,
         created_by: updatedBy,
         updated_by: updatedBy,
       })

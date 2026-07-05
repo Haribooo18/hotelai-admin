@@ -3,6 +3,7 @@ import type { Guest } from "@/types/guest";
 import type { DbBookingRow, DbGuestRow } from "@/types/database/generated";
 import { guestLegacyWriteFields, toBooking, toGuest } from "@/lib/database/mappers";
 
+import { PaymentsRepository } from "./payments.repository";
 import {
   throwRepositoryError,
   type RepositoryContext,
@@ -38,7 +39,24 @@ type GuestMergeUpdateRow = {
 };
 
 export class GuestsRepository {
-  constructor(private readonly ctx: RepositoryContext) {}
+  private readonly payments: PaymentsRepository;
+
+  constructor(private readonly ctx: RepositoryContext) {
+    this.payments = new PaymentsRepository(ctx);
+  }
+
+  private async mapBookings(rows: DbBookingRow[]): Promise<Booking[]> {
+    const paymentTotals = await this.payments.getPaymentTotalsByBookingIds(
+      rows.map((row) => row.id)
+    );
+
+    return rows.map((row) =>
+      toBooking({
+        ...row,
+        total_price: paymentTotals.get(row.id) ?? row.total_price,
+      })
+    );
+  }
 
   async getAll(): Promise<Guest[]> {
     const { data, error } = await this.ctx.supabase
@@ -81,7 +99,7 @@ export class GuestsRepository {
   }
 
   async create(row: GuestInsertRow): Promise<void> {
-    const legacy = guestLegacyWriteFields({
+    const normalized = guestLegacyWriteFields({
       is_vip: row.is_vip,
       total_bookings: 0,
       total_spent: 0,
@@ -90,21 +108,22 @@ export class GuestsRepository {
     const { error } = await this.ctx.supabase.from("guests").insert({
       hotel_id: this.ctx.hotelId,
       ...row,
-      ...legacy,
-      language: "ru",
-      marketing_opt_in: false,
+      ...normalized,
     });
 
     if (error) throwRepositoryError(error);
   }
 
   async update(id: string, row: GuestUpdateRow): Promise<void> {
+    const normalized = guestLegacyWriteFields({
+      is_vip: row.is_vip,
+    });
+
     const { error } = await this.ctx.supabase
       .from("guests")
       .update({
         ...row,
-        vip: row.is_vip,
-        is_vip: row.is_vip,
+        ...normalized,
       })
       .eq("id", id)
       .eq("hotel_id", this.ctx.hotelId);
@@ -143,13 +162,13 @@ export class GuestsRepository {
   }
 
   async updateMergedGuest(id: string, row: GuestMergeUpdateRow): Promise<void> {
-    const legacy = guestLegacyWriteFields(row);
+    const normalized = guestLegacyWriteFields(row);
 
     const { error } = await this.ctx.supabase
       .from("guests")
       .update({
         ...row,
-        ...legacy,
+        ...normalized,
       })
       .eq("id", id)
       .eq("hotel_id", this.ctx.hotelId);
@@ -158,25 +177,37 @@ export class GuestsRepository {
   }
 
   async getBookingsForGuest(guest: Guest): Promise<Booking[]> {
-    const filters: string[] = [`guest_id.eq.${guest.id}`];
-
-    if (guest.email && guest.email.trim() !== "") {
-      filters.push(`guest_email.ilike.${guest.email.trim()}`);
-    } else {
-      filters.push(
-        `guest_name.ilike.${`${guest.first_name} ${guest.last_name}`.trim()}`
-      );
-    }
-
-    const { data, error } = await this.ctx.supabase
+    const { data: byGuestId, error: byGuestIdError } = await this.ctx.supabase
       .from("bookings")
       .select("*")
       .eq("hotel_id", this.ctx.hotelId)
-      .or(filters.join(","))
+      .eq("guest_id", guest.id)
       .order("check_in", { ascending: false });
+
+    if (byGuestIdError) throwRepositoryError(byGuestIdError);
+
+    if ((byGuestId ?? []).length > 0) {
+      return this.mapBookings((byGuestId ?? []) as DbBookingRow[]);
+    }
+
+    let query = this.ctx.supabase
+      .from("bookings")
+      .select("*")
+      .eq("hotel_id", this.ctx.hotelId);
+
+    if (guest.email && guest.email.trim() !== "") {
+      query = query.ilike("guest_email", guest.email.trim());
+    } else {
+      query = query.ilike(
+        "guest_name",
+        `${guest.first_name} ${guest.last_name}`.trim()
+      );
+    }
+
+    const { data, error } = await query.order("check_in", { ascending: false });
 
     if (error) throwRepositoryError(error);
 
-    return ((data ?? []) as DbBookingRow[]).map(toBooking);
+    return this.mapBookings((data ?? []) as DbBookingRow[]);
   }
 }
