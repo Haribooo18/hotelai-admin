@@ -7,14 +7,15 @@ import { useRouter } from "next/navigation";
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
-import {
-  AdminPageStack,
-  DashboardPageHeader,
-  DashboardSkeletonBlock,
-} from "@/components/dashboard/home/DashboardPrimitives";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
+import { Skeleton } from "@/components/ui/display/Skeleton";
 import { useI18n } from "@/lib/i18n";
 
 import { RevenueExecutiveKpis } from "./RevenueExecutiveKpis";
+import { RevenueInsights } from "./RevenueInsights";
+import { RevenueInspector } from "./RevenueInspector";
 import { RevenueOperations } from "./RevenueOperations";
 import {
   buildPreviousPeriodRange,
@@ -33,6 +34,11 @@ import {
   type RevenueKpis,
   type RevenueTrendPoint,
 } from "./revenue-metrics";
+import {
+  detectRevenuePreset,
+  type RevenueRangePreset,
+  type RevenueToolbarFilters,
+} from "./revenue-ui";
 import { RevenueToolbar } from "./RevenueToolbar";
 
 const RevenueAnalytics = dynamic(
@@ -42,12 +48,9 @@ const RevenueAnalytics = dynamic(
     })),
   {
     loading: () => (
-      <div className="grid gap-4 xl:grid-cols-2">
-        <DashboardSkeletonBlock className="h-64" />
-        <DashboardSkeletonBlock className="h-64" />
-        <DashboardSkeletonBlock className="h-64" />
-        <DashboardSkeletonBlock className="h-64" />
-      </div>
+      <GlassSurface className="p-[var(--ds-surface-padding)]">
+        <Skeleton className="min-h-[420px] rounded-[var(--ds-radius)]" />
+      </GlassSurface>
     ),
   }
 );
@@ -63,15 +66,23 @@ type Props = {
   serverForecast?: RevenueForecastPoint[];
 };
 
+const DEFAULT_FILTERS: RevenueToolbarFilters = {
+  search: "",
+  status: "",
+  roomId: "",
+};
+
 function isServerSnapshotActive(
   range: RevenueDateRange,
   serverRange: RevenueDateRange | undefined,
-  search: string,
-  statusFilter: string,
-  roomFilter: string
+  filters: RevenueToolbarFilters
 ): boolean {
   if (!serverRange) return false;
-  if (search.trim() !== "" || statusFilter !== "" || roomFilter !== "") {
+  if (
+    filters.search.trim() !== "" ||
+    filters.status !== "" ||
+    filters.roomId !== ""
+  ) {
     return false;
   }
 
@@ -110,27 +121,26 @@ export function RevenuePage({
   const [range, setRange] = useState<RevenueDateRange>(
     () => serverRange ?? defaultRevenueRange()
   );
+  const [preset, setPreset] = useState<RevenueRangePreset>(() =>
+    detectRevenuePreset(serverRange ?? defaultRevenueRange())
+  );
   const [compareEnabled, setCompareEnabled] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
-  const [roomFilter, setRoomFilter] = useState("");
+  const [filters, setFilters] = useState<RevenueToolbarFilters>(DEFAULT_FILTERS);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
-      if (statusFilter && booking.status !== statusFilter) return false;
-      if (roomFilter && booking.room_id !== roomFilter) return false;
-      if (!matchesSearch(booking, rooms, search)) return false;
+      if (filters.status && booking.status !== filters.status) return false;
+      if (filters.roomId && booking.room_id !== filters.roomId) return false;
+      if (!matchesSearch(booking, rooms, filters.search)) return false;
       return true;
     });
-  }, [bookings, statusFilter, roomFilter, search, rooms]);
+  }, [bookings, filters, rooms]);
 
   const useServerSnapshot = isServerSnapshotActive(
     range,
     serverRange,
-    search,
-    statusFilter,
-    roomFilter
+    filters
   );
 
   const kpis = useMemo(() => {
@@ -187,44 +197,72 @@ export function RevenuePage({
   }
 
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.revenue.title")}
         subtitle={t("pages.revenue.subtitle")}
       />
 
-      <RevenueExecutiveKpis kpis={kpis} loading={refreshing} />
+      <RevenueExecutiveKpis
+        kpis={kpis}
+        trend={trend}
+        forecast={forecast}
+        loading={refreshing}
+      />
 
       <RevenueToolbar
         range={range}
+        preset={preset}
         compareEnabled={compareEnabled}
         exporting={exporting}
         refreshing={refreshing}
         canExport={transactions.length > 0}
-        search={search}
-        statusFilter={statusFilter}
-        roomFilter={roomFilter}
+        filters={filters}
         rooms={rooms}
         onRangeChange={setRange}
+        onPresetChange={setPreset}
         onCompareChange={setCompareEnabled}
         onExport={handleExport}
         onRefresh={handleRefresh}
-        onSearchChange={setSearch}
-        onStatusFilterChange={setStatusFilter}
-        onRoomFilterChange={setRoomFilter}
+        onFiltersChange={setFilters}
       />
 
-      <RevenueAnalytics
-        trend={trend}
-        compareTrend={compareTrend}
-        bySource={bySource}
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="space-y-4">
+          <RevenueAnalytics
+            trend={trend}
+            compareTrend={compareTrend}
+            bySource={bySource}
+            byRoomType={byRoomType}
+            forecast={forecast}
+            compareEnabled={compareEnabled}
+            loading={refreshing}
+          />
+
+          <RevenueInsights insights={insights} loading={refreshing} />
+        </div>
+
+        <div className="hidden xl:block">
+          <RevenueInspector
+            kpis={kpis}
+            trend={trend}
+            forecast={forecast}
+            range={range}
+            useServerSnapshot={useServerSnapshot}
+            canExport={transactions.length > 0}
+            exporting={exporting}
+            onExport={handleExport}
+          />
+        </div>
+      </div>
+
+      <RevenueOperations
         byRoomType={byRoomType}
-        forecast={forecast}
-        compareEnabled={compareEnabled}
+        bySource={bySource}
+        transactions={transactions}
+        trend={trend}
         loading={refreshing}
       />
-
-      <RevenueOperations transactions={transactions} insights={insights} />
-    </AdminPageStack>
+    </Stack>
   );
 }
