@@ -1,39 +1,35 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import {
-  Bot,
-  CreditCard,
   FileText,
-  NotebookPen,
+  Mail,
   Pencil,
-  Settings2,
-  Sparkles,
+  Phone,
   Star,
   Trash2,
-  UserRound,
 } from "lucide-react";
 
 import type { Guest } from "@/types/guest";
 
+import { Button } from "@/components/ui/core/Button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/overlay/Drawer";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { Panel } from "@/components/ui/primitives/Panel";
+import { Scrollable } from "@/components/ui/primitives/Scrollable";
+import { Section } from "@/components/ui/primitives/Section";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
-import {
-  DashboardEmptyState,
-  DashboardPanelHeader,
-  DashboardSurface,
-} from "@/components/dashboard/home/DashboardPrimitives";
 
 import { GuestAvatar } from "./GuestAvatar";
 import { GuestBookingHistory } from "./GuestBookingHistory";
 import { GuestProfileActions } from "./GuestProfileActions";
-import { GuestProfileCard } from "./GuestProfileCard";
 import { GuestSatisfactionBadge } from "./GuestSatisfactionBadge";
 import { GuestStats } from "./GuestStats";
 import { GuestTags } from "./GuestTags";
@@ -44,19 +40,7 @@ import {
   formatGuestDateTime,
   type GuestCardModel,
 } from "./guest-crm-metrics";
-
-const TABS = [
-  { id: "profile", label: "Profile", icon: UserRound },
-  { id: "reservations", label: "Bookings", icon: NotebookPen },
-  { id: "revenue", label: "Revenue", icon: CreditCard },
-  { id: "timeline", label: "Timeline", icon: Sparkles },
-  { id: "notes", label: "Notes", icon: FileText },
-  { id: "tags", label: "Tags", icon: Settings2 },
-  { id: "preferences", label: "Preferences", icon: Settings2 },
-  { id: "ai", label: "AI Summary", icon: Bot },
-] as const;
-
-type TabId = (typeof TABS)[number]["id"];
+import { getGuestLanguageLabel, GuestDetailRow } from "./guests-ui";
 
 type Props = {
   open: boolean;
@@ -77,11 +61,8 @@ export function GuestDetailDrawer({
   onDelete,
   onToggleFavorite,
 }: Props) {
-  const [tab, setTab] = useState<TabId>("profile");
-
   const timeline = useMemo(
-    () =>
-      model ? buildGuestTimeline(model.guest, model.bookings) : [],
+    () => (model ? buildGuestTimeline(model.guest, model.bookings) : []),
     [model]
   );
 
@@ -90,14 +71,15 @@ export function GuestDetailDrawer({
   const { guest, bookings, stats } = model;
   const fullName = `${guest.first_name} ${guest.last_name}`.trim();
   const satisfaction = deriveSatisfaction(model);
+  const language = getGuestLanguageLabel(guest);
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent
         side="right"
         className="w-full gap-0 overflow-hidden border-0 bg-[var(--shell-content)] p-0 sm:max-w-xl"
       >
-        <SheetHeader className="border-b border-[var(--shell-border)]/70 px-6 py-5">
+        <DrawerHeader className="border-b border-[var(--shell-border)]/70 px-6 py-5">
           <div className="flex items-start gap-4">
             <GuestAvatar
               firstName={guest.first_name}
@@ -106,9 +88,9 @@ export function GuestDetailDrawer({
               size="md"
             />
             <div className="min-w-0 flex-1">
-              <SheetTitle className="text-left text-[18px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
+              <DrawerTitle className="text-left text-[18px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
                 {fullName}
-              </SheetTitle>
+              </DrawerTitle>
               <p className="mt-1 text-left text-[13px] text-[var(--shell-muted)]">
                 {[guest.city, guest.country].filter(Boolean).join(", ") ||
                   "Location not set"}
@@ -123,105 +105,130 @@ export function GuestDetailDrawer({
               </div>
             </div>
           </div>
-        </SheetHeader>
+        </DrawerHeader>
 
-        <div className="border-b border-[var(--shell-border)]/70 px-4 py-3">
-          <div className="flex gap-2 overflow-x-auto pb-1">
-            {TABS.map((item) => {
-              const Icon = item.icon;
-              const active = tab === item.id;
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => setTab(item.id)}
-                  className={cn(
-                    "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium transition-[background-color,color,transform] duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
-                    active
-                      ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
-                      : "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
-                  )}
-                >
-                  <Icon size={13} />
-                  {item.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-          {tab === "profile" ? (
-            <div className="space-y-4">
-              <GuestProfileCard
-                guest={guest}
-                actions={
-                  <GuestProfileActions guest={guest} candidates={candidates} />
-                }
-              />
-              <GuestStats stats={stats} />
-            </div>
-          ) : null}
-
-          {tab === "reservations" ? (
-            <DashboardSurface className="overflow-hidden p-2">
-              <GuestBookingHistory bookings={bookings} />
-            </DashboardSurface>
-          ) : null}
-
-          {tab === "revenue" ? (
-            <DashboardSurface className="p-4">
-              <DashboardPanelHeader
-                title="Revenue"
-                subtitle="Lifetime value from bookings"
-                className="mb-3"
-              />
-              <div className="space-y-3">
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[13px] text-[var(--shell-muted)]">
-                    Lifetime revenue
-                  </span>
-                  <span className="text-[18px] font-semibold text-[var(--shell-text)]">
-                    {formatGuestCurrency(guest.total_spent)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[13px] text-[var(--shell-muted)]">
-                    Booking revenue
-                  </span>
-                  <span className="text-[14px] font-medium text-[var(--shell-text)]">
-                    {formatGuestCurrency(stats.totalRevenue)}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-[13px] text-[var(--shell-muted)]">
-                    Total nights
-                  </span>
-                  <span className="text-[14px] font-medium text-[var(--shell-text)]">
-                    {stats.totalNights}
-                  </span>
-                </div>
+        <Scrollable className="flex-1 px-6 py-5">
+          <Stack gap="md">
+            <Panel variant="surface" className="p-4">
+              <Section title="Profile" subtitle="Guest identity and location" />
+              <dl className="mt-3 grid gap-2">
+                <GuestDetailRow label="Name" value={fullName} />
+                <GuestDetailRow label="Country" value={guest.country ?? "—"} />
+                <GuestDetailRow label="City" value={guest.city ?? "—"} />
+                <GuestDetailRow label="Language" value={language ?? "—"} />
+                <GuestDetailRow
+                  label="Total stays"
+                  value={String(guest.total_bookings)}
+                />
+              </dl>
+              <div className="mt-4">
+                <GuestProfileActions guest={guest} candidates={candidates} />
               </div>
-            </DashboardSurface>
-          ) : null}
+            </Panel>
 
-          {tab === "timeline" ? (
-            <div className="space-y-2">
+            <Panel variant="surface" className="p-4">
+              <Section title="Contact" subtitle="Reach the guest directly" />
+              <div className="mt-3 space-y-2.5 text-[13px]">
+                {guest.email ? (
+                  <div className="flex items-center gap-2 text-[var(--shell-text)]">
+                    <Mail size={14} className="text-[var(--shell-muted)]" />
+                    {guest.email}
+                  </div>
+                ) : null}
+                {guest.phone ? (
+                  <div className="flex items-center gap-2 text-[var(--shell-muted)]">
+                    <Phone size={14} />
+                    {guest.phone}
+                  </div>
+                ) : null}
+                {!guest.email && !guest.phone ? (
+                  <p className="text-[var(--shell-muted)]">No contact details</p>
+                ) : null}
+              </div>
+            </Panel>
+
+            <Panel variant="surface" className="overflow-hidden p-2">
+              <Section
+                title="Booking history"
+                subtitle="Past and upcoming reservations"
+                className="px-2 pt-2"
+              />
+              <GuestBookingHistory bookings={bookings} />
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Revenue" subtitle="Lifetime value from bookings" />
+              <div className="mt-3 space-y-2">
+                <GuestDetailRow
+                  label="Lifetime revenue"
+                  value={formatGuestCurrency(guest.total_spent)}
+                />
+                <GuestDetailRow
+                  label="Booking revenue"
+                  value={formatGuestCurrency(stats.totalRevenue)}
+                />
+                <GuestDetailRow
+                  label="Total nights"
+                  value={String(stats.totalNights)}
+                />
+              </div>
+              <div className="mt-4">
+                <GuestStats stats={stats} />
+              </div>
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Preferences" subtitle="VIP and favorite flags" />
+              <dl className="mt-3 grid gap-2 text-[13px]">
+                <GuestDetailRow label="VIP" value={guest.is_vip ? "Yes" : "No"} />
+                <GuestDetailRow
+                  label="Favorite"
+                  value={guest.is_favorite ? "Yes" : "No"}
+                />
+              </dl>
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Tags" subtitle="CRM segmentation labels" />
+              <div className="mt-3">
+                <GuestTags tags={guest.tags} isVip={guest.is_vip} />
+              </div>
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Notes" subtitle="Team-only context" />
+              {guest.notes ? (
+                <p className="mt-3 whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--shell-text)]">
+                  {guest.notes}
+                </p>
+              ) : (
+                <EmptyState
+                  title="No notes yet"
+                  description="Add a note to the guest profile so the team can see important context."
+                  icon={<FileText size={16} />}
+                />
+              )}
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Timeline" subtitle="Profile and booking activity" />
               {timeline.length === 0 ? (
-                <DashboardEmptyState
+                <EmptyState
                   title="Timeline is empty"
                   description="Events will appear after bookings and profile updates."
-                  icon={<Sparkles size={16} />}
+                  icon={<FileText size={16} />}
                 />
               ) : (
-                timeline.map((item) => (
-                  <div
-                    key={item.id}
-                    className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3 transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-sm)]"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
+                <div className="mt-3 space-y-2">
+                  {timeline.slice(0, 8).map((item) => (
+                    <div
+                      key={item.id}
+                      className={cn(
+                        "flex items-start justify-between gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3",
+                        motionPresets.transitionBase
+                      )}
+                    >
+                      <div className="min-w-0">
                         <p className="text-[13px] font-medium text-[var(--shell-text)]">
                           {item.title}
                         </p>
@@ -233,65 +240,19 @@ export function GuestDetailDrawer({
                         {formatGuestDateTime(item.at)}
                       </span>
                     </div>
-                  </div>
-                ))
+                  ))}
+                </div>
               )}
-            </div>
-          ) : null}
-
-          {tab === "notes" ? (
-            <DashboardSurface className="p-4">
-              {guest.notes ? (
-                <p className="whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--shell-text)]">
-                  {guest.notes}
-                </p>
-              ) : (
-                <DashboardEmptyState
-                  title="No notes yet"
-                  description="Add a note to the guest profile so the team can see important context."
-                  icon={<FileText size={16} />}
-                />
-              )}
-            </DashboardSurface>
-          ) : null}
-
-          {tab === "tags" ? (
-            <DashboardSurface className="p-4">
-              <GuestTags tags={guest.tags} isVip={guest.is_vip} />
-            </DashboardSurface>
-          ) : null}
-
-          {tab === "preferences" ? (
-            <DashboardSurface className="p-4">
-              <DashboardPanelHeader
-                title="Preferences"
-                subtitle="Tags and profile flags"
-                className="mb-3"
-              />
-              <div className="space-y-3 text-[13px] text-[var(--shell-text)]">
-                <p>VIP: {guest.is_vip ? "Yes" : "No"}</p>
-                <p>Favorite: {guest.is_favorite ? "Yes" : "No"}</p>
-                <GuestTags tags={guest.tags} />
-              </div>
-            </DashboardSurface>
-          ) : null}
-
-          {tab === "ai" ? (
-            <DashboardSurface className="p-4">
-              <DashboardEmptyState
-                title="AI summary unavailable"
-                description="When the AI assistant analyzes guest history, a brief summary will appear here."
-                icon={<Bot size={16} />}
-              />
-            </DashboardSurface>
-          ) : null}
-        </div>
+            </Panel>
+          </Stack>
+        </Scrollable>
 
         <div className="border-t border-[var(--shell-border)]/70 px-6 py-4">
-          <div className="flex flex-wrap gap-2">
+          <Section title="Actions" subtitle="Guest management shortcuts" />
+          <div className="mt-3 flex flex-wrap gap-2">
             <Button
               type="button"
-              className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
+              className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
               onClick={() => onEdit?.()}
             >
               <Pencil size={14} />
@@ -300,7 +261,7 @@ export function GuestDetailDrawer({
             <Button
               type="button"
               variant="outline"
-              className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] px-4 text-[13px] shadow-[var(--shell-shadow-sm)]"
+              className="h-[var(--ds-input-height)] gap-2"
               onClick={() => onToggleFavorite?.()}
             >
               <Star size={14} />
@@ -309,7 +270,7 @@ export function GuestDetailDrawer({
             <Button
               type="button"
               variant="outline"
-              className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] px-4 text-[13px] text-red-400 shadow-[var(--shell-shadow-sm)] hover:bg-red-500/10"
+              className="h-[var(--ds-input-height)] gap-2 text-red-400 hover:bg-red-500/10"
               onClick={() => onDelete?.()}
             >
               <Trash2 size={14} />
@@ -317,7 +278,7 @@ export function GuestDetailDrawer({
             </Button>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

@@ -1,26 +1,33 @@
 "use client";
 
-import { Filter, LayoutGrid, List } from "lucide-react";
+import {
+  Download,
+  Filter,
+  LayoutGrid,
+  List,
+  Plus,
+  RefreshCw,
+} from "lucide-react";
 
+import { Button } from "@/components/ui/core/Button";
 import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Select } from "@/components/ui/select";
+} from "@/components/ui/overlay/DropdownMenu";
 import { FilterBar, FilterChip } from "@/components/ui/data/FilterBar";
+import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
 import { toolbarControlClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
-import { GuestCreateButton } from "./GuestCreateDialog";
 import {
   GUEST_STATUS_FILTERS,
   type GuestSortKey,
-  type GuestStatusFilter,
   type GuestViewMode,
 } from "./guest-crm-metrics";
+import type { GuestsToolbarFilters } from "./guests-ui";
 
 const SORT_OPTIONS: { value: GuestSortKey; label: string }[] = [
   { value: "newest", label: "Newest first" },
@@ -31,43 +38,49 @@ const SORT_OPTIONS: { value: GuestSortKey; label: string }[] = [
   { value: "visits", label: "By total stays" },
 ];
 
+const VIP_OPTIONS = [
+  { value: "", label: "All guests" },
+  { value: "yes", label: "VIP only" },
+  { value: "no", label: "Non-VIP" },
+] as const;
+
 type Props = {
-  search: string;
-  status: GuestStatusFilter;
-  tag: string;
-  country: string;
+  filters: GuestsToolbarFilters;
+  viewMode: GuestViewMode;
   tagOptions: string[];
   countryOptions: string[];
-  sortKey: GuestSortKey;
-  viewMode: GuestViewMode;
-  onSearchChange: (value: string) => void;
-  onStatusChange: (value: GuestStatusFilter) => void;
-  onTagChange: (value: string) => void;
-  onCountryChange: (value: string) => void;
-  onSortChange: (value: GuestSortKey) => void;
+  languageOptions: string[];
+  refreshing: boolean;
+  onFiltersChange: (filters: GuestsToolbarFilters) => void;
   onViewModeChange: (value: GuestViewMode) => void;
   onCreateClick: () => void;
+  onRefresh: () => void;
 };
 
 export function GuestToolbar({
-  search,
-  status,
-  tag,
-  country,
+  filters,
+  viewMode,
   tagOptions,
   countryOptions,
-  sortKey,
-  viewMode,
-  onSearchChange,
-  onStatusChange,
-  onTagChange,
-  onCountryChange,
-  onSortChange,
+  languageOptions,
+  refreshing,
+  onFiltersChange,
   onViewModeChange,
   onCreateClick,
+  onRefresh,
 }: Props) {
+  function patch(partial: Partial<GuestsToolbarFilters>) {
+    onFiltersChange({ ...filters, ...partial });
+  }
+
   const activeSort =
-    SORT_OPTIONS.find((option) => option.value === sortKey)?.label ?? "Sort";
+    SORT_OPTIONS.find((option) => option.value === filters.sort)?.label ?? "Sort";
+  const activeTag = filters.tag || "All tags";
+  const activeCountry = filters.country || "All countries";
+  const activeLanguage = filters.language || "All languages";
+  const activeVip =
+    VIP_OPTIONS.find((option) => option.value === filters.vip)?.label ??
+    "All guests";
 
   return (
     <FilterBar
@@ -76,52 +89,116 @@ export function GuestToolbar({
           containerClassName="flex-1 xl:max-w-md"
           placeholder="Search by name, email, phone..."
           aria-label="Search guests"
-          value={search}
-          onChange={(e) => onSearchChange(e.target.value)}
+          value={filters.search}
+          onChange={(event) => patch({ search: event.target.value })}
         />
       }
       trailing={
         <>
-          <Select
-            value={tag}
-            onChange={onTagChange}
-            placeholder="All tags"
-            aria-label="Filter by tag"
-            className="h-[var(--ds-input-height)] min-w-[130px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
-            options={tagOptions.map((value) => ({ value, label: value }))}
-          />
-
-          <Select
-            value={country}
-            onChange={onCountryChange}
-            placeholder="All countries"
-            aria-label="Filter by country"
-            className="h-[var(--ds-input-height)] min-w-[140px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
-            options={countryOptions.map((value) => ({ value, label: value }))}
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Tag filter"
+            >
+              <Filter size={15} aria-hidden />
+              <span className="max-w-[96px] truncate">{activeTag}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => patch({ tag: "" })}>
+                All tags
+              </DropdownMenuItem>
+              {tagOptions.map((value) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => patch({ tag: value })}
+                >
+                  {value}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <DropdownMenu>
             <DropdownMenuTrigger
-              aria-label="Sort guests"
               className={toolbarControlClass}
+              aria-label="VIP filter"
             >
-              <Filter size={15} className="text-[var(--shell-muted)]" />
+              <Filter size={15} aria-hidden />
+              {activeVip}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {VIP_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value || "all"}
+                  onClick={() => patch({ vip: option.value })}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Country filter"
+            >
+              <Filter size={15} aria-hidden />
+              <span className="max-w-[96px] truncate">{activeCountry}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => patch({ country: "" })}>
+                All countries
+              </DropdownMenuItem>
+              {countryOptions.map((value) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => patch({ country: value })}
+                >
+                  {value}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Language filter"
+            >
+              <Filter size={15} aria-hidden />
+              <span className="max-w-[96px] truncate">{activeLanguage}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => patch({ language: "" })}>
+                All languages
+              </DropdownMenuItem>
+              {languageOptions.map((value) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => patch({ language: value })}
+                >
+                  {value}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Sort guests"
+            >
               {activeSort}
             </DropdownMenuTrigger>
-
-            <DropdownMenuContent
-              align="end"
-              className="min-w-52 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
-            >
+            <DropdownMenuContent align="end">
               {SORT_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
-                  onClick={() => onSortChange(option.value)}
+                  onClick={() => patch({ sort: option.value })}
                   className={cn(
-                    "rounded-[10px] px-3 py-2 text-[13px]",
-                    sortKey === option.value
-                      ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
-                      : "text-[var(--shell-text)]"
+                    filters.sort === option.value &&
+                      "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
                   )}
                 >
                   {option.label}
@@ -130,41 +207,56 @@ export function GuestToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]">
-            <button
-              type="button"
-              aria-label="Cards view"
-              aria-pressed={viewMode === "cards"}
-              onClick={() => onViewModeChange("cards")}
-              className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
-                viewMode === "cards"
-                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
-                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
-              )}
-            >
-              <LayoutGrid size={15} />
-            </button>
-            <button
-              type="button"
-              aria-label="Table view"
-              aria-pressed={viewMode === "table"}
-              onClick={() => onViewModeChange("table")}
-              className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
-                viewMode === "table"
-                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
-                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
-              )}
-            >
-              <List size={15} />
-            </button>
-          </div>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={refreshing}
+            loading={refreshing}
+            aria-label="Refresh guests"
+          >
+            <RefreshCw size={15} aria-hidden />
+            Refresh
+          </Button>
 
-          <GuestCreateButton
-            onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-emerald-500"
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled
+            aria-label="Export guests"
+            title="Export coming soon"
+          >
+            <Download size={15} aria-hidden />
+            Export
+          </Button>
+
+          <SegmentedControl
+            value={viewMode}
+            onChange={onViewModeChange}
+            options={[
+              {
+                value: "cards",
+                ariaLabel: "Card view",
+                label: <LayoutGrid size={15} aria-hidden />,
+              },
+              {
+                value: "table",
+                ariaLabel: "Table view",
+                label: <List size={15} aria-hidden />,
+              },
+            ]}
           />
+
+          <Button
+            type="button"
+            onClick={onCreateClick}
+            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
+          >
+            <Plus size={15} aria-hidden />
+            New guest
+          </Button>
         </>
       }
       filters={
@@ -172,8 +264,8 @@ export function GuestToolbar({
           {GUEST_STATUS_FILTERS.map((option) => (
             <FilterChip
               key={option.value || "all"}
-              active={status === option.value}
-              onClick={() => onStatusChange(option.value)}
+              active={filters.status === option.value}
+              onClick={() => patch({ status: option.value })}
             >
               {option.label}
             </FilterChip>

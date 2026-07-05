@@ -11,29 +11,31 @@ import type { Room } from "@/types/room";
 import { deleteGuest, setGuestFavorite } from "@/lib/services/guests.mutations";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
+import { useI18n } from "@/lib/i18n";
 
 import { GuestCreateDialog } from "./GuestCreateDialog";
 import { GuestDetailDrawer } from "./GuestDetailDrawer";
 import { GuestEditDialog } from "./GuestEditDialog";
 import { GuestToolbar } from "./GuestToolbar";
 import { GuestsCardsView } from "./GuestsCardsView";
+import { GuestsCrmInsights } from "./GuestsCrmInsights";
 import { GuestsExecutiveKpis } from "./GuestsExecutiveKpis";
-import { GuestsTable } from "./GuestsTable";
-import {
-  AdminPageStack,
-  DashboardPageHeader,
-} from "@/components/dashboard/home/DashboardPrimitives";
-import { useI18n } from "@/lib/i18n";
 import {
   buildGuestCardModels,
   computeGuestCrmKpis,
   extractCountryOptions,
   sortGuestModels,
   type GuestCardModel,
-  type GuestSortKey,
-  type GuestStatusFilter,
   type GuestViewMode,
 } from "./guest-crm-metrics";
+import {
+  extractLanguageOptions,
+  matchesGuestLanguageFilter,
+  type GuestsToolbarFilters,
+} from "./guests-ui";
 
 type Props = {
   guests: Guest[];
@@ -41,10 +43,21 @@ type Props = {
   rooms: Room[];
 };
 
+const DEFAULT_FILTERS: GuestsToolbarFilters = {
+  search: "",
+  tag: "",
+  vip: "",
+  country: "",
+  language: "",
+  status: "",
+  sort: "newest",
+};
+
 export function GuestsPage({ guests, bookings, rooms }: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [refreshing, startRefresh] = useTransition();
 
   const [optimisticGuests, removeOptimistic] = useOptimistic(
     guests,
@@ -59,11 +72,7 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [drawerModel, setDrawerModel] = useState<GuestCardModel | null>(null);
 
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<GuestStatusFilter>("");
-  const [tag, setTag] = useState("");
-  const [country, setCountry] = useState("");
-  const [sortKey, setSortKey] = useState<GuestSortKey>("newest");
+  const [filters, setFilters] = useState<GuestsToolbarFilters>(DEFAULT_FILTERS);
   const [viewMode, setViewMode] = useState<GuestViewMode>("cards");
 
   const tagOptions = useMemo(() => {
@@ -79,13 +88,18 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
     [optimisticGuests]
   );
 
+  const languageOptions = useMemo(
+    () => extractLanguageOptions(optimisticGuests),
+    [optimisticGuests]
+  );
+
   const cardModels = useMemo(
     () => buildGuestCardModels(optimisticGuests, bookings, rooms),
     [optimisticGuests, bookings, rooms]
   );
 
   const filteredModels = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = filters.search.trim().toLowerCase();
 
     const filtered = cardModels.filter((model) => {
       const { guest } = model;
@@ -101,10 +115,18 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
         .toLowerCase();
 
       const matchesSearch = query === "" || haystack.includes(query);
-      const matchesTag = tag === "" || (guest.tags ?? []).includes(tag);
-      const matchesCountry = country === "" || guest.country === country;
+      const matchesTag = filters.tag === "" || (guest.tags ?? []).includes(filters.tag);
+      const matchesCountry =
+        filters.country === "" || guest.country === filters.country;
+      const matchesLanguage = matchesGuestLanguageFilter(guest, filters.language);
+      const matchesVip =
+        filters.vip === ""
+          ? true
+          : filters.vip === "yes"
+            ? guest.is_vip
+            : !guest.is_vip;
       const matchesStatus = (() => {
-        switch (status) {
+        switch (filters.status) {
           case "active":
             return model.activeBooking !== null;
           case "returning":
@@ -116,16 +138,22 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
         }
       })();
 
-      return matchesSearch && matchesTag && matchesCountry && matchesStatus;
+      return (
+        matchesSearch &&
+        matchesTag &&
+        matchesCountry &&
+        matchesLanguage &&
+        matchesVip &&
+        matchesStatus
+      );
     });
 
-    return sortGuestModels(filtered, sortKey);
-  }, [cardModels, search, status, tag, country, sortKey]);
+    return sortGuestModels(filtered, filters.sort);
+  }, [cardModels, filters]);
 
-  const kpis = useMemo(
-    () => computeGuestCrmKpis(cardModels),
-    [cardModels]
-  );
+  const kpis = useMemo(() => computeGuestCrmKpis(cardModels), [cardModels]);
+
+  const selectedId = drawerModel?.guest.id ?? null;
 
   const candidates = useMemo(
     () =>
@@ -150,6 +178,12 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
     setDeleteTarget(model);
   }, []);
 
+  function handleRefresh() {
+    startRefresh(() => {
+      router.refresh();
+    });
+  }
+
   function confirmDelete() {
     if (!deleteTarget) return;
     const id = deleteTarget.guest.id;
@@ -170,64 +204,61 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
     });
   }
 
-  const toggleFavorite = useCallback((model: GuestCardModel) => {
-    startTransition(async () => {
-      try {
-        await setGuestFavorite(model.guest.id, !model.guest.is_favorite);
-        router.refresh();
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to update status");
-      }
-    });
-  }, [router, startTransition]);
+  const toggleFavorite = useCallback(
+    (model: GuestCardModel) => {
+      startTransition(async () => {
+        try {
+          await setGuestFavorite(model.guest.id, !model.guest.is_favorite);
+          router.refresh();
+        } catch (error) {
+          console.error(error);
+          toast.error("Failed to update status");
+        }
+      });
+    },
+    [router, startTransition]
+  );
 
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.guests.title")}
         subtitle={t("pages.guests.subtitle")}
       />
 
-      <GuestsExecutiveKpis kpis={kpis} loading={false} />
+      <GuestsExecutiveKpis kpis={kpis} loading={refreshing} />
 
       <GuestToolbar
-        search={search}
-        status={status}
-        tag={tag}
-        country={country}
+        filters={filters}
+        viewMode={viewMode}
         tagOptions={tagOptions}
         countryOptions={countryOptions}
-        sortKey={sortKey}
-        viewMode={viewMode}
-        onSearchChange={setSearch}
-        onStatusChange={setStatus}
-        onTagChange={setTag}
-        onCountryChange={setCountry}
-        onSortChange={setSortKey}
+        languageOptions={languageOptions}
+        refreshing={refreshing}
+        onFiltersChange={setFilters}
         onViewModeChange={setViewMode}
         onCreateClick={() => setCreateOpen(true)}
+        onRefresh={handleRefresh}
       />
 
-      {viewMode === "cards" ? (
+      <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
         <GuestsCardsView
           models={filteredModels}
+          viewMode={viewMode}
           loading={false}
+          selectedId={selectedId}
           onOpenGuest={handleOpenGuest}
           onEditGuest={handleEdit}
           onDeleteGuest={handleDeleteRequest}
           onToggleFavorite={toggleFavorite}
         />
-      ) : (
-        <GuestsTable
-          models={filteredModels}
-          loading={false}
-          onOpenGuest={handleOpenGuest}
-          onEditGuest={handleEdit}
-          onDeleteGuest={handleDeleteRequest}
-          onToggleFavorite={toggleFavorite}
-        />
-      )}
+      </GlassSurface>
+
+      <GuestsCrmInsights
+        models={cardModels}
+        loading={false}
+        onSelect={handleOpenGuest}
+      />
 
       <GuestDetailDrawer
         open={drawerOpen}
@@ -269,6 +300,6 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
         loading={pending}
         onConfirm={confirmDelete}
       />
-    </AdminPageStack>
+    </Stack>
   );
 }

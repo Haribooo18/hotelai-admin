@@ -4,6 +4,7 @@ export { GuestsCardsView } from "./GuestsCardsView";
 export { GuestCard } from "./GuestCard";
 export { GuestToolbar } from "./GuestToolbar";
 export { GuestsExecutiveKpis } from "./GuestsExecutiveKpis";
+export { GuestsCrmInsights } from "./GuestsCrmInsights";
 export { GuestDetailDrawer } from "./GuestDetailDrawer";
 export { GuestSatisfactionBadge } from "./GuestSatisfactionBadge";
 export { GuestForm } from "./GuestForm";

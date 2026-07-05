@@ -4,10 +4,9 @@ import { memo } from "react";
 import {
   CalendarDays,
   Globe,
-  Mail,
+  Languages,
   MoreHorizontal,
   Pencil,
-  Phone,
   Star,
   Trash2,
 } from "lucide-react";
@@ -17,22 +16,27 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/overlay/DropdownMenu";
+import { Button } from "@/components/ui/core/Button";
+import { activateOnKeyboard } from "@/lib/dashboard/a11y";
 import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
 
 import { GuestAvatar } from "./GuestAvatar";
-import { GuestSatisfactionBadge } from "./GuestSatisfactionBadge";
 import { GuestTags } from "./GuestTags";
 import {
-  deriveSatisfaction,
   formatGuestCurrency,
   formatGuestDate,
   type GuestCardModel,
 } from "./guest-crm-metrics";
+import {
+  getGuestLanguageLabel,
+  GuestWorkspaceCard,
+} from "./guests-ui";
 
 type Props = {
   model: GuestCardModel;
+  selected?: boolean;
   onOpen?: (model: GuestCardModel) => void;
   onEdit?: (model: GuestCardModel) => void;
   onDelete?: (model: GuestCardModel) => void;
@@ -41,6 +45,7 @@ type Props = {
 
 export const GuestCard = memo(function GuestCard({
   model,
+  selected = false,
   onOpen,
   onEdit,
   onDelete,
@@ -48,32 +53,22 @@ export const GuestCard = memo(function GuestCard({
 }: Props) {
   const { guest, stats } = model;
   const fullName = `${guest.first_name} ${guest.last_name}`.trim();
-  const satisfaction = deriveSatisfaction(model);
+  const language = getGuestLanguageLabel(guest);
 
-  const lastVisit = stats.lastStay
-    ? formatGuestDate(stats.lastStay)
-    : "—";
-
+  const lastVisit = stats.lastStay ? formatGuestDate(stats.lastStay) : "—";
   const nextReservation = stats.upcomingCheckIn
     ? formatGuestDate(stats.upcomingCheckIn)
     : "—";
 
   return (
-    <article
+    <GuestWorkspaceCard
+      selected={selected}
       role="button"
       tabIndex={0}
       aria-label={`Open guest ${fullName}`}
+      aria-pressed={selected}
       onClick={() => onOpen?.(model)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onOpen?.(model);
-        }
-      }}
-      className={cn(
-        "group cursor-pointer rounded-[var(--ds-radius)] bg-[var(--shell-glass)] p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
-        "transition-[transform,box-shadow,background-color] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-md)]"
-      )}
+      onKeyDown={(event) => activateOnKeyboard(event, () => onOpen?.(model))}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
@@ -84,10 +79,10 @@ export const GuestCard = memo(function GuestCard({
             size="sm"
           />
           <div className="min-w-0">
-            <p className="truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--shell-text)]">
+            <h3 className="truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--shell-text)]">
               {fullName}
-            </p>
-            <div className="mt-1.5 flex flex-wrap items-center gap-2">
+            </h3>
+            <div className="mt-1.5">
               <GuestTags
                 tags={guest.tags.slice(0, 2)}
                 isVip={guest.is_vip}
@@ -105,17 +100,12 @@ export const GuestCard = memo(function GuestCard({
           >
             <MoreHorizontal size={16} />
           </DropdownMenuTrigger>
-
-          <DropdownMenuContent
-            align="end"
-            className="min-w-44 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
-          >
+          <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={(event) => {
                 event.stopPropagation();
                 onOpen?.(model);
               }}
-              className="rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
             >
               Open profile
             </DropdownMenuItem>
@@ -124,7 +114,7 @@ export const GuestCard = memo(function GuestCard({
                 event.stopPropagation();
                 onEdit?.(model);
               }}
-              className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
+              className="gap-2"
             >
               <Pencil size={14} />
               Edit
@@ -134,7 +124,7 @@ export const GuestCard = memo(function GuestCard({
                 event.stopPropagation();
                 onToggleFavorite?.(model);
               }}
-              className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
+              className="gap-2"
             >
               <Star size={14} />
               {guest.is_favorite ? "Remove favorite" : "Add favorite"}
@@ -144,7 +134,7 @@ export const GuestCard = memo(function GuestCard({
                 event.stopPropagation();
                 onDelete?.(model);
               }}
-              className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-red-400"
+              className="gap-2 text-red-400"
             >
               <Trash2 size={14} />
               Delete
@@ -159,48 +149,68 @@ export const GuestCard = memo(function GuestCard({
           <span className="truncate">{guest.country ?? "—"}</span>
         </div>
         <div className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
-          <Mail size={14} className="shrink-0 text-[var(--shell-accent)]" />
-          <span className="truncate">{guest.email ?? "—"}</span>
+          <Languages size={14} className="shrink-0 text-[var(--shell-accent)]" />
+          <span className="truncate">{language ?? "—"}</span>
         </div>
-        <div className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
-          <Phone size={14} className="shrink-0 text-[var(--shell-accent)]" />
-          <span className="truncate">{guest.phone ?? "—"}</span>
-        </div>
-        <div className="text-right text-[13px] font-semibold text-[var(--shell-text)]">
-          {formatGuestCurrency(guest.total_spent)}
-        </div>
-      </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[var(--shell-border)]/50 pt-3 text-[11px]">
         <div>
-          <p className="text-[var(--shell-muted)]">Total stays</p>
-          <p className="mt-0.5 font-medium text-[var(--shell-text)]">
+          <p className="text-[11px] text-[var(--shell-muted)]">Lifetime revenue</p>
+          <p className="mt-0.5 text-[13px] font-semibold text-[var(--shell-text)]">
+            {formatGuestCurrency(guest.total_spent)}
+          </p>
+        </div>
+        <div>
+          <p className="text-[11px] text-[var(--shell-muted)]">Total stays</p>
+          <p className="mt-0.5 text-[13px] font-semibold text-[var(--shell-text)]">
             {guest.total_bookings}
           </p>
         </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[var(--shell-border)]/50 pt-3 text-[11px]">
         <div>
-          <p className="text-[var(--shell-muted)]">Last visit</p>
-          <p className="mt-0.5 font-medium text-[var(--shell-text)]">
-            {lastVisit}
-          </p>
+          <p className="text-[var(--shell-muted)]">Last stay</p>
+          <p className="mt-0.5 font-medium text-[var(--shell-text)]">{lastVisit}</p>
         </div>
         <div>
-          <p className="text-[var(--shell-muted)]">Next reservation</p>
+          <p className="text-[var(--shell-muted)]">Next stay</p>
           <p className="mt-0.5 font-medium text-[var(--shell-text)]">
             {nextReservation}
           </p>
-        </div>
-        <div className="flex items-end justify-end">
-          <GuestSatisfactionBadge satisfaction={satisfaction} />
         </div>
       </div>
 
       {model.activeBooking ? (
         <div className="mt-3 flex items-center gap-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] px-3 py-2 text-[11px] text-[var(--shell-accent)]">
-          <CalendarDays size={13} />
+          <CalendarDays size={13} aria-hidden />
           Currently staying · {model.roomLabel ?? "Room assigned"}
         </div>
       ) : null}
-    </article>
+
+      <div className="mt-3 flex gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="h-8 flex-1"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpen?.(model);
+          }}
+        >
+          Profile
+        </Button>
+        <Button
+          type="button"
+          size="sm"
+          className="h-8 flex-1 bg-[var(--shell-accent-muted)] text-[var(--shell-accent)] hover:bg-[var(--shell-nav-active-bg)]"
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit?.(model);
+          }}
+        >
+          Edit
+        </Button>
+      </div>
+    </GuestWorkspaceCard>
   );
 });

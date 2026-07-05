@@ -7,47 +7,65 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/overlay/DropdownMenu";
+import { SkeletonRows } from "@/components/ui/display/Skeleton";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { TableContainer } from "@/components/ui/data/TableContainer";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
-import { DashboardEmptyState } from "@/components/dashboard/home/DashboardPrimitives";
-import { TableRowsSkeleton } from "@/components/dashboard/shared/TableRowsSkeleton";
-import { tableRowClickableClass, iconActionClass } from "@/lib/dashboard/design-system";
 import { tableRowA11yProps } from "@/lib/dashboard/a11y";
+import { iconActionClass } from "@/lib/dashboard/design-system";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
-import { GuestSatisfactionBadge } from "./GuestSatisfactionBadge";
 import { GuestTags } from "./GuestTags";
 import {
-  deriveSatisfaction,
   formatGuestCurrency,
   formatGuestDate,
   type GuestCardModel,
 } from "./guest-crm-metrics";
+import { getGuestLanguageLabel } from "./guests-ui";
 
 type Props = {
   models: GuestCardModel[];
   loading?: boolean;
+  selectedId?: string | null;
   onOpenGuest: (model: GuestCardModel) => void;
   onEditGuest: (model: GuestCardModel) => void;
   onDeleteGuest: (model: GuestCardModel) => void;
   onToggleFavorite: (model: GuestCardModel) => void;
 };
 
+const HEADERS = [
+  "Guest",
+  "Country",
+  "Language",
+  "Stays",
+  "Revenue",
+  "Last booking",
+  "Next stay",
+  "Actions",
+] as const;
+
 export function GuestsTable({
   models,
   loading = false,
+  selectedId = null,
   onOpenGuest,
   onEditGuest,
   onDeleteGuest,
   onToggleFavorite,
 }: Props) {
   if (loading) {
-    return <TableRowsSkeleton />;
+    return (
+      <TableContainer>
+        <SkeletonRows rows={8} />
+      </TableContainer>
+    );
   }
 
   if (models.length === 0) {
     return (
-      <DashboardEmptyState
+      <EmptyState
         title="No guests found"
         description="Adjust filters or add a new guest to the CRM."
         icon={<Users size={18} />}
@@ -56,22 +74,12 @@ export function GuestsTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-glass)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-      <div className="overflow-x-auto overscroll-x-contain">
-      <table className="w-full min-w-[960px]">
+    <TableContainer scrollable className="shadow-[var(--shell-shadow-sm)]">
+      <table className="w-full min-w-[980px] border-collapse">
         <caption className="sr-only">Guest list</caption>
-        <thead>
+        <thead className="sticky top-0 z-10 bg-[var(--shell-surface)]">
           <tr className="border-b border-[var(--shell-border)]/50">
-            {[
-              "Guest",
-              "Country",
-              "Stays",
-              "Revenue",
-              "Last visit",
-              "Next stay",
-              "Satisfaction",
-              "Actions",
-            ].map((header) => (
+            {HEADERS.map((header) => (
               <th
                 key={header}
                 scope="col"
@@ -90,13 +98,21 @@ export function GuestsTable({
           {models.map((model) => {
             const { guest, stats } = model;
             const fullName = `${guest.first_name} ${guest.last_name}`.trim();
-            const satisfaction = deriveSatisfaction(model);
+            const selected = selectedId === guest.id;
+            const language = getGuestLanguageLabel(guest);
 
             return (
               <tr
                 key={guest.id}
                 onClick={() => onOpenGuest(model)}
-                className={tableRowClickableClass}
+                aria-selected={selected}
+                className={cn(
+                  "cursor-pointer border-b border-[var(--shell-border)]/30 last:border-b-0",
+                  motionPresets.transitionBase,
+                  "hover:bg-[var(--shell-surface-raised)]/70 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-[var(--shell-accent-ring)]",
+                  selected &&
+                    "bg-[var(--shell-nav-active-bg)]/40 shadow-[inset_2px_0_0_0_var(--shell-accent)]"
+                )}
                 {...tableRowA11yProps(`Open guest ${fullName}`, () =>
                   onOpenGuest(model)
                 )}
@@ -124,6 +140,9 @@ export function GuestsTable({
                 <td className="px-4 py-3 text-[12px] text-[var(--shell-muted)]">
                   {guest.country ?? "—"}
                 </td>
+                <td className="px-4 py-3 text-[12px] text-[var(--shell-muted)]">
+                  {language ?? "—"}
+                </td>
                 <td className="px-4 py-3 text-[13px] text-[var(--shell-text)]">
                   {guest.total_bookings}
                 </td>
@@ -138,9 +157,6 @@ export function GuestsTable({
                     ? formatGuestDate(stats.upcomingCheckIn)
                     : "—"}
                 </td>
-                <td className="px-4 py-3">
-                  <GuestSatisfactionBadge satisfaction={satisfaction} />
-                </td>
                 <td className="px-4 py-3 text-right">
                   <DropdownMenu>
                     <DropdownMenuTrigger
@@ -150,16 +166,13 @@ export function GuestsTable({
                     >
                       <MoreHorizontal size={16} />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="min-w-40 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
-                    >
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={(event) => {
                           event.stopPropagation();
                           onEditGuest(model);
                         }}
-                        className="gap-2 rounded-[10px] px-3 py-2 text-[13px]"
+                        className="gap-2"
                       >
                         <Pencil size={14} />
                         Edit
@@ -169,7 +182,7 @@ export function GuestsTable({
                           event.stopPropagation();
                           onToggleFavorite(model);
                         }}
-                        className="gap-2 rounded-[10px] px-3 py-2 text-[13px]"
+                        className="gap-2"
                       >
                         <Star size={14} />
                         Favorite
@@ -179,7 +192,7 @@ export function GuestsTable({
                           event.stopPropagation();
                           onDeleteGuest(model);
                         }}
-                        className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-red-400"
+                        className="gap-2 text-red-400"
                       >
                         <Trash2 size={14} />
                         Delete
@@ -192,7 +205,6 @@ export function GuestsTable({
           })}
         </tbody>
       </table>
-      </div>
-    </div>
+    </TableContainer>
   );
 }

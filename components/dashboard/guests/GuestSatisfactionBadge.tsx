@@ -1,29 +1,31 @@
 import { cn } from "@/lib/utils";
 
+import { Badge } from "@/components/ui/display/Badge";
+
 import type { GuestSatisfaction } from "./guest-crm-metrics";
 
 const SATISFACTION_META: Record<
   GuestSatisfaction,
-  { label: string; className: string; dots: number }
+  { label: string; variant: "success" | "default" | "warning" | "outline"; dots: number }
 > = {
   excellent: {
     label: "Excellent",
-    className: "bg-emerald-500/12 text-emerald-500",
+    variant: "success",
     dots: 5,
   },
   good: {
     label: "Good",
-    className: "bg-sky-500/12 text-sky-400",
+    variant: "default",
     dots: 4,
   },
   neutral: {
     label: "Neutral",
-    className: "bg-amber-500/12 text-amber-400",
+    variant: "warning",
     dots: 3,
   },
   new: {
     label: "New",
-    className: "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]",
+    variant: "outline",
     dots: 0,
   },
 };
@@ -36,26 +38,19 @@ export function GuestSatisfactionBadge({ satisfaction }: Props) {
   const meta = SATISFACTION_META[satisfaction];
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.05em]",
-        meta.className
-      )}
-    >
-      <span className="inline-flex gap-0.5">
+    <Badge variant={meta.variant} className="gap-1.5 uppercase">
+      <span className="inline-flex gap-0.5" aria-hidden>
         {Array.from({ length: 5 }).map((_, index) => (
           <span
             key={index}
             className={cn(
               "h-1.5 w-1.5 rounded-full",
-              index < meta.dots
-                ? "bg-current"
-                : "bg-current/20"
+              index < meta.dots ? "bg-current" : "bg-current/20"
             )}
           />
         ))}
       </span>
       {meta.label}
-    </span>
+    </Badge>
   );
 }
