@@ -16,10 +16,9 @@ import {
   placeBooking,
 } from "@/lib/calendar";
 import { buildBookingCardModels } from "@/components/dashboard/bookings/booking-ops-metrics";
-import {
-  DashboardEmptyState,
-  DashboardSkeletonBlock,
-} from "@/components/dashboard/home/DashboardPrimitives";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { Skeleton } from "@/components/ui/display/Skeleton";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { CalendarDays } from "lucide-react";
 
 import { CalendarDateHeader } from "./CalendarDateHeader";
@@ -37,6 +36,7 @@ type Props = {
   guests: Guest[];
   days: Date[];
   loading?: boolean;
+  selectedId?: string | null;
   scrollToTodayTick?: number;
   onReschedule: (
     booking: Booking,
@@ -52,6 +52,7 @@ export function CalendarTimeline({
   guests,
   days,
   loading,
+  selectedId = null,
   scrollToTodayTick = 0,
   onReschedule,
   onOpen,
@@ -129,8 +130,7 @@ export function CalendarTimeline({
     0,
     Math.floor((scrollTop - HEADER_HEIGHT) / ROW_HEIGHT) - OVERSCAN
   );
-  const visibleCount =
-    Math.ceil(viewportHeight / ROW_HEIGHT) + OVERSCAN * 2;
+  const visibleCount = Math.ceil(viewportHeight / ROW_HEIGHT) + OVERSCAN * 2;
   const lastVisible = Math.min(rooms.length, firstVisible + visibleCount);
 
   const topSpacer = firstVisible * ROW_HEIGHT;
@@ -142,18 +142,21 @@ export function CalendarTimeline({
 
   if (loading) {
     return (
-      <div className="space-y-2 rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 p-4 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-        <DashboardSkeletonBlock className="h-[68px] w-full" />
+      <GlassSurface className="p-[var(--ds-surface-padding)]">
+        <Skeleton className="mb-2 h-[68px] w-full rounded-[var(--ds-radius-sm)]" />
         {Array.from({ length: 6 }).map((_, index) => (
-          <DashboardSkeletonBlock key={index} className="h-[72px] w-full" />
+          <Skeleton
+            key={index}
+            className="mb-2 h-[72px] w-full rounded-[var(--ds-radius-sm)]"
+          />
         ))}
-      </div>
+      </GlassSurface>
     );
   }
 
   if (rooms.length === 0) {
     return (
-      <DashboardEmptyState
+      <EmptyState
         title="No rooms configured"
         description="Add rooms to your property to see the operations calendar."
         icon={<CalendarDays size={18} />}
@@ -162,74 +165,78 @@ export function CalendarTimeline({
   }
 
   return (
-    <div
-      ref={scrollRef}
-      onScroll={handleScroll}
-      role="region"
-      aria-label="Reservation calendar"
-      className="relative max-h-[min(70svh,720px)] min-h-[420px] overflow-auto overscroll-contain rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl"
-    >
-      <div style={{ width: totalWidth, minWidth: totalWidth }}>
-        <CalendarDateHeader days={days} occupancy={occupancy} />
+    <GlassSurface className="overflow-hidden p-0 shadow-[var(--shell-shadow-sm)]">
+      <div
+        ref={scrollRef}
+        onScroll={handleScroll}
+        role="region"
+        aria-label="Reservation calendar timeline"
+        className="relative max-h-[min(70svh,720px)] min-h-[420px] overflow-auto overscroll-contain"
+      >
+        <div style={{ width: totalWidth, minWidth: totalWidth }}>
+          <CalendarDateHeader days={days} occupancy={occupancy} />
 
-        <div style={{ height: topSpacer }} />
+          <div style={{ height: topSpacer }} />
 
-        {visibleRooms.map((room) => {
-          const roomBookings = bookingsByRoom.get(room.id) ?? [];
-          const roomModel = roomModelById.get(room.id);
+          {visibleRooms.map((room) => {
+            const roomBookings = bookingsByRoom.get(room.id) ?? [];
+            const roomModel = roomModelById.get(room.id);
 
-          return (
-            <div
-              key={room.id}
-              className="relative flex border-b border-[var(--shell-border)]/40"
-              style={{ height: ROW_HEIGHT }}
-            >
-              {roomModel ? (
-                <CalendarRoomCell model={roomModel} />
-              ) : (
-                <div
-                  className="sticky left-0 z-20 border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/95 px-3"
-                  style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
-                />
-              )}
-
-              <div className="relative" style={{ width: gridWidth }}>
-                {days.map((day, index) => (
+            return (
+              <div
+                key={room.id}
+                className="relative flex border-b border-[var(--shell-border)]/40"
+                style={{ height: ROW_HEIGHT }}
+              >
+                {roomModel ? (
+                  <CalendarRoomCell model={roomModel} />
+                ) : (
                   <div
-                    key={index}
-                    className={cn(
-                      "absolute inset-y-0 border-r border-[var(--shell-border)]/30",
-                      isWeekend(day) && "bg-[var(--shell-surface-raised)]/15",
-                      isToday(day) && "bg-emerald-500/[0.06]"
-                    )}
-                    style={{ left: index * DAY_WIDTH, width: DAY_WIDTH }}
+                    className="sticky left-0 z-20 border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/95 px-3"
+                    style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
                   />
-                ))}
+                )}
 
-                {roomBookings.map((booking) => {
-                  const placement = placeBooking(booking, days);
-                  if (!placement) return null;
-
-                  const model = bookingModelsById.get(booking.id);
-                  if (!model) return null;
-
-                  return (
-                    <CalendarBookingBar
-                      key={booking.id}
-                      model={model}
-                      placement={placement}
-                      onReschedule={onReschedule}
-                      onOpen={onOpen}
+                <div className="relative" style={{ width: gridWidth }}>
+                  {days.map((day, index) => (
+                    <div
+                      key={index}
+                      className={cn(
+                        "absolute inset-y-0 border-r border-[var(--shell-border)]/30",
+                        isWeekend(day) && "bg-[var(--shell-surface-raised)]/20",
+                        isToday(day) &&
+                          "bg-emerald-500/[0.08] shadow-[inset_1px_0_0_0_rgba(16,185,129,0.25)]"
+                      )}
+                      style={{ left: index * DAY_WIDTH, width: DAY_WIDTH }}
                     />
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+                  ))}
 
-        <div style={{ height: bottomSpacer }} />
+                  {roomBookings.map((booking) => {
+                    const placement = placeBooking(booking, days);
+                    if (!placement) return null;
+
+                    const model = bookingModelsById.get(booking.id);
+                    if (!model) return null;
+
+                    return (
+                      <CalendarBookingBar
+                        key={booking.id}
+                        model={model}
+                        placement={placement}
+                        selected={selectedId === booking.id}
+                        onReschedule={onReschedule}
+                        onOpen={onOpen}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          <div style={{ height: bottomSpacer }} />
+        </div>
       </div>
-    </div>
+    </GlassSurface>
   );
 }

@@ -14,6 +14,8 @@ import {
   buildDays,
   formatRangeTitle,
   hasRoomConflict,
+  parseISODate,
+  toISODate,
   type CalendarView,
 } from "@/lib/calendar";
 
@@ -29,16 +31,16 @@ import {
 } from "@/components/dashboard/bookings/booking-ops-metrics";
 import type { Guest } from "@/types/guest";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import {
-  AdminPageStack,
-  DashboardPageHeader,
-} from "@/components/dashboard/home/DashboardPrimitives";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { useI18n } from "@/lib/i18n";
 
 import { CalendarExecutiveKpis } from "./CalendarExecutiveKpis";
 import { CalendarToolbar } from "./CalendarToolbar";
 import { CalendarTimeline } from "./CalendarTimeline";
 import { CalendarAgenda } from "./CalendarAgenda";
+import { CalendarInspector } from "./CalendarInspector";
+import { CalendarOperations } from "./CalendarOperations";
 import { CalendarLegend } from "./CalendarLegend";
 import {
   buildCalendarRoomModels,
@@ -70,6 +72,7 @@ export function CalendarPage({
   const { t } = useI18n();
   const router = useRouter();
   const [, startTransition] = useTransition();
+  const [refreshing, startRefresh] = useTransition();
 
   const [bookings, setBookings] = useState(initialBookings);
   const [syncedFrom, setSyncedFrom] = useState(initialBookings);
@@ -97,6 +100,7 @@ export function CalendarPage({
   }
 
   const days = useMemo(() => buildDays(view, anchor), [view, anchor]);
+  const anchorDate = toISODate(anchor);
 
   const kpis = useMemo(
     () => computeCalendarOpsKpis(bookings, rooms),
@@ -134,6 +138,8 @@ export function CalendarPage({
     [bookingModelsById, rooms, guests]
   );
 
+  const selectedId = selectedModel?.booking.id ?? null;
+
   function goPrevious() {
     setAnchor((current) => {
       if (view === "day") return addDays(current, -1);
@@ -150,10 +156,29 @@ export function CalendarPage({
     });
   }
 
+  function handleAnchorDateChange(value: string) {
+    if (!value) return;
+    setAnchor(parseISODate(value));
+  }
+
+  function handleRefresh() {
+    startRefresh(() => {
+      router.refresh();
+    });
+  }
+
   const openDrawer = useCallback(
     (booking: Booking) => {
-      setSelectedModel(getBookingModel(booking));
+      const model = getBookingModel(booking);
+      setSelectedModel(model);
       setDrawerOpen(true);
+    },
+    [getBookingModel]
+  );
+
+  const selectBooking = useCallback(
+    (booking: Booking) => {
+      setSelectedModel(getBookingModel(booking));
     },
     [getBookingModel]
   );
@@ -182,6 +207,7 @@ export function CalendarPage({
     const previous = bookings;
     setBookings((list) => list.filter((booking) => booking.id !== id));
     setDeleteTarget(null);
+    setSelectedModel(null);
 
     startTransition(async () => {
       try {
@@ -241,24 +267,27 @@ export function CalendarPage({
   }
 
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.calendar.title")}
         subtitle={t("pages.calendar.subtitle")}
       />
 
-      <CalendarExecutiveKpis kpis={kpis} loading={false} />
+      <CalendarExecutiveKpis kpis={kpis} loading={refreshing} />
 
       <CalendarToolbar
         title={formatRangeTitle(days, view)}
         view={view}
+        anchorDate={anchorDate}
         search={search}
         roomFilter={roomFilter}
         statusFilter={statusFilter}
         rooms={rooms}
+        refreshing={refreshing}
         onSearchChange={setSearch}
         onRoomFilterChange={setRoomFilter}
         onStatusFilterChange={setStatusFilter}
+        onAnchorDateChange={handleAnchorDateChange}
         onPrevious={goPrevious}
         onNext={goNext}
         onToday={() => {
@@ -266,32 +295,77 @@ export function CalendarPage({
           setScrollToTodayTick((tick) => tick + 1);
         }}
         onViewChange={setView}
+        onRefresh={handleRefresh}
         onCreateClick={() => setCreateOpen(true)}
       />
 
-      <div className="hidden md:block">
-        <CalendarTimeline
-          rooms={filteredRooms}
-          roomModels={roomModels}
-          bookings={filteredBookings}
-          guests={guests}
-          days={days}
-          loading={false}
-          scrollToTodayTick={scrollToTodayTick}
-          onReschedule={handleReschedule}
-          onOpen={openDrawer}
-        />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="hidden md:block">
+          <CalendarTimeline
+            rooms={filteredRooms}
+            roomModels={roomModels}
+            bookings={filteredBookings}
+            guests={guests}
+            days={days}
+            loading={false}
+            selectedId={selectedId}
+            scrollToTodayTick={scrollToTodayTick}
+            onReschedule={handleReschedule}
+            onOpen={(booking) => {
+              selectBooking(booking);
+              openDrawer(booking);
+            }}
+          />
+        </div>
+
+        <div className="space-y-4">
+          <div className="md:hidden">
+            <CalendarAgenda
+              rooms={filteredRooms}
+              bookings={filteredBookings}
+              guests={guests}
+              days={days}
+              selectedId={selectedId}
+              onOpen={(booking) => {
+                selectBooking(booking);
+                openDrawer(booking);
+              }}
+            />
+          </div>
+
+          <div className="hidden md:block">
+            <CalendarAgenda
+              rooms={filteredRooms}
+              bookings={filteredBookings}
+              guests={guests}
+              days={days}
+              selectedId={selectedId}
+              onOpen={(booking) => {
+                selectBooking(booking);
+                openDrawer(booking);
+              }}
+            />
+          </div>
+
+          <CalendarInspector
+            model={selectedModel}
+            onOpen={() => {
+              if (selectedModel) openDrawer(selectedModel.booking);
+            }}
+          />
+        </div>
       </div>
 
-      <div className="md:hidden">
-        <CalendarAgenda
-          rooms={filteredRooms}
-          bookings={filteredBookings}
-          guests={guests}
-          days={days}
-          onOpen={openDrawer}
-        />
-      </div>
+      <CalendarOperations
+        bookings={bookings}
+        rooms={rooms}
+        roomModels={roomModels}
+        loading={false}
+        onSelect={(booking) => {
+          selectBooking(booking);
+          openDrawer(booking);
+        }}
+      />
 
       <CalendarLegend />
 
@@ -331,6 +405,6 @@ export function CalendarPage({
         destructive
         onConfirm={handleDeleteConfirm}
       />
-    </AdminPageStack>
+    </Stack>
   );
 }

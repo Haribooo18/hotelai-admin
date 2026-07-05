@@ -1,67 +1,75 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Filter, Search } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  RefreshCw,
+} from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/core/Button";
+import { IconButton } from "@/components/ui/core/IconButton";
+import { Input } from "@/components/ui/core/Input";
+import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/overlay/DropdownMenu";
+import { FilterBar } from "@/components/ui/data/FilterBar";
+import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
 import { BookingCreateButton } from "@/components/dashboard/bookings/BookingCreateDialog";
 import { BOOKING_STATUS_OPTIONS } from "@/lib/booking-status";
-import {
-  chipActiveClass,
-  chipClass,
-  chipIdleClass,
-  sectionTitleClass,
-  stickyToolbarClass,
-  toolbarControlClass,
-  toolbarInputClass,
-} from "@/lib/dashboard/design-system";
-import { cn } from "@/lib/utils";
+import { toolbarControlClass } from "@/lib/dashboard/design-system";
 import type { CalendarView } from "@/lib/calendar";
 import type { Room } from "@/types/room";
 
-const VIEW_MODES: { id: CalendarView; label: string }[] = [
-  { id: "day", label: "Day" },
-  { id: "week", label: "Week" },
-  { id: "month", label: "Month" },
+const VIEW_MODES: { value: CalendarView; label: string }[] = [
+  { value: "day", label: "Day" },
+  { value: "week", label: "Week" },
+  { value: "month", label: "Month" },
 ];
 
 type Props = {
   title: string;
   view: CalendarView;
+  anchorDate: string;
   search: string;
   roomFilter: string;
   statusFilter: string;
   rooms: Room[];
+  refreshing: boolean;
   onSearchChange: (value: string) => void;
   onRoomFilterChange: (value: string) => void;
   onStatusFilterChange: (value: string) => void;
+  onAnchorDateChange: (value: string) => void;
   onPrevious: () => void;
   onNext: () => void;
   onToday: () => void;
   onViewChange: (view: CalendarView) => void;
+  onRefresh: () => void;
   onCreateClick: () => void;
 };
 
 export function CalendarToolbar({
   title,
   view,
+  anchorDate,
   search,
   roomFilter,
   statusFilter,
   rooms,
+  refreshing,
   onSearchChange,
   onRoomFilterChange,
   onStatusFilterChange,
+  onAnchorDateChange,
   onPrevious,
   onNext,
   onToday,
   onViewChange,
+  onRefresh,
   onCreateClick,
 }: Props) {
   const activeRoomLabel =
@@ -71,62 +79,61 @@ export function CalendarToolbar({
       ?.label ?? "All statuses";
 
   return (
-    <div className={stickyToolbarClass}>
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon-sm"
-            aria-label="Previous period"
-            onClick={onPrevious}
-            className="border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
-          >
-            <ChevronLeft size={16} />
-          </Button>
+    <FilterBar
+      leading={
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 xl:max-w-none">
+          <Input
+            type="date"
+            value={anchorDate}
+            onChange={(event) => onAnchorDateChange(event.target.value)}
+            aria-label="Calendar date"
+            className="h-[var(--ds-input-height)] w-[148px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+          />
 
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={onToday}
-            className="rounded-[var(--ds-radius-sm)]"
-          >
-            Today
-          </Button>
+          <div className="flex items-center gap-1">
+            <IconButton
+              aria-label="Previous period"
+              onClick={onPrevious}
+              className="border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
+            >
+              <ChevronLeft size={16} />
+            </IconButton>
 
-          <Button
-            variant="outline"
-            size="icon-sm"
-            aria-label="Next period"
-            onClick={onNext}
-            className="border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
-          >
-            <ChevronRight size={16} />
-          </Button>
+            <Button variant="outline" size="sm" onClick={onToday}>
+              Today
+            </Button>
 
-          <h2 className={cn(sectionTitleClass, "ml-1 min-w-0 capitalize")}>
+            <IconButton
+              aria-label="Next period"
+              onClick={onNext}
+              className="border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
+            >
+              <ChevronRight size={16} />
+            </IconButton>
+          </div>
+
+          <h2 className="min-w-0 truncate text-[14px] font-semibold capitalize text-[var(--shell-text)]">
             {title}
           </h2>
         </div>
-
-        <div className="relative min-w-0 flex-1 xl:max-w-sm">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={17}
-          />
-          <Input
-            className={toolbarInputClass}
+      }
+      trailing={
+        <>
+          <SearchInput
+            containerClassName="w-full sm:w-[220px] xl:w-[240px]"
             placeholder="Search guest, email, or phone"
             aria-label="Search reservations"
             value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
+            onChange={(event) => onSearchChange(event.target.value)}
           />
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2">
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
-              {activeRoomLabel}
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Room filter"
+            >
+              <Filter size={15} aria-hidden />
+              <span className="max-w-[96px] truncate">{activeRoomLabel}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onRoomFilterChange("")}>
@@ -144,8 +151,11 @@ export function CalendarToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Status filter"
+            >
+              <Filter size={15} aria-hidden />
               {activeStatusLabel}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -163,36 +173,35 @@ export function CalendarToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div
-            role="tablist"
-            aria-label="View mode"
-            className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]"
+          <SegmentedControl
+            value={view}
+            onChange={onViewChange}
+            options={VIEW_MODES.map((mode) => ({
+              value: mode.value,
+              label: mode.label,
+            }))}
+          />
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={refreshing}
+            loading={refreshing}
+            aria-label="Refresh calendar"
           >
-            {VIEW_MODES.map((mode) => (
-              <button
-                key={mode.id}
-                type="button"
-                role="tab"
-                aria-selected={view === mode.id}
-                onClick={() => onViewChange(mode.id)}
-                className={cn(
-                  chipClass,
-                  "rounded-[var(--ds-radius-sm)] px-3 py-1",
-                  view === mode.id ? chipActiveClass : chipIdleClass
-                )}
-              >
-                {mode.label}
-              </button>
-            ))}
-          </div>
+            <RefreshCw size={15} aria-hidden />
+            Refresh
+          </Button>
 
           <BookingCreateButton
             onClick={onCreateClick}
             label="Add reservation"
-            className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
+            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
           />
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

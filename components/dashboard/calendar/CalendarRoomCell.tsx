@@ -1,5 +1,7 @@
 import { Users } from "lucide-react";
 
+import { Badge } from "@/components/ui/display/Badge";
+import { StatusDot } from "@/components/ui/display/StatusDot";
 import { cn } from "@/lib/utils";
 import { ROOM_COL_WIDTH } from "@/lib/calendar";
 import { getRoomStatusMeta } from "@/components/dashboard/rooms/room-ops-metrics";
@@ -16,35 +18,24 @@ export function CalendarRoomCell({ model }: Props) {
 
   return (
     <div
-      className="sticky left-0 z-20 flex flex-col justify-center gap-1.5 border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/95 px-3 backdrop-blur-xl"
+      className="sticky left-0 z-20 flex flex-col justify-center gap-1.5 border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/98 px-3 backdrop-blur-xl"
       style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
     >
       <div className="flex items-start justify-between gap-2">
         <span className="truncate text-[13px] font-semibold text-[var(--shell-text)]">
           {room.room_type}
         </span>
-        <span
-          className={cn(
-            "mt-1 h-2 w-2 shrink-0 rounded-full",
-            isAvailableToday ? "bg-emerald-400" : "bg-amber-400"
-          )}
-          title={isAvailableToday ? "Available today" : "Occupied or reserved"}
-        />
+        <StatusDot tone={isAvailableToday ? "success" : "warning"} />
       </div>
 
       <div className="flex items-center gap-1.5 text-[11px] text-[var(--shell-muted)]">
-        <Users size={12} className="shrink-0" />
+        <Users size={12} className="shrink-0" aria-hidden />
         <span>{room.capacity} guests</span>
       </div>
 
-      <span
-        className={cn(
-          "inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
-          statusMeta.badgeClass
-        )}
-      >
+      <Badge variant="outline" className={cn("w-fit uppercase", statusMeta.badgeClass)}>
         {statusMeta.label}
-      </span>
+      </Badge>
     </div>
   );
 }

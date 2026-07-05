@@ -14,6 +14,7 @@ import {
 } from "@/lib/calendar";
 import type { BookingCardModel } from "@/components/dashboard/bookings/booking-ops-metrics";
 import { formatBookingCurrency } from "@/components/dashboard/bookings/booking-ops-metrics";
+import { motionPresets } from "@/lib/design/motion";
 
 import {
   BOOKING_STATUS_GRADIENT,
@@ -25,6 +26,7 @@ type DragMode = "move" | "resize-start" | "resize-end";
 type Props = {
   model: BookingCardModel;
   placement: BookingPlacement;
+  selected?: boolean;
   onReschedule: (
     booking: Booking,
     next: { check_in: string; check_out: string }
@@ -35,6 +37,7 @@ type Props = {
 export function CalendarBookingBar({
   model,
   placement,
+  selected = false,
   onReschedule,
   onOpen,
 }: Props) {
@@ -156,10 +159,13 @@ export function CalendarBookingBar({
           if (!movedRef.current) onOpen(booking);
         }}
         className={cn(
-          "flex h-full w-full cursor-grab items-center overflow-hidden rounded-[var(--ds-radius-sm)] px-1 text-left transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:cursor-grabbing group-hover:-translate-y-0.5 group-hover:shadow-[var(--shell-shadow-md)]",
+          "flex h-full w-full cursor-grab items-center overflow-hidden rounded-[var(--ds-radius)] px-1 text-left shadow-[var(--shell-shadow-sm)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:cursor-grabbing",
+          motionPresets.transitionBase,
+          motionPresets.hover.surfaceLift,
+          selected && "ring-2 ring-white/80 shadow-[var(--shell-shadow-md)]",
           gradient,
-          placement.clippedStart && "rounded-l-[4px]",
-          placement.clippedEnd && "rounded-r-[4px]"
+          placement.clippedStart && "rounded-l-[6px]",
+          placement.clippedEnd && "rounded-r-[6px]"
         )}
       >
         <div className="min-w-0 flex-1 px-2 py-1">
