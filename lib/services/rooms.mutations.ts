@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentHotelId } from "@/lib/tenant";
+import { createRoomsRepository } from "@/repositories/rooms.repository.server";
 import {
   roomCreateSchema,
   roomUpdateSchema,
@@ -24,19 +23,13 @@ export async function createRoom(input: RoomCreateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
+  const repo = await createRoomsRepository();
 
-  const { error } = await supabase.from("rooms").insert({
-    hotel_id: hotelId,
+  await repo.create({
     room_type: parsed.data.room_type,
     capacity: parsed.data.capacity,
     price: parsed.data.price,
   });
-
-  if (error) {
-    throw error;
-  }
 
   revalidateRooms();
 }
@@ -48,39 +41,19 @@ export async function updateRoom(input: RoomUpdateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
+  const repo = await createRoomsRepository();
 
-  const { error } = await supabase
-    .from("rooms")
-    .update({
-      room_type: parsed.data.room_type,
-      capacity: parsed.data.capacity,
-      price: parsed.data.price,
-    })
-    .eq("id", parsed.data.id)
-    .eq("hotel_id", hotelId);
-
-  if (error) {
-    throw error;
-  }
+  await repo.update(parsed.data.id, {
+    room_type: parsed.data.room_type,
+    capacity: parsed.data.capacity,
+    price: parsed.data.price,
+  });
 
   revalidateRooms();
 }
 
 export async function deleteRoom(id: string) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("rooms")
-    .delete()
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) {
-    throw error;
-  }
-
+  const repo = await createRoomsRepository();
+  await repo.delete(id);
   revalidateRooms();
 }

@@ -1,68 +1,31 @@
-import { createClient } from "@/lib/supabase/server";
 import {
   rankKnowledgeArticles,
   type KnowledgeSearchFilters,
 } from "@/lib/knowledge-search";
-import { getCurrentHotelId } from "@/lib/tenant";
+import { createKnowledgeRepository } from "@/repositories/knowledge.repository.server";
 
 import type {
   KnowledgeArticle,
   KnowledgeSearchResult,
 } from "@/types/knowledge-article";
 
-function formatError(error: {
-  code?: string;
-  message: string;
-  details?: string | null;
-}) {
-  return new Error(
-    `${error.code ?? "error"}: ${error.message}${
-      error.details ? ` (${error.details})` : ""
-    }`
-  );
-}
-
 export async function getKnowledgeArticles(): Promise<KnowledgeArticle[]> {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { data, error } = await supabase
-    .from("knowledge_articles")
-    .select("*")
-    .eq("hotel_id", hotelId)
-    .is("deleted_at", null)
-    .order("is_pinned", { ascending: false })
-    .order("updated_at", { ascending: false });
-
-  if (error) throw formatError(error);
-
-  return (data ?? []) as KnowledgeArticle[];
+  const repo = await createKnowledgeRepository();
+  return repo.getAll();
 }
 
 export async function getPublishedKnowledgeArticles(): Promise<
   KnowledgeArticle[]
 > {
-  const articles = await getKnowledgeArticles();
-  return articles.filter((a) => a.status === "published");
+  const repo = await createKnowledgeRepository();
+  return repo.getPublished();
 }
 
 export async function getKnowledgeArticle(
   id: string
 ): Promise<KnowledgeArticle | null> {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { data, error } = await supabase
-    .from("knowledge_articles")
-    .select("*")
-    .eq("id", id)
-    .eq("hotel_id", hotelId)
-    .is("deleted_at", null)
-    .maybeSingle();
-
-  if (error) throw formatError(error);
-
-  return (data as KnowledgeArticle | null) ?? null;
+  const repo = await createKnowledgeRepository();
+  return repo.getById(id);
 }
 
 export async function searchKnowledgeArticles(
@@ -81,10 +44,6 @@ export async function searchPublishedKnowledge(
 }
 
 export async function getKnowledgeCategories(): Promise<string[]> {
-  const articles = await getKnowledgeArticles();
-  const set = new Set<string>();
-  for (const a of articles) {
-    if (a.category) set.add(a.category);
-  }
-  return Array.from(set).sort();
+  const repo = await createKnowledgeRepository();
+  return repo.getCategories();
 }

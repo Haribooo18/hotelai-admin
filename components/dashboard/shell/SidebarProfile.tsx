@@ -28,7 +28,7 @@ import {
   type AdminLocale,
 } from "@/lib/i18n";
 import { signOut } from "@/lib/services/auth.mutations";
-import { createClient } from "@/lib/supabase/client";
+import { getClientUserEmail } from "@/repositories/settings.repository.client";
 import { cn } from "@/lib/utils";
 
 import type { ShellHotelOption } from "./HotelSelector";
@@ -59,12 +59,9 @@ export function SidebarProfile({
   const [email, setEmail] = useState("admin@hotel.com");
 
   useEffect(() => {
-    const supabase = createClient();
-
-    void supabase.auth.getUser().then(({ data }) => {
-      const user = data.user;
-      if (!user?.email) return;
-      setEmail(user.email);
+    void getClientUserEmail().then((userEmail) => {
+      if (!userEmail) return;
+      setEmail(userEmail);
     });
   }, []);
 

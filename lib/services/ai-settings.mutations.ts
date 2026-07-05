@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentHotelId } from "@/lib/tenant";
+import { createSettingsRepository } from "@/repositories/settings.repository.server";
 import {
   hotelAISettingsSchema,
   type HotelAISettingsInput,
@@ -21,11 +20,9 @@ export async function updateHotelAISettings(input: HotelAISettingsInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
+  const repo = await createSettingsRepository();
 
-  const { error } = await supabase.from("hotel_ai_settings").upsert({
-    hotel_id: hotelId,
+  await repo.updateSettings({
     enabled: parsed.data.enabled,
     model: parsed.data.model,
     max_output_tokens: parsed.data.max_output_tokens,
@@ -39,8 +36,6 @@ export async function updateHotelAISettings(input: HotelAISettingsInput) {
     max_retries: parsed.data.max_retries,
     extra_instructions: parsed.data.extra_instructions || null,
   });
-
-  if (error) throw error;
 
   revalidateAISettings();
 }

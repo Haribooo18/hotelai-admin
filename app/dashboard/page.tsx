@@ -1,7 +1,7 @@
 import { AppShell } from "@/components/dashboard/AppShell";
 import { DashboardPage } from "@/components/dashboard/DashboardPage";
 
-import { getLeads } from "@/lib/services/leads.service";
+import { createLeadsRepository } from "@/repositories/leads.repository.server";
 import { getCurrentHotel } from "@/lib/tenant";
 
 import type { Lead } from "@/types/lead";
@@ -13,7 +13,8 @@ export default async function DashboardRoute() {
   let errorMessage: string | null = null;
 
   try {
-    leads = await getLeads(50);
+    const leadsRepo = await createLeadsRepository();
+    leads = await leadsRepo.getAll(50);
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : "Unknown error";
   }

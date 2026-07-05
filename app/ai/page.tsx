@@ -2,19 +2,9 @@ import { Suspense } from "react";
 
 import { AppShell } from "@/components/dashboard/AppShell";
 import { AIInboxPage } from "@/components/dashboard/ai";
-import {
-  getConversation,
-  getConversations,
-  getLinkedLead,
-  getMessages,
-} from "@/lib/services/ai.service";
-import {
-  getPublishedKnowledgeArticles,
-} from "@/lib/services/knowledge.service";
-import {
-  getAIActions,
-  getHotelAISettings,
-} from "@/lib/services/ai-settings.service";
+import { createConversationsRepository } from "@/repositories/conversations.repository.server";
+import { createKnowledgeRepository } from "@/repositories/knowledge.repository.server";
+import { createSettingsRepository } from "@/repositories/settings.repository.server";
 import { getCurrentHotel, requireUser } from "@/lib/tenant";
 
 type Props = {
@@ -27,30 +17,36 @@ export default async function AIRoute({ searchParams }: Props) {
   const conversationId =
     typeof conversationParam === "string" ? conversationParam : undefined;
 
-  const [hotel, user, conversations, articles, aiSettings] = await Promise.all([
-    getCurrentHotel(),
-    requireUser(),
-    getConversations(),
-    getPublishedKnowledgeArticles(),
-    getHotelAISettings(),
+  const [hotel, user, conversationsRepo, knowledgeRepo, settingsRepo] =
+    await Promise.all([
+      getCurrentHotel(),
+      requireUser(),
+      createConversationsRepository(),
+      createKnowledgeRepository(),
+      createSettingsRepository(),
+    ]);
+
+  const [conversations, articles, aiSettings] = await Promise.all([
+    conversationsRepo.getAll(),
+    knowledgeRepo.getPublished(),
+    settingsRepo.getHotelAISettings(),
   ]);
 
   let selectedConversation = null;
-  let messages: Awaited<ReturnType<typeof getMessages>> = [];
+  let messages: Awaited<ReturnType<typeof conversationsRepo.getMessages>> = [];
   let lead = null;
-
-  let aiActions: Awaited<ReturnType<typeof getAIActions>> = [];
+  let aiActions: Awaited<ReturnType<typeof settingsRepo.getAIActions>> = [];
 
   if (conversationId) {
-    selectedConversation = await getConversation(conversationId);
+    selectedConversation = await conversationsRepo.getById(conversationId);
 
     if (selectedConversation) {
       [messages, lead, aiActions] = await Promise.all([
-        getMessages(conversationId),
+        conversationsRepo.getMessages(conversationId),
         selectedConversation.lead_id
-          ? getLinkedLead(selectedConversation.lead_id)
+          ? conversationsRepo.getLinkedLead(selectedConversation.lead_id)
           : Promise.resolve(null),
-        getAIActions(conversationId),
+        settingsRepo.getAIActions(conversationId),
       ]);
     }
   }

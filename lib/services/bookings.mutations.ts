@@ -2,13 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
 import {
   calculateTotalPrice as computeTotalPrice,
   findAvailabilityConflict,
   formatAvailabilityConflictError,
 } from "@/lib/booking-logic";
-import { getCurrentHotelId } from "@/lib/tenant";
+import { createBookingsRepository } from "@/repositories/bookings.repository.server";
 import {
   bookingCreateSchema,
   bookingUpdateSchema,
@@ -24,51 +23,15 @@ function revalidateBookings() {
   revalidatePath("/calendar");
 }
 
-async function calculateTotalPrice(
-  hotelId: string,
-  roomId: string,
-  checkIn: string,
-  checkOut: string
-) {
-  const supabase = await createClient();
-
-  const { data: room, error } = await supabase
-    .from("rooms")
-    .select("price")
-    .eq("id", roomId)
-    .eq("hotel_id", hotelId)
-    .single();
-
-  if (error) throw error;
-
-  return computeTotalPrice(room.price, checkIn, checkOut);
-}
-
 async function ensureRoomAvailable(
-  hotelId: string,
+  repo: Awaited<ReturnType<typeof createBookingsRepository>>,
   roomId: string,
   checkIn: string,
   checkOut: string,
   bookingId?: string
 ) {
-  const supabase = await createClient();
-
-  let query = supabase
-    .from("bookings")
-    .select("id, guest_name, check_in, check_out")
-    .eq("hotel_id", hotelId)
-    .eq("room_id", roomId)
-    .neq("status", "cancelled");
-
-  if (bookingId) {
-    query = query.neq("id", bookingId);
-  }
-
-  const { data, error } = await query;
-
-  if (error) throw error;
-
-  const conflict = findAvailabilityConflict(data ?? [], checkIn, checkOut);
+  const rows = await repo.findAvailabilityConflicts(roomId, bookingId);
+  const conflict = findAvailabilityConflict(rows, checkIn, checkOut);
 
   if (conflict) {
     throw new Error(formatAvailabilityConflictError(conflict));
@@ -85,20 +48,14 @@ export async function createBooking(input: BookingCreateInput) {
   const { guest_name, guest_email, guest_phone, room_id, check_in, check_out } =
     parsed.data;
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
+  const repo = await createBookingsRepository();
 
-  await ensureRoomAvailable(hotelId, room_id, check_in, check_out);
+  await ensureRoomAvailable(repo, room_id, check_in, check_out);
 
-  const totalPrice = await calculateTotalPrice(
-    hotelId,
-    room_id,
-    check_in,
-    check_out
-  );
+  const roomPrice = await repo.getRoomPrice(room_id);
+  const totalPrice = computeTotalPrice(roomPrice, check_in, check_out);
 
-  const { data, error } = await supabase.from("bookings").insert({
-    hotel_id: hotelId,
+  const result = await repo.create({
     room_id,
     guest_name,
     guest_email,
@@ -107,12 +64,10 @@ export async function createBooking(input: BookingCreateInput) {
     check_out,
     total_price: totalPrice,
     status: "confirmed",
-  }).select("id, total_price").single();
-
-  if (error) throw error;
+  });
 
   revalidateBookings();
-  return { id: data.id as string, total_price: data.total_price as number };
+  return result;
 }
 
 export async function updateBooking(input: BookingUpdateInput) {
@@ -132,33 +87,22 @@ export async function updateBooking(input: BookingUpdateInput) {
     check_out,
   } = parsed.data;
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
+  const repo = await createBookingsRepository();
 
-  await ensureRoomAvailable(hotelId, room_id, check_in, check_out, id);
+  await ensureRoomAvailable(repo, room_id, check_in, check_out, id);
 
-  const totalPrice = await calculateTotalPrice(
-    hotelId,
+  const roomPrice = await repo.getRoomPrice(room_id);
+  const totalPrice = computeTotalPrice(roomPrice, check_in, check_out);
+
+  await repo.update(id, {
     room_id,
+    guest_name,
+    guest_email,
+    guest_phone,
     check_in,
-    check_out
-  );
-
-  const { error } = await supabase
-    .from("bookings")
-    .update({
-      room_id,
-      guest_name,
-      guest_email,
-      guest_phone,
-      check_in,
-      check_out,
-      total_price: totalPrice,
-    })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
+    check_out,
+    total_price: totalPrice,
+  });
 
   revalidateBookings();
 }
@@ -172,40 +116,25 @@ export async function rescheduleBooking(input: BookingRescheduleInput) {
 
   const { id, room_id, check_in, check_out } = parsed.data;
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
+  const repo = await createBookingsRepository();
 
-  await ensureRoomAvailable(hotelId, room_id, check_in, check_out, id);
+  await ensureRoomAvailable(repo, room_id, check_in, check_out, id);
 
-  const totalPrice = await calculateTotalPrice(
-    hotelId,
+  const roomPrice = await repo.getRoomPrice(room_id);
+  const totalPrice = computeTotalPrice(roomPrice, check_in, check_out);
+
+  await repo.reschedule(id, {
     room_id,
     check_in,
-    check_out
-  );
-
-  const { error } = await supabase
-    .from("bookings")
-    .update({ room_id, check_in, check_out, total_price: totalPrice })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
+    check_out,
+    total_price: totalPrice,
+  });
 
   revalidateBookings();
 }
 
 export async function deleteBooking(id: string) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("bookings")
-    .delete()
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createBookingsRepository();
+  await repo.delete(id);
   revalidateBookings();
 }

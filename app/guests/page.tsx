@@ -1,10 +1,14 @@
 import { AppShell } from "@/components/dashboard/AppShell";
 import { GuestsPage } from "@/components/dashboard/guests";
-import { getGuests } from "@/lib/services/guests.service";
+import { createGuestsRepository } from "@/repositories/guests.repository.server";
 import { getCurrentHotel } from "@/lib/tenant";
 
 export default async function GuestsRoute() {
-  const [hotel, guests] = await Promise.all([getCurrentHotel(), getGuests()]);
+  const [hotel, guestsRepo] = await Promise.all([
+    getCurrentHotel(),
+    createGuestsRepository(),
+  ]);
+  const guests = await guestsRepo.getAll();
 
   return (
     <AppShell hotel={hotel}>

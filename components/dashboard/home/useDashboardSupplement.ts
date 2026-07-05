@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+import { loadDashboardSupplement } from "@/repositories/dashboard.repository.client";
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
@@ -21,41 +21,26 @@ export function useDashboardSupplement(hotelId: string): DashboardSupplement {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
+    let cancelled = false;
 
     async function load() {
       setLoading(true);
 
-      const [bookingsResult, roomsResult, guestsResult] = await Promise.all([
-        supabase
-          .from("bookings")
-          .select("*")
-          .eq("hotel_id", hotelId)
-          .order("check_in", { ascending: false }),
-        supabase.from("rooms").select("*").eq("hotel_id", hotelId),
-        supabase
-          .from("guests")
-          .select("*")
-          .eq("hotel_id", hotelId)
-          .is("deleted_at", null),
-      ]);
+      const data = await loadDashboardSupplement(hotelId);
 
-      if (!bookingsResult.error && bookingsResult.data) {
-        setBookings(bookingsResult.data as Booking[]);
-      }
+      if (cancelled) return;
 
-      if (!roomsResult.error && roomsResult.data) {
-        setRooms(roomsResult.data as Room[]);
-      }
-
-      if (!guestsResult.error && guestsResult.data) {
-        setGuests(guestsResult.data as Guest[]);
-      }
-
+      setBookings(data.bookings);
+      setRooms(data.rooms);
+      setGuests(data.guests);
       setLoading(false);
     }
 
     void load();
+
+    return () => {
+      cancelled = true;
+    };
   }, [hotelId]);
 
   return { bookings, rooms, guests, loading };

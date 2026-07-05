@@ -2,8 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentHotelId, requireUser } from "@/lib/tenant";
+import { createConversationsRepository } from "@/repositories/conversations.repository.server";
+import { requireUser } from "@/lib/tenant";
 import {
   addConversationTagSchema,
   conversationAssignSchema,
@@ -29,30 +29,19 @@ export async function createConversation(input: ConversationCreateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
+  const repo = await createConversationsRepository();
+  const id = await repo.create({
+    guest_name: parsed.data.guest_name,
+    guest_email: parsed.data.guest_email || null,
+    guest_phone: parsed.data.guest_phone || null,
+    channel: parsed.data.channel,
+    priority: parsed.data.priority,
+    subject: parsed.data.subject || null,
+    lead_id: parsed.data.lead_id || null,
+  });
 
-  const { data, error } = await supabase
-    .from("conversations")
-    .insert({
-      hotel_id: hotelId,
-      guest_name: parsed.data.guest_name,
-      guest_email: parsed.data.guest_email || null,
-      guest_phone: parsed.data.guest_phone || null,
-      channel: parsed.data.channel,
-      priority: parsed.data.priority,
-      subject: parsed.data.subject || null,
-      lead_id: parsed.data.lead_id || null,
-      status: "new",
-      unread_count: 0,
-    })
-    .select("id")
-    .single();
-
-  if (error) throw error;
-
-  revalidateAI(data.id);
-  return data.id as string;
+  revalidateAI(id);
+  return id;
 }
 
 export async function sendMessage(input: SendMessageInput) {
@@ -61,24 +50,14 @@ export async function sendMessage(input: SendMessageInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
   const { conversation_id, body, is_internal } = parsed.data;
+  const repo = await createConversationsRepository();
 
-  const { data: message, error: msgError } = await supabase
-    .from("messages")
-    .insert({
-      hotel_id: hotelId,
-      conversation_id,
-      role: "staff",
-      body,
-      is_internal,
-    })
-    .select("id, created_at")
-    .single();
-
-  if (msgError) throw msgError;
+  const message = await repo.sendMessage({
+    conversation_id,
+    body,
+    is_internal,
+  });
 
   const preview = is_internal ? `[Заметка] ${body}` : body;
 
@@ -91,30 +70,15 @@ export async function sendMessage(input: SendMessageInput) {
     updatePayload.status = "waiting_guest";
   }
 
-  const { error: convError } = await supabase
-    .from("conversations")
-    .update(updatePayload)
-    .eq("id", conversation_id)
-    .eq("hotel_id", hotelId);
-
-  if (convError) throw convError;
+  await repo.update(conversation_id, updatePayload);
 
   revalidateAI(conversation_id);
-  return message.id as string;
+  return message.id;
 }
 
 export async function markConversationRead(conversationId: string) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("conversations")
-    .update({ unread_count: 0 })
-    .eq("id", conversationId)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createConversationsRepository();
+  await repo.markRead(conversationId);
   revalidateAI(conversationId);
 }
 
@@ -127,17 +91,8 @@ export async function updateConversationStatus(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("conversations")
-    .update({ status: parsed.data.status })
-    .eq("id", parsed.data.id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createConversationsRepository();
+  await repo.updateStatus(parsed.data.id, parsed.data.status);
   revalidateAI(parsed.data.id);
 }
 
@@ -150,17 +105,8 @@ export async function updateConversationPriority(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("conversations")
-    .update({ priority: parsed.data.priority })
-    .eq("id", parsed.data.id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createConversationsRepository();
+  await repo.updatePriority(parsed.data.id, parsed.data.priority);
   revalidateAI(parsed.data.id);
 }
 
@@ -173,40 +119,16 @@ export async function assignConversation(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
   const user = await requireUser();
+  const repo = await createConversationsRepository();
 
-  const { conversation_id, user_id } = parsed.data;
+  await repo.assignConversation(
+    parsed.data.conversation_id,
+    parsed.data.user_id,
+    user.id
+  );
 
-  await supabase
-    .from("conversation_assignments")
-    .update({ is_active: false, unassigned_at: new Date().toISOString() })
-    .eq("conversation_id", conversation_id)
-    .eq("hotel_id", hotelId)
-    .eq("is_active", true);
-
-  const { error: assignError } = await supabase
-    .from("conversation_assignments")
-    .insert({
-      hotel_id: hotelId,
-      conversation_id,
-      user_id,
-      assigned_by: user.id,
-      is_active: true,
-    });
-
-  if (assignError) throw assignError;
-
-  const { error: convError } = await supabase
-    .from("conversations")
-    .update({ assigned_to: user_id, status: "assigned" })
-    .eq("id", conversation_id)
-    .eq("hotel_id", hotelId);
-
-  if (convError) throw convError;
-
-  revalidateAI(conversation_id);
+  revalidateAI(parsed.data.conversation_id);
 }
 
 export async function updateInternalNotes(input: {
@@ -218,16 +140,10 @@ export async function updateInternalNotes(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("conversations")
-    .update({ internal_notes: parsed.data.internal_notes || null })
-    .eq("id", parsed.data.id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
+  const repo = await createConversationsRepository();
+  await repo.update(parsed.data.id, {
+    internal_notes: parsed.data.internal_notes || null,
+  });
 
   revalidateAI(parsed.data.id);
 }
@@ -241,17 +157,8 @@ export async function addConversationTag(input: {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase.from("conversation_tags").insert({
-    hotel_id: hotelId,
-    conversation_id: parsed.data.conversation_id,
-    tag: parsed.data.tag,
-  });
-
-  if (error) throw error;
-
+  const repo = await createConversationsRepository();
+  await repo.addTag(parsed.data.conversation_id, parsed.data.tag);
   revalidateAI(parsed.data.conversation_id);
 }
 
@@ -265,16 +172,7 @@ export async function deleteConversation(id: string) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("conversations")
-    .update({ deleted_at: new Date().toISOString(), status: "archived" })
-    .eq("id", parsed.data.id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createConversationsRepository();
+  await repo.delete(parsed.data.id);
   revalidateAI(parsed.data.id);
 }

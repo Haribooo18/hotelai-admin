@@ -9,11 +9,7 @@ import {
   GuestProfileCard,
   GuestStats,
 } from "@/components/dashboard/guests";
-import {
-  getGuest,
-  getGuestBookings,
-  getGuests,
-} from "@/lib/services/guests.service";
+import { createGuestsRepository } from "@/repositories/guests.repository.server";
 import { computeGuestStats } from "@/lib/guest-stats";
 import { getCurrentHotel } from "@/lib/tenant";
 
@@ -24,15 +20,19 @@ type Props = {
 export default async function GuestProfileRoute({ params }: Props) {
   const { id } = await params;
 
-  const [hotel, guest] = await Promise.all([getCurrentHotel(), getGuest(id)]);
+  const [hotel, guestsRepo] = await Promise.all([
+    getCurrentHotel(),
+    createGuestsRepository(),
+  ]);
+  const guest = await guestsRepo.getById(id);
 
   if (!guest) {
     notFound();
   }
 
   const [bookings, allGuests] = await Promise.all([
-    getGuestBookings(guest),
-    getGuests(),
+    guestsRepo.getBookingsForGuest(guest),
+    guestsRepo.getAll(),
   ]);
 
   const candidates = allGuests.filter((g) => g.id !== guest.id);

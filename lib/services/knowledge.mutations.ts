@@ -2,9 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
 import { slugifyTitle } from "@/lib/knowledge";
-import { getCurrentHotelId, getCurrentUser } from "@/lib/tenant";
+import { getCurrentUser } from "@/lib/tenant";
+import { createKnowledgeRepository } from "@/repositories/knowledge.repository.server";
 import {
   knowledgeArticleCreateSchema,
   knowledgeArticleUpdateSchema,
@@ -34,6 +34,7 @@ function toRow(
     is_pinned: data.is_pinned,
     tags: data.tags,
     search_keywords: data.search_keywords,
+    created_by: userId,
     updated_by: userId,
   };
 }
@@ -44,26 +45,27 @@ export async function createKnowledgeArticle(input: KnowledgeArticleCreateInput)
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const [hotelId, user] = await Promise.all([
-    getCurrentHotelId(),
-    getCurrentUser(),
-  ]);
+  const user = await getCurrentUser();
+  const repo = await createKnowledgeRepository();
+  const row = toRow(parsed.data, user?.id ?? null);
 
-  const { data, error } = await supabase
-    .from("knowledge_articles")
-    .insert({
-      hotel_id: hotelId,
-      created_by: user?.id ?? null,
-      ...toRow(parsed.data, user?.id ?? null),
-    })
-    .select("id")
-    .single();
-
-  if (error) throw error;
+  const id = await repo.create({
+    title: row.title,
+    slug: row.slug,
+    content: row.content,
+    category: row.category,
+    language: row.language,
+    priority: row.priority,
+    status: row.status,
+    is_pinned: row.is_pinned,
+    tags: row.tags,
+    search_keywords: row.search_keywords,
+    created_by: row.created_by,
+    updated_by: row.updated_by,
+  });
 
   revalidateKnowledge();
-  return data.id as string;
+  return id;
 }
 
 export async function updateKnowledgeArticle(input: KnowledgeArticleUpdateInput) {
@@ -73,20 +75,23 @@ export async function updateKnowledgeArticle(input: KnowledgeArticleUpdateInput)
   }
 
   const { id, ...rest } = parsed.data;
+  const user = await getCurrentUser();
+  const repo = await createKnowledgeRepository();
+  const row = toRow(rest, user?.id ?? null);
 
-  const supabase = await createClient();
-  const [hotelId, user] = await Promise.all([
-    getCurrentHotelId(),
-    getCurrentUser(),
-  ]);
-
-  const { error } = await supabase
-    .from("knowledge_articles")
-    .update(toRow(rest, user?.id ?? null))
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
+  await repo.update(id, {
+    title: row.title,
+    slug: row.slug,
+    content: row.content,
+    category: row.category,
+    language: row.language,
+    priority: row.priority,
+    status: row.status,
+    is_pinned: row.is_pinned,
+    tags: row.tags,
+    search_keywords: row.search_keywords,
+    updated_by: row.updated_by,
+  });
 
   revalidateKnowledge();
 }
@@ -113,166 +118,58 @@ export async function autosaveKnowledgeArticle(
   }
   if (fields.is_pinned !== undefined) patch.is_pinned = fields.is_pinned;
 
-  const supabase = await createClient();
-  const [hotelId, user] = await Promise.all([
-    getCurrentHotelId(),
-    getCurrentUser(),
-  ]);
+  const user = await getCurrentUser();
   patch.updated_by = user?.id ?? null;
 
-  const { error } = await supabase
-    .from("knowledge_articles")
-    .update(patch)
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
+  const repo = await createKnowledgeRepository();
+  await repo.autosave(id, patch);
 }
 
 export async function deleteKnowledgeArticle(id: string) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("knowledge_articles")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createKnowledgeRepository();
+  await repo.delete(id);
   revalidateKnowledge();
 }
 
 export async function pinKnowledgeArticle(id: string, pinned: boolean) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("knowledge_articles")
-    .update({ is_pinned: pinned })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createKnowledgeRepository();
+  await repo.setPinned(id, pinned);
   revalidateKnowledge();
 }
 
 export async function publishKnowledgeArticle(id: string) {
-  const supabase = await createClient();
-  const [hotelId, user] = await Promise.all([
-    getCurrentHotelId(),
-    getCurrentUser(),
-  ]);
+  const user = await getCurrentUser();
+  const repo = await createKnowledgeRepository();
+  const version = await repo.getVersion(id);
 
-  const { data: current, error: readError } = await supabase
-    .from("knowledge_articles")
-    .select("version")
-    .eq("id", id)
-    .eq("hotel_id", hotelId)
-    .single();
-
-  if (readError) throw readError;
-
-  const { error } = await supabase
-    .from("knowledge_articles")
-    .update({
-      status: "published",
-      version: (current.version as number) + 1,
-      updated_by: user?.id ?? null,
-    })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  await repo.publish(id, version + 1, user?.id ?? null);
   revalidateKnowledge();
 }
 
 export async function unpublishKnowledgeArticle(id: string) {
-  const supabase = await createClient();
-  const [hotelId, user] = await Promise.all([
-    getCurrentHotelId(),
-    getCurrentUser(),
-  ]);
-
-  const { error } = await supabase
-    .from("knowledge_articles")
-    .update({
-      status: "draft",
-      updated_by: user?.id ?? null,
-    })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const user = await getCurrentUser();
+  const repo = await createKnowledgeRepository();
+  await repo.unpublish(id, user?.id ?? null);
   revalidateKnowledge();
 }
 
 export async function archiveKnowledgeArticle(id: string) {
-  const supabase = await createClient();
-  const [hotelId, user] = await Promise.all([
-    getCurrentHotelId(),
-    getCurrentUser(),
-  ]);
-
-  const { error } = await supabase
-    .from("knowledge_articles")
-    .update({
-      status: "archived",
-      is_pinned: false,
-      updated_by: user?.id ?? null,
-    })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const user = await getCurrentUser();
+  const repo = await createKnowledgeRepository();
+  await repo.archive(id, user?.id ?? null);
   revalidateKnowledge();
 }
 
 export async function duplicateKnowledgeArticle(id: string) {
-  const supabase = await createClient();
-  const [hotelId, user] = await Promise.all([
-    getCurrentHotelId(),
-    getCurrentUser(),
-  ]);
+  const user = await getCurrentUser();
+  const repo = await createKnowledgeRepository();
+  const source = await repo.getById(id);
 
-  const { data: source, error: readError } = await supabase
-    .from("knowledge_articles")
-    .select("*")
-    .eq("id", id)
-    .eq("hotel_id", hotelId)
-    .is("deleted_at", null)
-    .single();
+  if (!source) {
+    throw new Error("Статья не найдена");
+  }
 
-  if (readError) throw readError;
-
-  const { data, error } = await supabase
-    .from("knowledge_articles")
-    .insert({
-      hotel_id: hotelId,
-      title: `${source.title} (копия)`,
-      slug: null,
-      content: source.content,
-      category: source.category,
-      language: source.language,
-      priority: source.priority,
-      status: "draft",
-      version: 1,
-      is_pinned: false,
-      tags: source.tags,
-      search_keywords: source.search_keywords,
-      created_by: user?.id ?? null,
-      updated_by: user?.id ?? null,
-    })
-    .select("id")
-    .single();
-
-  if (error) throw error;
-
+  const newId = await repo.duplicateFromSource(source, user?.id ?? null);
   revalidateKnowledge();
-  return data.id as string;
+  return newId;
 }

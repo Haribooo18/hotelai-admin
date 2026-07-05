@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+import { subscribeLeadsChanges } from "@/repositories/leads.repository.client";
 import type { Lead } from "@/types/lead";
 
 import {
@@ -63,34 +63,7 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
   const { bookings, rooms, guests, loading } = useDashboardSupplement(hotelId);
 
   useEffect(() => {
-    const supabase = createClient();
-
-    const channel = supabase
-      .channel(`hotel-leads-${hotelId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "leads",
-          filter: `hotel_id=eq.${hotelId}`,
-        },
-        async () => {
-          const { data, error } = await supabase.rpc("list_hotel_leads", {
-            p_hotel_id: hotelId,
-            p_limit: 50,
-          });
-
-          if (!error && data) {
-            setLeads(data as Lead[]);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return subscribeLeadsChanges(hotelId, setLeads);
   }, [hotelId]);
 
   const metrics = useMemo(

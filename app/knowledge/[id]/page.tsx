@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/dashboard/AppShell";
 import { KnowledgeEditor } from "@/components/dashboard/knowledge";
-import { getKnowledgeArticle } from "@/lib/services/knowledge.service";
+import { createKnowledgeRepository } from "@/repositories/knowledge.repository.server";
 import { getCurrentHotel } from "@/lib/tenant";
 
 type Props = {
@@ -11,10 +11,11 @@ type Props = {
 
 export default async function KnowledgeEditorRoute({ params }: Props) {
   const { id } = await params;
-  const [hotel, article] = await Promise.all([
+  const [hotel, knowledgeRepo] = await Promise.all([
     getCurrentHotel(),
-    getKnowledgeArticle(id),
+    createKnowledgeRepository(),
   ]);
+  const article = await knowledgeRepo.getById(id);
 
   if (!article) notFound();
 

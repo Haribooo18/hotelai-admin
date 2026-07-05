@@ -2,12 +2,8 @@ import { AppShell } from "@/components/dashboard/AppShell";
 import { SettingsTabs } from "@/components/dashboard/settings";
 import { isOpenAIConfigured } from "@/lib/ai/config";
 import { isStripeConfigured } from "@/lib/billing/stripe";
-import {
-  getAIHealthStatus,
-  getAIObservabilityLogs,
-  getHotelAISettings,
-} from "@/lib/services/ai-settings.service";
-import { getHotelSubscription } from "@/lib/services/billing.service";
+import { computeAIHealthStatus } from "@/repositories/settings.repository";
+import { createSettingsRepository } from "@/repositories/settings.repository.server";
 import { getCurrentHotel } from "@/lib/tenant";
 
 type SearchParams = Promise<{ tab?: string }>;
@@ -25,13 +21,19 @@ export default async function SettingsRoute({
         ? "appearance"
         : "ai";
 
-  const [hotel, settings, health, logs, subscription] = await Promise.all([
+  const [hotel, settingsRepo] = await Promise.all([
     getCurrentHotel(),
-    getHotelAISettings(),
-    getAIHealthStatus(),
-    getAIObservabilityLogs(20),
-    getHotelSubscription(),
+    createSettingsRepository(),
   ]);
+
+  const [settings, completionStats, logs, subscription] = await Promise.all([
+    settingsRepo.getHotelAISettings(),
+    settingsRepo.getCompletionStats24h(),
+    settingsRepo.getAIObservabilityLogs(20),
+    settingsRepo.getHotelSubscription(),
+  ]);
+
+  const health = await computeAIHealthStatus(settings, completionStats);
 
   return (
     <AppShell hotel={hotel}>

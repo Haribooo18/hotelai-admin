@@ -2,16 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentHotelId } from "@/lib/tenant";
+import { createGuestsRepository } from "@/repositories/guests.repository.server";
 import {
   guestCreateSchema,
   guestUpdateSchema,
   type GuestCreateInput,
   type GuestUpdateInput,
 } from "@/lib/validations/guest";
-import type { Guest } from "@/types/guest";
-
 function revalidateGuests(id?: string) {
   revalidatePath("/guests");
   if (id) revalidatePath(`/guests/${id}`);
@@ -39,17 +36,8 @@ export async function createGuest(input: GuestCreateInput) {
     throw new Error(parsed.error.issues[0]?.message ?? "Некорректные данные");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase.from("guests").insert({
-    hotel_id: hotelId,
-    total_bookings: 0,
-    total_spent: 0,
-    ...toRow(parsed.data),
-  });
-
-  if (error) throw error;
+  const repo = await createGuestsRepository();
+  await repo.create(toRow(parsed.data));
 
   revalidateGuests();
 }
@@ -62,63 +50,28 @@ export async function updateGuest(input: GuestUpdateInput) {
 
   const { id, ...rest } = parsed.data;
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("guests")
-    .update(toRow(rest))
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
+  const repo = await createGuestsRepository();
+  await repo.update(id, toRow(rest));
 
   revalidateGuests(id);
 }
 
 /** Soft delete — marks the guest as deleted, preserving history. */
 export async function deleteGuest(id: string) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("guests")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createGuestsRepository();
+  await repo.delete(id);
   revalidateGuests(id);
 }
 
 export async function setGuestFavorite(id: string, value: boolean) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("guests")
-    .update({ is_favorite: value })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createGuestsRepository();
+  await repo.setFavorite(id, value);
   revalidateGuests(id);
 }
 
 export async function setGuestVip(id: string, value: boolean) {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { error } = await supabase
-    .from("guests")
-    .update({ is_vip: value })
-    .eq("id", id)
-    .eq("hotel_id", hotelId);
-
-  if (error) throw error;
-
+  const repo = await createGuestsRepository();
+  await repo.setVip(id, value);
   revalidateGuests(id);
 }
 
@@ -134,19 +87,8 @@ export async function mergeGuests(input: {
     throw new Error("Нельзя объединить гостя с самим собой");
   }
 
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { data, error } = await supabase
-    .from("guests")
-    .select("*")
-    .in("id", [input.targetId, input.sourceId])
-    .eq("hotel_id", hotelId)
-    .is("deleted_at", null);
-
-  if (error) throw error;
-
-  const guests = (data ?? []) as Guest[];
+  const repo = await createGuestsRepository();
+  const guests = await repo.getByIds([input.targetId, input.sourceId]);
   const target = guests.find((g) => g.id === input.targetId);
   const source = guests.find((g) => g.id === input.sourceId);
 
@@ -162,32 +104,22 @@ export async function mergeGuests(input: {
     .filter((n): n is string => Boolean(n && n.trim()))
     .join("\n---\n");
 
-  const { error: updateError } = await supabase
-    .from("guests")
-    .update({
-      email: target.email ?? source.email,
-      phone: target.phone ?? source.phone,
-      country: target.country ?? source.country,
-      city: target.city ?? source.city,
-      notes: mergedNotes || null,
-      tags: mergedTags,
-      is_vip: target.is_vip || source.is_vip,
-      is_favorite: target.is_favorite || source.is_favorite,
-      total_bookings: (target.total_bookings ?? 0) + (source.total_bookings ?? 0),
-      total_spent: Number(target.total_spent ?? 0) + Number(source.total_spent ?? 0),
-    })
-    .eq("id", target.id)
-    .eq("hotel_id", hotelId);
+  await repo.updateMergedGuest(target.id, {
+    email: target.email ?? source.email,
+    phone: target.phone ?? source.phone,
+    country: target.country ?? source.country,
+    city: target.city ?? source.city,
+    notes: mergedNotes || null,
+    tags: mergedTags,
+    is_vip: target.is_vip || source.is_vip,
+    is_favorite: target.is_favorite || source.is_favorite,
+    total_bookings:
+      (target.total_bookings ?? 0) + (source.total_bookings ?? 0),
+    total_spent:
+      Number(target.total_spent ?? 0) + Number(source.total_spent ?? 0),
+  });
 
-  if (updateError) throw updateError;
-
-  const { error: deleteError } = await supabase
-    .from("guests")
-    .update({ deleted_at: new Date().toISOString() })
-    .eq("id", source.id)
-    .eq("hotel_id", hotelId);
-
-  if (deleteError) throw deleteError;
+  await repo.delete(source.id);
 
   revalidateGuests(target.id);
 }

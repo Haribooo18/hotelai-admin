@@ -1,16 +1,16 @@
 import { AppShell } from "@/components/dashboard/AppShell";
 import { KnowledgePage } from "@/components/dashboard/knowledge";
-import {
-  getKnowledgeArticles,
-  getKnowledgeCategories,
-} from "@/lib/services/knowledge.service";
+import { createKnowledgeRepository } from "@/repositories/knowledge.repository.server";
 import { getCurrentHotel } from "@/lib/tenant";
 
 export default async function KnowledgeRoute() {
-  const [hotel, articles, categories] = await Promise.all([
+  const [hotel, knowledgeRepo] = await Promise.all([
     getCurrentHotel(),
-    getKnowledgeArticles(),
-    getKnowledgeCategories(),
+    createKnowledgeRepository(),
+  ]);
+  const [articles, categories] = await Promise.all([
+    knowledgeRepo.getAll(),
+    knowledgeRepo.getCategories(),
   ]);
 
   return (

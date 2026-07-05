@@ -1,47 +1,13 @@
-import { createClient } from "@/lib/supabase/server";
-import { getCurrentHotelId } from "@/lib/tenant";
+import { createBookingsRepository } from "@/repositories/bookings.repository.server";
 
 import type { Booking } from "@/types/booking";
 
 export async function getBookings(): Promise<Booking[]> {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("*")
-    .eq("hotel_id", hotelId)
-    .order("check_in", { ascending: false });
-
-  if (error) {
-    throw new Error(
-      `${error.code}: ${error.message}${
-        error.details ? ` (${error.details})` : ""
-      }`
-    );
-  }
-
-  return (data ?? []) as Booking[];
+  const repo = await createBookingsRepository();
+  return repo.getAll();
 }
 
 export async function getBooking(id: string): Promise<Booking | null> {
-  const supabase = await createClient();
-  const hotelId = await getCurrentHotelId();
-
-  const { data, error } = await supabase
-    .from("bookings")
-    .select("*")
-    .eq("id", id)
-    .eq("hotel_id", hotelId)
-    .maybeSingle();
-
-  if (error) {
-    throw new Error(
-      `${error.code}: ${error.message}${
-        error.details ? ` (${error.details})` : ""
-      }`
-    );
-  }
-
-  return (data as Booking | null) ?? null;
+  const repo = await createBookingsRepository();
+  return repo.getById(id);
 }

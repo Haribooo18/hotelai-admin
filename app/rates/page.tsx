@@ -1,14 +1,18 @@
 import { AppShell } from "@/components/dashboard/AppShell";
 import { RevenuePage } from "@/components/dashboard/revenue";
-import { getBookings } from "@/lib/services/bookings.service";
-import { getRooms } from "@/lib/services/rooms.service";
+import { createBookingsRepository } from "@/repositories/bookings.repository.server";
+import { createRoomsRepository } from "@/repositories/rooms.repository.server";
 import { getCurrentHotel } from "@/lib/tenant";
 
 export default async function RatesRoute() {
-  const [hotel, bookings, rooms] = await Promise.all([
+  const [hotel, bookingsRepo, roomsRepo] = await Promise.all([
     getCurrentHotel(),
-    getBookings(),
-    getRooms(),
+    createBookingsRepository(),
+    createRoomsRepository(),
+  ]);
+  const [bookings, rooms] = await Promise.all([
+    bookingsRepo.getAll(),
+    roomsRepo.getAll(),
   ]);
 
   return (

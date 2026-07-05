@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+import { createBookingsRepositoryClient } from "@/repositories/bookings.repository.client";
+import { createRoomsRepositoryClient } from "@/repositories/rooms.repository.client";
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
@@ -15,30 +16,21 @@ export function useGuestsSupplement(hotelId: string | undefined) {
     if (!hotelId) return;
 
     let cancelled = false;
-    const supabase = createClient();
+    const bookingsRepo = createBookingsRepositoryClient(hotelId);
+    const roomsRepo = createRoomsRepositoryClient(hotelId);
 
     async function load() {
       setLoading(true);
 
-      const [bookingsResult, roomsResult] = await Promise.all([
-        supabase
-          .from("bookings")
-          .select("*")
-          .eq("hotel_id", hotelId)
-          .order("check_in", { ascending: false }),
-        supabase.from("rooms").select("*").eq("hotel_id", hotelId),
+      const [bookingsData, roomsData] = await Promise.all([
+        bookingsRepo.getAll(),
+        roomsRepo.getAll(),
       ]);
 
       if (cancelled) return;
 
-      if (!bookingsResult.error && bookingsResult.data) {
-        setBookings(bookingsResult.data as Booking[]);
-      }
-
-      if (!roomsResult.error && roomsResult.data) {
-        setRooms(roomsResult.data as Room[]);
-      }
-
+      setBookings(bookingsData);
+      setRooms(roomsData);
       setLoading(false);
     }
 

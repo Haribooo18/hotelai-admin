@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { createClient } from "@/lib/supabase/client";
+import { createGuestsRepositoryClient } from "@/repositories/guests.repository.client";
 import type { Guest } from "@/types/guest";
 
 export function useBookingsGuests(hotelId: string | null) {
@@ -14,24 +14,17 @@ export function useBookingsGuests(hotelId: string | null) {
       return;
     }
 
-    const supabase = createClient();
     let cancelled = false;
+    const repo = createGuestsRepositoryClient(hotelId);
 
     async function load() {
       setLoading(true);
 
-      const { data, error } = await supabase
-        .from("guests")
-        .select("*")
-        .eq("hotel_id", hotelId)
-        .is("deleted_at", null);
+      const data = await repo.getAll();
 
       if (cancelled) return;
 
-      if (!error && data) {
-        setGuests(data as Guest[]);
-      }
-
+      setGuests(data);
       setLoading(false);
     }
 
