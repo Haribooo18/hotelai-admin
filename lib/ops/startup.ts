@@ -2,6 +2,10 @@ import { getOpenAIDefaultModel, isOpenAIConfigured } from "@/lib/ai/config";
 import { getAIServices } from "@/lib/ai/container";
 
 import { collectEnvironmentChecks } from "./env";
+import {
+  collectProductionEnvStatus,
+  formatProductionEnvReport,
+} from "./production-env";
 
 export type StartupCheck = {
   id:
@@ -27,6 +31,7 @@ export type StartupDiagnostics = {
     nodeVersion: string;
     openaiModel: string;
   };
+  productionEnv: ReturnType<typeof collectProductionEnvStatus>;
 };
 
 let lastStartupDiagnostics: StartupDiagnostics | null = null;
@@ -108,6 +113,7 @@ export function collectStartupDiagnostics(): StartupDiagnostics {
         ? getOpenAIDefaultModel()
         : "unconfigured",
     },
+    productionEnv: collectProductionEnvStatus(process.env.NODE_ENV),
   };
 }
 
@@ -132,6 +138,10 @@ export function runStartupValidation(): StartupDiagnostics {
   console.info(
     `${prefix} runtime node=${diagnostics.runtime.nodeVersion} openai_model=${diagnostics.runtime.openaiModel}`
   );
+
+  for (const line of formatProductionEnvReport(diagnostics.productionEnv)) {
+    console.info(`${prefix} env ${line}`);
+  }
 
   return diagnostics;
 }
