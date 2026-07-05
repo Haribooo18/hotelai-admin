@@ -24,6 +24,8 @@ import { CalendarToolbar } from "./CalendarToolbar";
 import { CalendarTimeline } from "./CalendarTimeline";
 import { CalendarAgenda } from "./CalendarAgenda";
 import { CalendarLegend } from "./CalendarLegend";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   bookings: Booking[];
@@ -31,6 +33,7 @@ type Props = {
 };
 
 export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [, startTransition] = useTransition();
 
@@ -120,14 +123,10 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-4xl font-bold">Booking calendar</h1>
-
-        <p className="mt-3 text-zinc-400">
-          Room occupancy timeline. Drag bookings to reschedule, drag edges to
-          change duration.
-        </p>
-      </div>
+      <DashboardPageHeader
+        title={t("pages.calendar.title")}
+        subtitle={t("pages.calendar.subtitle")}
+      />
 
       <CalendarToolbar
         title={formatRangeTitle(days, view)}

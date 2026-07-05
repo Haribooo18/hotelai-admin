@@ -15,6 +15,8 @@ import { KnowledgeEmptyState } from "./KnowledgeEmptyState";
 import { KnowledgeFilters } from "./KnowledgeFilters";
 import { KnowledgeSearch } from "./KnowledgeSearch";
 import { KnowledgeTable } from "./KnowledgeTable";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   articles: KnowledgeArticle[];
@@ -22,6 +24,7 @@ type Props = {
 };
 
 export function KnowledgePage({ articles, categories }: Props) {
+  const { t } = useI18n();
   const [createOpen, setCreateOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
@@ -49,19 +52,14 @@ export function KnowledgePage({ articles, categories }: Props) {
   const draftCount = articles.filter((a) => a.status === "draft").length;
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold">Knowledge base</h1>
-          <p className="mt-2 text-sm text-zinc-500">
-            Articles for the AI receptionist · {publishedCount} published ·{" "}
-            {draftCount} drafts
-          </p>
-        </div>
-        <KnowledgeCreateButton onClick={() => setCreateOpen(true)} />
-      </div>
+    <div className="space-y-6">
+      <DashboardPageHeader
+        title={t("pages.reports.title")}
+        subtitle={`${t("pages.reports.subtitle")} · ${publishedCount} published · ${draftCount} drafts`}
+        actions={<KnowledgeCreateButton onClick={() => setCreateOpen(true)} />}
+      />
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-center gap-3">
         <KnowledgeSearch value={search} onChange={setSearch} />
         <KnowledgeFilters
           status={status}

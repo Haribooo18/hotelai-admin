@@ -5,6 +5,7 @@ import {
   Download,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
@@ -39,47 +40,47 @@ export function RevenueToolbar({
         value={range.from}
         onChange={(e) => onRangeChange({ ...range, from: e.target.value })}
         aria-label="Start date"
-        className="h-11 w-[156px] rounded-[12px] border-0 bg-[var(--shell-surface)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+        className="w-[148px]"
       />
       <Input
         type="date"
         value={range.to}
         onChange={(e) => onRangeChange({ ...range, to: e.target.value })}
         aria-label="End date"
-        className="h-11 w-[156px] rounded-[12px] border-0 bg-[var(--shell-surface)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+        className="w-[148px]"
       />
 
-      <button
+      <Button
         type="button"
+        variant="secondary"
+        size="sm"
         onClick={onExport}
         disabled={exporting || !canExport}
-        className="inline-flex h-11 items-center gap-2 rounded-[12px] bg-[var(--shell-surface)] px-4 text-[13px] font-medium text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:bg-[var(--shell-nav-hover-bg)] disabled:opacity-50"
+        loading={exporting}
       >
-        <Download size={16} />
+        <Download size={15} />
         Export
-      </button>
+      </Button>
 
-      <button
+      <Button
         type="button"
+        variant={compareEnabled ? "default" : "secondary"}
+        size="sm"
         onClick={() => onCompareChange(!compareEnabled)}
-        className={cn(
-          "inline-flex h-11 items-center gap-2 rounded-[12px] px-4 text-[13px] font-medium shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out",
-          compareEnabled
-            ? "bg-emerald-500/15 text-emerald-500"
-            : "bg-[var(--shell-surface)] text-[var(--shell-text)] hover:bg-[var(--shell-nav-hover-bg)]"
-        )}
       >
-        <ArrowLeftRight size={16} />
+        <ArrowLeftRight size={15} />
         Compare
-      </button>
+      </Button>
 
-      <button
+      <Button
         type="button"
+        variant="ghost"
+        size="sm"
         onClick={() => onRangeChange(defaultRevenueRange())}
-        className="inline-flex h-11 items-center rounded-[12px] bg-[var(--shell-surface)] px-4 text-[13px] font-medium text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:text-[var(--shell-text)]"
+        className={cn(compareEnabled ? "" : "")}
       >
         30 days
-      </button>
+      </Button>
     </div>
   );
 }

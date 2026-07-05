@@ -20,6 +20,8 @@ import { GuestEditDialog } from "./GuestEditDialog";
 import { GuestKpiGrid } from "./GuestKpiGrid";
 import { GuestToolbar } from "./GuestToolbar";
 import { GuestsCardsView } from "./GuestsCardsView";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 import {
   buildGuestCardModels,
   computeGuestCrmKpis,
@@ -35,6 +37,7 @@ type Props = {
 };
 
 export function GuestsPage({ guests }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -158,15 +161,11 @@ export function GuestsPage({ guests }: Props) {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-[var(--shell-text)]">
-          Guests
-        </h1>
-        <p className="mt-2 text-[15px] text-[var(--shell-muted)]">
-          Manage guest database, stay history, and VIP statuses
-        </p>
-      </div>
+    <div className="space-y-7">
+      <DashboardPageHeader
+        title={t("pages.guests.title")}
+        subtitle={t("pages.guests.subtitle")}
+      />
 
       <GuestKpiGrid kpis={kpis} loading={loading} />
 

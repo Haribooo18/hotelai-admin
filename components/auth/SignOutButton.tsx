@@ -25,12 +25,12 @@ export function SignOutButton({
       disabled={pending}
       onClick={() => startTransition(() => signOut())}
       className={cn(
-        "flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white disabled:opacity-50",
+        "inline-flex items-center gap-2 rounded-[10px] px-2 py-1.5 text-[12px] text-[var(--shell-muted)] transition-colors duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)] disabled:opacity-50",
         className
       )}
       aria-label="Sign out"
     >
-      {showIcon ? <LogOut size={16} /> : null}
+      {showIcon ? <LogOut size={14} /> : null}
       <span>{pending ? "Signing out..." : label}</span>
     </button>
   );

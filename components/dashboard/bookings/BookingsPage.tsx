@@ -13,6 +13,8 @@ import {
   type BookingsChipFilter,
 } from "./BookingsFilters";
 import { BookingsStats } from "./BookingsStats";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   bookings: Booking[];
@@ -32,6 +34,7 @@ function isStayingOnDate(booking: Booking, date: string): boolean {
 }
 
 export function BookingsPage({ bookings, rooms }: Props) {
+  const { t } = useI18n();
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
@@ -81,15 +84,11 @@ export function BookingsPage({ bookings, rooms }: Props) {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-[var(--shell-text)]">
-          Reservations
-        </h1>
-        <p className="mt-2 text-[15px] text-[var(--shell-muted)]">
-          Manage all reservations
-        </p>
-      </div>
+    <div className="space-y-7">
+      <DashboardPageHeader
+        title={t("pages.reservations.title")}
+        subtitle={t("pages.reservations.subtitle")}
+      />
 
       <BookingsStats bookings={bookings} />
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   AI_CHANNELS,
   FAQ_ITEMS,
@@ -8,6 +8,7 @@ import {
   LANDING_FEATURES,
 } from "@/lib/marketing/content";
 import { getMarketingPlans } from "@/lib/marketing/pricing";
+import { cn } from "@/lib/utils";
 
 export function HeroSection() {
   return (
@@ -23,16 +24,18 @@ export function HeroSection() {
         в одном решении для независимых отелей.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-        <Button size="lg" render={<Link href="/settings?tab=billing" />}>
+        <Link
+          href="/settings?tab=billing"
+          className={cn(buttonVariants({ size: "lg" }))}
+        >
           Начать пробный период
-        </Button>
-        <Button
-          size="lg"
-          variant="outline"
-          render={<a href="mailto:hello@monavel.app?subject=Monavel Demo" />}
+        </Link>
+        <a
+          href="mailto:hello@monavel.app?subject=Monavel Demo"
+          className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
         >
           Записаться на демо
-        </Button>
+        </a>
       </div>
     </section>
   );
@@ -132,13 +135,17 @@ export function PricingSection() {
                   <li key={feature}>• {feature}</li>
                 ))}
               </ul>
-              <Button
-                className="mt-6 w-full"
-                variant={plan.highlighted ? "default" : "outline"}
-                render={<Link href="/settings?tab=billing" />}
+              <Link
+                href="/settings?tab=billing"
+                className={cn(
+                  buttonVariants({
+                    variant: plan.highlighted ? "default" : "outline",
+                  }),
+                  "mt-6 w-full"
+                )}
               >
                 Начать пробный период
-              </Button>
+              </Link>
             </div>
           ))}
         </div>

@@ -8,6 +8,16 @@ export { DashboardLatestReservations } from "./DashboardLatestReservations";
 export { DashboardLeadsPanel } from "./DashboardLeadsPanel";
 export { useDashboardSupplement } from "./useDashboardSupplement";
 export {
+  DashboardEmptyState,
+  DashboardKpiCard,
+  DashboardPageHeader,
+  DashboardSectionTitle,
+  DashboardSkeleton,
+  DashboardSkeletonBlock,
+  DashboardSkeletonLine,
+  DashboardSurface,
+} from "./DashboardPrimitives";
+export {
   buildOccupancyTrend,
   buildRevenueTrend,
   buildTimeline,

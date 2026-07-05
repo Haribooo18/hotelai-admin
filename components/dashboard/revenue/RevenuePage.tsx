@@ -7,6 +7,8 @@ import type { Room } from "@/types/room";
 import { RevenueCharts } from "./RevenueCharts";
 import { RevenueInsights } from "./RevenueInsights";
 import { RevenueKpiGrid } from "./RevenueKpiGrid";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 import {
   buildMonthlyComparison,
   buildRevenueByChannel,
@@ -29,6 +31,7 @@ type Props = {
 };
 
 export function RevenuePage({ bookings, rooms }: Props) {
+  const { t } = useI18n();
   const [range, setRange] = useState<RevenueDateRange>(() => defaultRevenueRange());
   const [compareEnabled, setCompareEnabled] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -75,27 +78,22 @@ export function RevenuePage({ bookings, rooms }: Props) {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-        <div>
-          <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-[var(--shell-text)]">
-            Revenue
-          </h1>
-          <p className="mt-2 text-[15px] text-[var(--shell-muted)]">
-            Hotel financial analytics
-          </p>
-        </div>
-
-        <RevenueToolbar
-          range={range}
-          compareEnabled={compareEnabled}
-          exporting={exporting}
-          canExport={transactions.length > 0}
-          onRangeChange={setRange}
-          onCompareChange={setCompareEnabled}
-          onExport={handleExport}
-        />
-      </div>
+    <div className="space-y-7">
+      <DashboardPageHeader
+        title={t("pages.revenue.title")}
+        subtitle={t("pages.revenue.subtitle")}
+        actions={
+          <RevenueToolbar
+            range={range}
+            compareEnabled={compareEnabled}
+            exporting={exporting}
+            canExport={transactions.length > 0}
+            onRangeChange={setRange}
+            onCompareChange={setCompareEnabled}
+            onExport={handleExport}
+          />
+        }
+      />
 
       <RevenueKpiGrid kpis={kpis} />
 

@@ -2,6 +2,8 @@
 
 import type { ReactNode } from "react";
 
+import { I18nProvider } from "@/lib/i18n";
+
 import { PageContainer, Sidebar, TopBar } from "@/components/dashboard/shell";
 
 type Props = {
@@ -14,15 +16,17 @@ type Props = {
 
 export function AppShell({ children, hotel }: Props) {
   return (
-    <div className="min-h-screen bg-[var(--shell-bg)] font-sans text-[var(--shell-text)]">
-      <div className="flex min-h-screen gap-4 p-3 lg:gap-5 lg:p-5">
+    <I18nProvider>
+      <div className="h-svh overflow-hidden bg-[var(--shell-bg)] font-sans text-[var(--shell-text)]">
         <Sidebar hotel={hotel} />
 
-        <div className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-[20px] border border-[var(--shell-border)] bg-[var(--shell-content)] shadow-[var(--shell-shadow-sm)]">
+        <div
+          className="flex h-svh min-w-0 flex-col overflow-hidden bg-[var(--shell-content)] lg:pl-[248px]"
+        >
           <TopBar />
           <PageContainer>{children}</PageContainer>
         </div>
       </div>
-    </div>
+    </I18nProvider>
   );
 }

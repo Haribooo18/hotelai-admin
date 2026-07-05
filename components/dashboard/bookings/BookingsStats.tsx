@@ -7,6 +7,8 @@ import {
 
 import type { Booking } from "@/types/booking";
 
+import { DashboardKpiCard } from "@/components/dashboard/home/DashboardPrimitives";
+
 type Props = {
   bookings: Booking[];
 };
@@ -36,51 +38,37 @@ export function BookingsStats({ bookings }: Props) {
     {
       title: "Total",
       value: bookings.length,
-      icon: Users,
+      icon: <Users size={17} />,
     },
     {
       title: "New",
       value: countNewBookings(bookings),
-      icon: Sparkles,
+      icon: <Sparkles size={17} />,
     },
     {
       title: "Today",
       value: countTodayBookings(bookings),
-      icon: CalendarClock,
+      icon: <CalendarClock size={17} />,
       hint: today,
     },
     {
       title: "Confirmed",
       value: bookings.filter((b) => b.status === "confirmed").length,
-      icon: CalendarCheck,
+      icon: <CalendarCheck size={17} />,
     },
   ];
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-      {cards.map((card) => {
-        const Icon = card.icon;
-
-        return (
-          <div
-            key={card.title}
-            className="rounded-[20px] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:-translate-y-0.5 hover:shadow-[var(--shell-shadow-md)]"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-[13px] font-medium text-[var(--shell-muted)]">
-                {card.title}
-              </p>
-              <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-500">
-                <Icon size={18} />
-              </div>
-            </div>
-
-            <p className="mt-4 text-[32px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
-              {card.value}
-            </p>
-          </div>
-        );
-      })}
+    <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      {cards.map((card) => (
+        <DashboardKpiCard
+          key={card.title}
+          label={card.title}
+          value={card.value}
+          hint={card.hint}
+          icon={card.icon}
+        />
+      ))}
     </div>
   );
 }

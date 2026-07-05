@@ -1,17 +1,24 @@
 import type { ReactNode } from "react";
 
+import { surfaceClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 type Props = {
   children: ReactNode;
   className?: string;
+  interactive?: boolean;
 };
 
-export function ShellCard({ children, className }: Props) {
+export function ShellCard({
+  children,
+  className,
+  interactive = true,
+}: Props) {
   return (
     <div
       className={cn(
-        "rounded-[20px] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6 shadow-[var(--shell-shadow-sm)] transition-all duration-200 ease-out hover:shadow-[var(--shell-shadow-md)]",
+        surfaceClass,
+        interactive && "hover:-translate-y-px",
         className
       )}
     >

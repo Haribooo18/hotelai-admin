@@ -4,7 +4,8 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function GuestProfileError({
   error,
@@ -29,9 +30,12 @@ export default function GuestProfileError({
 
       <div className="flex gap-3">
         <Button onClick={reset}>Retry</Button>
-        <Button variant="outline" render={<Link href="/guests" />}>
+        <Link
+          href="/guests"
+          className={cn(buttonVariants({ variant: "outline" }))}
+        >
           Back to guest list
-        </Button>
+        </Link>
       </div>
     </div>
   );

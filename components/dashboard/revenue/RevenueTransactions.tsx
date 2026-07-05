@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { MoreHorizontal } from "lucide-react";
 
 import { BookingStatusBadge } from "@/components/dashboard/bookings/BookingStatusBadge";
@@ -27,6 +27,8 @@ type Props = {
 };
 
 export function RevenueTransactions({ transactions }: Props) {
+  const router = useRouter();
+
   return (
     <div className="space-y-5">
       <DashboardSectionTitle
@@ -73,8 +75,8 @@ export function RevenueTransactions({ transactions }: Props) {
                     className="min-w-40 rounded-[12px] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
                   >
                     <DropdownMenuItem
-                      render={<Link href="/bookings" />}
                       className="rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
+                      onClick={() => router.push("/bookings")}
                     >
                       Open bookings
                     </DropdownMenuItem>

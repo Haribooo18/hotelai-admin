@@ -2,8 +2,8 @@
 
 import { Dialog } from "@base-ui/react/dialog";
 
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 type Props = {
   open: boolean;
@@ -31,35 +31,42 @@ export function ConfirmDialog({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" />
+        <Dialog.Backdrop className="ds-dialog-backdrop fixed inset-0 z-50 bg-black/50 backdrop-blur-[3px]" />
 
         <Dialog.Popup
           className={cn(
-            "fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2",
-            "rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-xl outline-none"
+            "ds-dialog-content fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2",
+            "rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-lg)] outline-none"
           )}
         >
-          <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>
+          <Dialog.Title className="ds-section-title text-[15px]">
+            {title}
+          </Dialog.Title>
 
-          {description && (
-            <Dialog.Description className="mt-2 text-sm text-zinc-400">
+          {description ? (
+            <Dialog.Description className="mt-2 text-[13px] leading-relaxed text-[var(--shell-muted)]">
               {description}
             </Dialog.Description>
-          )}
+          ) : null}
 
-          <div className="mt-6 flex justify-end gap-3">
+          <div className="mt-5 flex justify-end gap-2.5">
             <Dialog.Close
-              render={<Button variant="outline" disabled={loading} />}
+              className={cn(
+                buttonVariants({ variant: "outline", size: "sm" }),
+                loading && "pointer-events-none opacity-50"
+              )}
+              disabled={loading}
             >
               {cancelLabel}
             </Dialog.Close>
 
             <Button
               variant={destructive ? "destructive" : "default"}
-              disabled={loading}
+              size="sm"
+              loading={loading}
               onClick={onConfirm}
             >
-              {loading ? "Deleting..." : confirmLabel}
+              {confirmLabel}
             </Button>
           </div>
         </Dialog.Popup>

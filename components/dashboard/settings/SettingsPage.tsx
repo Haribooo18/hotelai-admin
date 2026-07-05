@@ -5,7 +5,7 @@ import type { HotelSubscription } from "@/types/subscription";
 
 import { SettingsTabs } from "./SettingsTabs";
 
-type Tab = "ai" | "billing";
+type Tab = "ai" | "billing" | "appearance";
 
 type Props = {
   settings: HotelAISettings;

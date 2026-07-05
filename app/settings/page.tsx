@@ -18,7 +18,12 @@ export default async function SettingsRoute({
   searchParams: SearchParams;
 }) {
   const params = await searchParams;
-  const initialTab = params.tab === "billing" ? "billing" : "ai";
+  const initialTab =
+    params.tab === "billing"
+      ? "billing"
+      : params.tab === "appearance"
+        ? "appearance"
+        : "ai";
 
   const [hotel, settings, health, logs, subscription] = await Promise.all([
     getCurrentHotel(),

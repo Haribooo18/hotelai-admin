@@ -2,6 +2,9 @@
 
 import * as React from "react";
 
+import { inputClass } from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
+
 type Option = {
   value: string;
   label: string;
@@ -41,17 +44,12 @@ export function Select({
       aria-invalid={ariaInvalid}
       aria-describedby={ariaDescribedby}
       onChange={(e) => onChange(e.target.value)}
-      className={`w-full rounded-xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-white outline-none transition focus:border-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 ${className}`}
+      className={cn(inputClass, "md:text-[13px]", className)}
     >
-      <option value="">
-        {placeholder}
-      </option>
+      <option value="">{placeholder}</option>
 
       {options.map((option) => (
-        <option
-          key={option.value}
-          value={option.value}
-        >
+        <option key={option.value} value={option.value}>
           {option.label}
         </option>
       ))}

@@ -21,6 +21,8 @@ import {
   getLatestBookings,
   useDashboardSupplement,
 } from "@/components/dashboard/home";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   initialLeads: Lead[];
@@ -28,6 +30,7 @@ type Props = {
 };
 
 export function DashboardPage({ initialLeads, hotelId }: Props) {
+  const { t } = useI18n();
   const [leads, setLeads] = useState(initialLeads);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
@@ -132,7 +135,12 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
   );
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      <DashboardPageHeader
+        title={t("pages.dashboard.title")}
+        subtitle={t("pages.dashboard.subtitle")}
+      />
+
       <DashboardHero metrics={metrics} loading={loading} />
 
       <DashboardKpiGrid metrics={metrics} loading={loading} />

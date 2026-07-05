@@ -11,25 +11,25 @@ import {
   Users,
 } from "lucide-react";
 
+import type { TranslationPath } from "@/lib/i18n/translations";
+
 export type ShellNavItem = {
-  label: string;
+  labelKey: TranslationPath;
   href: string;
   icon: LucideIcon;
-  /** When true, only exact pathname match counts as active. */
   exact?: boolean;
 };
 
-/** Maps premium shell labels to existing routes (no new routes). */
 export const SHELL_NAV_ITEMS: ShellNavItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, exact: true },
-  { label: "Reservations", href: "/bookings", icon: CalendarDays },
-  { label: "Guests", href: "/guests", icon: Users },
-  { label: "Rooms", href: "/rooms", icon: BedDouble },
-  { label: "Calendar", href: "/calendar", icon: Sparkles },
-  { label: "Revenue", href: "/rates", icon: TrendingUp },
-  { label: "Reports", href: "/knowledge", icon: FileBarChart },
-  { label: "Messages", href: "/ai", icon: MessageSquare },
-  { label: "Settings", href: "/settings", icon: Settings },
+  { labelKey: "nav.dashboard", href: "/dashboard", icon: LayoutDashboard, exact: true },
+  { labelKey: "nav.reservations", href: "/bookings", icon: CalendarDays },
+  { labelKey: "nav.guests", href: "/guests", icon: Users },
+  { labelKey: "nav.rooms", href: "/rooms", icon: BedDouble },
+  { labelKey: "nav.calendar", href: "/calendar", icon: Sparkles },
+  { labelKey: "nav.revenue", href: "/rates", icon: TrendingUp },
+  { labelKey: "nav.reports", href: "/knowledge", icon: FileBarChart },
+  { labelKey: "nav.messages", href: "/ai", icon: MessageSquare },
+  { labelKey: "nav.settings", href: "/settings", icon: Settings },
 ];
 
 export function isShellNavActive(
@@ -56,25 +56,5 @@ export function isShellNavActive(
     );
   });
 
-  return firstMatch?.label === item.label;
-}
-
-const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/bookings": "Reservations",
-  "/guests": "Guests",
-  "/rooms": "Rooms",
-  "/calendar": "Calendar",
-  "/rates": "Revenue",
-  "/knowledge": "Knowledge Base",
-  "/ai": "Messages",
-  "/settings": "Settings",
-};
-
-export function resolveShellPageTitle(pathname: string): string {
-  const match = Object.entries(PAGE_TITLES).find(([href]) =>
-    pathname === href || pathname.startsWith(`${href}/`)
-  );
-
-  return match?.[1] ?? "Dashboard";
+  return firstMatch?.labelKey === item.labelKey;
 }

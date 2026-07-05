@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { getMarketingPlans } from "@/lib/marketing/pricing";
+import { cn } from "@/lib/utils";
 
 export function PricingOverview() {
   const plans = getMarketingPlans();
@@ -31,13 +32,17 @@ export function PricingOverview() {
                 <li key={feature}>• {feature}</li>
               ))}
             </ul>
-            <Button
-              className="mt-8 w-full"
-              variant={plan.highlighted ? "default" : "outline"}
-              render={<Link href="/settings?tab=billing" />}
+            <Link
+              href="/settings?tab=billing"
+              className={cn(
+                buttonVariants({
+                  variant: plan.highlighted ? "default" : "outline",
+                }),
+                "mt-8 w-full"
+              )}
             >
               Начать пробный период
-            </Button>
+            </Link>
           </div>
         ))}
       </div>

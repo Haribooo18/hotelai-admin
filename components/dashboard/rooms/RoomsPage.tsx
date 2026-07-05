@@ -15,6 +15,8 @@ import { RoomDetailDrawer } from "./RoomDetailDrawer";
 import { RoomKpiGrid } from "./RoomKpiGrid";
 import { RoomToolbar } from "./RoomToolbar";
 import { RoomsCardsView } from "./RoomsCardsView";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 import {
   buildRoomCardModels,
   computeRoomOpsKpis,
@@ -31,6 +33,7 @@ type Props = {
 };
 
 export function RoomsPage({ rooms }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -143,15 +146,11 @@ export function RoomsPage({ rooms }: Props) {
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-[var(--shell-text)]">
-          Rooms
-        </h1>
-        <p className="mt-2 text-[15px] text-[var(--shell-muted)]">
-          Manage room inventory
-        </p>
-      </div>
+    <div className="space-y-7">
+      <DashboardPageHeader
+        title={t("pages.rooms.title")}
+        subtitle={t("pages.rooms.subtitle")}
+      />
 
       <RoomKpiGrid kpis={kpis} loading={loading} />
 

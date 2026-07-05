@@ -1,7 +1,8 @@
 import Link from "next/link";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { FEATURE_SECTIONS } from "@/lib/marketing/content";
+import { cn } from "@/lib/utils";
 
 export function FeaturesOverview() {
   return (
@@ -25,15 +26,18 @@ export function FeaturesOverview() {
       </div>
 
       <div className="mt-12 flex gap-4">
-        <Button render={<Link href="/settings?tab=billing" />}>
+        <Link
+          href="/settings?tab=billing"
+          className={cn(buttonVariants())}
+        >
           Начать пробный период
-        </Button>
-        <Button
-          variant="outline"
-          render={<a href="mailto:hello@monavel.app?subject=Monavel Demo" />}
+        </Link>
+        <a
+          href="mailto:hello@monavel.app?subject=Monavel Demo"
+          className={cn(buttonVariants({ variant: "outline" }))}
         >
           Записаться на демо
-        </Button>
+        </a>
       </div>
     </div>
   );

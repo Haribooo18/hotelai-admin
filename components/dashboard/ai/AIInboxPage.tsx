@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Bot, Plus } from "lucide-react";
+import { ArrowLeft, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Conversation } from "@/types/conversation";
@@ -28,6 +28,8 @@ import { ConversationList } from "./ConversationList";
 import { ConversationView } from "./ConversationView";
 import { EmptyConversation } from "./EmptyConversation";
 import { KnowledgePanel } from "./KnowledgePanel";
+import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   conversations: Conversation[];
@@ -50,6 +52,7 @@ export function AIInboxPage({
   aiActions = [],
   aiEnabled = false,
 }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedId = searchParams.get("conversation");
@@ -97,25 +100,18 @@ export function AIInboxPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="flex items-center gap-3 text-4xl font-bold">
-            <Bot className="h-9 w-9 text-emerald-500" />
-            AI Receptionist
-          </h1>
+      <DashboardPageHeader
+        title={t("pages.messages.title")}
+        subtitle={t("pages.messages.subtitle")}
+        actions={
+          <Button onClick={() => setCreateOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            New conversation
+          </Button>
+        }
+      />
 
-          <p className="mt-3 text-zinc-400">
-            Incoming guest inquiries across all channels.
-          </p>
-        </div>
-
-        <Button onClick={() => setCreateOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" />
-          New conversation
-        </Button>
-      </div>
-
-      <div className="flex h-[calc(100vh-14rem)] min-h-[480px] overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+      <div className="flex h-[calc(100vh-14rem)] min-h-[480px] overflow-hidden rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)]">
         <div
           className={
             selectedId

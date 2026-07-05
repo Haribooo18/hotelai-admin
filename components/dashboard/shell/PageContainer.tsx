@@ -9,13 +9,8 @@ type Props = {
 
 export function PageContainer({ children, className }: Props) {
   return (
-    <main className="flex-1 bg-[var(--shell-bg)]">
-      <div
-        className={cn(
-          "mx-auto w-full max-w-[1440px] px-6 py-8 transition-opacity duration-200 ease-out lg:px-10 lg:py-10",
-          className
-        )}
-      >
+    <main className={cn("min-h-0 flex-1 overflow-y-auto", className)}>
+      <div className="ds-page-enter mx-auto w-full max-w-[1440px] px-5 py-5 lg:px-6 lg:py-6">
         {children}
       </div>
     </main>

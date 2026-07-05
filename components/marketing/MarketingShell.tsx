@@ -2,8 +2,9 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Hotel } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { MARKETING_NAV, SITE_NAME } from "@/lib/marketing/site";
+import { cn } from "@/lib/utils";
 
 type Props = {
   children: ReactNode;
@@ -33,12 +34,18 @@ export function MarketingHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <Button variant="ghost" render={<Link href="/login" />}>
+          <Link
+            href="/login"
+            className={cn(buttonVariants({ variant: "ghost" }))}
+          >
             Войти
-          </Button>
-          <Button render={<Link href="/settings?tab=billing" />}>
+          </Link>
+          <Link
+            href="/settings?tab=billing"
+            className={cn(buttonVariants())}
+          >
             Начать пробный период
-          </Button>
+          </Link>
         </div>
       </div>
     </header>
