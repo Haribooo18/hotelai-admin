@@ -1,22 +1,27 @@
 import { cn } from "@/lib/utils";
 import { getBookingStatusMeta } from "@/lib/booking-status";
 
+import { Badge } from "@/components/ui/display/Badge";
+
 type Props = {
   status: string;
+  className?: string;
 };
 
-export function BookingStatusBadge({ status }: Props) {
+export function BookingStatusBadge({ status, className }: Props) {
   const meta = getBookingStatusMeta(status);
 
   return (
-    <span
+    <Badge
+      variant="outline"
       className={cn(
-        "inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.05em]",
+        "uppercase",
         meta?.badgeClassName ??
-          "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]"
+          "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]",
+        className
       )}
     >
       {meta?.label ?? status}
-    </span>
+    </Badge>
   );
 }

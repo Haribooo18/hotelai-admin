@@ -2,12 +2,13 @@
 
 import { memo } from "react";
 import {
+  Baby,
   CalendarDays,
   Moon,
   MoreHorizontal,
   Pencil,
   Trash2,
-  Users,
+  UserRound,
 } from "lucide-react";
 
 import {
@@ -15,10 +16,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/overlay/DropdownMenu";
+import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
-import { cn } from "@/lib/utils";
+import { activateOnKeyboard } from "@/lib/dashboard/a11y";
 import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
 
 import { BookingSourceBadge } from "./BookingSourceBadge";
 import { BookingStatusBadge } from "./BookingStatusBadge";
@@ -29,9 +32,11 @@ import {
   getGuestInitials,
   type BookingCardModel,
 } from "./booking-ops-metrics";
+import { BookingWorkspaceCard } from "./bookings-ui";
 
 type Props = {
   model: BookingCardModel;
+  selected?: boolean;
   onSelect?: (model: BookingCardModel) => void;
   onEdit?: (model: BookingCardModel) => void;
   onDelete?: (model: BookingCardModel) => void;
@@ -39,29 +44,24 @@ type Props = {
 
 export const BookingCard = memo(function BookingCard({
   model,
+  selected = false,
   onSelect,
   onEdit,
   onDelete,
 }: Props) {
-  const { booking, guest, roomLabel, nights, guestCount, paymentStatus, source } =
-    model;
+  const { booking, guest, roomLabel, nights, paymentStatus, source } = model;
 
   return (
-    <article
+    <BookingWorkspaceCard
+      selected={selected}
       role="button"
       tabIndex={0}
       aria-label={`Open reservation for ${booking.guest_name}`}
+      aria-pressed={selected}
       onClick={() => onSelect?.(model)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect?.(model);
-        }
-      }}
-      className={cn(
-        "group cursor-pointer rounded-[var(--ds-radius)] bg-[var(--shell-glass)] p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
-        "transition-[transform,box-shadow,background-color] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-md)]"
-      )}
+      onKeyDown={(event) =>
+        activateOnKeyboard(event, () => onSelect?.(model))
+      }
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
@@ -73,13 +73,11 @@ export const BookingCard = memo(function BookingCard({
               size="sm"
             />
           ) : (
-            <div
-              role="img"
-              aria-label={booking.guest_name}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--shell-accent-muted)] text-[12px] font-semibold text-[var(--shell-accent)]"
-            >
-              {getGuestInitials(booking.guest_name)}
-            </div>
+            <Avatar className="size-9" aria-label={booking.guest_name}>
+              <AvatarFallback className="text-[12px] font-semibold">
+                {getGuestInitials(booking.guest_name)}
+              </AvatarFallback>
+            </Avatar>
           )}
 
           <div className="min-w-0">
@@ -96,25 +94,18 @@ export const BookingCard = memo(function BookingCard({
           <DropdownMenuTrigger
             aria-label={`Actions for reservation ${booking.guest_name}`}
             onClick={(event) => event.stopPropagation()}
-            className={cn(
-              iconActionClass,
-              hoverRevealClass,
-              "shrink-0"
-            )}
+            className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
           >
             <MoreHorizontal size={16} />
           </DropdownMenuTrigger>
 
-          <DropdownMenuContent
-            align="end"
-            className="min-w-44 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
-          >
+          <DropdownMenuContent align="end">
             <DropdownMenuItem
               onClick={(event) => {
                 event.stopPropagation();
                 onEdit?.(model);
               }}
-              className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
+              className="gap-2"
             >
               <Pencil size={14} />
               Edit
@@ -125,7 +116,7 @@ export const BookingCard = memo(function BookingCard({
                 event.stopPropagation();
                 onDelete?.(model);
               }}
-              className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-red-400"
+              className="gap-2 text-red-400"
             >
               <Trash2 size={14} />
               Delete
@@ -138,7 +129,8 @@ export const BookingCard = memo(function BookingCard({
         <div className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
           <CalendarDays size={14} className="shrink-0 text-[var(--shell-accent)]" />
           <span className="truncate">
-            {formatBookingDate(booking.check_in)} — {formatBookingDate(booking.check_out)}
+            {formatBookingDate(booking.check_in)} —{" "}
+            {formatBookingDate(booking.check_out)}
           </span>
         </div>
 
@@ -150,23 +142,32 @@ export const BookingCard = memo(function BookingCard({
         </div>
 
         <div className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
-          <Users size={14} className="shrink-0 text-[var(--shell-accent)]" />
+          <UserRound size={14} className="shrink-0 text-[var(--shell-accent)]" />
           <span>
-            {guestCount} {guestCount === 1 ? "guest" : "guests"}
+            {booking.adults} {booking.adults === 1 ? "adult" : "adults"}
           </span>
         </div>
 
-        <div className="text-right text-[13px] font-semibold text-[var(--shell-text)]">
-          {formatBookingCurrency(booking.total_price)}
+        <div className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
+          <Baby size={14} className="shrink-0 text-[var(--shell-accent)]" />
+          <span>
+            {booking.children}{" "}
+            {booking.children === 1 ? "child" : "children"}
+          </span>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <BookingStatusBadge status={booking.status} />
-        <PaymentStatusBadge status={paymentStatus} />
-        <BookingSourceBadge source={source} />
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          <BookingStatusBadge status={booking.status} />
+          <PaymentStatusBadge status={paymentStatus} />
+          <BookingSourceBadge source={source} />
+        </div>
+        <p className="shrink-0 text-[14px] font-semibold text-[var(--shell-text)]">
+          {formatBookingCurrency(booking.total_price)}
+        </p>
       </div>
-    </article>
+    </BookingWorkspaceCard>
   );
 });
 

@@ -21,6 +21,8 @@ export { PaymentStatusBadge } from "./PaymentStatusBadge";
 export { BookingSourceBadge } from "./BookingSourceBadge";
 
 export { BookingsExecutiveKpis } from "./BookingsExecutiveKpis";
+export { BookingsOperations } from "./BookingsOperations";
+export { BookingsToolbar } from "./BookingsToolbar";
 
 export {
   BookingsFilters,

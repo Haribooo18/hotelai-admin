@@ -12,20 +12,22 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/core/Button";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import {
-  DashboardEmptyState,
-  DashboardPanelHeader,
-  DashboardSurface,
-} from "@/components/dashboard/home/DashboardPrimitives";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/overlay/Drawer";
+import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { Panel } from "@/components/ui/primitives/Panel";
+import { Scrollable } from "@/components/ui/primitives/Scrollable";
+import { Section } from "@/components/ui/primitives/Section";
+import { Stack } from "@/components/ui/primitives/Stack";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
+import { motionPresets } from "@/lib/design/motion";
+import { cn } from "@/lib/utils";
 
 import { BookingSourceBadge } from "./BookingSourceBadge";
 import { BookingStatusBadge } from "./BookingStatusBadge";
@@ -68,7 +70,7 @@ export function BookingDetailDrawer({
 
   if (!model) return null;
 
-  const { booking, guest, roomLabel, nights, guestCount, paymentStatus, source, internalNotes } =
+  const { booking, guest, roomLabel, nights, paymentStatus, source, internalNotes } =
     model;
 
   const displayName = guest
@@ -76,12 +78,12 @@ export function BookingDetailDrawer({
     : booking.guest_name;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent
+    <Drawer open={open} onOpenChange={onOpenChange}>
+      <DrawerContent
         side="right"
         className="w-full gap-0 overflow-hidden border-0 bg-[var(--shell-content)] p-0 sm:max-w-xl"
       >
-        <SheetHeader className="border-b border-[var(--shell-border)]/70 px-6 py-5">
+        <DrawerHeader className="border-b border-[var(--shell-border)]/70 px-6 py-5">
           <div className="flex items-start gap-4">
             {guest ? (
               <GuestAvatar
@@ -91,15 +93,17 @@ export function BookingDetailDrawer({
                 size="md"
               />
             ) : (
-              <div className="flex h-[var(--ds-input-height)] w-11 shrink-0 items-center justify-center rounded-full bg-[var(--shell-accent-muted)] text-[13px] font-semibold text-[var(--shell-accent)]">
-                {getGuestInitials(booking.guest_name)}
-              </div>
+              <Avatar className="size-11">
+                <AvatarFallback className="text-[13px] font-semibold">
+                  {getGuestInitials(booking.guest_name)}
+                </AvatarFallback>
+              </Avatar>
             )}
 
             <div className="min-w-0 flex-1">
-              <SheetTitle className="text-left text-[18px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
+              <DrawerTitle className="text-left text-[18px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
                 {displayName}
-              </SheetTitle>
+              </DrawerTitle>
               <p className="mt-1 text-left text-[13px] text-[var(--shell-muted)]">
                 {roomLabel} · {nights} {nights === 1 ? "night" : "nights"}
               </p>
@@ -110,155 +114,156 @@ export function BookingDetailDrawer({
               </div>
             </div>
           </div>
-        </SheetHeader>
+        </DrawerHeader>
 
-        <div className="flex-1 space-y-4 overflow-y-auto px-6 py-5">
-          <DashboardSurface className="p-4">
-            <DashboardPanelHeader
-              title="Guest information"
-              subtitle="Contact and profile details"
-              className="mb-3"
-            />
-            <div className="space-y-2.5">
-              <div className="flex items-center gap-2 text-[13px] text-[var(--shell-text)]">
-                <UserRound size={14} className="text-[var(--shell-muted)]" />
-                {displayName}
-              </div>
-              {booking.guest_email ? (
-                <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
-                  <Mail size={14} />
-                  {booking.guest_email}
-                </div>
-              ) : null}
-              {booking.guest_phone ? (
-                <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
-                  <Phone size={14} />
-                  {booking.guest_phone}
-                </div>
-              ) : null}
-              <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
-                <CalendarDays size={14} />
-                {booking.check_in} — {booking.check_out} · {guestCount} guests
-              </div>
-            </div>
-          </DashboardSurface>
-
-          <DashboardSurface className="p-4">
-            <DashboardPanelHeader
-              title="Stay timeline"
-              subtitle="Reservation lifecycle"
-              className="mb-3"
-            />
-            <div className="space-y-2">
-              {timeline.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex items-start gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3"
-                >
-                  <div
-                    className={cn(
-                      "mt-0.5 h-2 w-2 shrink-0 rounded-full",
-                      TIMELINE_DOT[item.kind]
-                    )}
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[13px] font-medium text-[var(--shell-text)]">
-                      {item.label}
-                    </p>
-                    <p className="mt-0.5 text-[12px] text-[var(--shell-muted)]">
-                      {item.detail}
-                    </p>
-                  </div>
-                  <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
-                    {formatBookingDateTime(item.at)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </DashboardSurface>
-
-          <DashboardSurface className="p-4">
-            <DashboardPanelHeader
-              title="Payment summary"
-              subtitle="Charges and settlement"
-              className="mb-3"
-            />
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
-                <CreditCard size={14} />
-                Total amount
-              </div>
-              <p className="text-[16px] font-semibold text-[var(--shell-text)]">
-                {formatBookingCurrency(booking.total_price)}
-              </p>
-            </div>
-            <div className="mt-3 flex items-center gap-2">
-              <PaymentStatusBadge status={paymentStatus} />
-              <span className="text-[12px] text-[var(--shell-muted)]">
-                {paymentStatus === "paid"
-                  ? "Fully settled"
-                  : paymentStatus === "deposit"
-                    ? "Balance due at check-out"
-                    : paymentStatus === "pending"
-                      ? "Awaiting payment"
-                      : "No charge"}
-              </span>
-            </div>
-          </DashboardSurface>
-
-          <DashboardSurface className="p-4">
-            <DashboardPanelHeader
-              title="Internal notes"
-              subtitle="Team-only context"
-              className="mb-3"
-            />
-            {internalNotes ? (
-              <p className="text-[13px] leading-relaxed text-[var(--shell-text)]">
-                {internalNotes}
-              </p>
-            ) : (
-              <DashboardEmptyState
-                title="No internal notes"
-                description="Notes from the guest profile will appear here when available."
-                icon={<FileText size={16} />}
+        <Scrollable className="flex-1 px-6 py-5">
+          <Stack gap="md">
+            <Panel variant="surface" className="p-4">
+              <Section
+                title="Booking"
+                subtitle="Reservation reference and status"
               />
-            )}
-          </DashboardSurface>
+              <dl className="mt-3 grid gap-2 text-[12px]">
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[var(--shell-muted)]">Reservation ID</dt>
+                  <dd className="font-mono text-[var(--shell-text)]">
+                    {booking.id.slice(0, 12)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[var(--shell-muted)]">Created</dt>
+                  <dd className="text-[var(--shell-text)]">
+                    {formatBookingDateTime(booking.created_at)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <dt className="text-[var(--shell-muted)]">Updated</dt>
+                  <dd className="text-[var(--shell-text)]">
+                    {formatBookingDateTime(booking.updated_at)}
+                  </dd>
+                </div>
+              </dl>
+            </Panel>
 
-          <DashboardSurface className="p-4">
-            <DashboardPanelHeader
-              title="Reservation metadata"
-              subtitle="System references"
-              className="mb-3"
-            />
-            <dl className="grid gap-2 text-[12px]">
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--shell-muted)]">Reservation ID</dt>
-                <dd className="font-mono text-[var(--shell-text)]">
-                  {booking.id.slice(0, 12)}
-                </dd>
+            <Panel variant="surface" className="p-4">
+              <Section title="Guest" subtitle="Contact and profile details" />
+              <div className="mt-3 space-y-2.5">
+                <div className="flex items-center gap-2 text-[13px] text-[var(--shell-text)]">
+                  <UserRound size={14} className="text-[var(--shell-muted)]" />
+                  {displayName}
+                </div>
+                {booking.guest_email ? (
+                  <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
+                    <Mail size={14} />
+                    {booking.guest_email}
+                  </div>
+                ) : null}
+                {booking.guest_phone ? (
+                  <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
+                    <Phone size={14} />
+                    {booking.guest_phone}
+                  </div>
+                ) : null}
               </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--shell-muted)]">Created</dt>
-                <dd className="text-[var(--shell-text)]">
-                  {formatBookingDateTime(booking.created_at)}
-                </dd>
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Stay" subtitle="Dates, room, and occupancy" />
+              <div className="mt-3 space-y-2.5 text-[13px] text-[var(--shell-muted)]">
+                <div className="flex items-center gap-2">
+                  <CalendarDays size={14} />
+                  {booking.check_in} — {booking.check_out}
+                </div>
+                <p>{roomLabel}</p>
+                <p>
+                  {booking.adults} {booking.adults === 1 ? "adult" : "adults"} ·{" "}
+                  {booking.children}{" "}
+                  {booking.children === 1 ? "child" : "children"}
+                </p>
               </div>
-              <div className="flex justify-between gap-3">
-                <dt className="text-[var(--shell-muted)]">Updated</dt>
-                <dd className="text-[var(--shell-text)]">
-                  {formatBookingDateTime(booking.updated_at)}
-                </dd>
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Payment" subtitle="Charges and settlement" />
+              <div className="mt-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
+                  <CreditCard size={14} />
+                  Total amount
+                </div>
+                <p className="text-[16px] font-semibold text-[var(--shell-text)]">
+                  {formatBookingCurrency(booking.total_price)}
+                </p>
               </div>
-            </dl>
-          </DashboardSurface>
-        </div>
+              <div className="mt-3 flex items-center gap-2">
+                <PaymentStatusBadge status={paymentStatus} />
+                <span className="text-[12px] text-[var(--shell-muted)]">
+                  {paymentStatus === "paid"
+                    ? "Fully settled"
+                    : paymentStatus === "deposit"
+                      ? "Balance due at check-out"
+                      : paymentStatus === "pending"
+                        ? "Awaiting payment"
+                        : "No charge"}
+                </span>
+              </div>
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Notes" subtitle="Team-only context" />
+              {internalNotes ? (
+                <p className="mt-3 text-[13px] leading-relaxed text-[var(--shell-text)]">
+                  {internalNotes}
+                </p>
+              ) : (
+                <EmptyState
+                  title="No internal notes"
+                  description="Notes from the guest profile will appear here when available."
+                  icon={<FileText size={16} />}
+                />
+              )}
+            </Panel>
+
+            <Panel variant="surface" className="p-4">
+              <Section title="Timeline" subtitle="Reservation lifecycle" />
+              <div className="mt-3 space-y-2">
+                {timeline.map((item) => (
+                  <div
+                    key={item.id}
+                    className={cn(
+                      "flex items-start gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3",
+                      motionPresets.transitionBase
+                    )}
+                  >
+                      <div
+                        className={cn(
+                          "mt-0.5 h-2 w-2 shrink-0 rounded-full",
+                          TIMELINE_DOT[item.kind]
+                        )}
+                        aria-hidden
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[13px] font-medium text-[var(--shell-text)]">
+                          {item.label}
+                        </p>
+                        <p className="mt-0.5 text-[12px] text-[var(--shell-muted)]">
+                          {item.detail}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
+                        {formatBookingDateTime(item.at)}
+                      </span>
+                    </div>
+                ))}
+              </div>
+            </Panel>
+          </Stack>
+        </Scrollable>
 
         <div className="border-t border-[var(--shell-border)]/70 px-6 py-4">
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
-              className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
+              className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
               onClick={() => onEdit(booking)}
             >
               <Pencil size={14} />
@@ -267,7 +272,7 @@ export function BookingDetailDrawer({
             <Button
               type="button"
               variant="outline"
-              className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] px-4 text-[13px] text-red-400 shadow-[var(--shell-shadow-sm)] hover:bg-red-500/10"
+              className="h-[var(--ds-input-height)] gap-2 text-red-400 hover:bg-red-500/10"
               onClick={() => onDelete(booking)}
             >
               <Trash2 size={14} />
@@ -275,7 +280,7 @@ export function BookingDetailDrawer({
             </Button>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DrawerContent>
+    </Drawer>
   );
 }

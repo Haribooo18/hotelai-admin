@@ -1,5 +1,6 @@
 import { Globe, Phone, UserRound } from "lucide-react";
 
+import { Badge } from "@/components/ui/display/Badge";
 import { cn } from "@/lib/utils";
 
 import type { BookingSource } from "./booking-ops-metrics";
@@ -16,32 +17,35 @@ const SOURCE_META: Record<
   online: {
     label: "Online",
     icon: Globe,
-    className: "bg-violet-500/12 text-violet-400",
+    className: "bg-violet-500/12 text-violet-400 border-violet-500/20",
   },
   phone: {
     label: "Phone",
     icon: Phone,
-    className: "bg-sky-500/12 text-sky-400",
+    className: "bg-sky-500/12 text-sky-400 border-sky-500/20",
   },
 };
 
 type Props = {
   source: BookingSource;
+  className?: string;
 };
 
-export function BookingSourceBadge({ source }: Props) {
+export function BookingSourceBadge({ source, className }: Props) {
   const meta = SOURCE_META[source];
   const Icon = meta.icon;
 
   return (
-    <span
+    <Badge
+      variant="outline"
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.05em]",
-        meta.className
+        "gap-1 uppercase",
+        meta.className,
+        className
       )}
     >
-      <Icon size={11} />
+      <Icon size={11} aria-hidden />
       {meta.label}
-    </span>
+    </Badge>
   );
 }

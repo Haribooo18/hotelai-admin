@@ -7,12 +7,15 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { TableRowsSkeleton } from "@/components/dashboard/shared/TableRowsSkeleton";
-import { DashboardEmptyState } from "@/components/dashboard/home/DashboardPrimitives";
+} from "@/components/ui/overlay/DropdownMenu";
+import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
+import { SkeletonRows } from "@/components/ui/display/Skeleton";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { TableContainer } from "@/components/ui/data/TableContainer";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
-import { tableRowClickableClass, iconActionClass } from "@/lib/dashboard/design-system";
 import { tableRowA11yProps } from "@/lib/dashboard/a11y";
+import { iconActionClass } from "@/lib/dashboard/design-system";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
 import { BookingSourceBadge } from "./BookingSourceBadge";
@@ -28,26 +31,42 @@ import {
 type Props = {
   models: BookingCardModel[];
   loading?: boolean;
+  selectedId?: string | null;
   onSelect?: (model: BookingCardModel) => void;
   onEdit?: (model: BookingCardModel) => void;
   onDelete?: (model: BookingCardModel) => void;
 };
 
+const HEADERS = [
+  "Guest",
+  "Room",
+  "Stay",
+  "Guests",
+  "Status",
+  "Payment",
+  "Total",
+  "Actions",
+] as const;
+
 export function BookingsTable({
   models,
   loading = false,
+  selectedId = null,
   onSelect,
   onEdit,
   onDelete,
 }: Props) {
-
   if (loading) {
-    return <TableRowsSkeleton />;
+    return (
+      <TableContainer>
+        <SkeletonRows rows={8} />
+      </TableContainer>
+    );
   }
 
   if (models.length === 0) {
     return (
-      <DashboardEmptyState
+      <EmptyState
         title="No reservations found"
         description="Adjust filters or create a new reservation to populate this workspace."
         icon={<CalendarDays size={18} />}
@@ -56,39 +75,44 @@ export function BookingsTable({
   }
 
   return (
-    <div className="overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-glass)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-      <div className="overflow-x-auto overscroll-x-contain">
-      <table className="w-full min-w-[880px]">
+    <TableContainer scrollable className="shadow-[var(--shell-shadow-sm)]">
+      <table className="w-full min-w-[920px] border-collapse">
         <caption className="sr-only">Reservation list</caption>
-        <thead>
+        <thead className="sticky top-0 z-10 bg-[var(--shell-surface)]">
           <tr className="border-b border-[var(--shell-border)]/50">
-            {["Guest", "Room", "Stay", "Guests", "Status", "Payment", "Total", "Actions"].map(
-              (header) => (
-                <th
-                  key={header}
-                  scope="col"
-                  className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--shell-muted)] last:text-right"
-                >
-                  {header === "Actions" ? (
-                    <span className="sr-only">{header}</span>
-                  ) : (
-                    header
-                  )}
-                </th>
-              )
-            )}
+            {HEADERS.map((header) => (
+              <th
+                key={header}
+                scope="col"
+                className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--shell-muted)] last:text-right"
+              >
+                {header === "Actions" ? (
+                  <span className="sr-only">{header}</span>
+                ) : (
+                  header
+                )}
+              </th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {models.map((model) => {
             const { booking, guest, roomLabel, guestCount, paymentStatus, source } =
               model;
+            const selected = selectedId === booking.id;
 
             return (
               <tr
                 key={booking.id}
                 onClick={() => onSelect?.(model)}
-                className={tableRowClickableClass}
+                aria-selected={selected}
+                className={cn(
+                  "cursor-pointer border-b border-[var(--shell-border)]/30 last:border-b-0",
+                  motionPresets.transitionBase,
+                  "hover:bg-[var(--shell-surface-raised)]/70 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-inset focus-visible:ring-[var(--shell-accent-ring)]",
+                  selected &&
+                    "bg-[var(--shell-nav-active-bg)]/40 shadow-[inset_2px_0_0_0_var(--shell-accent)]"
+                )}
                 {...tableRowA11yProps(
                   `Open reservation for ${booking.guest_name}`,
                   () => onSelect?.(model)
@@ -104,9 +128,11 @@ export function BookingsTable({
                         size="sm"
                       />
                     ) : (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--shell-accent-muted)] text-[11px] font-semibold text-[var(--shell-accent)]">
-                        {getGuestInitials(booking.guest_name)}
-                      </div>
+                      <Avatar className="size-9">
+                        <AvatarFallback className="text-[11px] font-semibold">
+                          {getGuestInitials(booking.guest_name)}
+                        </AvatarFallback>
+                      </Avatar>
                     )}
                     <div className="min-w-0">
                       <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
@@ -124,7 +150,8 @@ export function BookingsTable({
                   {formatBookingDate(booking.check_out)}
                 </td>
                 <td className="px-4 py-3 text-[13px] text-[var(--shell-text)]">
-                  {guestCount}
+                  {booking.adults}+{booking.children}
+                  <span className="sr-only"> guests, total {guestCount}</span>
                 </td>
                 <td className="px-4 py-3">
                   <BookingStatusBadge status={booking.status} />
@@ -144,16 +171,13 @@ export function BookingsTable({
                     >
                       <MoreHorizontal size={16} />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent
-                      align="end"
-                      className="min-w-40 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
-                    >
+                    <DropdownMenuContent align="end">
                       <DropdownMenuItem
                         onClick={(event) => {
                           event.stopPropagation();
                           onEdit?.(model);
                         }}
-                        className="gap-2 rounded-[10px] px-3 py-2 text-[13px]"
+                        className="gap-2"
                       >
                         <Pencil size={14} />
                         Edit
@@ -163,7 +187,7 @@ export function BookingsTable({
                           event.stopPropagation();
                           onDelete?.(model);
                         }}
-                        className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-red-400"
+                        className="gap-2 text-red-400"
                       >
                         <Trash2 size={14} />
                         Delete
@@ -176,7 +200,6 @@ export function BookingsTable({
           })}
         </tbody>
       </table>
-      </div>
-    </div>
+    </TableContainer>
   );
 }

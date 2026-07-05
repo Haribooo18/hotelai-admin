@@ -11,34 +11,45 @@ import type { Room } from "@/types/room";
 import { deleteBooking } from "@/lib/services/bookings.mutations";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import {
-  AdminPageStack,
-  DashboardPageHeader,
-} from "@/components/dashboard/home/DashboardPrimitives";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { useI18n } from "@/lib/i18n";
 
 import { BookingCreateDialog } from "./BookingCreateDialog";
 import { BookingDetailDrawer } from "./BookingDetailDrawer";
 import { BookingEditDialog } from "./BookingEditDialog";
 import { BookingsCards } from "./BookingsCards";
-import {
-  BookingsFilters,
-  type BookingsChipFilter,
-} from "./BookingsFilters";
 import { BookingsExecutiveKpis } from "./BookingsExecutiveKpis";
+import { BookingsOperations } from "./BookingsOperations";
 import { BookingsTable } from "./BookingsTable";
+import { BookingsToolbar } from "./BookingsToolbar";
 import {
   buildBookingCardModel,
   buildBookingCardModels,
   computeBookingOpsKpis,
+  deriveBookingSource,
+  derivePaymentStatus,
   type BookingCardModel,
   type BookingViewMode,
 } from "./booking-ops-metrics";
+import type { BookingsToolbarFilters } from "./bookings-ui";
 
 type Props = {
   bookings: Booking[];
   rooms: Room[];
   guests: Guest[];
+};
+
+const DEFAULT_FILTERS: BookingsToolbarFilters = {
+  search: "",
+  chipFilter: "all",
+  dateFilter: "",
+  status: "",
+  payment: "",
+  source: "",
+  roomId: "",
+  sort: "check_in",
 };
 
 function isNewBooking(booking: Booking): boolean {
@@ -53,10 +64,31 @@ function isStayingOnDate(booking: Booking, date: string): boolean {
   return booking.check_in <= date && booking.check_out > date;
 }
 
+function sortBookings(bookings: Booking[], sort: BookingsToolbarFilters["sort"]) {
+  const sorted = [...bookings];
+
+  sorted.sort((a, b) => {
+    switch (sort) {
+      case "guest":
+        return a.guest_name.localeCompare(b.guest_name);
+      case "total":
+        return Number(b.total_price) - Number(a.total_price);
+      case "status":
+        return a.status.localeCompare(b.status);
+      case "check_in":
+      default:
+        return a.check_in.localeCompare(b.check_in);
+    }
+  });
+
+  return sorted;
+}
+
 export function BookingsPage({ bookings, rooms, guests }: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [refreshing, startRefresh] = useTransition();
 
   const [optimisticBookings, removeOptimistic] = useOptimistic(
     bookings,
@@ -72,27 +104,36 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
   const [selectedModel, setSelectedModel] = useState<BookingCardModel | null>(
     null
   );
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("");
-  const [chipFilter, setChipFilter] = useState<BookingsChipFilter>("all");
-  const [dateFilter, setDateFilter] = useState("");
+  const [filters, setFilters] = useState<BookingsToolbarFilters>(DEFAULT_FILTERS);
   const [viewMode, setViewMode] = useState<BookingViewMode>("cards");
 
   const today = new Date().toISOString().slice(0, 10);
 
   const filteredBookings = useMemo(() => {
-    return optimisticBookings.filter((booking) => {
-      const query = search.toLowerCase();
+    const filtered = optimisticBookings.filter((booking) => {
+      const query = filters.search.toLowerCase();
 
       const matchesSearch =
         booking.guest_name.toLowerCase().includes(query) ||
         booking.guest_email?.toLowerCase().includes(query) ||
         booking.guest_phone?.toLowerCase().includes(query);
 
-      const matchesStatus = status === "" || booking.status === status;
+      const matchesStatus =
+        filters.status === "" || booking.status === filters.status;
+
+      const matchesPayment =
+        filters.payment === "" ||
+        derivePaymentStatus(booking) === filters.payment;
+
+      const matchesSource =
+        filters.source === "" ||
+        deriveBookingSource(booking) === filters.source;
+
+      const matchesRoom =
+        filters.roomId === "" || booking.room_id === filters.roomId;
 
       const matchesChip = (() => {
-        switch (chipFilter) {
+        switch (filters.chipFilter) {
           case "new":
             return isNewBooking(booking);
           case "confirmed":
@@ -107,11 +148,21 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
       })();
 
       const matchesDate =
-        dateFilter === "" || isStayingOnDate(booking, dateFilter);
+        filters.dateFilter === "" || isStayingOnDate(booking, filters.dateFilter);
 
-      return matchesSearch && matchesStatus && matchesChip && matchesDate;
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPayment &&
+        matchesSource &&
+        matchesRoom &&
+        matchesChip &&
+        matchesDate
+      );
     });
-  }, [optimisticBookings, search, status, chipFilter, dateFilter, today]);
+
+    return sortBookings(filtered, filters.sort);
+  }, [optimisticBookings, filters, today]);
 
   const kpis = useMemo(
     () => computeBookingOpsKpis(optimisticBookings, rooms.length),
@@ -124,15 +175,19 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
   );
 
   const loading = false;
+  const selectedId = selectedModel?.booking.id ?? null;
 
   const openDrawer = useCallback((model: BookingCardModel) => {
     setSelectedModel(model);
     setDrawerOpen(true);
   }, []);
 
-  const handleSelect = useCallback((model: BookingCardModel) => {
-    openDrawer(model);
-  }, [openDrawer]);
+  const handleSelect = useCallback(
+    (model: BookingCardModel) => {
+      openDrawer(model);
+    },
+    [openDrawer]
+  );
 
   const handleEdit = useCallback((model: BookingCardModel) => {
     setSelectedModel(model);
@@ -143,6 +198,12 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
     setDrawerOpen(false);
     setDeleteTarget(model);
   }, []);
+
+  function handleRefresh() {
+    startRefresh(() => {
+      router.refresh();
+    });
+  }
 
   function confirmDelete() {
     if (!deleteTarget) return;
@@ -166,45 +227,55 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
   }
 
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.reservations.title")}
         subtitle={t("pages.reservations.subtitle")}
       />
 
-      <BookingsExecutiveKpis kpis={kpis} loading={loading} />
+      <BookingsExecutiveKpis kpis={kpis} loading={loading || refreshing} />
 
-      <BookingsFilters
-        search={search}
-        chipFilter={chipFilter}
-        dateFilter={dateFilter}
-        status={status}
+      <BookingsToolbar
+        filters={filters}
         viewMode={viewMode}
-        onSearchChange={setSearch}
-        onChipFilterChange={setChipFilter}
-        onDateFilterChange={setDateFilter}
-        onStatusChange={setStatus}
+        rooms={rooms}
+        refreshing={refreshing}
+        onFiltersChange={setFilters}
         onViewModeChange={setViewMode}
         onCreateClick={() => setCreateOpen(true)}
+        onRefresh={handleRefresh}
       />
 
-      {viewMode === "cards" ? (
-        <BookingsCards
-          models={cardModels}
-          loading={loading}
-          onSelect={handleSelect}
-          onEdit={handleEdit}
-          onDelete={handleDeleteRequest}
-        />
-      ) : (
-        <BookingsTable
-          models={cardModels}
-          loading={loading}
-          onSelect={handleSelect}
-          onEdit={handleEdit}
-          onDelete={handleDeleteRequest}
-        />
-      )}
+      <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+        {viewMode === "cards" ? (
+          <BookingsCards
+            models={cardModels}
+            loading={loading}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+            onEdit={handleEdit}
+            onDelete={handleDeleteRequest}
+          />
+        ) : (
+          <BookingsTable
+            models={cardModels}
+            loading={loading}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+            onEdit={handleEdit}
+            onDelete={handleDeleteRequest}
+          />
+        )}
+      </GlassSurface>
+
+      <BookingsOperations
+        bookings={optimisticBookings}
+        rooms={rooms}
+        guests={guests}
+        kpis={kpis}
+        loading={loading}
+        onSelect={handleSelect}
+      />
 
       <BookingDetailDrawer
         open={drawerOpen}
@@ -251,6 +322,6 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
         loading={pending}
         onConfirm={confirmDelete}
       />
-    </AdminPageStack>
+    </Stack>
   );
 }

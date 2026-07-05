@@ -1,44 +1,46 @@
 import { cn } from "@/lib/utils";
 
+import { Badge } from "@/components/ui/display/Badge";
+
 import type { BookingPaymentStatus } from "./booking-ops-metrics";
 
 const PAYMENT_META: Record<
   BookingPaymentStatus,
-  { label: string; className: string }
+  { label: string; variant: "success" | "default" | "warning" | "destructive"; className?: string }
 > = {
   paid: {
     label: "Paid",
-    className: "bg-emerald-500/12 text-emerald-500",
+    variant: "success",
   },
   deposit: {
     label: "Deposit paid",
-    className: "bg-sky-500/12 text-sky-400",
+    variant: "default",
+    className: "bg-sky-500/12 text-sky-400 border-sky-500/20",
   },
   pending: {
     label: "Pending",
-    className: "bg-amber-500/12 text-amber-400",
+    variant: "warning",
   },
   void: {
     label: "Void",
-    className: "bg-red-500/12 text-red-400",
+    variant: "destructive",
   },
 };
 
 type Props = {
   status: BookingPaymentStatus;
+  className?: string;
 };
 
-export function PaymentStatusBadge({ status }: Props) {
+export function PaymentStatusBadge({ status, className }: Props) {
   const meta = PAYMENT_META[status];
 
   return (
-    <span
-      className={cn(
-        "inline-flex rounded-full px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.05em]",
-        meta.className
-      )}
+    <Badge
+      variant={meta.variant}
+      className={cn("uppercase", meta.className, className)}
     >
       {meta.label}
-    </span>
+    </Badge>
   );
 }
