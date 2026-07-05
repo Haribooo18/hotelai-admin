@@ -1,20 +1,19 @@
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Sparkles } from "lucide-react";
+
+import { DashboardEmptyState } from "@/components/dashboard/home/DashboardPrimitives";
 
 export function EmptyConversation() {
   return (
-    <div className="flex h-full min-h-[400px] flex-col items-center justify-center gap-4 p-8 text-center">
-      <div className="flex h-16 w-16 items-center justify-center rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)]">
-        <MessageSquare className="h-8 w-8 text-[var(--shell-muted)]" />
-      </div>
+    <div className="flex h-full min-h-[400px] flex-col items-center justify-center bg-[var(--shell-surface)]/50 p-8">
+      <DashboardEmptyState
+        title="Select a conversation"
+        description="Choose a thread from the inbox to review messages, AI analysis, and guest context."
+        icon={<MessageSquare size={18} />}
+      />
 
-      <div>
-        <h2 className="text-lg font-semibold text-[var(--shell-text)]">
-          Select a conversation
-        </h2>
-        <p className="mt-2 max-w-sm text-sm text-[var(--shell-muted)]">
-          Choose a conversation from the list on the left to view messages and
-          manage the guest inquiry.
-        </p>
+      <div className="mt-6 flex items-center gap-2 rounded-full bg-[var(--shell-accent-muted)]/50 px-3 py-1.5 text-[11px] text-[var(--shell-accent)]">
+        <Sparkles size={12} />
+        AI Operations Center
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   Archive,
+  ArrowUpRight,
   Bot,
   CheckCircle,
   Star,
@@ -19,8 +20,10 @@ import {
   updateConversationPriority,
   updateConversationStatus,
 } from "@/lib/services/ai.mutations";
+import { toolbarControlClass } from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
 
-import { Button } from "@/components/ui/button";
+import { streamAIConversation } from "./ai-stream-client";
 
 type Props = {
   conversation: Conversation;
@@ -53,48 +56,10 @@ export function QuickActions({
 
   function handleAIRespond() {
     onAIStreamStart?.();
+
     startTransition(async () => {
       try {
-        const res = await fetch("/api/ai/stream", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ conversation_id: conversation.id }),
-        });
-
-        if (!res.ok || !res.body) {
-          const err = await res.json().catch(() => ({}));
-          throw new Error(
-            (err as { error?: string }).error ?? "AI error"
-          );
-        }
-
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split("\n");
-          buffer = lines.pop() ?? "";
-
-          for (const line of lines) {
-            if (!line.startsWith("data: ")) continue;
-            const payload = line.slice(6).trim();
-            if (payload === "[DONE]") continue;
-            try {
-              const event = JSON.parse(payload) as { type: string; message?: string };
-              if (event.type === "error") {
-                throw new Error(event.message ?? "AI error");
-              }
-            } catch (e) {
-              if (e instanceof SyntaxError) continue;
-              throw e;
-            }
-          }
-        }
-
+        await streamAIConversation(conversation.id);
         router.refresh();
         toast.success("AI responded");
       } catch (error) {
@@ -107,91 +72,109 @@ export function QuickActions({
     });
   }
 
+  const actions = [
+    ...(aiEnabled
+      ? [
+          {
+            key: "ai",
+            label: "AI reply",
+            icon: Bot,
+            onClick: handleAIRespond,
+          },
+        ]
+      : []),
+    {
+      key: "assign",
+      label: "Assign",
+      icon: UserCheck,
+      onClick: () =>
+        run(
+          () =>
+            assignConversation({
+              conversation_id: conversation.id,
+              user_id: currentUserId,
+            }),
+          "Conversation assigned to you"
+        ),
+    },
+    {
+      key: "escalate",
+      label: "Escalate",
+      icon: ArrowUpRight,
+      onClick: () =>
+        run(async () => {
+          await assignConversation({
+            conversation_id: conversation.id,
+            user_id: currentUserId,
+          });
+          await updateConversationPriority({
+            id: conversation.id,
+            priority: "high",
+          });
+        }, "Conversation escalated"),
+    },
+    {
+      key: "resolve",
+      label: "Resolve",
+      icon: CheckCircle,
+      onClick: () =>
+        run(
+          () =>
+            updateConversationStatus({
+              id: conversation.id,
+              status: "resolved",
+            }),
+          "Conversation resolved"
+        ),
+      disabled: conversation.status === "resolved",
+    },
+    {
+      key: "priority",
+      label: "Priority",
+      icon: Star,
+      onClick: () =>
+        run(
+          () =>
+            updateConversationPriority({
+              id: conversation.id,
+              priority: "high",
+            }),
+          "Priority raised"
+        ),
+    },
+    {
+      key: "archive",
+      label: "Archive",
+      icon: Archive,
+      onClick: () =>
+        run(() => archiveConversation(conversation.id), "Conversation archived"),
+    },
+  ].filter((action) => !("hidden" in action && action.hidden));
+
   return (
     <div
       className="flex flex-wrap gap-2"
       role="toolbar"
       aria-label="Quick actions"
     >
-      {aiEnabled && (
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={pending}
-          onClick={handleAIRespond}
-        >
-          <Bot className="mr-1.5 h-4 w-4" />
-          AI reply
-        </Button>
-      )}
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={pending}
-        onClick={() =>
-          run(
-            () =>
-              assignConversation({
-                conversation_id: conversation.id,
-                user_id: currentUserId,
-              }),
-            "Conversation assigned to you"
-          )
-        }
-      >
-        <UserCheck className="mr-1.5 h-4 w-4" />
-        Assign to me
-      </Button>
-
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={pending || conversation.status === "resolved"}
-        onClick={() =>
-          run(
-            () =>
-              updateConversationStatus({
-                id: conversation.id,
-                status: "resolved",
-              }),
-            "Conversation resolved"
-          )
-        }
-      >
-        <CheckCircle className="mr-1.5 h-4 w-4" />
-        Resolve
-      </Button>
-
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={pending}
-        onClick={() =>
-          run(
-            () =>
-              updateConversationPriority({
-                id: conversation.id,
-                priority: "high",
-              }),
-            "Priority raised"
-          )
-        }
-      >
-        <Star className="mr-1.5 h-4 w-4" />
-        High priority
-      </Button>
-
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={pending}
-        onClick={() =>
-          run(() => archiveConversation(conversation.id), "Conversation archived")
-        }
-      >
-        <Archive className="mr-1.5 h-4 w-4" />
-        Archive
-      </Button>
+      {actions.map((action) => {
+        const Icon = action.icon;
+        return (
+          <button
+            key={action.key}
+            type="button"
+            disabled={pending || action.disabled}
+            onClick={action.onClick}
+            className={cn(
+              toolbarControlClass,
+              "h-8 px-2.5 text-[12px] disabled:opacity-50"
+            )}
+          >
+            <Icon size={14} />
+            {action.label}
+          </button>
+        );
+      })}
     </div>
   );
 }

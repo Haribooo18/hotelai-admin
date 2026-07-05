@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Conversation } from "@/types/conversation";
@@ -24,12 +23,21 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
+
+import { AIContextPanel } from "./AIContextPanel";
+import { AIExecutiveKpis } from "./AIExecutiveKpis";
+import { AIInboxToolbar } from "./AIInboxToolbar";
 import { ConversationList } from "./ConversationList";
 import { ConversationView } from "./ConversationView";
 import { EmptyConversation } from "./EmptyConversation";
-import { KnowledgePanel } from "./KnowledgePanel";
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
-import { useI18n } from "@/lib/i18n";
+import {
+  computeAIOpsKpis,
+  filterConversations,
+  type AIInboxFilters,
+} from "./ai-ops-metrics";
+import { streamAIConversation } from "./ai-stream-client";
 
 type Props = {
   conversations: Conversation[];
@@ -40,6 +48,15 @@ type Props = {
   currentUserId: string;
   aiActions?: import("@/types/ai-action").AIAction[];
   aiEnabled?: boolean;
+};
+
+const DEFAULT_FILTERS: AIInboxFilters = {
+  search: "",
+  status: "",
+  channel: "",
+  priority: "",
+  assigned: "",
+  date: "",
 };
 
 export function AIInboxPage({
@@ -57,10 +74,22 @@ export function AIInboxPage({
   const searchParams = useSearchParams();
   const selectedId = searchParams.get("conversation");
 
+  const [filters, setFilters] = useState<AIInboxFilters>(DEFAULT_FILTERS);
   const [createOpen, setCreateOpen] = useState(false);
   const [guestName, setGuestName] = useState("");
   const [channel, setChannel] = useState("website");
   const [pending, startTransition] = useTransition();
+  const [refreshing, startRefresh] = useTransition();
+
+  const kpis = useMemo(
+    () => computeAIOpsKpis(conversations),
+    [conversations]
+  );
+
+  const filteredConversations = useMemo(
+    () => filterConversations(conversations, filters, currentUserId),
+    [conversations, filters, currentUserId]
+  );
 
   function handleSelect(id: string) {
     router.push(`/ai?conversation=${id}`);
@@ -68,6 +97,29 @@ export function AIInboxPage({
 
   function handleBack() {
     router.push("/ai");
+  }
+
+  function handleRefresh() {
+    startRefresh(() => {
+      router.refresh();
+    });
+  }
+
+  function handleRegenerate() {
+    if (!selectedConversation || !aiEnabled) return;
+
+    startTransition(async () => {
+      try {
+        await streamAIConversation(selectedConversation.id);
+        router.refresh();
+        toast.success("AI response regenerated");
+      } catch (error) {
+        console.error(error);
+        toast.error(
+          error instanceof Error ? error.message : "Failed to regenerate"
+        );
+      }
+    });
   }
 
   function handleCreate(e: React.FormEvent) {
@@ -99,19 +151,23 @@ export function AIInboxPage({
   }
 
   return (
-    <AdminPageStack>
+    <AdminPageStack className="ds-page-enter">
       <DashboardPageHeader
         title={t("pages.messages.title")}
         subtitle={t("pages.messages.subtitle")}
-        actions={
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            New conversation
-          </Button>
-        }
       />
 
-      <div className="flex h-[calc(100vh-12rem)] min-h-[480px] overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
+      <AIExecutiveKpis kpis={kpis} loading={refreshing} />
+
+      <AIInboxToolbar
+        filters={filters}
+        refreshing={refreshing}
+        onFiltersChange={setFilters}
+        onCreateClick={() => setCreateOpen(true)}
+        onRefresh={handleRefresh}
+      />
+
+      <div className="flex h-[calc(100vh-18rem)] min-h-[520px] overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
         <div
           className={
             selectedId
@@ -120,7 +176,7 @@ export function AIInboxPage({
           }
         >
           <ConversationList
-            conversations={conversations}
+            conversations={filteredConversations}
             selectedId={selectedId}
             onSelect={handleSelect}
           />
@@ -129,47 +185,45 @@ export function AIInboxPage({
         <main
           className={
             selectedId
-              ? "flex min-w-0 flex-1 flex-col"
-              : "hidden min-w-0 flex-1 flex-col md:flex"
+              ? "flex min-w-0 flex-1 flex-col border-r border-[var(--shell-border)]/50"
+              : "hidden min-w-0 flex-1 flex-col border-r border-[var(--shell-border)]/50 md:flex"
           }
         >
-          {selectedId && (
-            <button
-              type="button"
-              onClick={handleBack}
-              className="flex items-center gap-2 border-b border-[var(--shell-border)] px-4 py-2 text-sm text-[var(--shell-muted)] md:hidden"
-            >
-              <ArrowLeft size={16} />
-              Back to list
-            </button>
-          )}
-
           {selectedConversation ? (
             <ConversationView
               conversation={selectedConversation}
               messages={messages}
-              lead={lead}
               currentUserId={currentUserId}
-              aiActions={aiActions}
               aiEnabled={aiEnabled}
+              onBack={handleBack}
+              showBack={Boolean(selectedId)}
             />
           ) : (
             <EmptyConversation />
           )}
         </main>
 
-        <KnowledgePanel articles={articles} />
+        <AIContextPanel
+          conversation={selectedConversation}
+          messages={messages}
+          lead={lead}
+          articles={articles}
+          aiActions={aiActions}
+          currentUserId={currentUserId}
+          aiEnabled={aiEnabled}
+          onRegenerate={aiEnabled ? handleRegenerate : undefined}
+        />
       </div>
 
       <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent className="sm:max-w-md">
+        <SheetContent className="border-0 bg-[var(--shell-content)] sm:max-w-md">
           <SheetHeader>
             <SheetTitle>New conversation</SheetTitle>
           </SheetHeader>
 
           <form onSubmit={handleCreate} className="mt-6 space-y-4 px-6 pb-6">
             <div className="space-y-1.5">
-              <label htmlFor="guest_name" className="text-sm text-[var(--shell-muted)]">
+              <label htmlFor="guest_name" className="text-[13px] text-[var(--shell-muted)]">
                 Guest name
               </label>
               <Input
@@ -177,11 +231,12 @@ export function AIInboxPage({
                 value={guestName}
                 onChange={(e) => setGuestName(e.target.value)}
                 required
+                className="rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="channel" className="text-sm text-[var(--shell-muted)]">
+              <label htmlFor="channel" className="text-[13px] text-[var(--shell-muted)]">
                 Channel
               </label>
               <Select
@@ -193,8 +248,12 @@ export function AIInboxPage({
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Creating…" : "Create"}
+            <Button
+              type="submit"
+              className="h-[var(--ds-input-height)] w-full rounded-[var(--ds-radius-sm)] bg-emerald-600 hover:bg-emerald-500"
+              disabled={pending}
+            >
+              {pending ? "Creating…" : "Create conversation"}
             </Button>
           </form>
         </SheetContent>

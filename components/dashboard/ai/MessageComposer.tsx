@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Send, User } from "lucide-react";
 import { toast } from "sonner";
+
+import type { Conversation } from "@/types/conversation";
 
 import { sendMessage } from "@/lib/services/ai.mutations";
 import { sendGuestMessage } from "@/lib/services/ai-completion.service";
@@ -11,9 +13,15 @@ import { sendMessageSchema } from "@/lib/validations/ai";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { chipClass, chipIdleClass } from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
+
+import { getSuggestedReplies } from "./ai-ops-metrics";
+import { streamAIConversation } from "./ai-stream-client";
 
 type Props = {
   conversationId: string;
+  conversation: Conversation;
   aiEnabled?: boolean;
   onSent?: () => void;
   onStreamDelta?: (text: string) => void;
@@ -22,6 +30,7 @@ type Props = {
 
 export function MessageComposer({
   conversationId,
+  conversation,
   aiEnabled = false,
   onSent,
   onStreamDelta,
@@ -34,59 +43,15 @@ export function MessageComposer({
   const [asGuest, setAsGuest] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const suggestions = useMemo(
+    () => getSuggestedReplies(conversation),
+    [conversation]
+  );
+
   async function streamAIResponse() {
-    const res = await fetch("/api/ai/stream", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation_id: conversationId }),
+    await streamAIConversation(conversationId, {
+      onDelta: onStreamDelta,
     });
-
-    if (!res.ok || !res.body) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error((err as { error?: string }).error ?? "AI error");
-    }
-
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-    let buffer = "";
-    let accumulated = "";
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
-
-      for (const line of lines) {
-        if (!line.startsWith("data: ")) continue;
-        const payload = line.slice(6).trim();
-        if (payload === "[DONE]") continue;
-        try {
-          const event = JSON.parse(payload) as {
-            type: string;
-            delta?: string;
-            content?: string;
-            message?: string;
-          };
-          if (event.type === "text_delta" && event.delta) {
-            accumulated += event.delta;
-            onStreamDelta?.(accumulated);
-          }
-          if (event.type === "text_final" && event.content) {
-            accumulated = event.content;
-            onStreamDelta?.(accumulated);
-          }
-          if (event.type === "error") {
-            throw new Error(event.message ?? "AI error");
-          }
-        } catch (e) {
-          if (e instanceof SyntaxError) continue;
-          throw e;
-        }
-      }
-    }
-
     onStreamEnd?.();
   }
 
@@ -153,9 +118,24 @@ export function MessageComposer({
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-4"
+      className="border-t border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/92 p-3 backdrop-blur-xl"
       noValidate
     >
+      {suggestions.length > 0 ? (
+        <div className="mb-2 flex flex-wrap gap-1.5">
+          {suggestions.map((suggestion) => (
+            <button
+              key={suggestion}
+              type="button"
+              onClick={() => setBody(suggestion)}
+              className={cn(chipClass, chipIdleClass, "rounded-full px-3 py-1 text-[11px]")}
+            >
+              {suggestion}
+            </button>
+          ))}
+        </div>
+      ) : null}
+
       <label htmlFor="message-body" className="sr-only">
         Message
       </label>
@@ -169,11 +149,11 @@ export function MessageComposer({
             ? "Message as guest (test)…"
             : isInternal
               ? "Internal note (not visible to guest)…"
-              : "Message to guest…"
+              : "Write a reply…"
         }
         aria-invalid={Boolean(error)}
         aria-describedby={error ? "message-error" : undefined}
-        className="min-h-20"
+        className="min-h-[88px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             e.preventDefault();
@@ -182,15 +162,15 @@ export function MessageComposer({
         }}
       />
 
-      {error && (
-        <p id="message-error" className="mt-1 text-sm text-red-400">
+      {error ? (
+        <p id="message-error" className="mt-1 text-[12px] text-red-400">
           {error}
         </p>
-      )}
+      ) : null}
 
-      <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
+      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
             <input
               type="checkbox"
               checked={isInternal}
@@ -199,12 +179,12 @@ export function MessageComposer({
                 if (e.target.checked) setAsGuest(false);
               }}
               disabled={asGuest}
-              className="h-4 w-4 rounded border-[var(--shell-border)] accent-emerald-600"
+              className="h-3.5 w-3.5 rounded border-[var(--shell-border)] accent-emerald-600"
             />
             Internal note
           </label>
 
-          <label className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
+          <label className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
             <input
               type="checkbox"
               checked={asGuest}
@@ -212,15 +192,19 @@ export function MessageComposer({
                 setAsGuest(e.target.checked);
                 if (e.target.checked) setIsInternal(false);
               }}
-              className="h-4 w-4 rounded border-[var(--shell-border)] accent-emerald-600"
+              className="h-3.5 w-3.5 rounded border-[var(--shell-border)] accent-emerald-600"
             />
-            <User size={14} />
+            <User size={13} />
             As guest
           </label>
         </div>
 
-        <Button type="submit" disabled={pending || !body.trim()}>
-          <Send className="mr-2 h-4 w-4" />
+        <Button
+          type="submit"
+          disabled={pending || !body.trim()}
+          className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
+        >
+          <Send size={14} />
           {pending ? "Sending…" : "Send"}
         </Button>
       </div>
