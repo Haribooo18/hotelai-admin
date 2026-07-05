@@ -8,8 +8,9 @@ import type {
 } from "../types";
 import type { AITokenUsage } from "@/types/ai-settings";
 
+import { providerCircuitBreaker } from "../circuit-breaker";
 import { EMPTY_TOKEN_USAGE, mergeTokenUsage } from "../cost";
-import { withRetry, withTimeout } from "../retry";
+import { createAbortDeadline, withRetry, withTimeout } from "../retry";
 
 export type OpenAIProviderConfig = {
   apiKey: string;
@@ -87,6 +88,11 @@ function extractUsage(raw: unknown): AITokenUsage {
   };
 }
 
+function extractFinishReason(raw: unknown): string | undefined {
+  const status = (raw as { status?: string })?.status;
+  return typeof status === "string" ? status : undefined;
+}
+
 function parseToolCalls(output: unknown[]): AIToolCall[] {
   const calls: AIToolCall[] = [];
 
@@ -136,27 +142,55 @@ export function createOpenAIProvider(
     return clientPromise;
   }
 
+  async function callResponsesApi(
+    request: AIRequest,
+    options: AIProviderOptions | undefined,
+    extra?: { input?: ResponseInputItem[] }
+  ) {
+    const client = await getClient();
+    const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
+    const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;
+    const maxRetries = options?.maxRetries ?? config.defaultMaxRetries ?? 2;
+    let retryCount = 0;
+
+    const deadline = createAbortDeadline(timeoutMs, options?.signal);
+
+    try {
+      return await providerCircuitBreaker.execute("openai", () =>
+        withRetry(
+          async () => {
+            const response = await client.responses.create(
+              {
+                model,
+                ...resolveRequestParams(request, options),
+                ...(extra?.input ? { input: extra.input } : {}),
+              },
+              { signal: deadline.signal }
+            );
+
+            return { response, model, retryCount };
+          },
+          {
+            maxRetries,
+            signal: options?.signal,
+            onRetry: () => {
+              retryCount += 1;
+            },
+          }
+        )
+      );
+    } finally {
+      deadline.cleanup();
+    }
+  }
+
   return {
     name: "openai",
 
     async complete(request, options?: AIProviderOptions) {
-      const client = await getClient();
-
-      const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
-      const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;
-      const maxRetries = options?.maxRetries ?? config.defaultMaxRetries ?? 2;
-
-      const response = await withRetry(
-        async () =>
-          withTimeout(
-            client.responses.create({
-              model,
-              ...resolveRequestParams(request, options),
-            }),
-            timeoutMs,
-            options?.signal
-          ),
-        { maxRetries, signal: options?.signal }
+      const { response, model, retryCount } = await callResponsesApi(
+        request,
+        options
       );
 
       const output = (response.output ?? []) as unknown[];
@@ -172,116 +206,144 @@ export function createOpenAIProvider(
           model: response.model ?? model,
           request_id: response.id,
           usage: extractUsage(response),
+          finish_reason: extractFinishReason(response),
           provider: "openai",
+          retry_count: retryCount,
         },
       } satisfies AIResponse;
     },
 
     async *stream(request, options?: AIProviderOptions) {
       const client = await getClient();
-
       const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
       const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;
+      const maxRetries = options?.maxRetries ?? config.defaultMaxRetries ?? 2;
+      let retryCount = 0;
 
-      const stream = await withTimeout(
-        client.responses.create({
-          model,
-          ...resolveRequestParams(request, options),
-          stream: true,
-        }),
-        timeoutMs,
-        options?.signal
-      );
+      const streamDeadline = createAbortDeadline(timeoutMs * 2, options?.signal);
 
-      let usage = { ...EMPTY_TOKEN_USAGE };
-      let requestId: string | undefined;
-      let modelUsed = model;
-      const toolCalls: AIToolCall[] = [];
-      const toolArgs = new Map<string, { name: string; args: string }>();
+      try {
+        const stream = await providerCircuitBreaker.execute("openai", () =>
+          withRetry(
+            () =>
+              withTimeout(
+                client.responses.create(
+                  {
+                    model,
+                    ...resolveRequestParams(request, options),
+                    stream: true,
+                  },
+                  { signal: streamDeadline.signal }
+                ),
+                timeoutMs,
+                options?.signal
+              ),
+            {
+              maxRetries,
+              signal: options?.signal,
+              onRetry: () => {
+                retryCount += 1;
+              },
+            }
+          )
+        );
 
-      for await (const event of stream) {
-        if (options?.signal?.aborted) {
-          break;
-        }
+        let usage = { ...EMPTY_TOKEN_USAGE };
+        let requestId: string | undefined;
+        let modelUsed = model;
+        let finishReason: string | undefined;
+        const toolCalls: AIToolCall[] = [];
+        const toolArgs = new Map<string, { name: string; args: string }>();
 
-        const ev = event as unknown as Record<string, unknown>;
-
-        if (ev.type === "response.created") {
-          const resp = ev.response as Record<string, unknown> | undefined;
-          requestId = resp?.id as string | undefined;
-          modelUsed = (resp?.model as string) ?? model;
-        }
-
-        if (ev.type === "response.output_text.delta") {
-          const delta = ev.delta as string;
-          if (delta) {
-            yield { type: "text_delta", delta } satisfies AIStreamEvent;
+        for await (const event of stream) {
+          if (options?.signal?.aborted || streamDeadline.signal.aborted) {
+            break;
           }
-        }
 
-        if (ev.type === "response.output_item.added") {
-          const item = ev.item as Record<string, unknown> | undefined;
-          if (item?.type === "function_call") {
-            const id = String(item.call_id ?? item.id ?? "");
-            toolArgs.set(id, {
-              name: String(item.name ?? ""),
-              args: String(item.arguments ?? ""),
+          const ev = event as unknown as Record<string, unknown>;
+
+          if (ev.type === "response.created") {
+            const resp = ev.response as Record<string, unknown> | undefined;
+            requestId = resp?.id as string | undefined;
+            modelUsed = (resp?.model as string) ?? model;
+          }
+
+          if (ev.type === "response.output_text.delta") {
+            const delta = ev.delta as string;
+            if (delta) {
+              yield { type: "text_delta", delta } satisfies AIStreamEvent;
+            }
+          }
+
+          if (ev.type === "response.output_item.added") {
+            const item = ev.item as Record<string, unknown> | undefined;
+            if (item?.type === "function_call") {
+              const id = String(item.call_id ?? item.id ?? "");
+              toolArgs.set(id, {
+                name: String(item.name ?? ""),
+                args: String(item.arguments ?? ""),
+              });
+            }
+          }
+
+          if (ev.type === "response.function_call_arguments.delta") {
+            const itemId = String(ev.item_id ?? "");
+            const existing = toolArgs.get(itemId) ?? { name: "", args: "" };
+            existing.args += String(ev.delta ?? "");
+            toolArgs.set(itemId, existing);
+          }
+
+          if (ev.type === "response.function_call_arguments.done") {
+            const item = ev.item as Record<string, unknown> | undefined;
+            const id = String(item?.call_id ?? item?.id ?? "");
+            let args: Record<string, unknown> = {};
+            try {
+              args = JSON.parse(String(item?.arguments ?? "{}")) as Record<
+                string,
+                unknown
+              >;
+            } catch {
+              args = {};
+            }
+            toolCalls.push({
+              id,
+              name: String(item?.name ?? ""),
+              arguments: args,
             });
           }
-        }
 
-        if (ev.type === "response.function_call_arguments.delta") {
-          const itemId = String(ev.item_id ?? "");
-          const existing = toolArgs.get(itemId) ?? { name: "", args: "" };
-          existing.args += String(ev.delta ?? "");
-          toolArgs.set(itemId, existing);
-        }
+          if (ev.type === "response.completed") {
+            const resp = ev.response as Record<string, unknown> | undefined;
+            usage = mergeTokenUsage(usage, extractUsage(resp));
+            requestId = (resp?.id as string) ?? requestId;
+            modelUsed = (resp?.model as string) ?? modelUsed;
+            finishReason = extractFinishReason(resp);
 
-        if (ev.type === "response.function_call_arguments.done") {
-          const item = ev.item as Record<string, unknown> | undefined;
-          const id = String(item?.call_id ?? item?.id ?? "");
-          let args: Record<string, unknown> = {};
-          try {
-            args = JSON.parse(String(item?.arguments ?? "{}")) as Record<
-              string,
-              unknown
-            >;
-          } catch {
-            args = {};
-          }
-          toolCalls.push({
-            id,
-            name: String(item?.name ?? ""),
-            arguments: args,
-          });
-        }
-
-        if (ev.type === "response.completed") {
-          const resp = ev.response as Record<string, unknown> | undefined;
-          usage = mergeTokenUsage(usage, extractUsage(resp));
-          requestId = (resp?.id as string) ?? requestId;
-          modelUsed = (resp?.model as string) ?? modelUsed;
-
-          if (toolCalls.length === 0 && resp?.output) {
-            toolCalls.push(...parseToolCalls(resp.output as unknown[]));
+            if (toolCalls.length === 0 && resp?.output) {
+              toolCalls.push(...parseToolCalls(resp.output as unknown[]));
+            }
           }
         }
-      }
 
-      yield {
-        type: "completed",
-        response: {
-          content: null,
-          toolCalls: options?.signal?.aborted ? [] : toolCalls,
-          metadata: {
-            model: modelUsed,
-            request_id: requestId,
-            usage,
-            provider: "openai",
-            aborted: options?.signal?.aborted ?? false,
+        yield {
+          type: "completed",
+          response: {
+            content: null,
+            toolCalls: options?.signal?.aborted ? [] : toolCalls,
+            metadata: {
+              model: modelUsed,
+              request_id: requestId,
+              usage,
+              finish_reason: finishReason,
+              provider: "openai",
+              aborted: options?.signal?.aborted ?? streamDeadline.signal.aborted,
+              retry_count: retryCount,
+            },
           },
-        },
-      } satisfies AIStreamEvent;
+        } satisfies AIStreamEvent;
+      } finally {
+        streamDeadline.cleanup();
+      }
     },
 
     async completeWithToolOutputs(
@@ -289,32 +351,16 @@ export function createOpenAIProvider(
       toolOutputs: { call_id: string; output: string }[],
       options?: AIProviderOptions
     ): Promise<AIResponse> {
-      const client = await getClient();
-
-      const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
-      const timeoutMs = options?.timeoutMs ?? config.defaultTimeoutMs ?? 60_000;
-      const maxRetries = options?.maxRetries ?? config.defaultMaxRetries ?? 2;
-
-      const response = await withRetry(
-        async () =>
-          withTimeout(
-            client.responses.create({
-              model,
-              ...resolveRequestParams(request, options),
-              input: [
-                ...buildInput(request),
-                ...toolOutputs.map((t) => ({
-                  type: "function_call_output" as const,
-                  call_id: t.call_id,
-                  output: t.output,
-                })),
-              ],
-            }),
-            timeoutMs,
-            options?.signal
-          ),
-        { maxRetries, signal: options?.signal }
-      );
+      const { response, model, retryCount } = await callResponsesApi(request, options, {
+        input: [
+          ...buildInput(request),
+          ...toolOutputs.map((t) => ({
+            type: "function_call_output" as const,
+            call_id: t.call_id,
+            output: t.output,
+          })),
+        ],
+      });
 
       const output = (response.output ?? []) as unknown[];
       const toolCalls = parseToolCalls(output);
@@ -328,7 +374,9 @@ export function createOpenAIProvider(
           model: response.model ?? model,
           request_id: response.id,
           usage: extractUsage(response),
+          finish_reason: extractFinishReason(response),
           provider: "openai",
+          retry_count: retryCount,
         },
       };
     },

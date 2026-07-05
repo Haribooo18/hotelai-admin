@@ -3,6 +3,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { aiOrchestrator } from "@/lib/ai/orchestrator";
 import type { OrchestratorStreamEvent } from "@/lib/ai/orchestrator";
 import { DEFAULT_AI_SETTINGS } from "@/lib/ai/config";
+import { patchRequestContext } from "@/lib/ops/request-context";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Conversation } from "@/types/conversation";
 import type { HotelAISettings } from "@/types/ai-settings";
@@ -199,6 +200,12 @@ export async function generateAIResponseForHotel(
   if (!conversation) {
     throw new Error("Диалог не найден");
   }
+
+  patchRequestContext({
+    hotelId,
+    conversationId,
+    provider: "openai",
+  });
 
   await setAITyping(supabase, hotelId, conversationId, true);
   await setConversationAiAnswering(supabase, hotelId, conversationId);

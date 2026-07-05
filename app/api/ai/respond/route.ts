@@ -2,38 +2,51 @@ import { NextResponse } from "next/server";
 
 import { generateAIResponse } from "@/lib/services/ai-completion.service";
 import { aiRespondSchema } from "@/lib/validations/ai-settings";
+import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
+import { AuthenticationError, ValidationError } from "@/lib/ops/errors";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentHotelId } from "@/lib/tenant";
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  return runApiRoute(
+    request,
+    {
+      module: "api.ai",
+      operation: "respond",
+      endpoint: "/api/ai/respond",
+      gracefulAiFailure: true,
+    },
+    async () => {
+      const supabase = await createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: "Не авторизован" }, { status: 401 });
-  }
+      if (!user) {
+        throw new AuthenticationError();
+      }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return NextResponse.json({ error: "Некорректный JSON" }, { status: 400 });
-  }
+      const hotelId = await getCurrentHotelId();
+      bindApiContext({ userId: user.id, hotelId });
 
-  const parsed = aiRespondSchema.safeParse(body);
-  if (!parsed.success) {
-    return NextResponse.json(
-      { error: parsed.error.issues[0]?.message ?? "Некорректные данные" },
-      { status: 400 }
-    );
-  }
+      let body: unknown;
+      try {
+        body = await request.json();
+      } catch {
+        throw new ValidationError("Некорректный JSON");
+      }
 
-  try {
-    const result = await generateAIResponse(parsed.data.conversation_id);
-    return NextResponse.json(result);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Ошибка AI";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+      const parsed = aiRespondSchema.safeParse(body);
+      if (!parsed.success) {
+        throw new ValidationError(
+          parsed.error.issues[0]?.message ?? "Некорректные данные"
+        );
+      }
+
+      bindApiContext({ conversationId: parsed.data.conversation_id, provider: "openai" });
+
+      const result = await generateAIResponse(parsed.data.conversation_id);
+      return NextResponse.json(result);
+    }
+  );
 }

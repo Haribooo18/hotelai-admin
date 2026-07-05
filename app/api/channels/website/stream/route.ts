@@ -16,6 +16,8 @@ import {
 } from "@/lib/channels/website/cors";
 import { serializeWebsiteEvent } from "@/lib/channels/website/sender";
 import type { WebsiteOutboundEvent } from "@/lib/channels/website/types";
+import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
+import { opsMetrics } from "@/lib/ops/metrics";
 
 export const runtime = "nodejs";
 
@@ -35,91 +37,112 @@ export async function OPTIONS(request: Request) {
 }
 
 export async function POST(request: Request) {
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    const corsHeaders = buildWebsiteWidgetCorsHeaders(
-      evaluateWebsiteWidgetOrigin(request.headers.get("origin")).allowed
-        ? request.headers.get("origin")
-        : null
-    );
-    return jsonWebsiteError(400, "Invalid JSON", corsHeaders);
-  }
-
-  const preflight = await preflightWebsiteStreamRequest(request, body);
-  if (!preflight.ok) {
-    return jsonWebsiteError(
-      preflight.status,
-      preflight.error,
-      preflight.corsHeaders,
-      preflight.retryAfterMs
-    );
-  }
-
-  const { frame, corsHeaders, sessionId, hotelId } = preflight;
-  logWebsiteWidget("connection_start", {
-    session_id: sessionId,
-    hotel_id: hotelId,
-    ip: preflight.ipAddress,
-  });
-
-  const encoder = new TextEncoder();
-  let disconnectReason = "completed";
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const send = (event: WebsiteOutboundEvent) => {
-        if (request.signal.aborted) return;
-        controller.enqueue(
-          encoder.encode(`data: ${serializeWebsiteEvent(event)}\n\n`)
-        );
-      };
-
+  return runApiRoute(
+    request,
+    {
+      module: "api.website",
+      operation: "stream",
+      endpoint: "/api/channels/website/stream",
+    },
+    async () => {
+      let body: unknown;
       try {
-        await handleWebsiteStream(frame, send, request.signal);
-        if (!request.signal.aborted) {
-          controller.enqueue(encoder.encode("data: [DONE]\n\n"));
-        } else {
-          disconnectReason = "aborted";
-        }
+        body = await request.json();
       } catch {
-        if (request.signal.aborted) {
-          disconnectReason = "aborted";
-        } else {
-          disconnectReason = "error";
-          send({ type: "error", message: PUBLIC_WEBSITE_ERROR_MESSAGE });
-        }
-      } finally {
-        logWebsiteWidget(
-          request.signal.aborted ? "disconnect" : "connection_end",
-          {
+        const corsHeaders = buildWebsiteWidgetCorsHeaders(
+          evaluateWebsiteWidgetOrigin(request.headers.get("origin")).allowed
+            ? request.headers.get("origin")
+            : null
+        );
+        return jsonWebsiteError(400, "Invalid JSON", corsHeaders);
+      }
+
+      const preflight = await preflightWebsiteStreamRequest(request, body);
+      if (!preflight.ok) {
+        return jsonWebsiteError(
+          preflight.status,
+          preflight.error,
+          preflight.corsHeaders,
+          preflight.retryAfterMs
+        );
+      }
+
+      const { frame, corsHeaders, sessionId, hotelId, ipAddress } = preflight;
+      bindApiContext({
+        hotelId,
+        conversationId: sessionId,
+        provider: "openai",
+      });
+
+      logWebsiteWidget("connection_start", {
+        session_id: sessionId,
+        hotel_id: hotelId,
+        ip: ipAddress,
+      });
+
+      const encoder = new TextEncoder();
+      let disconnectReason = "completed";
+      const streamStartedAt = Date.now();
+
+      const stream = new ReadableStream({
+        async start(controller) {
+          const send = (event: WebsiteOutboundEvent) => {
+            if (request.signal.aborted) return;
+            controller.enqueue(
+              encoder.encode(`data: ${serializeWebsiteEvent(event)}\n\n`)
+            );
+          };
+
+          try {
+            await handleWebsiteStream(frame, send, request.signal);
+            if (!request.signal.aborted) {
+              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            } else {
+              disconnectReason = "aborted";
+            }
+          } catch {
+            if (request.signal.aborted) {
+              disconnectReason = "aborted";
+            } else {
+              disconnectReason = "error";
+              send({ type: "error", message: PUBLIC_WEBSITE_ERROR_MESSAGE });
+            }
+          } finally {
+            opsMetrics.recordStreamDuration(
+              "website_sse",
+              Date.now() - streamStartedAt
+            );
+            logWebsiteWidget(
+              request.signal.aborted ? "disconnect" : "connection_end",
+              {
+                session_id: sessionId,
+                hotel_id: hotelId,
+                reason: disconnectReason,
+              }
+            );
+            await cleanupWebsiteStream(sessionId);
+            controller.close();
+          }
+        },
+        async cancel() {
+          disconnectReason = "cancelled";
+          logWebsiteWidget("disconnect", {
             session_id: sessionId,
             hotel_id: hotelId,
             reason: disconnectReason,
-          }
-        );
-        await cleanupWebsiteStream(sessionId);
-        controller.close();
-      }
-    },
-    async cancel() {
-      disconnectReason = "cancelled";
-      logWebsiteWidget("disconnect", {
-        session_id: sessionId,
-        hotel_id: hotelId,
-        reason: disconnectReason,
+          });
+          await cleanupWebsiteStream(sessionId);
+        },
       });
-      await cleanupWebsiteStream(sessionId);
-    },
-  });
 
-  return new Response(stream, {
-    headers: {
-      ...corsHeaders,
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache",
-      Connection: "keep-alive",
-    },
-  });
+      return new Response(stream, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          Connection: "keep-alive",
+        },
+      });
+    }
+  );
 }

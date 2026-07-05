@@ -23,6 +23,8 @@ export type AIRequest = {
   tools: AIToolDefinition[];
   language: string;
   transcript: string;
+  promptVersion?: string;
+  systemPromptHash?: string;
 };
 
 export type AIResponse = {

@@ -1,5 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { RepositoryError } from "@/lib/ops/errors";
+
 import type { TenantContext } from "@/lib/tenant/context";
 
 export type RepositoryContext = {
@@ -19,11 +21,15 @@ export type SupabaseErrorShape = {
 };
 
 export function throwRepositoryError(error: SupabaseErrorShape): never {
-  throw new Error(
-    `${error.code ?? "error"}: ${error.message}${
-      error.details ? ` (${error.details})` : ""
-    }`
-  );
+  const code = error.code ?? "error";
+  const message = `${code}: ${error.message}${
+    error.details ? ` (${error.details})` : ""
+  }`;
+
+  throw new RepositoryError(message, {
+    supabaseCode: code,
+    details: error.details ?? undefined,
+  });
 }
 
 export function createRepositoryContext(

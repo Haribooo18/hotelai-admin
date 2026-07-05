@@ -1,7 +1,17 @@
+import { getOpenAIDefaultModel, isOpenAIConfigured } from "@/lib/ai/config";
+import { getAIServices } from "@/lib/ai/container";
+
 import { collectEnvironmentChecks } from "./env";
 
 export type StartupCheck = {
-  id: "supabase" | "openai" | "stripe" | "telegram" | "website_chat";
+  id:
+    | "supabase"
+    | "openai"
+    | "stripe"
+    | "telegram"
+    | "website_chat"
+    | "ai_provider"
+    | "repositories";
   name: string;
   configured: boolean;
   required: boolean;
@@ -13,6 +23,10 @@ export type StartupDiagnostics = {
   environment: string;
   checks: StartupCheck[];
   warnings: string[];
+  runtime: {
+    nodeVersion: string;
+    openaiModel: string;
+  };
 };
 
 let lastStartupDiagnostics: StartupDiagnostics | null = null;
@@ -45,6 +59,38 @@ export function collectStartupDiagnostics(): StartupDiagnostics {
     };
   });
 
+  const aiProviderConfigured = (() => {
+    if (!isOpenAIConfigured()) return false;
+    try {
+      return getAIServices().provider.name !== "unconfigured";
+    } catch {
+      return false;
+    }
+  })();
+
+  checks.push({
+    id: "ai_provider",
+    name: "AI Provider",
+    configured: aiProviderConfigured,
+    required: false,
+    message: aiProviderConfigured
+      ? `AI provider ready (${getAIServices().provider.name})`
+      : isOpenAIConfigured()
+        ? "AI provider container not initialized"
+        : "OpenAI API key not configured",
+  });
+
+  const repositoriesConfigured = env.supabase.configured;
+  checks.push({
+    id: "repositories",
+    name: "Repositories",
+    configured: repositoriesConfigured,
+    required: true,
+    message: repositoriesConfigured
+      ? "Repository layer initialized"
+      : "Supabase client required for repositories",
+  });
+
   const warnings = checks
     .filter((check) => !check.configured)
     .map((check) => `${check.name}: ${check.message}`);
@@ -56,6 +102,12 @@ export function collectStartupDiagnostics(): StartupDiagnostics {
     environment: process.env.NODE_ENV ?? "development",
     checks,
     warnings,
+    runtime: {
+      nodeVersion: process.version,
+      openaiModel: isOpenAIConfigured()
+        ? getOpenAIDefaultModel()
+        : "unconfigured",
+    },
   };
 }
 
@@ -76,6 +128,10 @@ export function runStartupValidation(): StartupDiagnostics {
     const tag = check.configured ? "ok" : check.required ? "missing" : "optional";
     console[level](`${prefix} [${tag}] ${check.name}: ${check.message}`);
   }
+
+  console.info(
+    `${prefix} runtime node=${diagnostics.runtime.nodeVersion} openai_model=${diagnostics.runtime.openaiModel}`
+  );
 
   return diagnostics;
 }

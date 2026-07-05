@@ -24,6 +24,10 @@ export function getOpenAIApiKey(): string | undefined {
   return process.env.OPENAI_API_KEY?.trim() || undefined;
 }
 
+export function getOpenAIDefaultModel(): string {
+  return process.env.OPENAI_MODEL?.trim() || DEFAULT_MODEL_ID;
+}
+
 export function isOpenAIConfigured(): boolean {
   return Boolean(getOpenAIApiKey());
 }

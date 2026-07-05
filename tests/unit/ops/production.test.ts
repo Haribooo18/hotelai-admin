@@ -89,7 +89,8 @@ describe("collectStartupDiagnostics", () => {
   it("marks startup ok when required supabase vars exist", () => {
     const diagnostics = collectStartupDiagnostics();
     expect(diagnostics.ok).toBe(true);
-    expect(diagnostics.checks).toHaveLength(5);
+    expect(diagnostics.checks.length).toBeGreaterThanOrEqual(7);
+    expect(diagnostics.runtime.nodeVersion).toMatch(/^v\d+/);
   });
 
   it("lists warnings for missing optional integrations", () => {
@@ -109,9 +110,11 @@ describe("getPlatformHealth", () => {
   it("returns JSON health sections", () => {
     const health = getPlatformHealth(null);
     expect(health.timestamp).toBeTruthy();
-    expect(health.supabase.configured).toBe(true);
-    expect(health.openai.configured).toBe(true);
-    expect(health.telegram.status).toBe("unconfigured");
+    expect(health.status).toBeTruthy();
+    expect(health.dependencies.supabase.configured).toBe(true);
+    expect(health.dependencies.openai.configured).toBe(true);
+    expect(health.dependencies.telegram.status).toBe("unconfigured");
+    expect(health.requests.total).toBeGreaterThanOrEqual(0);
     expect(health.ai).toBeNull();
   });
 });

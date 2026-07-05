@@ -1,5 +1,7 @@
 import { createPortalSession } from "@/lib/billing/portal";
 import { isStripeConfigured } from "@/lib/billing/stripe";
+import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
+import { ProviderError } from "@/lib/ops/errors";
 import { getCurrentHotelId } from "@/lib/tenant";
 
 export const runtime = "nodejs";
@@ -16,26 +18,30 @@ function resolveOrigin(request: Request): string {
 }
 
 export async function POST(request: Request) {
-  if (!isStripeConfigured()) {
-    return Response.json(
-      { error: "Stripe не настроен. Задайте STRIPE_SECRET_KEY." },
-      { status: 503 }
-    );
-  }
+  return runApiRoute(
+    request,
+    {
+      module: "api.billing",
+      operation: "portal",
+      endpoint: "/api/billing/portal",
+    },
+    async () => {
+      if (!isStripeConfigured()) {
+        throw new ProviderError(
+          "Stripe не настроен. Задайте STRIPE_SECRET_KEY."
+        );
+      }
 
-  try {
-    const hotelId = await getCurrentHotelId();
-    const origin = resolveOrigin(request);
+      const hotelId = await getCurrentHotelId();
+      bindApiContext({ hotelId });
+      const origin = resolveOrigin(request);
 
-    const result = await createPortalSession({
-      hotelId,
-      returnUrl: `${origin}/settings?tab=billing`,
-    });
+      const result = await createPortalSession({
+        hotelId,
+        returnUrl: `${origin}/settings?tab=billing`,
+      });
 
-    return Response.json(result);
-  } catch (err) {
-    const message =
-      err instanceof Error ? err.message : "Ошибка создания Billing Portal";
-    return Response.json({ error: message }, { status: 500 });
-  }
+      return Response.json(result);
+    }
+  );
 }

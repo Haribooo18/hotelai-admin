@@ -1,4 +1,5 @@
 import { RateLimiter } from "@/lib/ai/rate-limiter";
+import { opsMetrics } from "@/lib/ops/metrics";
 
 const websiteSessionRateLimiter = new RateLimiter();
 const websiteIpRateLimiter = new RateLimiter();
@@ -41,6 +42,14 @@ export function checkWebsiteWidgetRateLimit(
   );
 
   if (!sessionCheck.allowed) {
+    opsMetrics.recordRateLimitBlock({
+      endpoint: "/api/channels/website/stream",
+      ip: ipAddress,
+      conversationId: sessionId,
+      reason: "website_session",
+      retryAfterMs: sessionCheck.retryAfterMs,
+    });
+
     return {
       allowed: false,
       scope: "session",
@@ -54,6 +63,13 @@ export function checkWebsiteWidgetRateLimit(
   );
 
   if (!ipCheck.allowed) {
+    opsMetrics.recordRateLimitBlock({
+      endpoint: "/api/channels/website/stream",
+      ip: ipAddress,
+      reason: "website_ip",
+      retryAfterMs: ipCheck.retryAfterMs,
+    });
+
     return {
       allowed: false,
       scope: "ip",

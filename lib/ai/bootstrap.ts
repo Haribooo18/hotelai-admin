@@ -1,6 +1,5 @@
 import { configureAIServices } from "./container";
-import { getOpenAIApiKey } from "./config";
-import { DEFAULT_MODEL_ID } from "./models";
+import { getOpenAIApiKey, getOpenAIDefaultModel } from "./config";
 import { createOpenAIProvider } from "./providers/openai";
 
 let initialized = false;
@@ -19,7 +18,7 @@ export function ensureAIServicesInitialized(): void {
   configureAIServices({
     provider: createOpenAIProvider({
       apiKey,
-      defaultModel: DEFAULT_MODEL_ID,
+      defaultModel: getOpenAIDefaultModel(),
       defaultTimeoutMs: 60_000,
       defaultMaxRetries: 2,
     }),

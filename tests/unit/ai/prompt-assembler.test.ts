@@ -81,6 +81,8 @@ describe("PromptAssembler", () => {
     expect(request.tools[0]?.name).toBe("echo_tool");
     expect(request.language).toBe("en");
     expect(request.transcript).toContain("Гость: Какой WiFi пароль?");
+    expect(request.promptVersion).toBeTruthy();
+    expect(request.systemPromptHash).toHaveLength(16);
   });
 
   it("handles empty knowledge retrieval", async () => {

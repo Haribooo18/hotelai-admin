@@ -1,4 +1,4 @@
-import { isOpenAIConfigured } from "@/lib/ai/config";
+import { isOpenAIConfigured, getOpenAIDefaultModel } from "@/lib/ai/config";
 import { getTelegramBotToken } from "@/lib/channels/telegram/sender";
 import { getTelegramWebhookSecret } from "@/lib/channels/telegram/webhook";
 import { getWebsiteHotelId } from "@/lib/channels/website/stream";
@@ -63,11 +63,19 @@ export function checkSupabaseEnv(): EnvCheckResult {
 
 export function checkOpenAIEnv(): EnvCheckResult {
   const configured = isOpenAIConfigured();
+  const model = getOpenAIDefaultModel();
+
   return {
     configured,
     message: configured
-      ? "OPENAI_API_KEY is set"
+      ? `OPENAI_API_KEY is set (default model: ${model})`
       : "OPENAI_API_KEY is not set — AI receptionist disabled",
+    details: configured
+      ? {
+          api_key: true,
+          default_model: model,
+        }
+      : undefined,
   };
 }
 

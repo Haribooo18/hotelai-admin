@@ -6,13 +6,24 @@ import type { HotelAISettings } from "@/types/ai-settings";
 
 import { estimateCostUsd, mergeTokenUsage, EMPTY_TOKEN_USAGE } from "./cost";
 import { resolveProviderOptions } from "./config";
-import { logAIObservability } from "./observability";
+import {
+  assertContextGuardrails,
+  assertConversationGuardrails,
+  resolveConversationTimeoutMs,
+  resolveToolTimeoutMs,
+} from "./guardrails";
+import { CurrentPromptVersion } from "./prompt-version";
+import { logAICompletionMetrics, logAIObservability } from "./observability";
 import { hotelRateLimiter } from "./rate-limiter";
+import { opsLogger } from "@/lib/ops/logger";
+import { opsMetrics } from "@/lib/ops/metrics";
+import { patchRequestContext } from "@/lib/ops/request-context";
 import type { OpenAIProvider } from "./providers/openai";
 import { getAIServices } from "./container";
 import type { AIProvider } from "./types";
 import type { AIRequest, AIResponse } from "./types";
 import type { ToolContext } from "./tools";
+import { createAbortDeadline, getErrorType, withTimeout } from "./retry";
 import { getConversation, getMessages } from "@/lib/services/ai.service";
 import { getHotelAISettings } from "@/lib/services/ai-settings.service";
 import { getCurrentHotel } from "@/lib/tenant";
@@ -65,6 +76,8 @@ type CompletionLoopResult = {
   costUsd: number;
   toolRounds: number;
   requestId: string;
+  retryCount: number;
+  finishReason?: string;
 };
 
 export class AIOrchestrator {
@@ -73,11 +86,18 @@ export class AIOrchestrator {
     const provider = services.provider;
 
     this.validatePreflight(input, provider);
+    this.beginAIContext(input, provider);
+    assertConversationGuardrails(input);
 
     const opts = resolveProviderOptions(input.settings);
     const start = Date.now();
+    const conversationDeadline = createAbortDeadline(
+      resolveConversationTimeoutMs(input.settings),
+      input.signal
+    );
 
     const aiRequest = await this.prepareAIRequest(input, opts);
+    assertContextGuardrails(aiRequest);
 
     const actionId = await logAIActionStart({
       hotelId: input.hotel.id,
@@ -91,7 +111,13 @@ export class AIOrchestrator {
       level: "info",
       event: "ai.completion.start",
       conversationId: input.conversation.id,
-      payload: { model: opts.model, actionId },
+      payload: {
+        provider: provider.name,
+        model: opts.model,
+        actionId,
+        prompt_version: aiRequest.promptVersion ?? CurrentPromptVersion,
+        system_prompt_hash: aiRequest.systemPromptHash,
+      },
     });
 
     try {
@@ -100,7 +126,7 @@ export class AIOrchestrator {
         aiRequest,
         opts,
         initialResponse: null,
-        signal: input.signal,
+        signal: conversationDeadline.signal,
       });
 
       const durationMs = Date.now() - start;
@@ -111,6 +137,8 @@ export class AIOrchestrator {
           content: result.content,
           usage: result.usage,
           toolRounds: result.toolRounds,
+          prompt_version: aiRequest.promptVersion ?? CurrentPromptVersion,
+          system_prompt_hash: aiRequest.systemPromptHash,
         },
         model: opts.model,
         usage: result.usage,
@@ -119,16 +147,37 @@ export class AIOrchestrator {
         requestId: result.requestId,
       });
 
-      await logAIObservability({
+      await logAICompletionMetrics({
         hotelId: input.hotel.id,
-        level: "info",
-        event: "ai.completion.done",
         conversationId: input.conversation.id,
-        payload: {
-          durationMs,
+        provider: provider.name,
+        model: opts.model,
+        latencyMs: durationMs,
+        usage: result.usage,
+        costUsd: result.costUsd,
+        finishReason: result.finishReason,
+        retryCount: result.retryCount,
+        toolCount: result.toolRounds,
+        promptVersion: aiRequest.promptVersion ?? CurrentPromptVersion,
+        systemPromptHash: aiRequest.systemPromptHash ?? "",
+      });
+
+      opsMetrics.recordProviderLatency(provider.name, durationMs);
+      opsLogger.info({
+        module: "ai",
+        operation: "completion",
+        message: "ai.completion.completed",
+        durationMs,
+        hotelId: input.hotel.id,
+        conversationId: input.conversation.id,
+        details: {
+          provider: provider.name,
+          model: opts.model,
+          finishReason: result.finishReason ?? null,
+          retryCount: result.retryCount,
+          toolCount: result.toolRounds,
+          promptVersion: aiRequest.promptVersion ?? CurrentPromptVersion,
           usage: result.usage,
-          costUsd: result.costUsd,
-          toolRounds: result.toolRounds,
         },
       });
 
@@ -143,14 +192,36 @@ export class AIOrchestrator {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Ошибка AI";
       await logAIActionFailed({ actionId, errorMessage: message });
-      await logAIObservability({
+      await logAICompletionMetrics(
+        {
+          hotelId: input.hotel.id,
+          conversationId: input.conversation.id,
+          provider: provider.name,
+          model: opts.model,
+          latencyMs: Date.now() - start,
+          usage: { ...EMPTY_TOKEN_USAGE },
+          costUsd: 0,
+          retryCount: 0,
+          toolCount: 0,
+          errorType: getErrorType(err),
+          promptVersion: aiRequest.promptVersion ?? CurrentPromptVersion,
+          systemPromptHash: aiRequest.systemPromptHash ?? "",
+        },
+        "error"
+      );
+      opsMetrics.recordAIFailure(provider.name, getErrorType(err));
+      opsLogger.error({
+        module: "ai",
+        operation: "completion",
+        message: message,
+        durationMs: Date.now() - start,
+        errorCode: getErrorType(err),
         hotelId: input.hotel.id,
-        level: "error",
-        event: "ai.completion.failed",
         conversationId: input.conversation.id,
-        payload: { error: message },
       });
       throw err;
+    } finally {
+      conversationDeadline.cleanup();
     }
   }
 
@@ -182,14 +253,21 @@ export class AIOrchestrator {
     const provider = services.provider;
 
     this.validatePreflight(input, provider);
+    this.beginAIContext(input, provider);
+    assertConversationGuardrails(input);
 
     const opts = resolveProviderOptions(input.settings);
     const start = Date.now();
+    const conversationDeadline = createAbortDeadline(
+      resolveConversationTimeoutMs(input.settings),
+      input.signal
+    );
 
     yield { type: "status", status: "ai_answering" };
     await setConversationAIActive(input.conversation.id, input.hotel.id);
 
     const aiRequest = await this.prepareAIRequest(input, opts);
+    assertContextGuardrails(aiRequest);
 
     const actionId = await logAIActionStart({
       hotelId: input.hotel.id,
@@ -203,14 +281,21 @@ export class AIOrchestrator {
       level: "info",
       event: "ai.completion.start",
       conversationId: input.conversation.id,
-      payload: { model: opts.model, actionId, streamed: true },
+      payload: {
+        provider: provider.name,
+        model: opts.model,
+        actionId,
+        streamed: true,
+        prompt_version: aiRequest.promptVersion ?? CurrentPromptVersion,
+        system_prompt_hash: aiRequest.systemPromptHash,
+      },
     });
 
     try {
       let fullText = "";
       let loopResult: CompletionLoopResult | null = null;
 
-      if (provider.stream && !input.signal?.aborted) {
+      if (provider.stream && !conversationDeadline.signal.aborted) {
         let streamedResponse: AIResponse | null = null;
 
         for await (const event of provider.stream(aiRequest, {
@@ -221,9 +306,9 @@ export class AIOrchestrator {
           toolChoice: opts.toolChoice,
           timeoutMs: opts.timeoutMs,
           maxRetries: opts.maxRetries,
-          signal: input.signal,
+          signal: conversationDeadline.signal,
         })) {
-          if (input.signal?.aborted) {
+          if (conversationDeadline.signal.aborted) {
             await clearConversationAITyping(
               input.conversation.id,
               input.hotel.id
@@ -241,7 +326,7 @@ export class AIOrchestrator {
           }
         }
 
-        if (input.signal?.aborted) {
+        if (conversationDeadline.signal.aborted) {
           await clearConversationAITyping(
             input.conversation.id,
             input.hotel.id
@@ -256,7 +341,7 @@ export class AIOrchestrator {
             aiRequest,
             opts,
             initialResponse: streamedResponse,
-            signal: input.signal,
+            signal: conversationDeadline.signal,
           });
           fullText = loopResult.content;
           yield { type: "text_final", content: fullText };
@@ -266,7 +351,7 @@ export class AIOrchestrator {
             aiRequest,
             opts,
             initialResponse: streamedResponse,
-            signal: input.signal,
+            signal: conversationDeadline.signal,
           });
           fullText = loopResult.content;
           yield { type: "text_final", content: fullText };
@@ -283,11 +368,15 @@ export class AIOrchestrator {
             ),
             toolRounds: 0,
             requestId: String(streamedResponse.metadata.request_id ?? ""),
+            retryCount: Number(streamedResponse.metadata.retry_count ?? 0),
+            finishReason: streamedResponse.metadata.finish_reason as
+              | string
+              | undefined,
           };
         }
       }
 
-      if (input.signal?.aborted) {
+      if (conversationDeadline.signal.aborted) {
         await clearConversationAITyping(input.conversation.id, input.hotel.id);
         return;
       }
@@ -298,13 +387,13 @@ export class AIOrchestrator {
           aiRequest,
           opts,
           initialResponse: null,
-          signal: input.signal,
+          signal: conversationDeadline.signal,
         });
         fullText = loopResult.content;
         yield { type: "text_final", content: fullText };
       }
 
-      if (input.signal?.aborted) {
+      if (conversationDeadline.signal.aborted) {
         await clearConversationAITyping(input.conversation.id, input.hotel.id);
         return;
       }
@@ -325,6 +414,8 @@ export class AIOrchestrator {
           usage,
           cost_usd: costUsd,
           tool_rounds: toolRounds,
+          prompt_version: aiRequest.promptVersion ?? CurrentPromptVersion,
+          system_prompt_hash: aiRequest.systemPromptHash,
         },
       });
 
@@ -332,7 +423,13 @@ export class AIOrchestrator {
 
       await logAIActionComplete({
         actionId,
-        output: { content: fullText, usage, toolRounds },
+        output: {
+          content: fullText,
+          usage,
+          toolRounds,
+          prompt_version: aiRequest.promptVersion ?? CurrentPromptVersion,
+          system_prompt_hash: aiRequest.systemPromptHash,
+        },
         model: opts.model,
         usage,
         costUsd,
@@ -340,17 +437,39 @@ export class AIOrchestrator {
         requestId,
       });
 
-      await logAIObservability({
+      await logAICompletionMetrics({
         hotelId: input.hotel.id,
-        level: "info",
-        event: "ai.completion.done",
         conversationId: input.conversation.id,
-        payload: {
-          durationMs,
+        provider: provider.name,
+        model: opts.model,
+        latencyMs: durationMs,
+        usage,
+        costUsd,
+        finishReason: loopResult?.finishReason,
+        retryCount: loopResult?.retryCount ?? 0,
+        toolCount: toolRounds,
+        promptVersion: aiRequest.promptVersion ?? CurrentPromptVersion,
+        systemPromptHash: aiRequest.systemPromptHash ?? "",
+        streamed: true,
+      });
+
+      opsMetrics.recordProviderLatency(provider.name, durationMs);
+      opsMetrics.recordStreamDuration("admin_sse", durationMs);
+      opsLogger.info({
+        module: "ai",
+        operation: "stream",
+        message: "ai.stream.completed",
+        durationMs,
+        hotelId: input.hotel.id,
+        conversationId: input.conversation.id,
+        details: {
+          provider: provider.name,
+          model: opts.model,
+          finishReason: loopResult?.finishReason ?? null,
+          retryCount: loopResult?.retryCount ?? 0,
+          toolCount: toolRounds,
+          promptVersion: aiRequest.promptVersion ?? CurrentPromptVersion,
           usage,
-          costUsd,
-          toolRounds,
-          streamed: true,
         },
       });
 
@@ -358,16 +477,48 @@ export class AIOrchestrator {
     } catch (err) {
       const message = err instanceof Error ? err.message : "Ошибка AI";
       await logAIActionFailed({ actionId, errorMessage: message });
-      await logAIObservability({
+      await logAICompletionMetrics(
+        {
+          hotelId: input.hotel.id,
+          conversationId: input.conversation.id,
+          provider: provider.name,
+          model: opts.model,
+          latencyMs: Date.now() - start,
+          usage: { ...EMPTY_TOKEN_USAGE },
+          costUsd: 0,
+          retryCount: 0,
+          toolCount: 0,
+          errorType: getErrorType(err),
+          promptVersion: aiRequest.promptVersion ?? CurrentPromptVersion,
+          systemPromptHash: aiRequest.systemPromptHash ?? "",
+          streamed: true,
+        },
+        "error"
+      );
+      opsMetrics.recordAIFailure(provider.name, getErrorType(err));
+      opsLogger.error({
+        module: "ai",
+        operation: "stream",
+        message,
+        durationMs: Date.now() - start,
+        errorCode: getErrorType(err),
         hotelId: input.hotel.id,
-        level: "error",
-        event: "ai.completion.failed",
         conversationId: input.conversation.id,
-        payload: { error: message, streamed: true },
       });
       await clearConversationAITyping(input.conversation.id, input.hotel.id);
       throw err;
+    } finally {
+      conversationDeadline.cleanup();
     }
+  }
+
+  private beginAIContext(input: OrchestratorInput, provider: AIProvider): void {
+    patchRequestContext({
+      hotelId: input.hotel.id,
+      conversationId: input.conversation.id,
+      provider: provider.name,
+    });
+    opsMetrics.recordAIRequest(provider.name);
   }
 
   private validatePreflight(
@@ -384,7 +535,13 @@ export class AIOrchestrator {
 
     const rate = hotelRateLimiter.check(
       input.hotel.id,
-      input.settings.rate_limit_per_minute
+      input.settings.rate_limit_per_minute,
+      {
+        endpoint: "ai.orchestrator",
+        hotelId: input.hotel.id,
+        conversationId: input.conversation.id,
+        reason: "hotel_ai_rate_limit",
+      }
     );
     if (!rate.allowed) {
       throw new Error(
@@ -435,6 +592,8 @@ export class AIOrchestrator {
     let totalCost = 0;
     let toolRounds = 0;
     let requestId = "";
+    let retryCount = 0;
+    let finishReason: string | undefined;
 
     let response: AIResponse;
 
@@ -449,6 +608,8 @@ export class AIOrchestrator {
         (initialResponse.metadata.usage as AITokenUsage) ?? EMPTY_TOKEN_USAGE
       );
       requestId = String(initialResponse.metadata.request_id ?? "");
+      retryCount += Number(initialResponse.metadata.retry_count ?? 0);
+      finishReason = initialResponse.metadata.finish_reason as string | undefined;
     } else {
       response = await provider.complete(aiRequest, {
         model: opts.model,
@@ -467,6 +628,8 @@ export class AIOrchestrator {
         response.metadata.usage as AITokenUsage
       );
       requestId = String(response.metadata.request_id ?? "");
+      retryCount += Number(response.metadata.retry_count ?? 0);
+      finishReason = response.metadata.finish_reason as string | undefined;
     }
 
     while (
@@ -480,7 +643,9 @@ export class AIOrchestrator {
       const toolOutputs = await this.executeTools(
         response,
         aiRequest,
-        input.conversation.id
+        input.conversation.id,
+        resolveToolTimeoutMs(input.settings),
+        signal
       );
 
       for (const call of response.toolCalls) {
@@ -520,6 +685,8 @@ export class AIOrchestrator {
         response.metadata.usage as AITokenUsage
       );
       requestId = String(response.metadata.request_id ?? requestId);
+      retryCount += Number(response.metadata.retry_count ?? 0);
+      finishReason = response.metadata.finish_reason as string | undefined;
     }
 
     const content = response.content?.trim() || FALLBACK_CONTENT;
@@ -530,13 +697,17 @@ export class AIOrchestrator {
       costUsd: totalCost,
       toolRounds,
       requestId,
+      retryCount,
+      finishReason,
     };
   }
 
   private async executeTools(
     response: AIResponse,
     request: AIRequest,
-    conversationId: string
+    conversationId: string,
+    toolTimeoutMs: number,
+    signal?: AbortSignal
   ) {
     const { toolExecutor } = getAIServices();
     const ctx: ToolContext = {
@@ -548,7 +719,17 @@ export class AIOrchestrator {
     const outputs: { call_id: string; output: string }[] = [];
 
     for (const call of response.toolCalls) {
-      const result = await toolExecutor.execute(call.name, ctx, call.arguments);
+      const toolStart = Date.now();
+      const result = await withTimeout(
+        toolExecutor.execute(call.name, ctx, call.arguments),
+        toolTimeoutMs,
+        signal
+      );
+      opsMetrics.recordToolExecution(
+        call.name,
+        Date.now() - toolStart,
+        result.ok
+      );
       outputs.push({
         call_id: call.id,
         output: JSON.stringify(
@@ -648,6 +829,8 @@ async function logAIActionStart(input: {
         system_prompt_length: input.request.systemPrompt.length,
         knowledge_count: input.request.knowledgeSnippets.length,
         message_count: input.request.messages.length,
+        prompt_version: input.request.promptVersion ?? CurrentPromptVersion,
+        system_prompt_hash: input.request.systemPromptHash,
       },
       status: "pending",
       model: input.model,

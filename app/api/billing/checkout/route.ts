@@ -1,5 +1,7 @@
 import { createCheckoutSession, parseCheckoutPlan } from "@/lib/billing/checkout";
 import { isStripeConfigured } from "@/lib/billing/stripe";
+import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
+import { ProviderError, ValidationError } from "@/lib/ops/errors";
 import { getCurrentHotel, getCurrentUser } from "@/lib/tenant";
 
 export const runtime = "nodejs";
@@ -16,43 +18,47 @@ function resolveOrigin(request: Request): string {
 }
 
 export async function POST(request: Request) {
-  if (!isStripeConfigured()) {
-    return Response.json(
-      { error: "Stripe не настроен. Задайте STRIPE_SECRET_KEY." },
-      { status: 503 }
-    );
-  }
+  return runApiRoute(
+    request,
+    {
+      module: "api.billing",
+      operation: "checkout",
+      endpoint: "/api/billing/checkout",
+    },
+    async () => {
+      if (!isStripeConfigured()) {
+        throw new ProviderError(
+          "Stripe не настроен. Задайте STRIPE_SECRET_KEY."
+        );
+      }
 
-  let body: unknown;
-  try {
-    body = await request.json();
-  } catch {
-    return Response.json({ error: "Некорректный JSON" }, { status: 400 });
-  }
+      let body: unknown;
+      try {
+        body = await request.json();
+      } catch {
+        throw new ValidationError("Некорректный JSON");
+      }
 
-  const plan = parseCheckoutPlan(body);
-  if (!plan) {
-    return Response.json({ error: "Укажите тариф: starter, pro или enterprise" }, {
-      status: 400,
-    });
-  }
+      const plan = parseCheckoutPlan(body);
+      if (!plan) {
+        throw new ValidationError("Укажите тариф: starter, pro или enterprise");
+      }
 
-  try {
-    const [hotel, user] = await Promise.all([getCurrentHotel(), getCurrentUser()]);
-    const origin = resolveOrigin(request);
+      const [hotel, user] = await Promise.all([getCurrentHotel(), getCurrentUser()]);
+      bindApiContext({ hotelId: hotel.id, userId: user?.id });
 
-    const result = await createCheckoutSession({
-      hotelId: hotel.id,
-      hotelName: hotel.name,
-      userEmail: user?.email ?? undefined,
-      plan,
-      successUrl: `${origin}/settings?tab=billing&checkout=success`,
-      cancelUrl: `${origin}/settings?tab=billing&checkout=canceled`,
-    });
+      const origin = resolveOrigin(request);
 
-    return Response.json(result);
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Ошибка создания Checkout";
-    return Response.json({ error: message }, { status: 500 });
-  }
+      const result = await createCheckoutSession({
+        hotelId: hotel.id,
+        hotelName: hotel.name,
+        userEmail: user?.email ?? undefined,
+        plan,
+        successUrl: `${origin}/settings?tab=billing&checkout=success`,
+        cancelUrl: `${origin}/settings?tab=billing&checkout=canceled`,
+      });
+
+      return Response.json(result);
+    }
+  );
 }

@@ -18,6 +18,7 @@ import {
   SystemPromptBuilder,
   defaultSystemPromptBuilder,
 } from "./system-prompt-builder";
+import { CurrentPromptVersion, hashSystemPrompt } from "./prompt-version";
 import type { ToolRegistry } from "./tool-registry";
 import type { AIRequest } from "./types";
 
@@ -101,6 +102,8 @@ export class PromptAssembler {
       tools,
       language: builtContext.language,
       transcript: memory.toTranscript(trimmedMessages),
+      promptVersion: CurrentPromptVersion,
+      systemPromptHash: hashSystemPrompt(systemPrompt),
     };
   }
 }
