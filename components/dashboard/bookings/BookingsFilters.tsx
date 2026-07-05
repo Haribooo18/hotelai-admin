@@ -2,6 +2,8 @@
 
 import {
   Filter,
+  LayoutGrid,
+  List,
   Plus,
   Search,
 } from "lucide-react";
@@ -19,11 +21,13 @@ import {
   chipActiveClass,
   chipClass,
   chipIdleClass,
+  stickyToolbarClass,
   toolbarControlClass,
   toolbarInputClass,
-  toolbarShellClass,
 } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
+
+import type { BookingViewMode } from "./booking-ops-metrics";
 
 export type BookingsChipFilter =
   | "all"
@@ -45,10 +49,12 @@ type Props = {
   chipFilter: BookingsChipFilter;
   dateFilter: string;
   status: string;
+  viewMode: BookingViewMode;
   onSearchChange: (value: string) => void;
   onChipFilterChange: (value: BookingsChipFilter) => void;
   onDateFilterChange: (value: string) => void;
   onStatusChange: (value: string) => void;
+  onViewModeChange: (value: BookingViewMode) => void;
   onCreateClick: () => void;
 };
 
@@ -57,10 +63,12 @@ export function BookingsFilters({
   chipFilter,
   dateFilter,
   status,
+  viewMode,
   onSearchChange,
   onChipFilterChange,
   onDateFilterChange,
   onStatusChange,
+  onViewModeChange,
   onCreateClick,
 }: Props) {
   const activeStatusLabel =
@@ -68,7 +76,7 @@ export function BookingsFilters({
     "All statuses";
 
   return (
-    <div className={toolbarShellClass}>
+    <div className={stickyToolbarClass}>
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="relative min-w-0 flex-1 xl:max-w-md">
           <Search
@@ -76,7 +84,7 @@ export function BookingsFilters({
             size={17}
           />
           <Input
-            className={cn(toolbarInputClass, "bg-[var(--shell-surface-raised)]")}
+            className={toolbarInputClass}
             placeholder="Search by guest, email, or phone"
             aria-label="Search reservations"
             value={search}
@@ -95,7 +103,7 @@ export function BookingsFilters({
 
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={16} className="text-[var(--shell-muted)]" />
+              <Filter size={15} className="text-[var(--shell-muted)]" />
               {activeStatusLabel}
             </DropdownMenuTrigger>
 
@@ -132,9 +140,40 @@ export function BookingsFilters({
             </DropdownMenuContent>
           </DropdownMenu>
 
+          <div className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]">
+            <button
+              type="button"
+              aria-label="Card view"
+              aria-pressed={viewMode === "cards"}
+              onClick={() => onViewModeChange("cards")}
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+                viewMode === "cards"
+                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
+                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
+              )}
+            >
+              <LayoutGrid size={15} />
+            </button>
+            <button
+              type="button"
+              aria-label="Table view"
+              aria-pressed={viewMode === "table"}
+              onClick={() => onViewModeChange("table")}
+              className={cn(
+                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+                viewMode === "table"
+                  ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
+                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
+              )}
+            >
+              <List size={15} />
+            </button>
+          </div>
+
           <BookingCreateButton
             onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-emerald-500"
+            className="h-[var(--ds-input-height)] rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-emerald-500"
             label="New reservation"
             icon={Plus}
           />
@@ -150,10 +189,7 @@ export function BookingsFilters({
               key={chip.id}
               type="button"
               onClick={() => onChipFilterChange(chip.id)}
-              className={cn(
-                chipClass,
-                active ? chipActiveClass : chipIdleClass
-              )}
+              className={cn(chipClass, active ? chipActiveClass : chipIdleClass)}
             >
               {chip.label}
             </button>

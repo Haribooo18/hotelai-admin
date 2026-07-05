@@ -5,6 +5,7 @@ export {
   BookingCreateButton,
 } from "./BookingCreateDialog";
 
+export { BookingDetailDrawer } from "./BookingDetailDrawer";
 export { BookingEditDialog } from "./BookingEditDialog";
 
 export { BookingCard, buildRoomLabel } from "./BookingCard";
@@ -16,8 +17,10 @@ export { BookingsPage } from "./BookingsPage";
 export { BookingsTable } from "./BookingsTable";
 
 export { BookingStatusBadge } from "./BookingStatusBadge";
+export { PaymentStatusBadge } from "./PaymentStatusBadge";
+export { BookingSourceBadge } from "./BookingSourceBadge";
 
-export { BookingsStats } from "./BookingsStats";
+export { BookingsExecutiveKpis } from "./BookingsExecutiveKpis";
 
 export {
   BookingsFilters,
