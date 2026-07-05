@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { AlertTriangle } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/core/Button";
+import { ErrorState } from "@/components/ui/feedback/ErrorState";
 
 export default function RoomsError({
   error,
@@ -17,16 +17,17 @@ export default function RoomsError({
   }, [error]);
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-8 text-center">
-      <AlertTriangle className="h-10 w-10 text-red-400" />
-
-      <h2 className="text-xl font-semibold">Failed to load rooms</h2>
-
-      <p className="max-w-md text-sm text-[var(--shell-muted)]">
-        An error occurred while loading data. Try refreshing the page.
-      </p>
-
-      <Button onClick={reset}>Retry</Button>
+    <div className="flex min-h-[60vh] items-center justify-center p-8">
+      <ErrorState
+        title="Failed to load rooms"
+        description="An error occurred while loading data. Try refreshing the page."
+        action={
+          <Button onClick={reset} className="bg-emerald-600 hover:bg-emerald-500">
+            Retry
+          </Button>
+        }
+        className="max-w-md"
+      />
     </div>
   );
 }

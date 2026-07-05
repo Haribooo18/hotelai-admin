@@ -6,9 +6,11 @@ import {
   UserRound,
 } from "lucide-react";
 
+import { Badge } from "@/components/ui/display/Badge";
+import { cn } from "@/lib/utils";
+
 import type { RoomOperationalStatus } from "./room-ops-metrics";
 import { getRoomStatusMeta } from "./room-ops-metrics";
-import { cn } from "@/lib/utils";
 
 const STATUS_ICONS = {
   available: CheckCircle2,
@@ -28,15 +30,16 @@ export function RoomStatusBadge({ status, className }: Props) {
   const Icon = STATUS_ICONS[status];
 
   return (
-    <span
+    <Badge
+      variant="outline"
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.06em]",
+        "gap-1.5 uppercase",
         meta.badgeClass,
         className
       )}
     >
-      <Icon size={12} />
+      <Icon size={12} aria-hidden />
       {meta.label}
-    </span>
+    </Badge>
   );
 }

@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 
+import { Badge } from "@/components/ui/display/Badge";
+
 import {
   getHousekeepingMeta,
   type HousekeepingStatus,
@@ -14,14 +16,17 @@ export function HousekeepingBadge({ status, className }: Props) {
   const meta = getHousekeepingMeta(status);
 
   return (
-    <span
-      className={cn(
-        "inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
-        meta.badgeClass,
-        className
-      )}
+    <Badge
+      variant={
+        status === "clean"
+          ? "success"
+          : status === "inspected"
+            ? "default"
+            : "warning"
+      }
+      className={cn("uppercase", meta.badgeClass, className)}
     >
       {meta.label}
-    </span>
+    </Badge>
   );
 }

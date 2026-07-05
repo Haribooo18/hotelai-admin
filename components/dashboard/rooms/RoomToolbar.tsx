@@ -1,30 +1,25 @@
 "use client";
 
 import {
+  Download,
   Filter,
   LayoutGrid,
   List,
   Plus,
   RefreshCw,
-  Search,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/core/Button";
+import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  chipActiveClass,
-  chipClass,
-  chipIdleClass,
-  stickyToolbarClass,
-  toolbarControlClass,
-  toolbarInputClass,
-} from "@/lib/dashboard/design-system";
+} from "@/components/ui/overlay/DropdownMenu";
+import { FilterBar } from "@/components/ui/data/FilterBar";
+import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
+import { toolbarControlClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 import type {
@@ -33,6 +28,7 @@ import type {
   RoomSortKey,
   RoomViewMode,
 } from "./room-ops-metrics";
+import type { RoomsToolbarFilters } from "./rooms-ui";
 
 const SORT_OPTIONS: { value: RoomSortKey; label: string }[] = [
   { value: "type_asc", label: "Type A–Z" },
@@ -60,128 +56,79 @@ const HOUSEKEEPING_OPTIONS: { value: HousekeepingStatus | ""; label: string }[] 
     { value: "inspected", label: "Inspected" },
   ];
 
+const MAINTENANCE_OPTIONS = [
+  { value: "", label: "All maintenance" },
+  { value: "open", label: "In maintenance" },
+  { value: "clear", label: "No issues" },
+] as const;
+
 type Props = {
-  search: string;
-  floor: string;
-  status: string;
-  roomType: string;
-  housekeeping: string;
+  filters: RoomsToolbarFilters;
+  viewMode: RoomViewMode;
   floorOptions: string[];
   roomTypeOptions: string[];
-  sortKey: RoomSortKey;
-  viewMode: RoomViewMode;
   refreshing: boolean;
-  onSearchChange: (value: string) => void;
-  onFloorChange: (value: string) => void;
-  onStatusChange: (value: string) => void;
-  onRoomTypeChange: (value: string) => void;
-  onHousekeepingChange: (value: string) => void;
-  onSortChange: (value: RoomSortKey) => void;
+  onFiltersChange: (filters: RoomsToolbarFilters) => void;
   onViewModeChange: (value: RoomViewMode) => void;
   onCreateClick: () => void;
   onRefresh: () => void;
 };
 
 export function RoomToolbar({
-  search,
-  floor,
-  status,
-  roomType,
-  housekeeping,
+  filters,
+  viewMode,
   floorOptions,
   roomTypeOptions,
-  sortKey,
-  viewMode,
   refreshing,
-  onSearchChange,
-  onFloorChange,
-  onStatusChange,
-  onRoomTypeChange,
-  onHousekeepingChange,
-  onSortChange,
+  onFiltersChange,
   onViewModeChange,
   onCreateClick,
   onRefresh,
 }: Props) {
+  function patch(partial: Partial<RoomsToolbarFilters>) {
+    onFiltersChange({ ...filters, ...partial });
+  }
+
   const activeSort =
-    SORT_OPTIONS.find((option) => option.value === sortKey)?.label ?? "Sort";
+    SORT_OPTIONS.find((option) => option.value === filters.sort)?.label ?? "Sort";
   const activeStatus =
-    STATUS_OPTIONS.find((option) => option.value === status)?.label ??
+    STATUS_OPTIONS.find((option) => option.value === filters.status)?.label ??
     "All statuses";
   const activeHousekeeping =
-    HOUSEKEEPING_OPTIONS.find((option) => option.value === housekeeping)
+    HOUSEKEEPING_OPTIONS.find((option) => option.value === filters.housekeeping)
       ?.label ?? "All housekeeping";
-  const activeRoomType = roomType || "All types";
-  const activeFloor = floor || "All floors";
+  const activeMaintenance =
+    MAINTENANCE_OPTIONS.find((option) => option.value === filters.maintenance)
+      ?.label ?? "All maintenance";
+  const activeRoomType = filters.roomType || "All types";
+  const activeFloor = filters.floor || "All floors";
 
   return (
-    <div className={stickyToolbarClass}>
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="relative min-w-0 flex-1 xl:max-w-md">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={17}
-          />
-          <Input
-            className={toolbarInputClass}
-            placeholder="Search room number or type"
-            aria-label="Search rooms"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
+    <FilterBar
+      leading={
+        <SearchInput
+          containerClassName="flex-1 xl:max-w-md"
+          placeholder="Search room number or type"
+          aria-label="Search rooms"
+          value={filters.search}
+          onChange={(event) => patch({ search: event.target.value })}
+        />
+      }
+      trailing={
+        <>
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
-              {activeRoomType}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onRoomTypeChange("")}>
-                All types
-              </DropdownMenuItem>
-              {roomTypeOptions.map((value) => (
-                <DropdownMenuItem
-                  key={value}
-                  onClick={() => onRoomTypeChange(value)}
-                >
-                  {value}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
-              {activeFloor}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onFloorChange("")}>
-                All floors
-              </DropdownMenuItem>
-              {floorOptions.map((value) => (
-                <DropdownMenuItem
-                  key={value}
-                  onClick={() => onFloorChange(value)}
-                >
-                  {value}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Status filter"
+            >
+              <Filter size={15} aria-hidden />
               {activeStatus}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {STATUS_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
-                  onClick={() => onStatusChange(option.value)}
+                  onClick={() => patch({ status: option.value })}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -190,15 +137,18 @@ export function RoomToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Housekeeping filter"
+            >
+              <Filter size={15} aria-hidden />
               {activeHousekeeping}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {HOUSEKEEPING_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
-                  onClick={() => onHousekeepingChange(option.value)}
+                  onClick={() => patch({ housekeeping: option.value })}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -207,15 +157,18 @@ export function RoomToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
-              {activeSort}
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Maintenance filter"
+            >
+              <Filter size={15} aria-hidden />
+              {activeMaintenance}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {SORT_OPTIONS.map((option) => (
+              {MAINTENANCE_OPTIONS.map((option) => (
                 <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => onSortChange(option.value)}
+                  key={option.value || "all"}
+                  onClick={() => patch({ maintenance: option.value })}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -223,40 +176,74 @@ export function RoomToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div
-            role="tablist"
-            aria-label="View mode"
-            className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === "cards"}
-              onClick={() => onViewModeChange("cards")}
-              className={cn(
-                chipClass,
-                "rounded-[var(--ds-radius-sm)] px-3 py-1",
-                viewMode === "cards" ? chipActiveClass : chipIdleClass
-              )}
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Floor filter"
             >
-              <LayoutGrid size={14} className="mr-1 inline" />
-              Cards
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === "table"}
-              onClick={() => onViewModeChange("table")}
-              className={cn(
-                chipClass,
-                "rounded-[var(--ds-radius-sm)] px-3 py-1",
-                viewMode === "table" ? chipActiveClass : chipIdleClass
-              )}
+              <Filter size={15} aria-hidden />
+              <span className="max-w-[96px] truncate">{activeFloor}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => patch({ floor: "" })}>
+                All floors
+              </DropdownMenuItem>
+              {floorOptions.map((value) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => patch({ floor: value })}
+                >
+                  {value}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Room type filter"
             >
-              <List size={14} className="mr-1 inline" />
-              Table
-            </button>
-          </div>
+              <Filter size={15} aria-hidden />
+              <span className="max-w-[96px] truncate">{activeRoomType}</span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => patch({ roomType: "" })}>
+                All types
+              </DropdownMenuItem>
+              {roomTypeOptions.map((value) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => patch({ roomType: value })}
+                >
+                  {value}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label="Sort rooms"
+            >
+              {activeSort}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {SORT_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => patch({ sort: option.value })}
+                  className={cn(
+                    filters.sort === option.value &&
+                      "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
+                  )}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <Button
             type="button"
@@ -265,22 +252,51 @@ export function RoomToolbar({
             onClick={onRefresh}
             disabled={refreshing}
             loading={refreshing}
-            className="gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
+            aria-label="Refresh rooms"
           >
-            <RefreshCw size={15} />
+            <RefreshCw size={15} aria-hidden />
             Refresh
           </Button>
 
           <Button
             type="button"
-            onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
+            variant="outline"
+            size="sm"
+            disabled
+            aria-label="Export rooms"
+            title="Export coming soon"
           >
-            <Plus size={15} />
-            Add room
+            <Download size={15} aria-hidden />
+            Export
           </Button>
-        </div>
-      </div>
-    </div>
+
+          <SegmentedControl
+            value={viewMode}
+            onChange={onViewModeChange}
+            options={[
+              {
+                value: "cards",
+                ariaLabel: "Card view",
+                label: <LayoutGrid size={15} aria-hidden />,
+              },
+              {
+                value: "table",
+                ariaLabel: "Table view",
+                label: <List size={15} aria-hidden />,
+              },
+            ]}
+          />
+
+          <Button
+            type="button"
+            onClick={onCreateClick}
+            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
+          >
+            <Plus size={15} aria-hidden />
+            New room
+          </Button>
+        </>
+      }
+    />
   );
 }

@@ -6,30 +6,41 @@ import { useRouter } from "next/navigation";
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { useI18n } from "@/lib/i18n";
 
 import { RoomCreateDialog } from "./RoomCreateDialog";
 import { RoomDetailDrawer } from "./RoomDetailDrawer";
-import { RoomsExecutiveKpis } from "./RoomsExecutiveKpis";
-import { RoomToolbar } from "./RoomToolbar";
 import { RoomsCardsView } from "./RoomsCardsView";
+import { RoomsExecutiveKpis } from "./RoomsExecutiveKpis";
 import { RoomsOperations } from "./RoomsOperations";
+import { RoomToolbar } from "./RoomToolbar";
 import {
   buildRoomCardModels,
-  buildRoomOperationsSnapshot,
   computeRoomOpsKpis,
   extractFloorOptions,
   extractRoomTypeOptions,
   sortRoomModels,
   type RoomCardModel,
-  type RoomSortKey,
   type RoomViewMode,
 } from "./room-ops-metrics";
+import type { RoomsToolbarFilters } from "./rooms-ui";
 
 type Props = {
   rooms: Room[];
   bookings: Booking[];
+};
+
+const DEFAULT_FILTERS: RoomsToolbarFilters = {
+  search: "",
+  status: "",
+  housekeeping: "",
+  maintenance: "",
+  floor: "",
+  roomType: "",
+  sort: "type_asc",
 };
 
 export function RoomsPage({ rooms, bookings }: Props) {
@@ -45,12 +56,7 @@ export function RoomsPage({ rooms, bookings }: Props) {
   const [duplicateTemplate, setDuplicateTemplate] = useState<Room | null>(null);
   const [drawerModel, setDrawerModel] = useState<RoomCardModel | null>(null);
 
-  const [search, setSearch] = useState("");
-  const [floor, setFloor] = useState("");
-  const [status, setStatus] = useState("");
-  const [roomType, setRoomType] = useState("");
-  const [housekeeping, setHousekeeping] = useState("");
-  const [sortKey, setSortKey] = useState<RoomSortKey>("type_asc");
+  const [filters, setFilters] = useState<RoomsToolbarFilters>(DEFAULT_FILTERS);
   const [viewMode, setViewMode] = useState<RoomViewMode>("cards");
 
   const cardModels = useMemo(
@@ -66,7 +72,7 @@ export function RoomsPage({ rooms, bookings }: Props) {
   const floorOptions = useMemo(() => extractFloorOptions(rooms), [rooms]);
 
   const filteredModels = useMemo(() => {
-    const query = search.trim().toLowerCase();
+    const query = filters.search.trim().toLowerCase();
 
     const filtered = cardModels.filter((model) => {
       const matchesSearch =
@@ -75,34 +81,39 @@ export function RoomsPage({ rooms, bookings }: Props) {
         model.roomCode.includes(query) ||
         (model.currentGuest?.toLowerCase().includes(query) ?? false);
 
-      const matchesStatus = status === "" || model.status === status;
+      const matchesStatus = filters.status === "" || model.status === filters.status;
       const matchesRoomType =
-        roomType === "" || model.room.room_type === roomType;
-      const matchesFloor = floor === "" || model.floorLabel === floor;
+        filters.roomType === "" || model.room.room_type === filters.roomType;
+      const matchesFloor = filters.floor === "" || model.floorLabel === filters.floor;
       const matchesHousekeeping =
-        housekeeping === "" || model.housekeepingStatus === housekeeping;
+        filters.housekeeping === "" ||
+        model.housekeepingStatus === filters.housekeeping;
+      const matchesMaintenance =
+        filters.maintenance === ""
+          ? true
+          : filters.maintenance === "open"
+            ? model.status === "maintenance"
+            : model.status !== "maintenance";
 
       return (
         matchesSearch &&
         matchesStatus &&
         matchesRoomType &&
         matchesFloor &&
-        matchesHousekeeping
+        matchesHousekeeping &&
+        matchesMaintenance
       );
     });
 
-    return sortRoomModels(filtered, sortKey);
-  }, [cardModels, search, status, roomType, floor, housekeeping, sortKey]);
+    return sortRoomModels(filtered, filters.sort);
+  }, [cardModels, filters]);
 
   const kpis = useMemo(
     () => computeRoomOpsKpis(cardModels, bookings),
     [cardModels, bookings]
   );
 
-  const operations = useMemo(
-    () => buildRoomOperationsSnapshot(cardModels, bookings),
-    [cardModels, bookings]
-  );
+  const selectedId = drawerModel?.room.id ?? null;
 
   const handleEdit = useCallback((room: Room) => {
     setSelectedRoom(room);
@@ -123,8 +134,8 @@ export function RoomsPage({ rooms, bookings }: Props) {
   }
 
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.rooms.title")}
         subtitle={t("pages.rooms.subtitle")}
       />
@@ -132,22 +143,12 @@ export function RoomsPage({ rooms, bookings }: Props) {
       <RoomsExecutiveKpis kpis={kpis} loading={refreshing} />
 
       <RoomToolbar
-        search={search}
-        floor={floor}
-        status={status}
-        roomType={roomType}
-        housekeeping={housekeeping}
+        filters={filters}
+        viewMode={viewMode}
         floorOptions={floorOptions}
         roomTypeOptions={roomTypeOptions}
-        sortKey={sortKey}
-        viewMode={viewMode}
         refreshing={refreshing}
-        onSearchChange={setSearch}
-        onFloorChange={setFloor}
-        onStatusChange={setStatus}
-        onRoomTypeChange={setRoomType}
-        onHousekeepingChange={setHousekeeping}
-        onSortChange={setSortKey}
+        onFiltersChange={setFilters}
         onViewModeChange={setViewMode}
         onCreateClick={() => {
           setDuplicateTemplate(null);
@@ -156,15 +157,24 @@ export function RoomsPage({ rooms, bookings }: Props) {
         onRefresh={handleRefresh}
       />
 
-      <RoomsCardsView
-        models={filteredModels}
-        viewMode={viewMode}
-        loading={false}
-        onOpenRoom={handleOpen}
-        onEditRoom={handleEdit}
-      />
+      <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+        <RoomsCardsView
+          models={filteredModels}
+          viewMode={viewMode}
+          loading={false}
+          selectedId={selectedId}
+          onOpenRoom={handleOpen}
+          onEditRoom={handleEdit}
+        />
+      </GlassSurface>
 
-      <RoomsOperations snapshot={operations} />
+      <RoomsOperations
+        models={cardModels}
+        bookings={bookings}
+        kpis={kpis}
+        loading={false}
+        onSelect={handleOpen}
+      />
 
       <RoomDetailDrawer
         open={drawerOpen}
@@ -190,6 +200,6 @@ export function RoomsPage({ rooms, bookings }: Props) {
         onOpenChange={setEditOpen}
         room={selectedRoom ?? undefined}
       />
-    </AdminPageStack>
+    </Stack>
   );
 }

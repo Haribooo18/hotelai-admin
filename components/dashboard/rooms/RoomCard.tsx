@@ -7,7 +7,6 @@ import {
   MoreHorizontal,
   Pencil,
   Users,
-  Wrench,
 } from "lucide-react";
 
 import {
@@ -15,13 +14,17 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/overlay/DropdownMenu";
+import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
+import { Button } from "@/components/ui/core/Button";
+import { activateOnKeyboard } from "@/lib/dashboard/a11y";
 import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
 
 import type { Room } from "@/types/room";
 
 import { HousekeepingBadge } from "./HousekeepingBadge";
+import { MaintenanceBadge } from "./MaintenanceBadge";
 import { RoomStatusBadge } from "./RoomStatusBadge";
 import {
   formatRoomCurrency,
@@ -29,14 +32,21 @@ import {
   getGuestInitials,
   type RoomCardModel,
 } from "./room-ops-metrics";
+import { RoomWorkspaceCard } from "./rooms-ui";
 
 type Props = {
   model: RoomCardModel;
+  selected?: boolean;
   onOpen?: (model: RoomCardModel) => void;
   onEdit?: (room: Room) => void;
 };
 
-export const RoomCard = memo(function RoomCard({ model, onOpen, onEdit }: Props) {
+export const RoomCard = memo(function RoomCard({
+  model,
+  selected = false,
+  onOpen,
+  onEdit,
+}: Props) {
   const {
     room,
     roomCode,
@@ -56,17 +66,22 @@ export const RoomCard = memo(function RoomCard({ model, onOpen, onEdit }: Props)
         ? "Arriving"
         : status === "cleaning"
           ? "Turnover"
-          : "Vacant";
+          : status === "maintenance"
+            ? "Blocked"
+            : "Vacant";
 
   return (
-    <article
-      className={cn(
-        "group rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/85 p-4 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
-        "transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-0.5 hover:shadow-[var(--shell-shadow-md)]"
-      )}
+    <RoomWorkspaceCard
+      selected={selected}
+      role="button"
+      tabIndex={0}
+      aria-label={`Open room ${roomCode}`}
+      aria-pressed={selected}
+      onClick={() => onOpen?.(model)}
+      onKeyDown={(event) => activateOnKeyboard(event, () => onOpen?.(model))}
     >
       <div className="flex items-start justify-between gap-2">
-        <button type="button" onClick={() => onOpen?.(model)} className="min-w-0 text-left">
+        <div className="min-w-0">
           <p className="text-[28px] font-semibold leading-none tracking-[-0.04em] text-[var(--shell-text)]">
             {roomCode}
           </p>
@@ -76,21 +91,34 @@ export const RoomCard = memo(function RoomCard({ model, onOpen, onEdit }: Props)
           <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
             {model.floorLabel} · {occupancyLabel}
           </p>
-        </button>
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label={`Actions for room ${room.room_type}`}
+            onClick={(event) => event.stopPropagation()}
             className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
           >
             <MoreHorizontal size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onOpen?.(model)} className="gap-2">
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen?.(model);
+              }}
+              className="gap-2"
+            >
               <Eye size={14} />
               Open
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onEdit?.(model.room)} className="gap-2">
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit?.(model.room);
+              }}
+              className="gap-2"
+            >
               <Pencil size={14} />
               Edit
             </DropdownMenuItem>
@@ -99,16 +127,18 @@ export const RoomCard = memo(function RoomCard({ model, onOpen, onEdit }: Props)
       </div>
 
       <div className="mt-3 flex items-center gap-2.5">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--shell-accent-muted)] text-[10px] font-semibold text-[var(--shell-accent)]">
-          {getGuestInitials(currentGuest)}
-        </div>
+        <Avatar className="size-8">
+          <AvatarFallback className="text-[10px] font-semibold">
+            {getGuestInitials(currentGuest)}
+          </AvatarFallback>
+        </Avatar>
         <div className="min-w-0">
           <p className="truncate text-[12px] font-medium text-[var(--shell-text)]">
             {currentGuest ?? "No guest assigned"}
           </p>
           {stayBooking ? (
             <p className="mt-0.5 flex items-center gap-1 text-[11px] text-[var(--shell-muted)]">
-              <CalendarDays size={11} />
+              <CalendarDays size={11} aria-hidden />
               {formatRoomDate(stayBooking.check_in)} →{" "}
               {formatRoomDate(stayBooking.check_out)}
             </p>
@@ -123,12 +153,7 @@ export const RoomCard = memo(function RoomCard({ model, onOpen, onEdit }: Props)
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <RoomStatusBadge status={status} />
         <HousekeepingBadge status={housekeepingStatus} />
-        {status === "maintenance" ? (
-          <span className="inline-flex items-center gap-1 rounded-full bg-red-500/12 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-400">
-            <Wrench size={10} />
-            Maintenance
-          </span>
-        ) : null}
+        <MaintenanceBadge active={status === "maintenance"} />
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
@@ -141,28 +166,37 @@ export const RoomCard = memo(function RoomCard({ model, onOpen, onEdit }: Props)
         <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-2.5 py-2">
           <p className="text-[var(--shell-muted)]">Capacity</p>
           <p className="mt-0.5 flex items-center gap-1 font-semibold text-[var(--shell-text)]">
-            <Users size={11} />
+            <Users size={11} aria-hidden />
             {room.capacity}
           </p>
         </div>
       </div>
 
       <div className="mt-3 flex gap-2">
-        <button
+        <Button
           type="button"
-          onClick={() => onOpen?.(model)}
-          className="h-8 flex-1 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] text-[11px] font-medium text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-[background-color] hover:bg-[var(--shell-nav-hover-bg)]"
+          variant="outline"
+          size="sm"
+          className="h-8 flex-1"
+          onClick={(event) => {
+            event.stopPropagation();
+            onOpen?.(model);
+          }}
         >
           Details
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
-          onClick={() => onEdit?.(model.room)}
-          className="h-8 flex-1 rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[11px] font-medium text-[var(--shell-accent)] transition-[background-color] hover:bg-[var(--shell-nav-active-bg)]"
+          size="sm"
+          className="h-8 flex-1 bg-[var(--shell-accent-muted)] text-[var(--shell-accent)] hover:bg-[var(--shell-nav-active-bg)]"
+          onClick={(event) => {
+            event.stopPropagation();
+            onEdit?.(model.room);
+          }}
         >
           Edit
-        </button>
+        </Button>
       </div>
-    </article>
+    </RoomWorkspaceCard>
   );
 });

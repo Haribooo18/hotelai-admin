@@ -2,12 +2,9 @@
 
 import { BedDouble } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-
-import {
-  DashboardEmptyState,
-  DashboardSkeletonBlock,
-} from "@/components/dashboard/home/DashboardPrimitives";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { Skeleton } from "@/components/ui/display/Skeleton";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 
 import { RoomCard } from "./RoomCard";
 import { RoomsTable } from "./RoomsTable";
@@ -18,6 +15,7 @@ type Props = {
   models: RoomCardModel[];
   viewMode: RoomViewMode;
   loading?: boolean;
+  selectedId?: string | null;
   onOpenRoom: (model: RoomCardModel) => void;
   onEditRoom: (room: Room) => void;
 };
@@ -26,37 +24,33 @@ export function RoomsCardsView({
   models,
   viewMode,
   loading = false,
+  selectedId = null,
   onOpenRoom,
   onEditRoom,
 }: Props) {
   if (loading) {
     return (
-      <div
-        className={cn(
-          viewMode === "cards"
-            ? "grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
-            : "space-y-2"
+      <GlassSurface className="p-[var(--ds-surface-padding)]">
+        {viewMode === "cards" ? (
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <Skeleton key={index} className="h-52 rounded-[var(--ds-radius)]" />
+            ))}
+          </div>
+        ) : (
+          <Skeleton className="h-64 rounded-[var(--ds-radius)]" />
         )}
-      >
-        {Array.from({ length: 8 }).map((_, index) => (
-          <DashboardSkeletonBlock
-            key={index}
-            className={viewMode === "cards" ? "h-52" : "h-12"}
-          />
-        ))}
-      </div>
+      </GlassSurface>
     );
   }
 
   if (models.length === 0) {
     return (
-      <div className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 p-6 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-        <DashboardEmptyState
-          title="No rooms found"
-          description="Adjust filters or add the first room to your inventory."
-          icon={<BedDouble size={18} />}
-        />
-      </div>
+      <EmptyState
+        title="No rooms found"
+        description="Adjust filters or add the first room to your inventory."
+        icon={<BedDouble size={18} />}
+      />
     );
   }
 
@@ -64,6 +58,7 @@ export function RoomsCardsView({
     return (
       <RoomsTable
         models={models}
+        selectedId={selectedId}
         onOpen={onOpenRoom}
         onEdit={(model) => onEditRoom(model.room)}
       />
@@ -71,11 +66,16 @@ export function RoomsCardsView({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+    <div
+      className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+      role="list"
+      aria-label="Room cards"
+    >
       {models.map((model) => (
         <RoomCard
           key={model.room.id}
           model={model}
+          selected={selectedId === model.room.id}
           onOpen={onOpenRoom}
           onEdit={onEditRoom}
         />

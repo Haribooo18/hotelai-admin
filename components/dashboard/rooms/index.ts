@@ -10,3 +10,4 @@ export { RoomsOperations } from "./RoomsOperations";
 export { RoomDetailDrawer } from "./RoomDetailDrawer";
 export { RoomStatusBadge } from "./RoomStatusBadge";
 export { HousekeepingBadge } from "./HousekeepingBadge";
+export { MaintenanceBadge } from "./MaintenanceBadge";
