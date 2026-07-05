@@ -1,5 +1,8 @@
 import type { Booking } from "@/types/booking";
+import type { BookingPaymentStatus } from "@/components/dashboard/bookings/booking-ops-metrics";
 import type { Room } from "@/types/room";
+
+import { derivePaymentStatus } from "@/components/dashboard/bookings/booking-ops-metrics";
 
 export type RoomOperationalStatus =
   | "available"
@@ -7,6 +10,8 @@ export type RoomOperationalStatus =
   | "cleaning"
   | "maintenance"
   | "reserved";
+
+export type HousekeepingStatus = "clean" | "dirty" | "inspected";
 
 export type RoomSortKey =
   | "type_asc"
@@ -16,7 +21,7 @@ export type RoomSortKey =
   | "capacity"
   | "status";
 
-export type RoomViewMode = "grid" | "list";
+export type RoomViewMode = "cards" | "table";
 
 export type RoomOpsKpis = {
   total: number;
@@ -25,6 +30,8 @@ export type RoomOpsKpis = {
   cleaning: number;
   maintenance: number;
   averageOccupancy: number;
+  adr: number;
+  revenueToday: number;
 };
 
 export type RoomCardModel = {
@@ -36,6 +43,18 @@ export type RoomCardModel = {
   housekeepingLabel: string;
   cleaningProgress: number;
   roomCode: string;
+  floorLabel: string;
+  housekeepingStatus: HousekeepingStatus;
+  revenueToday: number;
+};
+
+export type RoomOperationsSnapshot = {
+  housekeepingQueue: RoomCardModel[];
+  maintenanceQueue: RoomCardModel[];
+  arrivals: Booking[];
+  departures: Booking[];
+  vacantReady: RoomCardModel[];
+  occupancyByType: Array<{ label: string; occupied: number; total: number }>;
 };
 
 const STATUS_META: Record<
@@ -69,8 +88,31 @@ const STATUS_META: Record<
   },
 };
 
+const HOUSEKEEPING_META: Record<
+  HousekeepingStatus,
+  { label: string; badgeClass: string }
+> = {
+  clean: {
+    label: "Clean",
+    badgeClass: "bg-emerald-500/12 text-emerald-400",
+  },
+  dirty: {
+    label: "Dirty",
+    badgeClass: "bg-amber-500/12 text-amber-400",
+  },
+  inspected: {
+    label: "Inspected",
+    badgeClass: "bg-sky-500/12 text-sky-400",
+  },
+};
+
 function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function nightsBetween(checkIn: string, checkOut: string): number {
+  const diff = new Date(checkOut).getTime() - new Date(checkIn).getTime();
+  return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
 }
 
 function isStayingToday(booking: Booking, today: string): boolean {
@@ -83,6 +125,10 @@ function isStayingToday(booking: Booking, today: string): boolean {
 
 export function getRoomStatusMeta(status: RoomOperationalStatus) {
   return STATUS_META[status];
+}
+
+export function getHousekeepingMeta(status: HousekeepingStatus) {
+  return HOUSEKEEPING_META[status];
 }
 
 export function formatRoomCurrency(value: number): string {
@@ -100,11 +146,56 @@ export function formatRoomDate(value: string): string {
   }).format(new Date(value));
 }
 
+export function getGuestInitials(name: string | null): string {
+  if (!name) return "—";
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "—";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+}
+
 function buildRoomCode(room: Room, index: number): string {
   const digits = room.room_type.match(/\d+/);
   if (digits?.[0]) return digits[0].padStart(2, "0");
 
   return String(index + 1).padStart(2, "0");
+}
+
+export function extractRoomFloor(room: Room): string {
+  const match = room.room_type.match(/^(\d+)\s*(?:этаж|floor)/i);
+  if (match?.[1]) return `Floor ${match[1]}`;
+
+  const leadingNumber = room.room_type.match(/^(\d{1,2})\D/);
+  if (leadingNumber?.[1]) return `Floor ${leadingNumber[1]}`;
+
+  return "Floor 1";
+}
+
+export function extractFloorOptions(rooms: Room[]): string[] {
+  return Array.from(new Set(rooms.map(extractRoomFloor))).sort();
+}
+
+function deriveHousekeepingStatus(
+  status: RoomOperationalStatus,
+  cleaningProgress: number
+): HousekeepingStatus {
+  if (status === "cleaning") return "dirty";
+  if (status === "available" && cleaningProgress === 100) return "inspected";
+  if (cleaningProgress === 100) return "clean";
+  return "dirty";
+}
+
+function roomRevenueToday(roomId: string, bookings: Booking[]): number {
+  const today = todayIso();
+
+  return bookings
+    .filter(
+      (booking) =>
+        booking.room_id === roomId &&
+        booking.status !== "cancelled" &&
+        (booking.check_in === today || isStayingToday(booking, today))
+    )
+    .reduce((sum, booking) => sum + Number(booking.total_price), 0);
 }
 
 function resolveRoomStatus(
@@ -151,7 +242,7 @@ function resolveRoomStatus(
       currentGuest: activeBooking.guest_name,
       activeBooking,
       upcomingBooking,
-      housekeepingLabel: "No housekeeping needed",
+      housekeepingLabel: "Occupied — service after checkout",
       cleaningProgress: 0,
     };
   }
@@ -183,7 +274,7 @@ function resolveRoomStatus(
     currentGuest: null,
     activeBooking: null,
     upcomingBooking,
-    housekeepingLabel: "Ready for check-in",
+    housekeepingLabel: "Vacant ready",
     cleaningProgress: 100,
   };
 }
@@ -196,24 +287,56 @@ export function buildRoomCardModels(
 
   return rooms.map((room, index) => {
     const resolved = resolveRoomStatus(room, bookings, today);
+    const housekeepingStatus = deriveHousekeepingStatus(
+      resolved.status,
+      resolved.cleaningProgress
+    );
 
     return {
       room,
       roomCode: buildRoomCode(room, index),
+      floorLabel: extractRoomFloor(room),
+      housekeepingStatus,
+      revenueToday: roomRevenueToday(room.id, bookings),
       ...resolved,
     };
   });
 }
 
-export function computeRoomOpsKpis(models: RoomCardModel[]): RoomOpsKpis {
+export function computeRoomOpsKpis(
+  models: RoomCardModel[],
+  bookings: Booking[] = []
+): RoomOpsKpis {
   const total = models.length;
-  const available = models.filter((m) => m.status === "available").length;
-  const occupied = models.filter((m) => m.status === "occupied").length;
-  const cleaning = models.filter((m) => m.status === "cleaning").length;
-  const maintenance = models.filter((m) => m.status === "maintenance").length;
+  const available = models.filter((model) => model.status === "available").length;
+  const occupied = models.filter((model) => model.status === "occupied").length;
+  const cleaning = models.filter((model) => model.status === "cleaning").length;
+  const maintenance = models.filter(
+    (model) => model.status === "maintenance"
+  ).length;
 
   const averageOccupancy =
-    total > 0 ? Math.round(((occupied + cleaning + maintenance) / total) * 100) : 0;
+    total > 0
+      ? Math.round(((occupied + cleaning + reservedCount(models)) / total) * 100)
+      : 0;
+
+  const today = todayIso();
+  const todayBookings = bookings.filter(
+    (booking) =>
+      booking.check_in === today && booking.status !== "cancelled"
+  );
+
+  const revenueToday = todayBookings.reduce(
+    (sum, booking) => sum + Number(booking.total_price),
+    0
+  );
+
+  const nights = todayBookings.reduce(
+    (sum, booking) => sum + nightsBetween(booking.check_in, booking.check_out),
+    0
+  );
+
+  const adr = nights > 0 ? revenueToday / nights : 0;
 
   return {
     total,
@@ -222,7 +345,81 @@ export function computeRoomOpsKpis(models: RoomCardModel[]): RoomOpsKpis {
     cleaning,
     maintenance,
     averageOccupancy,
+    adr,
+    revenueToday,
   };
+}
+
+function reservedCount(models: RoomCardModel[]): number {
+  return models.filter((model) => model.status === "reserved").length;
+}
+
+export function buildRoomOperationsSnapshot(
+  models: RoomCardModel[],
+  bookings: Booking[]
+): RoomOperationsSnapshot {
+  const today = todayIso();
+
+  const typeMap = new Map<string, { occupied: number; total: number }>();
+
+  for (const model of models) {
+    const current = typeMap.get(model.room.room_type) ?? {
+      occupied: 0,
+      total: 0,
+    };
+    current.total += 1;
+    if (model.status === "occupied" || model.status === "reserved") {
+      current.occupied += 1;
+    }
+    typeMap.set(model.room.room_type, current);
+  }
+
+  return {
+    housekeepingQueue: models.filter((model) => model.status === "cleaning"),
+    maintenanceQueue: models.filter((model) => model.status === "maintenance"),
+    arrivals: bookings
+      .filter(
+        (booking) =>
+          booking.check_in === today && booking.status !== "cancelled"
+      )
+      .sort((a, b) => a.guest_name.localeCompare(b.guest_name)),
+    departures: bookings
+      .filter(
+        (booking) =>
+          booking.check_out === today && booking.status !== "cancelled"
+      )
+      .sort((a, b) => a.guest_name.localeCompare(b.guest_name)),
+    vacantReady: models.filter(
+      (model) =>
+        model.status === "available" && model.housekeepingStatus === "inspected"
+    ),
+    occupancyByType: Array.from(typeMap.entries())
+      .map(([label, value]) => ({ label, ...value }))
+      .sort((a, b) => b.occupied - a.occupied),
+  };
+}
+
+export function getRoomMonthRevenue(
+  roomId: string,
+  bookings: Booking[]
+): number {
+  const monthPrefix = todayIso().slice(0, 7);
+
+  return bookings
+    .filter(
+      (booking) =>
+        booking.room_id === roomId &&
+        booking.check_in.startsWith(monthPrefix) &&
+        booking.status !== "cancelled"
+    )
+    .reduce((sum, booking) => sum + Number(booking.total_price), 0);
+}
+
+export function getStayPaymentLabel(
+  booking: Booking | null
+): BookingPaymentStatus | null {
+  if (!booking) return null;
+  return derivePaymentStatus(booking);
 }
 
 export function sortRoomModels(

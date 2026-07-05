@@ -2,24 +2,23 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 import type { Room } from "@/types/room";
 
-import { deleteRoom } from "@/lib/services/rooms.mutations";
-
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 
 import { RoomCreateDialog } from "./RoomCreateDialog";
 import { RoomDetailDrawer } from "./RoomDetailDrawer";
-import { RoomKpiGrid } from "./RoomKpiGrid";
+import { RoomsExecutiveKpis } from "./RoomsExecutiveKpis";
 import { RoomToolbar } from "./RoomToolbar";
 import { RoomsCardsView } from "./RoomsCardsView";
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
-import { useI18n } from "@/lib/i18n";
+import { RoomsOperations } from "./RoomsOperations";
 import {
   buildRoomCardModels,
+  buildRoomOperationsSnapshot,
   computeRoomOpsKpis,
+  extractFloorOptions,
   extractRoomTypeOptions,
   sortRoomModels,
   type RoomCardModel,
@@ -35,24 +34,23 @@ type Props = {
 export function RoomsPage({ rooms }: Props) {
   const { t } = useI18n();
   const router = useRouter();
-  const [pending, startTransition] = useTransition();
+  const [refreshing, startRefresh] = useTransition();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [duplicateTemplate, setDuplicateTemplate] = useState<Room | null>(null);
   const [drawerModel, setDrawerModel] = useState<RoomCardModel | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const [search, setSearch] = useState("");
   const [floor, setFloor] = useState("");
   const [status, setStatus] = useState("");
   const [roomType, setRoomType] = useState("");
+  const [housekeeping, setHousekeeping] = useState("");
   const [sortKey, setSortKey] = useState<RoomSortKey>("type_asc");
-  const [viewMode, setViewMode] = useState<RoomViewMode>("grid");
+  const [viewMode, setViewMode] = useState<RoomViewMode>("cards");
 
   const hotelId = rooms[0]?.hotel_id;
   const { bookings, loading } = useRoomsSupplement(hotelId);
@@ -67,16 +65,7 @@ export function RoomsPage({ rooms }: Props) {
     [rooms]
   );
 
-  const floorOptions = useMemo(() => {
-    const floors = new Set<string>();
-
-    for (const room of rooms) {
-      const match = room.room_type.match(/^(\d+)\s*этаж/i);
-      if (match?.[1]) floors.add(`Floor ${match[1]}`);
-    }
-
-    return Array.from(floors).sort();
-  }, [rooms]);
+  const floorOptions = useMemo(() => extractFloorOptions(rooms), [rooms]);
 
   const filteredModels = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -85,42 +74,43 @@ export function RoomsPage({ rooms }: Props) {
       const matchesSearch =
         query === "" ||
         model.room.room_type.toLowerCase().includes(query) ||
-        model.roomCode.includes(query);
+        model.roomCode.includes(query) ||
+        (model.currentGuest?.toLowerCase().includes(query) ?? false);
 
       const matchesStatus = status === "" || model.status === status;
       const matchesRoomType =
         roomType === "" || model.room.room_type === roomType;
-
-      const matchesFloor =
-        floor === "" ||
-        (floor.startsWith("Floor") &&
-          model.room.room_type
-            .toLowerCase()
-            .includes(floor.replace("Floor ", "").toLowerCase()));
+      const matchesFloor = floor === "" || model.floorLabel === floor;
+      const matchesHousekeeping =
+        housekeeping === "" || model.housekeepingStatus === housekeeping;
 
       return (
-        matchesSearch && matchesStatus && matchesRoomType && matchesFloor
+        matchesSearch &&
+        matchesStatus &&
+        matchesRoomType &&
+        matchesFloor &&
+        matchesHousekeeping
       );
     });
 
     return sortRoomModels(filtered, sortKey);
-  }, [cardModels, search, status, roomType, floor, sortKey]);
+  }, [cardModels, search, status, roomType, floor, housekeeping, sortKey]);
 
   const kpis = useMemo(
-    () => computeRoomOpsKpis(cardModels),
-    [cardModels]
+    () => computeRoomOpsKpis(cardModels, bookings),
+    [cardModels, bookings]
+  );
+
+  const operations = useMemo(
+    () => buildRoomOperationsSnapshot(cardModels, bookings),
+    [cardModels, bookings]
   );
 
   function handleEdit(room: Room) {
     setSelectedRoom(room);
     setDuplicateTemplate(null);
     setEditOpen(true);
-  }
-
-  function handleDuplicate(room: Room) {
-    setDuplicateTemplate(room);
-    setSelectedRoom(null);
-    setCreateOpen(true);
+    setDrawerOpen(false);
   }
 
   function handleOpen(model: RoomCardModel) {
@@ -128,72 +118,64 @@ export function RoomsPage({ rooms }: Props) {
     setDrawerOpen(true);
   }
 
-  function confirmBulkDelete() {
-    const ids = Array.from(selectedIds);
-
-    startTransition(async () => {
-      try {
-        await Promise.all(ids.map((id) => deleteRoom(id)));
-        toast.success("Selected rooms deleted");
-        setSelectedIds(new Set());
-        setBulkDeleteOpen(false);
-        router.refresh();
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to delete selected rooms");
-      }
+  function handleRefresh() {
+    startRefresh(() => {
+      router.refresh();
     });
   }
 
   return (
-    <AdminPageStack>
+    <AdminPageStack className="ds-page-enter">
       <DashboardPageHeader
         title={t("pages.rooms.title")}
         subtitle={t("pages.rooms.subtitle")}
       />
 
-      <RoomKpiGrid kpis={kpis} loading={loading} />
+      <RoomsExecutiveKpis kpis={kpis} loading={loading || refreshing} />
 
       <RoomToolbar
         search={search}
         floor={floor}
         status={status}
         roomType={roomType}
+        housekeeping={housekeeping}
         floorOptions={floorOptions}
         roomTypeOptions={roomTypeOptions}
         sortKey={sortKey}
         viewMode={viewMode}
-        selectedCount={selectedIds.size}
+        refreshing={refreshing}
         onSearchChange={setSearch}
         onFloorChange={setFloor}
         onStatusChange={setStatus}
         onRoomTypeChange={setRoomType}
+        onHousekeepingChange={setHousekeeping}
         onSortChange={setSortKey}
         onViewModeChange={setViewMode}
         onCreateClick={() => {
           setDuplicateTemplate(null);
           setCreateOpen(true);
         }}
-        onBulkDelete={() => setBulkDeleteOpen(true)}
-        onClearSelection={() => setSelectedIds(new Set())}
+        onRefresh={handleRefresh}
       />
 
       <RoomsCardsView
         models={filteredModels}
         viewMode={viewMode}
         loading={loading}
-        selectedIds={selectedIds}
-        onSelectedIdsChange={setSelectedIds}
         onOpenRoom={handleOpen}
         onEditRoom={handleEdit}
-        onDuplicateRoom={handleDuplicate}
       />
+
+      <RoomsOperations snapshot={operations} />
 
       <RoomDetailDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
         model={drawerModel}
         bookings={bookings}
+        onEdit={() => {
+          if (drawerModel) handleEdit(drawerModel.room);
+        }}
       />
 
       <RoomCreateDialog
@@ -209,17 +191,6 @@ export function RoomsPage({ rooms }: Props) {
         open={editOpen}
         onOpenChange={setEditOpen}
         room={selectedRoom ?? undefined}
-      />
-
-      <ConfirmDialog
-        open={bulkDeleteOpen}
-        onOpenChange={setBulkDeleteOpen}
-        title="Delete selected rooms?"
-        description={`${selectedIds.size} room(s) will be deleted. This action cannot be undone.`}
-        confirmLabel="Delete"
-        destructive
-        loading={pending}
-        onConfirm={confirmBulkDelete}
       />
     </AdminPageStack>
   );

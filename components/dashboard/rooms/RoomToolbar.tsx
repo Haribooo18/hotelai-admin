@@ -1,14 +1,15 @@
 "use client";
 
 import {
-  BedDouble,
   Filter,
   LayoutGrid,
   List,
+  Plus,
+  RefreshCw,
   Search,
-  Trash2,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -16,14 +17,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Select } from "@/components/ui/select";
 import {
+  chipActiveClass,
+  chipClass,
+  chipIdleClass,
   stickyToolbarClass,
+  toolbarControlClass,
   toolbarInputClass,
 } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 import type {
+  HousekeepingStatus,
   RoomOperationalStatus,
   RoomSortKey,
   RoomViewMode,
@@ -47,25 +52,34 @@ const STATUS_OPTIONS: { value: RoomOperationalStatus | ""; label: string }[] = [
   { value: "reserved", label: "Reserved" },
 ];
 
+const HOUSEKEEPING_OPTIONS: { value: HousekeepingStatus | ""; label: string }[] =
+  [
+    { value: "", label: "All housekeeping" },
+    { value: "clean", label: "Clean" },
+    { value: "dirty", label: "Dirty" },
+    { value: "inspected", label: "Inspected" },
+  ];
+
 type Props = {
   search: string;
   floor: string;
   status: string;
   roomType: string;
+  housekeeping: string;
   floorOptions: string[];
   roomTypeOptions: string[];
   sortKey: RoomSortKey;
   viewMode: RoomViewMode;
-  selectedCount: number;
+  refreshing: boolean;
   onSearchChange: (value: string) => void;
   onFloorChange: (value: string) => void;
   onStatusChange: (value: string) => void;
   onRoomTypeChange: (value: string) => void;
+  onHousekeepingChange: (value: string) => void;
   onSortChange: (value: RoomSortKey) => void;
   onViewModeChange: (value: RoomViewMode) => void;
   onCreateClick: () => void;
-  onBulkDelete: () => void;
-  onClearSelection: () => void;
+  onRefresh: () => void;
 };
 
 export function RoomToolbar({
@@ -73,24 +87,32 @@ export function RoomToolbar({
   floor,
   status,
   roomType,
+  housekeeping,
   floorOptions,
   roomTypeOptions,
   sortKey,
   viewMode,
-  selectedCount,
+  refreshing,
   onSearchChange,
   onFloorChange,
   onStatusChange,
   onRoomTypeChange,
+  onHousekeepingChange,
   onSortChange,
   onViewModeChange,
   onCreateClick,
-  onBulkDelete,
-  onClearSelection,
+  onRefresh,
 }: Props) {
   const activeSort =
-    SORT_OPTIONS.find((option) => option.value === sortKey)?.label ??
-    "Sort";
+    SORT_OPTIONS.find((option) => option.value === sortKey)?.label ?? "Sort";
+  const activeStatus =
+    STATUS_OPTIONS.find((option) => option.value === status)?.label ??
+    "All statuses";
+  const activeHousekeeping =
+    HOUSEKEEPING_OPTIONS.find((option) => option.value === housekeeping)
+      ?.label ?? "All housekeeping";
+  const activeRoomType = roomType || "All types";
+  const activeFloor = floor || "All floors";
 
   return (
     <div className={stickyToolbarClass}>
@@ -98,11 +120,11 @@ export function RoomToolbar({
         <div className="relative min-w-0 flex-1 xl:max-w-md">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={18}
+            size={17}
           />
           <Input
             className={toolbarInputClass}
-            placeholder="Search by room type..."
+            placeholder="Search room number or type"
             aria-label="Search rooms"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -110,60 +132,56 @@ export function RoomToolbar({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          <Select
-            value={floor}
-            onChange={onFloorChange}
-            placeholder="All floors"
-            aria-label="Filter by floor"
-            className="h-[var(--ds-input-height)] min-w-[130px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
-            options={floorOptions.map((value) => ({ value, label: value }))}
-          />
-
-          <Select
-            value={status}
-            onChange={onStatusChange}
-            placeholder="All statuses"
-            aria-label="Filter by status"
-            className="h-[var(--ds-input-height)] min-w-[140px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
-            options={STATUS_OPTIONS.filter((option) => option.value !== "").map(
-              (option) => ({ value: option.value, label: option.label })
-            )}
-          />
-
-          <Select
-            value={roomType}
-            onChange={onRoomTypeChange}
-            placeholder="All types"
-            aria-label="Filter by room type"
-            className="h-[var(--ds-input-height)] min-w-[150px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
-            options={roomTypeOptions.map((value) => ({ value, label: value }))}
-          />
+          <DropdownMenu>
+            <DropdownMenuTrigger className={toolbarControlClass}>
+              <Filter size={15} />
+              {activeRoomType}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onRoomTypeChange("")}>
+                All types
+              </DropdownMenuItem>
+              {roomTypeOptions.map((value) => (
+                <DropdownMenuItem
+                  key={value}
+                  onClick={() => onRoomTypeChange(value)}
+                >
+                  {value}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger
-              className={cn(
-                "inline-flex h-[var(--ds-input-height)] items-center gap-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] px-4 text-[13px] font-medium text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out",
-                "hover:bg-[var(--shell-nav-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
-              )}
-            >
-              <Filter size={16} className="text-[var(--shell-muted)]" />
-              {activeSort}
+            <DropdownMenuTrigger className={toolbarControlClass}>
+              <Filter size={15} />
+              {activeFloor}
             </DropdownMenuTrigger>
-
-            <DropdownMenuContent
-              align="end"
-              className="min-w-52 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
-            >
-              {SORT_OPTIONS.map((option) => (
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onFloorChange("")}>
+                All floors
+              </DropdownMenuItem>
+              {floorOptions.map((value) => (
                 <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => onSortChange(option.value)}
-                  className={cn(
-                    "rounded-[10px] px-3 py-2 text-[13px]",
-                    sortKey === option.value
-                      ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
-                      : "text-[var(--shell-text)]"
-                  )}
+                  key={value}
+                  onClick={() => onFloorChange(value)}
+                >
+                  {value}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger className={toolbarControlClass}>
+              <Filter size={15} />
+              {activeStatus}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {STATUS_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value || "all"}
+                  onClick={() => onStatusChange(option.value)}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -171,70 +189,98 @@ export function RoomToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-sm)]">
+          <DropdownMenu>
+            <DropdownMenuTrigger className={toolbarControlClass}>
+              <Filter size={15} />
+              {activeHousekeeping}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {HOUSEKEEPING_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value || "all"}
+                  onClick={() => onHousekeepingChange(option.value)}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger className={toolbarControlClass}>
+              <Filter size={15} />
+              {activeSort}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {SORT_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => onSortChange(option.value)}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <div
+            role="tablist"
+            aria-label="View mode"
+            className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]"
+          >
             <button
               type="button"
-              aria-label="Grid"
-              aria-pressed={viewMode === "grid"}
-              onClick={() => onViewModeChange("grid")}
+              role="tab"
+              aria-selected={viewMode === "cards"}
+              onClick={() => onViewModeChange("cards")}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration-slow)] ease-out",
-                viewMode === "grid"
-                  ? "bg-[var(--shell-nav-active-bg)] text-emerald-500"
-                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
+                chipClass,
+                "rounded-[var(--ds-radius-sm)] px-3 py-1",
+                viewMode === "cards" ? chipActiveClass : chipIdleClass
               )}
             >
-              <LayoutGrid size={16} />
+              <LayoutGrid size={14} className="mr-1 inline" />
+              Cards
             </button>
             <button
               type="button"
-              aria-label="List"
-              aria-pressed={viewMode === "list"}
-              onClick={() => onViewModeChange("list")}
+              role="tab"
+              aria-selected={viewMode === "table"}
+              onClick={() => onViewModeChange("table")}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration-slow)] ease-out",
-                viewMode === "list"
-                  ? "bg-[var(--shell-nav-active-bg)] text-emerald-500"
-                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
+                chipClass,
+                "rounded-[var(--ds-radius-sm)] px-3 py-1",
+                viewMode === "table" ? chipActiveClass : chipIdleClass
               )}
             >
-              <List size={16} />
+              <List size={14} className="mr-1 inline" />
+              Table
             </button>
           </div>
 
-          <button
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            disabled={refreshing}
+            loading={refreshing}
+            className="gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
+          >
+            <RefreshCw size={15} />
+            Refresh
+          </Button>
+
+          <Button
             type="button"
             onClick={onCreateClick}
-            className="inline-flex h-[var(--ds-input-height)] items-center gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-emerald-500"
+            className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
           >
-            <BedDouble size={16} />
-            Add Room
-          </button>
+            <Plus size={15} />
+            Add room
+          </Button>
         </div>
       </div>
-
-      {selectedCount > 0 ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] px-4 py-3 shadow-[var(--shell-shadow-sm)]">
-          <span className="text-[13px] font-medium text-[var(--shell-text)]">
-            Selected: {selectedCount}
-          </span>
-          <button
-            type="button"
-            onClick={onBulkDelete}
-            className="inline-flex items-center gap-1.5 rounded-[10px] bg-red-500/10 px-3 py-1.5 text-[12px] font-medium text-red-400 transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-red-500/15"
-          >
-            <Trash2 size={14} />
-            Delete
-          </button>
-          <button
-            type="button"
-            onClick={onClearSelection}
-            className="ml-auto text-[12px] text-[var(--shell-muted)] transition-opacity duration-[var(--ds-duration-slow)] ease-out hover:opacity-80"
-          >
-            Clear selection
-          </button>
-        </div>
-      ) : null}
     </div>
   );
 }
