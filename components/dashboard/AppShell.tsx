@@ -20,9 +20,7 @@ export function AppShell({ children, hotel }: Props) {
       <div className="h-svh overflow-hidden bg-[var(--shell-bg)] font-sans text-[var(--shell-text)]">
         <Sidebar hotel={hotel} />
 
-        <div
-          className="flex h-svh min-w-0 flex-col overflow-hidden bg-[var(--shell-content)] lg:pl-[248px]"
-        >
+        <div className="flex h-svh min-w-0 flex-col overflow-hidden bg-[var(--shell-content)] lg:pl-[252px]">
           <TopBar />
           <PageContainer>{children}</PageContainer>
         </div>

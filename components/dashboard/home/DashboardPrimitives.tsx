@@ -89,7 +89,7 @@ export function DashboardEmptyState({
   return (
     <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
       {icon ? (
-        <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-[14px] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)]">
+        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)]">
           {icon}
         </div>
       ) : null}
@@ -161,16 +161,18 @@ export function DashboardPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="ds-display">{title}</h1>
         {subtitle ? (
-          <p className="mt-2 text-[var(--type-body-size)] leading-[var(--type-body-leading)] text-[var(--shell-muted)]">
+          <p className="mt-1.5 text-[var(--type-body-size)] leading-[var(--type-body-leading)] tracking-[var(--type-body-tracking)] text-[var(--shell-muted)]">
             {subtitle}
           </p>
         ) : null}
       </div>
-      {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
+      {actions ? (
+        <div className="flex flex-wrap items-center gap-2">{actions}</div>
+      ) : null}
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import type { AdminTranslations } from "./translations";
 
-export const SIDEBAR_WIDTH_PX = 248;
+export const SIDEBAR_WIDTH_PX = 252;
 
 export type PageTitleKey = keyof AdminTranslations["pages"];
 
