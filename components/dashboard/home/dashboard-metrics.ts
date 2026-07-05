@@ -1,6 +1,12 @@
 import type { Booking } from "@/types/booking";
+import type { Guest } from "@/types/guest";
 import type { Lead } from "@/types/lead";
 import type { Room } from "@/types/room";
+
+import {
+  buildRoomCardModels,
+  computeRoomOpsKpis,
+} from "@/components/dashboard/rooms/room-ops-metrics";
 
 export type DashboardMetrics = {
   occupancyPercent: number;
@@ -26,6 +32,23 @@ export type TimelineItem = {
   time: string;
   title: string;
   subtitle: string;
+};
+
+export type DashboardAlert = {
+  id: string;
+  severity: "info" | "warning" | "urgent";
+  title: string;
+  description: string;
+  href?: string;
+};
+
+export type AiActivityItem = {
+  id: string;
+  guestName: string;
+  channel: string;
+  preview: string;
+  status: string;
+  createdAt: string;
 };
 
 function todayIso(): string {
@@ -232,4 +255,127 @@ export function getLatestBookings(bookings: Booking[], limit = 5): Booking[] {
         new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     )
     .slice(0, limit);
+}
+
+export function getRecentGuests(guests: Guest[], limit = 5): Guest[] {
+  return [...guests]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .slice(0, limit);
+}
+
+export function getUpcomingBookings(bookings: Booking[], limit = 5): Booking[] {
+  const today = todayIso();
+
+  return [...bookings]
+    .filter(
+      (booking) =>
+        booking.status !== "cancelled" && booking.check_in >= today
+    )
+    .sort((a, b) => a.check_in.localeCompare(b.check_in))
+    .slice(0, limit);
+}
+
+export function getAiConversationCount(leads: Lead[]): number {
+  return leads.filter((lead) => lead.status !== "cancelled").length;
+}
+
+export function buildAiActivity(leads: Lead[], limit = 6): AiActivityItem[] {
+  return [...leads]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .slice(0, limit)
+    .map((lead) => ({
+      id: lead.lead_id,
+      guestName: lead.guest_name ?? "Unknown guest",
+      channel: "AI Receptionist",
+      preview:
+        lead.comment?.trim() ||
+        lead.room_type ||
+        "New booking inquiry",
+      status: lead.status ?? "new",
+      createdAt: lead.created_at,
+    }));
+}
+
+export function buildDashboardAlerts(
+  bookings: Booking[],
+  rooms: Room[],
+  leads: Lead[]
+): DashboardAlert[] {
+  const today = todayIso();
+  const alerts: DashboardAlert[] = [];
+
+  const newLeads = leads.filter((lead) => lead.status === "new");
+  if (newLeads.length > 0) {
+    alerts.push({
+      id: "new-leads",
+      severity: "urgent",
+      title: `${newLeads.length} new AI request${newLeads.length === 1 ? "" : "s"}`,
+      description: "Guests are waiting for a response in AI Inbox.",
+      href: "/ai",
+    });
+  }
+
+  const roomModels = buildRoomCardModels(rooms, bookings);
+  const kpis = computeRoomOpsKpis(roomModels);
+
+  if (kpis.total > 0 && kpis.available === 0) {
+    alerts.push({
+      id: "no-availability",
+      severity: "warning",
+      title: "No rooms available",
+      description: "All rooms are occupied, reserved, or being prepared.",
+      href: "/rooms",
+    });
+  } else if (kpis.occupied / kpis.total >= 0.9 && kpis.total > 0) {
+    alerts.push({
+      id: "high-occupancy",
+      severity: "warning",
+      title: "High occupancy",
+      description: `${Math.round((kpis.occupied / kpis.total) * 100)}% of rooms are in use today.`,
+      href: "/calendar",
+    });
+  }
+
+  const departuresToday = bookings.filter(
+    (booking) =>
+      booking.check_out === today &&
+      booking.status !== "cancelled" &&
+      booking.status !== "checked_out"
+  ).length;
+
+  if (departuresToday > 0) {
+    alerts.push({
+      id: "departures-today",
+      severity: "info",
+      title: `${departuresToday} departure${departuresToday === 1 ? "" : "s"} today`,
+      description: "Coordinate housekeeping and front desk check-outs.",
+      href: "/calendar",
+    });
+  }
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowKey = tomorrow.toISOString().slice(0, 10);
+  const arrivalsTomorrow = bookings.filter(
+    (booking) =>
+      booking.check_in === tomorrowKey && booking.status === "confirmed"
+  ).length;
+
+  if (arrivalsTomorrow > 0) {
+    alerts.push({
+      id: "arrivals-tomorrow",
+      severity: "info",
+      title: `${arrivalsTomorrow} arrival${arrivalsTomorrow === 1 ? "" : "s"} tomorrow`,
+      description: "Prepare rooms and welcome packages ahead of check-in.",
+      href: "/bookings",
+    });
+  }
+
+  return alerts.slice(0, 4);
 }

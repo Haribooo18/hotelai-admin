@@ -8,7 +8,7 @@ import {
 import type { TimelineItem } from "./dashboard-metrics";
 import {
   DashboardEmptyState,
-  DashboardSectionTitle,
+  DashboardPanelHeader,
   DashboardSkeleton,
   DashboardSurface,
 } from "./DashboardPrimitives";
@@ -40,10 +40,10 @@ const KIND_META = {
 
 export function DashboardTimeline({ items, loading }: Props) {
   return (
-    <DashboardSurface className="p-6">
-      <DashboardSectionTitle
-        title="Today"
-        subtitle="Check-ins, check-outs, cleaning, and reminders"
+    <DashboardSurface className="p-[var(--ds-surface-padding)]">
+      <DashboardPanelHeader
+        title="Reservation timeline"
+        subtitle="Today's check-ins, departures, and housekeeping"
       />
 
       {loading ? (
@@ -52,10 +52,10 @@ export function DashboardTimeline({ items, loading }: Props) {
         <DashboardEmptyState
           title="All quiet for today"
           description="When check-ins, check-outs, or new requests appear, they will show up in this feed."
-          icon={<CalendarCheck size={20} />}
+          icon={<CalendarCheck size={18} />}
         />
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           {items.map((item) => {
             const meta = KIND_META[item.kind];
             const Icon = meta.icon;
@@ -63,27 +63,27 @@ export function DashboardTimeline({ items, loading }: Props) {
             return (
               <div
                 key={item.id}
-                className="flex items-start gap-4 rounded-[16px] bg-[var(--shell-nav-hover-bg)]/50 p-4 transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
+                className="flex items-start gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3 transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-sm)]"
               >
                 <div
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)]",
+                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)]",
                     meta.color
                   )}
                 >
-                  <Icon size={18} />
+                  <Icon size={15} />
                 </div>
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-[14px] font-medium text-[var(--shell-text)]">
+                    <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
                       {item.title}
                     </p>
-                    <span className="shrink-0 text-[12px] text-[var(--shell-muted)]">
+                    <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
                       {item.time}
                     </span>
                   </div>
-                  <p className="mt-1 text-[13px] text-[var(--shell-muted)]">
+                  <p className="mt-0.5 text-[12px] text-[var(--shell-muted)]">
                     {item.subtitle}
                   </p>
                 </div>

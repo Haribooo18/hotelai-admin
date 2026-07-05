@@ -1,6 +1,10 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
+  glassClass,
   labelClass,
   pageStackClass,
   sectionTitleClass,
@@ -134,6 +138,106 @@ export function DashboardSkeletonBlock({
   return <div className={cn("ds-skeleton", className)} />;
 }
 
+export function DashboardGlassPanel({
+  children,
+  className,
+  interactive = false,
+}: {
+  children: ReactNode;
+  className?: string;
+  interactive?: boolean;
+}) {
+  return (
+    <div
+      className={cn(
+        glassClass,
+        interactive && surfaceClass,
+        !interactive && "transition-[box-shadow,background-color] duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+type AnimatedMetricProps = {
+  value: number;
+  formatter?: (value: number) => string;
+  duration?: number;
+  className?: string;
+};
+
+export function AnimatedMetric({
+  value,
+  formatter = (next) => String(Math.round(next)),
+  duration = 640,
+  className,
+}: AnimatedMetricProps) {
+  const [display, setDisplay] = useState(0);
+  const previousValue = useRef(0);
+  const isFirstMount = useRef(true);
+
+  useEffect(() => {
+    const start = isFirstMount.current ? 0 : previousValue.current;
+    isFirstMount.current = false;
+    const delta = value - start;
+
+    if (delta === 0) {
+      return;
+    }
+
+    const startTime = performance.now();
+    let frame = 0;
+
+    function tick(now: number) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - (1 - progress) ** 3;
+      setDisplay(start + delta * eased);
+
+      if (progress < 1) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        previousValue.current = value;
+      }
+    }
+
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [value, duration]);
+
+  return <span className={className}>{formatter(display)}</span>;
+}
+
+type PanelHeaderProps = {
+  title: string;
+  subtitle?: string;
+  action?: ReactNode;
+  className?: string;
+};
+
+export function DashboardPanelHeader({
+  title,
+  subtitle,
+  action,
+  className,
+}: PanelHeaderProps) {
+  return (
+    <div className={cn("mb-4 flex items-start justify-between gap-3", className)}>
+      <div className="min-w-0">
+        <h2 className={sectionTitleClass}>{title}</h2>
+        {subtitle ? (
+          <p className="mt-1 text-[var(--type-caption-size)] leading-[var(--type-caption-leading)] text-[var(--shell-muted)]">
+            {subtitle}
+          </p>
+        ) : null}
+      </div>
+      {action ? <div className="shrink-0">{action}</div> : null}
+    </div>
+  );
+}
+
 export function DashboardSectionTitle({
   title,
   subtitle,
@@ -196,17 +300,28 @@ export function AdminPageStack({
 export function AdminPageSkeleton() {
   return (
     <div className={pageStackClass} aria-busy="true" aria-label="Loading">
-      <div className="ds-skeleton h-8 w-44 rounded-[var(--ds-radius-sm)]" />
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, index) => (
+      <div className="ds-skeleton h-8 w-48 rounded-[var(--ds-radius-sm)]" />
+      <div className="ds-skeleton h-[88px] rounded-[var(--ds-radius)]" />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <div className="ds-skeleton h-64 rounded-[var(--ds-radius)]" />
+          <div className="ds-skeleton h-64 rounded-[var(--ds-radius)]" />
+          <div className="ds-skeleton h-72 rounded-[var(--ds-radius)]" />
+        </div>
+        <div className="space-y-4">
+          <div className="ds-skeleton h-52 rounded-[var(--ds-radius)]" />
+          <div className="ds-skeleton h-56 rounded-[var(--ds-radius)]" />
+          <div className="ds-skeleton h-40 rounded-[var(--ds-radius)]" />
+        </div>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, index) => (
           <div
             key={index}
-            className="ds-skeleton h-24 rounded-[var(--ds-radius)]"
+            className="ds-skeleton h-56 rounded-[var(--ds-radius)]"
           />
         ))}
       </div>
-      <div className="ds-skeleton h-14 rounded-[var(--ds-radius)]" />
-      <div className="ds-skeleton h-72 rounded-[var(--ds-radius)]" />
     </div>
   );
 }

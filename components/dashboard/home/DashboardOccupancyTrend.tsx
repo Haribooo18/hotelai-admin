@@ -13,7 +13,7 @@ import {
 import type { TrendPoint } from "./dashboard-metrics";
 import {
   DashboardEmptyState,
-  DashboardSectionTitle,
+  DashboardPanelHeader,
   DashboardSkeleton,
   DashboardSurface,
 } from "./DashboardPrimitives";
@@ -27,56 +27,60 @@ export function DashboardOccupancyTrend({ data, loading }: Props) {
   const hasData = data.some((point) => point.value > 0);
 
   return (
-    <DashboardSurface className="p-6">
-      <DashboardSectionTitle
+    <DashboardSurface glass className="p-[var(--ds-surface-padding)]">
+      <DashboardPanelHeader
         title="Occupancy trend"
         subtitle="Occupancy percentage over 7 days"
       />
 
       {loading ? (
-        <DashboardSkeleton className="h-56" />
+        <DashboardSkeleton className="h-52" />
       ) : !hasData ? (
         <DashboardEmptyState
           title="No occupancy data"
           description="Add rooms and reservations to track daily hotel occupancy."
         />
       ) : (
-        <div className="h-56">
+        <div className="h-52">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
+            <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
               <CartesianGrid
                 stroke="var(--shell-border)"
-                strokeDasharray="4 4"
+                strokeOpacity={0.35}
+                strokeDasharray="3 6"
                 vertical={false}
               />
               <XAxis
                 dataKey="label"
-                tick={{ fill: "var(--shell-muted)", fontSize: 12 }}
+                tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
+                dy={8}
               />
               <YAxis
-                tick={{ fill: "var(--shell-muted)", fontSize: 12 }}
+                tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
                 axisLine={false}
                 tickLine={false}
                 domain={[0, 100]}
-                width={40}
+                width={36}
               />
               <Tooltip
                 contentStyle={{
                   background: "var(--shell-surface)",
                   border: "none",
-                  borderRadius: "12px",
+                  borderRadius: "var(--ds-radius-sm)",
                   boxShadow: "var(--shell-shadow-md)",
                   color: "var(--shell-text)",
+                  fontSize: 12,
                 }}
                 formatter={(value) => [`${value}%`, "Occupancy"]}
               />
               <Bar
                 dataKey="value"
-                fill="#34d399"
+                fill="var(--shell-accent)"
+                fillOpacity={0.82}
                 radius={[10, 10, 0, 0]}
-                maxBarSize={36}
+                maxBarSize={28}
               />
             </BarChart>
           </ResponsiveContainer>

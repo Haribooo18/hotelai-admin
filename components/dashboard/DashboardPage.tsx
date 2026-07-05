@@ -6,22 +6,33 @@ import { createClient } from "@/lib/supabase/client";
 import type { Lead } from "@/types/lead";
 
 import {
+  buildAiActivity,
+  buildDashboardAlerts,
   buildOccupancyTrend,
   buildRevenueTrend,
   buildTimeline,
   computeDashboardMetrics,
-  DashboardHero,
-  DashboardKpiGrid,
+  getAiConversationCount,
+  getLatestBookings,
+  getRecentGuests,
+  getUpcomingBookings,
+  DashboardAiActivity,
+  DashboardAlerts,
+  DashboardExecutiveKpis,
   DashboardLatestReservations,
-  DashboardLeadsPanel,
   DashboardOccupancyTrend,
   DashboardQuickActions,
+  DashboardRecentBookings,
+  DashboardRecentGuests,
   DashboardRevenueTrend,
+  DashboardRoomStatus,
   DashboardTimeline,
-  getLatestBookings,
   useDashboardSupplement,
 } from "@/components/dashboard/home";
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import {
+  AdminPageStack,
+  DashboardPageHeader,
+} from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -32,10 +43,8 @@ type Props = {
 export function DashboardPage({ initialLeads, hotelId }: Props) {
   const { t } = useI18n();
   const [leads, setLeads] = useState(initialLeads);
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
 
-  const { bookings, rooms, loading } = useDashboardSupplement(hotelId);
+  const { bookings, rooms, guests, loading } = useDashboardSupplement(hotelId);
 
   useEffect(() => {
     const supabase = createClient();
@@ -68,50 +77,14 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
     };
   }, [hotelId]);
 
-  const counts = useMemo(
-    () => ({
-      all: leads.length,
-      new: leads.filter((lead) => lead.status === "new").length,
-      contacted: leads.filter((lead) => lead.status === "contacted").length,
-      confirmed: leads.filter((lead) => lead.status === "confirmed").length,
-      cancelled: leads.filter((lead) => lead.status === "cancelled").length,
-    }),
-    [leads]
-  );
-
-  const visibleLeads = useMemo(() => {
-    let items = leads;
-
-    if (status !== "all") {
-      items = items.filter((lead) => lead.status === status);
-    }
-
-    if (search.trim()) {
-      const query = search.toLowerCase();
-
-      items = items.filter((lead) =>
-        [
-          lead.guest_name,
-          lead.phone,
-          lead.email,
-          lead.room_type,
-          lead.comment,
-          lead.check_in,
-          lead.check_out,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(query)
-      );
-    }
-
-    return items;
-  }, [leads, status, search]);
-
   const metrics = useMemo(
     () => computeDashboardMetrics(bookings, rooms, leads),
     [bookings, rooms, leads]
+  );
+
+  const aiConversations = useMemo(
+    () => getAiConversationCount(leads),
+    [leads]
   );
 
   const revenueTrend = useMemo(
@@ -134,39 +107,68 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
     [bookings]
   );
 
+  const recentGuests = useMemo(
+    () => getRecentGuests(guests),
+    [guests]
+  );
+
+  const upcomingBookings = useMemo(
+    () => getUpcomingBookings(bookings),
+    [bookings]
+  );
+
+  const aiActivity = useMemo(() => buildAiActivity(leads), [leads]);
+
+  const alerts = useMemo(
+    () => buildDashboardAlerts(bookings, rooms, leads),
+    [bookings, rooms, leads]
+  );
+
   return (
-    <AdminPageStack>
+    <AdminPageStack className="ds-page-enter">
       <DashboardPageHeader
         title={t("pages.dashboard.title")}
         subtitle={t("pages.dashboard.subtitle")}
       />
 
-      <DashboardHero metrics={metrics} loading={loading} />
+      <DashboardExecutiveKpis
+        metrics={metrics}
+        aiConversations={aiConversations}
+        loading={loading}
+      />
 
-      <DashboardKpiGrid metrics={metrics} loading={loading} />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+        <div className="space-y-4">
+          <DashboardRevenueTrend data={revenueTrend} loading={loading} />
+          <DashboardOccupancyTrend data={occupancyTrend} loading={loading} />
+          <DashboardTimeline items={timeline} loading={loading} />
+        </div>
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
-        <DashboardTimeline items={timeline} loading={loading} />
-        <DashboardQuickActions />
+        <div className="space-y-4">
+          <DashboardAiActivity items={aiActivity} loading={loading} />
+          <DashboardLatestReservations
+            bookings={latestBookings}
+            loading={loading}
+          />
+          <DashboardAlerts alerts={alerts} loading={loading} />
+          <div className="sticky top-[60px] z-10">
+            <DashboardQuickActions />
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-4 xl:grid-cols-3">
-        <DashboardRevenueTrend data={revenueTrend} loading={loading} />
-        <DashboardOccupancyTrend data={occupancyTrend} loading={loading} />
-        <DashboardLatestReservations
-          bookings={latestBookings}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <DashboardRecentGuests guests={recentGuests} loading={loading} />
+        <DashboardRecentBookings
+          bookings={upcomingBookings}
+          loading={loading}
+        />
+        <DashboardRoomStatus
+          rooms={rooms}
+          bookings={bookings}
           loading={loading}
         />
       </div>
-
-      <DashboardLeadsPanel
-        leads={visibleLeads}
-        search={search}
-        status={status}
-        counts={counts}
-        onSearchChange={setSearch}
-        onStatusChange={setStatus}
-      />
     </AdminPageStack>
   );
 }

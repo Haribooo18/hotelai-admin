@@ -1,8 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, CalendarDays } from "lucide-react";
 
 import type { Booking } from "@/types/booking";
-import { formatDashboardCurrency } from "./dashboard-metrics";
 import { BookingStatusBadge } from "@/components/dashboard/bookings/BookingStatusBadge";
 import {
   DashboardEmptyState,
@@ -10,6 +11,7 @@ import {
   DashboardSkeleton,
   DashboardSurface,
 } from "./DashboardPrimitives";
+import { formatDashboardCurrency } from "./dashboard-metrics";
 
 type Props = {
   bookings: Booking[];
@@ -23,12 +25,12 @@ function formatDate(value: string): string {
   }).format(new Date(value));
 }
 
-export function DashboardLatestReservations({ bookings, loading }: Props) {
+export function DashboardRecentBookings({ bookings, loading }: Props) {
   return (
     <DashboardSurface className="p-[var(--ds-surface-padding)]">
       <DashboardPanelHeader
-        title="Latest reservations"
-        subtitle="Recently created entries"
+        title="Recent bookings"
+        subtitle="Upcoming check-ins and stays"
         action={
           <Link
             href="/bookings"
@@ -44,8 +46,8 @@ export function DashboardLatestReservations({ bookings, loading }: Props) {
         <DashboardSkeleton />
       ) : bookings.length === 0 ? (
         <DashboardEmptyState
-          title="No reservations yet"
-          description="Create your first reservation to see it in this widget."
+          title="No upcoming bookings"
+          description="Confirmed reservations will show here as they are scheduled."
           icon={<CalendarDays size={18} />}
         />
       ) : (
