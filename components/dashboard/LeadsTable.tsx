@@ -40,7 +40,7 @@ export function LeadsTable({ leads }: Props) {
 
   return (
     <>
-      <section className="overflow-hidden rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-xl">
+      <section className="overflow-hidden rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-xl">
         <div className="border-b border-[var(--shell-border)] px-6 py-5">
           <h2 className="text-xl font-bold">
             Recent requests
@@ -76,7 +76,7 @@ export function LeadsTable({ leads }: Props) {
               >
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-emerald-600 font-semibold text-white">
+                    <div className="flex h-[var(--ds-input-height)] w-11 items-center justify-center rounded-full bg-emerald-600 font-semibold text-white">
                       {(lead.guest_name || "?")
                         .charAt(0)
                         .toUpperCase()}

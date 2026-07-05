@@ -91,7 +91,7 @@ export function AISettingsForm({ settings, configured }: Props) {
     <form onSubmit={handleSave} className="space-y-6">
       {!configured && (
         <div
-          className="rounded-xl border border-amber-900/40 bg-amber-950/20 p-4 text-sm text-amber-200"
+          className="rounded-[var(--ds-radius)] border border-amber-900/40 bg-amber-950/20 p-4 text-sm text-amber-200"
           role="alert"
         >
           OPENAI_API_KEY is not set on the server. AI will be unavailable until the

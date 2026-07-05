@@ -36,7 +36,7 @@ export function DashboardLatestReservations({ bookings, loading }: Props) {
         </div>
         <Link
           href="/bookings"
-          className="inline-flex items-center gap-1 text-[13px] font-medium text-emerald-500 transition-opacity duration-[180ms] ease-out hover:opacity-80"
+          className="inline-flex items-center gap-1 text-[13px] font-medium text-emerald-500 transition-opacity duration-[var(--ds-duration-slow)] ease-out hover:opacity-80"
         >
           All
           <ArrowRight size={14} />
@@ -56,7 +56,7 @@ export function DashboardLatestReservations({ bookings, loading }: Props) {
           {bookings.map((booking) => (
             <div
               key={booking.id}
-              className="rounded-[16px] bg-[var(--shell-nav-hover-bg)]/50 p-4 transition-all duration-[180ms] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
+              className="rounded-[16px] bg-[var(--shell-nav-hover-bg)]/50 p-4 transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">

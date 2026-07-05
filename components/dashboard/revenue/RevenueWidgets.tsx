@@ -86,12 +86,12 @@ function WidgetCard({
   emptyDescription: string;
 }) {
   return (
-    <DashboardSurface className="p-5">
+    <DashboardSurface className="p-[var(--ds-surface-padding)]">
       <div className="mb-4 flex items-center justify-between gap-3">
         <h3 className="text-[15px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
           {title}
         </h3>
-        <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-500">
+        <div className="flex h-9 w-9 items-center justify-center rounded-[var(--ds-radius-sm)] bg-emerald-500/10 text-emerald-500">
           {icon}
         </div>
       </div>
@@ -106,7 +106,7 @@ function WidgetCard({
           {items.map((item) => (
             <div
               key={item.id}
-              className="rounded-[14px] bg-[var(--shell-nav-hover-bg)]/60 p-3 transition-all duration-[180ms] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
+              className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-nav-hover-bg)]/60 p-3 transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">

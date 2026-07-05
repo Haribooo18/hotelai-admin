@@ -51,7 +51,7 @@ export function BookingsCards({ bookings, rooms, onEdit }: Props) {
 
   if (optimisticBookings.length === 0) {
     return (
-      <div className="rounded-[20px] bg-[var(--shell-surface)] px-6 py-16 text-center shadow-[var(--shell-shadow-sm)]">
+      <div className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)] px-6 py-16 text-center shadow-[var(--shell-shadow-sm)]">
         <p className="text-[15px] font-medium text-[var(--shell-text)]">
           No reservations yet
         </p>

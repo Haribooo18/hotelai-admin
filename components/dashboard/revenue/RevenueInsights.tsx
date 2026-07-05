@@ -15,7 +15,7 @@ export function RevenueInsights({ insights }: Props) {
   return (
     <DashboardSurface glass className="p-6">
       <div className="mb-5 flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-[14px] bg-emerald-500/10 text-emerald-500">
+        <div className="flex h-10 w-10 items-center justify-center rounded-[var(--ds-radius-sm)] bg-emerald-500/10 text-emerald-500">
           <Bot size={18} />
         </div>
         <div>
@@ -39,7 +39,7 @@ export function RevenueInsights({ insights }: Props) {
           {insights.map((insight) => (
             <li
               key={insight.id}
-              className="rounded-[14px] bg-[var(--shell-nav-hover-bg)]/60 px-4 py-3 text-[14px] text-[var(--shell-text)] transition-all duration-[180ms] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
+              className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-nav-hover-bg)]/60 px-4 py-3 text-[14px] text-[var(--shell-text)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
             >
               • {insight.text}
             </li>

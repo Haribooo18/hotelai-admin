@@ -1,5 +1,9 @@
 import type { AIHealthStatus } from "@/types/ai-settings";
 
+import {
+  DashboardSectionTitle,
+  DashboardSurface,
+} from "@/components/dashboard/home/DashboardPrimitives";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -45,23 +49,24 @@ export function AIHealthPanel({ health }: Props) {
   ];
 
   return (
-    <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
-      <h3 className="font-semibold">AI diagnostics</h3>
-      <p className="mt-1 text-sm text-[var(--shell-muted)]">
-        Integration status over the last 24 hours
-      </p>
+    <DashboardSurface interactive={false} className="p-[var(--ds-surface-padding)]">
+      <DashboardSectionTitle
+        title="AI diagnostics"
+        subtitle="Integration status over the last 24 hours"
+        className="mb-4"
+      />
 
-      <dl className="mt-4 grid gap-3 sm:grid-cols-2">
+      <dl className="grid gap-3 sm:grid-cols-2">
         {items.map((item) => (
           <div
             key={item.label}
-            className="flex items-center justify-between rounded-lg bg-[var(--shell-surface-raised)] px-3 py-2"
+            className="flex items-center justify-between rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] px-3 py-2"
           >
-            <dt className="text-sm text-[var(--shell-muted)]">{item.label}</dt>
+            <dt className="text-[13px] text-[var(--shell-muted)]">{item.label}</dt>
             <dd
               className={cn(
-                "text-sm font-medium",
-                item.ok ? "text-emerald-400" : "text-amber-400"
+                "text-[13px] font-medium",
+                item.ok ? "text-[var(--shell-accent)]" : "text-amber-400"
               )}
             >
               {item.value}
@@ -69,6 +74,6 @@ export function AIHealthPanel({ health }: Props) {
           </div>
         ))}
       </dl>
-    </div>
+    </DashboardSurface>
   );
 }

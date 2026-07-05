@@ -40,7 +40,7 @@ export function GuestStats({ stats }: Props) {
         return (
           <div
             key={card.title}
-            className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
+            className="rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-[var(--ds-surface-padding)]"
           >
             <div className="flex items-center justify-between">
               <p className="text-sm text-[var(--shell-muted)]">{card.title}</p>

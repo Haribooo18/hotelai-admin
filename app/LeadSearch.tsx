@@ -18,7 +18,7 @@ export function LeadSearch({
         className="
           h-12
           w-full
-          rounded-xl
+          rounded-[var(--ds-radius)]
           border
           border-[var(--shell-border)]
           bg-[var(--shell-surface-raised)]

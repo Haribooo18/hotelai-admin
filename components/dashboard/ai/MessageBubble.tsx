@@ -34,7 +34,7 @@ export function MessageBubble({ message }: Props) {
     >
       <div
         className={cn(
-          "max-w-[75%] rounded-2xl px-4 py-2.5 text-sm",
+          "max-w-[75%] rounded-[var(--ds-radius)] px-4 py-2.5 text-sm",
           isInternal && "border border-dashed border-amber-600/40 bg-amber-950/30",
           !isInternal && message.role === "guest" && "bg-[var(--shell-surface-raised)] text-[var(--shell-text)]",
           !isInternal && message.role === "staff" && "bg-emerald-700 text-white",

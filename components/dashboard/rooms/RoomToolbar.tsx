@@ -17,6 +17,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Select } from "@/components/ui/select";
+import {
+  stickyToolbarClass,
+  toolbarInputClass,
+} from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 import type {
@@ -89,7 +93,7 @@ export function RoomToolbar({
     "Sort";
 
   return (
-    <div className="sticky top-[72px] z-20 space-y-4 rounded-[20px] bg-[var(--shell-content)]/90 p-4 backdrop-blur-xl lg:p-5">
+    <div className={stickyToolbarClass}>
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="relative min-w-0 flex-1 xl:max-w-md">
           <Search
@@ -97,7 +101,7 @@ export function RoomToolbar({
             size={18}
           />
           <Input
-            className="h-11 rounded-[12px] border-0 bg-[var(--shell-surface)] pl-10 text-[13px] shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out focus-visible:ring-emerald-500/30"
+            className={toolbarInputClass}
             placeholder="Search by room type..."
             aria-label="Search rooms"
             value={search}
@@ -111,7 +115,7 @@ export function RoomToolbar({
             onChange={onFloorChange}
             placeholder="All floors"
             aria-label="Filter by floor"
-            className="h-11 min-w-[130px] rounded-[12px] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
+            className="h-[var(--ds-input-height)] min-w-[130px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
             options={floorOptions.map((value) => ({ value, label: value }))}
           />
 
@@ -120,7 +124,7 @@ export function RoomToolbar({
             onChange={onStatusChange}
             placeholder="All statuses"
             aria-label="Filter by status"
-            className="h-11 min-w-[140px] rounded-[12px] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
+            className="h-[var(--ds-input-height)] min-w-[140px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
             options={STATUS_OPTIONS.filter((option) => option.value !== "").map(
               (option) => ({ value: option.value, label: option.label })
             )}
@@ -131,14 +135,14 @@ export function RoomToolbar({
             onChange={onRoomTypeChange}
             placeholder="All types"
             aria-label="Filter by room type"
-            className="h-11 min-w-[150px] rounded-[12px] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
+            className="h-[var(--ds-input-height)] min-w-[150px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]"
             options={roomTypeOptions.map((value) => ({ value, label: value }))}
           />
 
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(
-                "inline-flex h-11 items-center gap-2 rounded-[12px] bg-[var(--shell-surface)] px-4 text-[13px] font-medium text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out",
+                "inline-flex h-[var(--ds-input-height)] items-center gap-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] px-4 text-[13px] font-medium text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out",
                 "hover:bg-[var(--shell-nav-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
               )}
             >
@@ -148,7 +152,7 @@ export function RoomToolbar({
 
             <DropdownMenuContent
               align="end"
-              className="min-w-52 rounded-[12px] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
+              className="min-w-52 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
             >
               {SORT_OPTIONS.map((option) => (
                 <DropdownMenuItem
@@ -167,14 +171,14 @@ export function RoomToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div className="flex rounded-[12px] bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-sm)]">
+          <div className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-sm)]">
             <button
               type="button"
               aria-label="Grid"
               aria-pressed={viewMode === "grid"}
               onClick={() => onViewModeChange("grid")}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[180ms] ease-out",
+                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration-slow)] ease-out",
                 viewMode === "grid"
                   ? "bg-[var(--shell-nav-active-bg)] text-emerald-500"
                   : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
@@ -188,7 +192,7 @@ export function RoomToolbar({
               aria-pressed={viewMode === "list"}
               onClick={() => onViewModeChange("list")}
               className={cn(
-                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[180ms] ease-out",
+                "flex h-9 w-9 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration-slow)] ease-out",
                 viewMode === "list"
                   ? "bg-[var(--shell-nav-active-bg)] text-emerald-500"
                   : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
@@ -201,7 +205,7 @@ export function RoomToolbar({
           <button
             type="button"
             onClick={onCreateClick}
-            className="inline-flex h-11 items-center gap-2 rounded-[12px] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:bg-emerald-500"
+            className="inline-flex h-[var(--ds-input-height)] items-center gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-emerald-500"
           >
             <BedDouble size={16} />
             Add Room
@@ -210,14 +214,14 @@ export function RoomToolbar({
       </div>
 
       {selectedCount > 0 ? (
-        <div className="flex flex-wrap items-center gap-2 rounded-[14px] bg-[var(--shell-surface)] px-4 py-3 shadow-[var(--shell-shadow-sm)]">
+        <div className="flex flex-wrap items-center gap-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] px-4 py-3 shadow-[var(--shell-shadow-sm)]">
           <span className="text-[13px] font-medium text-[var(--shell-text)]">
             Selected: {selectedCount}
           </span>
           <button
             type="button"
             onClick={onBulkDelete}
-            className="inline-flex items-center gap-1.5 rounded-[10px] bg-red-500/10 px-3 py-1.5 text-[12px] font-medium text-red-400 transition-all duration-[180ms] ease-out hover:bg-red-500/15"
+            className="inline-flex items-center gap-1.5 rounded-[10px] bg-red-500/10 px-3 py-1.5 text-[12px] font-medium text-red-400 transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-red-500/15"
           >
             <Trash2 size={14} />
             Delete
@@ -225,7 +229,7 @@ export function RoomToolbar({
           <button
             type="button"
             onClick={onClearSelection}
-            className="ml-auto text-[12px] text-[var(--shell-muted)] transition-opacity duration-[180ms] ease-out hover:opacity-80"
+            className="ml-auto text-[12px] text-[var(--shell-muted)] transition-opacity duration-[var(--ds-duration-slow)] ease-out hover:opacity-80"
           >
             Clear selection
           </button>

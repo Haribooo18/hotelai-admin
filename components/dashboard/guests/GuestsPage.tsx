@@ -20,7 +20,7 @@ import { GuestEditDialog } from "./GuestEditDialog";
 import { GuestKpiGrid } from "./GuestKpiGrid";
 import { GuestToolbar } from "./GuestToolbar";
 import { GuestsCardsView } from "./GuestsCardsView";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { DashboardPageHeader, AdminPageStack } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 import {
   buildGuestCardModels,
@@ -161,7 +161,7 @@ export function GuestsPage({ guests }: Props) {
   }
 
   return (
-    <div className="space-y-7">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.guests.title")}
         subtitle={t("pages.guests.subtitle")}
@@ -231,6 +231,6 @@ export function GuestsPage({ guests }: Props) {
         loading={pending}
         onConfirm={confirmBulkDelete}
       />
-    </div>
+    </AdminPageStack>
   );
 }

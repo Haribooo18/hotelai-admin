@@ -37,7 +37,7 @@ export function RevenueTransactions({ transactions }: Props) {
       />
 
       {transactions.length === 0 ? (
-        <div className="rounded-[20px] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
+        <div className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
           <DashboardEmptyState
             title="No transactions"
             description="Transactions appear after bookings are created in the selected period."
@@ -48,7 +48,7 @@ export function RevenueTransactions({ transactions }: Props) {
           {transactions.map((item) => (
             <article
               key={item.id}
-              className="rounded-[20px] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:-translate-y-1 hover:shadow-[var(--shell-shadow-md)]"
+              className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:-translate-y-1 hover:shadow-[var(--shell-shadow-md)]"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -64,7 +64,7 @@ export function RevenueTransactions({ transactions }: Props) {
                   <DropdownMenuTrigger
                     aria-label={`Actions for transaction ${item.guestName}`}
                     className={cn(
-                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--shell-muted)] transition-all duration-[180ms] ease-out",
+                      "flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] text-[var(--shell-muted)] transition-all duration-[var(--ds-duration-slow)] ease-out",
                       "hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
                     )}
                   >
@@ -72,7 +72,7 @@ export function RevenueTransactions({ transactions }: Props) {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent
                     align="end"
-                    className="min-w-40 rounded-[12px] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
+                    className="min-w-40 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
                   >
                     <DropdownMenuItem
                       className="rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"

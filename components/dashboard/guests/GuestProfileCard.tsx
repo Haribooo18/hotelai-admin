@@ -15,7 +15,7 @@ export function GuestProfileCard({ guest, actions }: Props) {
   const location = [guest.city, guest.country].filter(Boolean).join(", ");
 
   return (
-    <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
+    <div className="rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <GuestAvatar
@@ -58,7 +58,7 @@ export function GuestProfileCard({ guest, actions }: Props) {
       </dl>
 
       {guest.notes && (
-        <div className="mt-6 rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
+        <div className="mt-6 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
           <p className="text-xs uppercase tracking-widest text-[var(--shell-muted)]">
             Notes
           </p>

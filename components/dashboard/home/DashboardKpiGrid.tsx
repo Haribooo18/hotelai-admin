@@ -29,7 +29,7 @@ export function DashboardKpiGrid({ metrics, loading }: Props) {
     return (
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, index) => (
-          <DashboardSurface key={index} className="p-5">
+          <DashboardSurface key={index} className="p-[var(--ds-surface-padding)]">
             <DashboardSkeleton />
           </DashboardSurface>
         ))}

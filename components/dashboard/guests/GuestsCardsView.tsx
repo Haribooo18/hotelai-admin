@@ -99,7 +99,7 @@ export function GuestsCardsView({
         {Array.from({ length: 6 }).map((_, index) => (
           <div
             key={index}
-            className="rounded-[20px] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)]"
+            className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)]"
           >
             <DashboardSkeleton />
           </div>
@@ -110,7 +110,7 @@ export function GuestsCardsView({
 
   if (optimisticModels.length === 0) {
     return (
-      <div className="rounded-[20px] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
+      <div className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
         <DashboardEmptyState
           title="No guests found"
           description="Adjust filters or add a new guest to the CRM."

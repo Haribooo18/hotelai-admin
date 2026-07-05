@@ -113,7 +113,7 @@ export function CalendarTimeline({
     <div
       ref={scrollRef}
       onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-      className="relative max-h-[70vh] overflow-auto rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+      className="relative max-h-[70vh] overflow-auto rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)]"
     >
       <div style={{ width: totalWidth, minWidth: totalWidth }}>
         <CalendarDateHeader days={days} occupancy={occupancy} />

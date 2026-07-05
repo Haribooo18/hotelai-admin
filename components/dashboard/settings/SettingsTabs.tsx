@@ -8,6 +8,7 @@ import type { AIObservabilityLog } from "@/types/ai-settings";
 import type { HotelSubscription } from "@/types/subscription";
 
 import {
+  AdminPageStack,
   DashboardPageHeader,
   DashboardSectionTitle,
   DashboardSurface,
@@ -52,7 +53,7 @@ export function SettingsTabs({
   ];
 
   return (
-    <div className="space-y-6">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.settings.title")}
         subtitle={t("pages.settings.subtitle")}
@@ -134,6 +135,6 @@ export function SettingsTabs({
       ) : null}
 
       {activeTab === "appearance" ? <AppearancePanel /> : null}
-    </div>
+    </AdminPageStack>
   );
 }

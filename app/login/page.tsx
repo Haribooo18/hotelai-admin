@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: Props) {
     <div className="flex min-h-screen items-center justify-center bg-[var(--shell-surface)] p-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[var(--ds-radius)] bg-emerald-600">
             <Hotel className="h-6 w-6 text-white" />
           </div>
 
@@ -37,7 +37,7 @@ export default async function LoginPage({ searchParams }: Props) {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-6">
+        <div className="rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-6">
           <LoginForm redirectedFrom={redirectedFrom} />
         </div>
       </div>

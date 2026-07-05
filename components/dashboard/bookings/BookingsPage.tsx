@@ -13,7 +13,10 @@ import {
   type BookingsChipFilter,
 } from "./BookingsFilters";
 import { BookingsStats } from "./BookingsStats";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import {
+  AdminPageStack,
+  DashboardPageHeader,
+} from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -84,7 +87,7 @@ export function BookingsPage({ bookings, rooms }: Props) {
   }
 
   return (
-    <div className="space-y-7">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.reservations.title")}
         subtitle={t("pages.reservations.subtitle")}
@@ -122,6 +125,6 @@ export function BookingsPage({ bookings, rooms }: Props) {
         booking={selectedBooking}
         rooms={rooms}
       />
-    </div>
+    </AdminPageStack>
   );
 }

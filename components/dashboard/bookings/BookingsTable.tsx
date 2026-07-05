@@ -125,7 +125,7 @@ export function BookingsTable({ bookings, onEdit }: Props) {
         getRowId={(booking) => booking.id}
         caption="Reservation list"
         empty={
-          <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
+          <div className="rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
             No reservations yet
           </div>
         }

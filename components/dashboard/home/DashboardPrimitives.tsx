@@ -2,7 +2,9 @@ import type { ReactNode } from "react";
 
 import {
   labelClass,
+  pageStackClass,
   sectionTitleClass,
+  shellEmptyStateClass,
   surfaceClass,
   surfaceStaticClass,
 } from "@/lib/dashboard/design-system";
@@ -87,19 +89,21 @@ export function DashboardEmptyState({
   action,
 }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center px-6 py-12 text-center">
-      {icon ? (
-        <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)]">
-          {icon}
-        </div>
-      ) : null}
-      <p className="text-[14px] font-medium tracking-[-0.01em] text-[var(--shell-text)]">
-        {title}
-      </p>
-      <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-[var(--shell-muted)]">
-        {description}
-      </p>
-      {action ? <div className="mt-5">{action}</div> : null}
+    <div className={shellEmptyStateClass}>
+      <div className="flex flex-col items-center justify-center px-6 py-10 text-center">
+        {icon ? (
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)]">
+            {icon}
+          </div>
+        ) : null}
+        <p className="text-[14px] font-medium tracking-[-0.01em] text-[var(--shell-text)]">
+          {title}
+        </p>
+        <p className="mt-2 max-w-sm text-[13px] leading-relaxed text-[var(--shell-muted)]">
+          {description}
+        </p>
+        {action ? <div className="mt-5">{action}</div> : null}
+      </div>
     </div>
   );
 }
@@ -161,7 +165,7 @@ export function DashboardPageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h1 className="ds-display">{title}</h1>
         {subtitle ? (
@@ -173,6 +177,36 @@ export function DashboardPageHeader({
       {actions ? (
         <div className="flex flex-wrap items-center gap-2">{actions}</div>
       ) : null}
+    </div>
+  );
+}
+
+/** Consistent vertical page layout */
+export function AdminPageStack({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return <div className={cn(pageStackClass, className)}>{children}</div>;
+}
+
+/** Route-level loading skeleton */
+export function AdminPageSkeleton() {
+  return (
+    <div className={pageStackClass} aria-busy="true" aria-label="Loading">
+      <div className="ds-skeleton h-8 w-44 rounded-[var(--ds-radius-sm)]" />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="ds-skeleton h-24 rounded-[var(--ds-radius)]"
+          />
+        ))}
+      </div>
+      <div className="ds-skeleton h-14 rounded-[var(--ds-radius)]" />
+      <div className="ds-skeleton h-72 rounded-[var(--ds-radius)]" />
     </div>
   );
 }

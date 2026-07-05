@@ -15,6 +15,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { BOOKING_STATUS_OPTIONS } from "@/lib/booking-status";
+import {
+  chipActiveClass,
+  chipClass,
+  chipIdleClass,
+  toolbarControlClass,
+  toolbarInputClass,
+  toolbarShellClass,
+} from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 export type BookingsChipFilter =
@@ -60,15 +68,15 @@ export function BookingsFilters({
     "All statuses";
 
   return (
-    <div className="space-y-4">
+    <div className={toolbarShellClass}>
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="relative min-w-0 flex-1 xl:max-w-md">
           <Search
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={18}
+            size={17}
           />
           <Input
-            className="h-11 rounded-[12px] border-0 bg-[var(--shell-surface)] pl-10 text-[13px] shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out focus-visible:ring-emerald-500/30"
+            className={cn(toolbarInputClass, "bg-[var(--shell-surface-raised)]")}
             placeholder="Search by guest, email, or phone"
             aria-label="Search reservations"
             value={search}
@@ -82,23 +90,18 @@ export function BookingsFilters({
             value={dateFilter}
             onChange={(e) => onDateFilterChange(e.target.value)}
             aria-label="Filter by date"
-            className="h-11 w-[156px] rounded-[12px] border-0 bg-[var(--shell-surface)] text-[13px] shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out focus-visible:ring-emerald-500/30"
+            className="h-[var(--ds-input-height)] w-[156px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
           />
 
           <DropdownMenu>
-            <DropdownMenuTrigger
-              className={cn(
-                "inline-flex h-11 items-center gap-2 rounded-[12px] bg-[var(--shell-surface)] px-4 text-[13px] font-medium text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out",
-                "hover:bg-[var(--shell-nav-hover-bg)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
-              )}
-            >
+            <DropdownMenuTrigger className={toolbarControlClass}>
               <Filter size={16} className="text-[var(--shell-muted)]" />
               {activeStatusLabel}
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
               align="end"
-              className="min-w-48 rounded-[12px] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
+              className="min-w-48 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
             >
               <DropdownMenuItem
                 onClick={() => onStatusChange("")}
@@ -131,7 +134,7 @@ export function BookingsFilters({
 
           <BookingCreateButton
             onClick={onCreateClick}
-            className="h-11 rounded-[12px] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:bg-emerald-500"
+            className="h-[var(--ds-input-height)] rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] font-medium text-white shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-emerald-500"
             label="New reservation"
             icon={Plus}
           />
@@ -148,10 +151,8 @@ export function BookingsFilters({
               type="button"
               onClick={() => onChipFilterChange(chip.id)}
               className={cn(
-                "rounded-full px-4 py-2 text-[13px] font-medium transition-all duration-[180ms] ease-out",
-                active
-                  ? "bg-emerald-500/15 text-emerald-500 shadow-[var(--shell-shadow-sm)]"
-                  : "bg-[var(--shell-surface)] text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
+                chipClass,
+                active ? chipActiveClass : chipIdleClass
               )}
             >
               {chip.label}

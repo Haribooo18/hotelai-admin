@@ -87,7 +87,7 @@ export function ConversationView({
           aria-label="Messages"
           aria-live="polite"
         >
-          <div className="flex-1 space-y-4 overflow-y-auto p-5">
+          <div className="flex-1 space-y-4 overflow-y-auto p-[var(--ds-surface-padding)]">
             {visibleMessages.length === 0 ? (
               <p className="text-center text-sm text-[var(--shell-muted)]">
                 No messages yet. Start the conversation.
@@ -99,7 +99,7 @@ export function ConversationView({
             )}
 
             {streaming && streamText && (
-              <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-[var(--shell-text)]">
+              <div className="rounded-[var(--ds-radius)] border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-[var(--shell-text)]">
                 {streamText}
               </div>
             )}
@@ -127,7 +127,7 @@ export function ConversationView({
           <LeadCard lead={lead} />
 
           {conversation.internal_notes && (
-            <div className="mt-4 rounded-xl border border-amber-900/30 bg-amber-950/20 p-3">
+            <div className="mt-4 rounded-[var(--ds-radius)] border border-amber-900/30 bg-amber-950/20 p-3">
               <p className="text-xs uppercase tracking-widest text-amber-500/80">
                 Internal notes
               </p>

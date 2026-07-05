@@ -91,7 +91,7 @@ export function RoomsCardsView({
         {Array.from({ length: 8 }).map((_, index) => (
           <div
             key={index}
-            className="rounded-[20px] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)]"
+            className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)]"
           >
             <DashboardSkeleton />
           </div>
@@ -102,7 +102,7 @@ export function RoomsCardsView({
 
   if (optimisticModels.length === 0) {
     return (
-      <div className="rounded-[20px] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
+      <div className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
         <DashboardEmptyState
           title="No rooms found"
           description="Adjust filters or add the first room to your inventory."

@@ -15,7 +15,7 @@ export function KnowledgeError({
 }: Props) {
   return (
     <div
-      className="flex flex-col items-center justify-center rounded-xl border border-red-900/50 bg-red-950/20 px-6 py-12 text-center"
+      className="flex flex-col items-center justify-center rounded-[var(--ds-radius)] border border-red-900/50 bg-red-950/20 px-6 py-12 text-center"
       role="alert"
     >
       <AlertTriangle className="mb-3 text-red-400" size={32} />

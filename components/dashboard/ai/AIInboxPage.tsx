@@ -28,7 +28,7 @@ import { ConversationList } from "./ConversationList";
 import { ConversationView } from "./ConversationView";
 import { EmptyConversation } from "./EmptyConversation";
 import { KnowledgePanel } from "./KnowledgePanel";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -99,7 +99,7 @@ export function AIInboxPage({
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.messages.title")}
         subtitle={t("pages.messages.subtitle")}
@@ -111,7 +111,7 @@ export function AIInboxPage({
         }
       />
 
-      <div className="flex h-[calc(100vh-14rem)] min-h-[480px] overflow-hidden rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)]">
+      <div className="flex h-[calc(100vh-12rem)] min-h-[480px] overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]">
         <div
           className={
             selectedId
@@ -199,6 +199,6 @@ export function AIInboxPage({
           </form>
         </SheetContent>
       </Sheet>
-    </div>
+    </AdminPageStack>
   );
 }

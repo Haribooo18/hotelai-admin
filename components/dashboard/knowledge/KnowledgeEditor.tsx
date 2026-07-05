@@ -293,7 +293,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <aside className="space-y-4 rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
+        <aside className="space-y-4 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
           <div className="space-y-2">
             <label htmlFor="kb-edit-title" className="block text-sm text-[var(--shell-muted)]">
               Title

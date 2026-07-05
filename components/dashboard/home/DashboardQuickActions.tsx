@@ -66,7 +66,7 @@ export function DashboardQuickActions() {
               href={action.href}
               className={cn(
                 buttonVariants({ variant: action.primary ? "default" : "outline" }),
-                "h-12 w-full justify-start gap-3 rounded-[14px] border-0 px-4 text-[14px] font-medium shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:-translate-y-0.5",
+                "h-12 w-full justify-start gap-3 rounded-[var(--ds-radius-sm)] border-0 px-4 text-[14px] font-medium shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out hover:-translate-y-0.5",
                 action.primary
                   ? "bg-emerald-600 text-white hover:bg-emerald-500"
                   : "bg-[var(--shell-nav-hover-bg)]/50 text-[var(--shell-text)] hover:bg-[var(--shell-nav-hover-bg)]"

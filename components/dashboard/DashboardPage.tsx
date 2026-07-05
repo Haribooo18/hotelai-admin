@@ -21,7 +21,7 @@ import {
   getLatestBookings,
   useDashboardSupplement,
 } from "@/components/dashboard/home";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -135,7 +135,7 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
   );
 
   return (
-    <div className="space-y-6">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.dashboard.title")}
         subtitle={t("pages.dashboard.subtitle")}
@@ -145,12 +145,12 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
 
       <DashboardKpiGrid metrics={metrics} loading={loading} />
 
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
         <DashboardTimeline items={timeline} loading={loading} />
         <DashboardQuickActions />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-3">
+      <div className="grid gap-4 xl:grid-cols-3">
         <DashboardRevenueTrend data={revenueTrend} loading={loading} />
         <DashboardOccupancyTrend data={occupancyTrend} loading={loading} />
         <DashboardLatestReservations
@@ -167,6 +167,6 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
         onSearchChange={setSearch}
         onStatusChange={setStatus}
       />
-    </div>
+    </AdminPageStack>
   );
 }

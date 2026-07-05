@@ -63,11 +63,11 @@ export function DashboardTimeline({ items, loading }: Props) {
             return (
               <div
                 key={item.id}
-                className="flex items-start gap-4 rounded-[16px] bg-[var(--shell-nav-hover-bg)]/50 p-4 transition-all duration-[180ms] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
+                className="flex items-start gap-4 rounded-[16px] bg-[var(--shell-nav-hover-bg)]/50 p-4 transition-all duration-[var(--ds-duration-slow)] ease-out hover:bg-[var(--shell-nav-hover-bg)]"
               >
                 <div
                   className={cn(
-                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-[12px]",
+                    "flex h-10 w-10 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)]",
                     meta.color
                   )}
                 >

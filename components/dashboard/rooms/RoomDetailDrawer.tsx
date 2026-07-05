@@ -111,7 +111,7 @@ export function RoomDetailDrawer({
                     type="button"
                     onClick={() => setTab(item.id)}
                     className={cn(
-                      "inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-[12px] font-medium transition-all duration-[180ms] ease-out",
+                      "inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-[12px] font-medium transition-all duration-[var(--ds-duration-slow)] ease-out",
                       active
                         ? "bg-emerald-500/15 text-emerald-500"
                         : "bg-[var(--shell-nav-hover-bg)] text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
@@ -152,7 +152,7 @@ export function RoomDetailDrawer({
                   roomBookings.map((booking) => (
                     <DashboardSurface
                       key={booking.id}
-                      className="p-4 transition-all duration-[180ms] ease-out hover:-translate-y-0.5 hover:shadow-[var(--shell-shadow-md)]"
+                      className="p-4 transition-all duration-[var(--ds-duration-slow)] ease-out hover:-translate-y-0.5 hover:shadow-[var(--shell-shadow-md)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>

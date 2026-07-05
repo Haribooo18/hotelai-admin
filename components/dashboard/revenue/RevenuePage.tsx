@@ -7,7 +7,7 @@ import type { Room } from "@/types/room";
 import { RevenueCharts } from "./RevenueCharts";
 import { RevenueInsights } from "./RevenueInsights";
 import { RevenueKpiGrid } from "./RevenueKpiGrid";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 import {
   buildMonthlyComparison,
@@ -78,7 +78,7 @@ export function RevenuePage({ bookings, rooms }: Props) {
   }
 
   return (
-    <div className="space-y-7">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.revenue.title")}
         subtitle={t("pages.revenue.subtitle")}
@@ -112,6 +112,6 @@ export function RevenuePage({ bookings, rooms }: Props) {
       <RevenueInsights insights={insights} />
 
       <RevenueTransactions transactions={transactions} />
-    </div>
+    </AdminPageStack>
   );
 }

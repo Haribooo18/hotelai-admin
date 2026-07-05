@@ -24,7 +24,8 @@ import { CalendarToolbar } from "./CalendarToolbar";
 import { CalendarTimeline } from "./CalendarTimeline";
 import { CalendarAgenda } from "./CalendarAgenda";
 import { CalendarLegend } from "./CalendarLegend";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { shellEmptyStateClass } from "@/lib/dashboard/design-system";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -122,7 +123,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
   }
 
   return (
-    <div className="space-y-6">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.calendar.title")}
         subtitle={t("pages.calendar.subtitle")}
@@ -142,7 +143,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
       />
 
       {rooms.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
+        <div className={shellEmptyStateClass}>
           No rooms. Add rooms to see the calendar.
         </div>
       ) : (
@@ -179,6 +180,6 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
         booking={selected}
         rooms={rooms}
       />
-    </div>
+    </AdminPageStack>
   );
 }

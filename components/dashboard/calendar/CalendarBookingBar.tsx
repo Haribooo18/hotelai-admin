@@ -176,7 +176,7 @@ export function CalendarBookingBar({
       />
 
       {/* Hover / focus summary card */}
-      <div className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-56 rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-3 text-left shadow-xl group-hover:block group-focus-within:block">
+      <div className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-56 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-3 text-left shadow-xl group-hover:block group-focus-within:block">
         <p className="font-semibold text-white">{booking.guest_name}</p>
         <p className="mt-1 text-xs text-[var(--shell-muted)]">
           {booking.check_in} → {booking.check_out} · {nights} nights

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { FlaskConical } from "lucide-react";
 import { toast } from "sonner";
 
 import { testAIPrompt } from "@/lib/services/ai-completion.service";
@@ -9,6 +8,11 @@ import { testAIPrompt } from "@/lib/services/ai-completion.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  DashboardSectionTitle,
+  DashboardSurface,
+} from "@/components/dashboard/home/DashboardPrimitives";
+import { shellFormLabelClass } from "@/lib/dashboard/design-system";
 
 type TestResult = {
   content: string;
@@ -41,18 +45,16 @@ export function AIPromptTest() {
   }
 
   return (
-    <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
-      <h3 className="flex items-center gap-2 font-semibold">
-        <FlaskConical size={18} className="text-emerald-500" />
-        Prompt test
-      </h3>
-      <p className="mt-1 text-sm text-[var(--shell-muted)]">
-        Test AI response without creating a conversation
-      </p>
+    <DashboardSurface interactive={false} className="p-[var(--ds-surface-padding)]">
+      <DashboardSectionTitle
+        title="Prompt test"
+        subtitle="Test AI response without creating a conversation"
+        className="mb-4"
+      />
 
-      <form onSubmit={handleTest} className="mt-4 space-y-4">
-        <div className="space-y-2">
-          <label htmlFor="test-guest" className="block text-sm text-[var(--shell-muted)]">
+      <form onSubmit={handleTest} className="space-y-4">
+        <div className="space-y-1.5">
+          <label htmlFor="test-guest" className={shellFormLabelClass}>
             Guest name
           </label>
           <Input
@@ -62,8 +64,8 @@ export function AIPromptTest() {
           />
         </div>
 
-        <div className="space-y-2">
-          <label htmlFor="test-msg" className="block text-sm text-[var(--shell-muted)]">
+        <div className="space-y-1.5">
+          <label htmlFor="test-msg" className={shellFormLabelClass}>
             Guest message
           </label>
           <Textarea
@@ -76,22 +78,22 @@ export function AIPromptTest() {
           />
         </div>
 
-        <Button type="submit" disabled={pending || !message.trim()}>
-          {pending ? "Generating…" : "Run test"}
+        <Button type="submit" size="sm" disabled={pending || !message.trim()} loading={pending}>
+          Run test
         </Button>
       </form>
 
-      {result && (
-        <div className="mt-6 space-y-3 rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
-          <p className="whitespace-pre-wrap text-sm text-[var(--shell-text)]">
+      {result ? (
+        <div className="mt-5 space-y-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-4">
+          <p className="whitespace-pre-wrap text-[13px] text-[var(--shell-text)]">
             {result.content}
           </p>
-          <p className="text-xs text-[var(--shell-muted)]">
+          <p className="text-[11px] text-[var(--shell-muted)]">
             {result.model} · {result.usage.total_tokens} tokens · $
             {result.costUsd.toFixed(6)} · tools: {result.toolRounds}
           </p>
         </div>
-      )}
-    </div>
+      ) : null}
+    </DashboardSurface>
   );
 }

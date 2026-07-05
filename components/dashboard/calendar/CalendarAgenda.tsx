@@ -22,7 +22,7 @@ export function CalendarAgenda({ rooms, bookings, days, onOpen }: Props) {
 
   if (visible.length === 0) {
     return (
-      <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
+      <div className="rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
         No bookings in the selected period
       </div>
     );
@@ -35,7 +35,7 @@ export function CalendarAgenda({ rooms, bookings, days, onOpen }: Props) {
           key={booking.id}
           type="button"
           onClick={() => onOpen(booking)}
-          className="flex w-full items-center justify-between gap-4 rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-left transition hover:border-emerald-600"
+          className="flex w-full items-center justify-between gap-4 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-left transition hover:border-emerald-600"
         >
           <div>
             <div className="font-medium">{booking.guest_name}</div>

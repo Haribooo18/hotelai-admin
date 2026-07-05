@@ -62,7 +62,7 @@ export function RoomCard({
   return (
     <article
       className={cn(
-        "rounded-[20px] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out",
+        "rounded-[var(--ds-radius)] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)] transition-all duration-[var(--ds-duration-slow)] ease-out",
         "hover:-translate-y-1 hover:shadow-[var(--shell-shadow-md)]",
         selected && "ring-2 ring-emerald-500/40",
         viewMode === "list" && "md:flex md:items-center md:justify-between md:gap-6"
@@ -103,7 +103,7 @@ export function RoomCard({
             <DropdownMenuTrigger
               aria-label={`Actions for room ${room.room_type}`}
               className={cn(
-                "flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] text-[var(--shell-muted)] transition-all duration-[180ms] ease-out",
+                "flex h-9 w-9 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] text-[var(--shell-muted)] transition-all duration-[var(--ds-duration-slow)] ease-out",
                 "hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/30"
               )}
             >
@@ -112,7 +112,7 @@ export function RoomCard({
 
             <DropdownMenuContent
               align="end"
-              className="min-w-44 rounded-[12px] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
+              className="min-w-44 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]"
             >
               <DropdownMenuItem
                 onClick={onOpen}
@@ -189,7 +189,7 @@ export function RoomCard({
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-[var(--shell-nav-hover-bg)]">
               <div
-                className="h-full rounded-full bg-emerald-500 transition-all duration-[180ms] ease-out"
+                className="h-full rounded-full bg-emerald-500 transition-all duration-[var(--ds-duration-slow)] ease-out"
                 style={{ width: `${cleaningProgress}%` }}
               />
             </div>

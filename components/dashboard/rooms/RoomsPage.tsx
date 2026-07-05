@@ -15,7 +15,7 @@ import { RoomDetailDrawer } from "./RoomDetailDrawer";
 import { RoomKpiGrid } from "./RoomKpiGrid";
 import { RoomToolbar } from "./RoomToolbar";
 import { RoomsCardsView } from "./RoomsCardsView";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 import {
   buildRoomCardModels,
@@ -146,7 +146,7 @@ export function RoomsPage({ rooms }: Props) {
   }
 
   return (
-    <div className="space-y-7">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.rooms.title")}
         subtitle={t("pages.rooms.subtitle")}
@@ -221,6 +221,6 @@ export function RoomsPage({ rooms }: Props) {
         loading={pending}
         onConfirm={confirmBulkDelete}
       />
-    </div>
+    </AdminPageStack>
   );
 }

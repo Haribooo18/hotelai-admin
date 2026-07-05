@@ -15,7 +15,7 @@ import { KnowledgeEmptyState } from "./KnowledgeEmptyState";
 import { KnowledgeFilters } from "./KnowledgeFilters";
 import { KnowledgeSearch } from "./KnowledgeSearch";
 import { KnowledgeTable } from "./KnowledgeTable";
-import { DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -52,7 +52,7 @@ export function KnowledgePage({ articles, categories }: Props) {
   const draftCount = articles.filter((a) => a.status === "draft").length;
 
   return (
-    <div className="space-y-6">
+    <AdminPageStack>
       <DashboardPageHeader
         title={t("pages.reports.title")}
         subtitle={`${t("pages.reports.subtitle")} · ${publishedCount} published · ${draftCount} drafts`}
@@ -87,6 +87,6 @@ export function KnowledgePage({ articles, categories }: Props) {
       )}
 
       <KnowledgeCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
-    </div>
+    </AdminPageStack>
   );
 }

@@ -21,7 +21,7 @@ export default async function DashboardRoute() {
   return (
     <AppShell hotel={hotel}>
       {errorMessage ? (
-        <div className="rounded-xl border border-red-800 bg-red-950/40 p-6">
+        <div className="rounded-[var(--ds-radius)] border border-red-800 bg-red-950/40 p-6">
           <h1 className="text-2xl font-bold text-red-400">
             Connection error
           </h1>

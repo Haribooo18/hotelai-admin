@@ -14,14 +14,14 @@ type Props = {
 export function LeadCard({ lead }: Props) {
   if (!lead) {
     return (
-      <div className="rounded-xl border border-dashed border-[var(--shell-border)] p-4 text-center text-sm text-[var(--shell-muted)]">
+      <div className="rounded-[var(--ds-radius)] border border-dashed border-[var(--shell-border)] p-4 text-center text-sm text-[var(--shell-muted)]">
         No linked inquiry
       </div>
     );
   }
 
   return (
-    <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
+    <div className="rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
       <p className="text-xs uppercase tracking-widest text-[var(--shell-muted)]">Inquiry</p>
 
       <p className="mt-2 font-semibold">{lead.guest_name ?? "—"}</p>

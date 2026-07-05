@@ -1,5 +1,5 @@
-import { SettingsLoading } from "@/components/dashboard/settings/SettingsLoading";
+import { AdminPageSkeleton } from "@/components/dashboard/home/DashboardPrimitives";
 
 export default function SettingsLoadingRoute() {
-  return <SettingsLoading />;
+  return <AdminPageSkeleton />;
 }

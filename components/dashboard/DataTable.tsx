@@ -37,7 +37,7 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)]">
+    <div className="overflow-hidden rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)]">
       <table className="w-full">
         {caption && <caption className="sr-only">{caption}</caption>}
 
