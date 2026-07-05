@@ -1,17 +1,21 @@
 import { AppShell } from "@/components/dashboard/AppShell";
 import { RevenuePage } from "@/components/dashboard/revenue";
-import { createBookingsRepository } from "@/repositories/bookings.repository.server";
-import { createRoomsRepository } from "@/repositories/rooms.repository.server";
 import { createServerRepositoryContext } from "@/repositories/context.server";
+import { createRevenueRepository } from "@/repositories/revenue.repository.server";
 import { getTenantContext } from "@/lib/tenant/context";
 
 export default async function RatesRoute() {
   const tenant = await getTenantContext();
   const repositoryContext = await createServerRepositoryContext(tenant);
+  const revenueRepository = createRevenueRepository(repositoryContext);
 
-  const [bookings, rooms] = await Promise.all([
-    createBookingsRepository(repositoryContext).getAll(),
-    createRoomsRepository(repositoryContext).getAll(),
+  const dataPromise = revenueRepository.load();
+  const [data, kpis, trend, breakdown, forecast] = await Promise.all([
+    dataPromise,
+    revenueRepository.getMetrics(dataPromise),
+    revenueRepository.getTrend(dataPromise),
+    revenueRepository.getBreakdown(dataPromise),
+    revenueRepository.getForecast(dataPromise),
   ]);
 
   return (
@@ -19,7 +23,16 @@ export default async function RatesRoute() {
       hotel={{ id: tenant.hotelId, name: tenant.hotelName }}
       userEmail={tenant.userEmail}
     >
-      <RevenuePage bookings={bookings} rooms={rooms} />
+      <RevenuePage
+        bookings={data.bookings}
+        rooms={data.rooms}
+        serverRange={data.range}
+        serverKpis={kpis}
+        serverTrend={trend}
+        serverBySource={breakdown.bySource}
+        serverByRoomType={breakdown.byRoomType}
+        serverForecast={forecast}
+      />
     </AppShell>
   );
 }

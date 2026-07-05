@@ -27,7 +27,11 @@ import {
   computeRevenueKpis,
   defaultRevenueRange,
   exportBookingsCsv,
+  type RevenueBreakdownPoint,
   type RevenueDateRange,
+  type RevenueForecastPoint,
+  type RevenueKpis,
+  type RevenueTrendPoint,
 } from "./revenue-metrics";
 import { RevenueToolbar } from "./RevenueToolbar";
 
@@ -51,7 +55,28 @@ const RevenueAnalytics = dynamic(
 type Props = {
   bookings: Booking[];
   rooms: Room[];
+  serverRange?: RevenueDateRange;
+  serverKpis?: RevenueKpis;
+  serverTrend?: RevenueTrendPoint[];
+  serverBySource?: RevenueBreakdownPoint[];
+  serverByRoomType?: RevenueBreakdownPoint[];
+  serverForecast?: RevenueForecastPoint[];
 };
+
+function isServerSnapshotActive(
+  range: RevenueDateRange,
+  serverRange: RevenueDateRange | undefined,
+  search: string,
+  statusFilter: string,
+  roomFilter: string
+): boolean {
+  if (!serverRange) return false;
+  if (search.trim() !== "" || statusFilter !== "" || roomFilter !== "") {
+    return false;
+  }
+
+  return range.from === serverRange.from && range.to === serverRange.to;
+}
 
 function matchesSearch(
   booking: Booking,
@@ -68,12 +93,23 @@ function matchesSearch(
   );
 }
 
-export function RevenuePage({ bookings, rooms }: Props) {
+export function RevenuePage({
+  bookings,
+  rooms,
+  serverRange,
+  serverKpis,
+  serverTrend,
+  serverBySource,
+  serverByRoomType,
+  serverForecast,
+}: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [refreshing, startRefresh] = useTransition();
 
-  const [range, setRange] = useState<RevenueDateRange>(() => defaultRevenueRange());
+  const [range, setRange] = useState<RevenueDateRange>(
+    () => serverRange ?? defaultRevenueRange()
+  );
   const [compareEnabled, setCompareEnabled] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [search, setSearch] = useState("");
@@ -89,15 +125,23 @@ export function RevenuePage({ bookings, rooms }: Props) {
     });
   }, [bookings, statusFilter, roomFilter, search, rooms]);
 
-  const kpis = useMemo(
-    () => computeRevenueKpis(filteredBookings, rooms, range),
-    [filteredBookings, rooms, range]
+  const useServerSnapshot = isServerSnapshotActive(
+    range,
+    serverRange,
+    search,
+    statusFilter,
+    roomFilter
   );
 
-  const trend = useMemo(
-    () => buildRevenueTrend(filteredBookings, rooms, range),
-    [filteredBookings, rooms, range]
-  );
+  const kpis = useMemo(() => {
+    if (useServerSnapshot && serverKpis) return serverKpis;
+    return computeRevenueKpis(filteredBookings, rooms, range);
+  }, [useServerSnapshot, serverKpis, filteredBookings, rooms, range]);
+
+  const trend = useMemo(() => {
+    if (useServerSnapshot && serverTrend) return serverTrend;
+    return buildRevenueTrend(filteredBookings, rooms, range);
+  }, [useServerSnapshot, serverTrend, filteredBookings, rooms, range]);
 
   const compareTrend = useMemo(() => {
     if (!compareEnabled) return [];
@@ -105,17 +149,20 @@ export function RevenuePage({ bookings, rooms }: Props) {
     return buildRevenueTrend(filteredBookings, rooms, previousRange);
   }, [compareEnabled, filteredBookings, rooms, range]);
 
-  const bySource = useMemo(
-    () => buildRevenueBySource(filteredBookings, range),
-    [filteredBookings, range]
-  );
+  const bySource = useMemo(() => {
+    if (useServerSnapshot && serverBySource) return serverBySource;
+    return buildRevenueBySource(filteredBookings, range);
+  }, [useServerSnapshot, serverBySource, filteredBookings, range]);
 
-  const byRoomType = useMemo(
-    () => buildRevenueByRoomType(filteredBookings, rooms, range),
-    [filteredBookings, rooms, range]
-  );
+  const byRoomType = useMemo(() => {
+    if (useServerSnapshot && serverByRoomType) return serverByRoomType;
+    return buildRevenueByRoomType(filteredBookings, rooms, range);
+  }, [useServerSnapshot, serverByRoomType, filteredBookings, rooms, range]);
 
-  const forecast = useMemo(() => buildRevenueForecast(trend), [trend]);
+  const forecast = useMemo(() => {
+    if (useServerSnapshot && serverForecast) return serverForecast;
+    return buildRevenueForecast(trend);
+  }, [useServerSnapshot, serverForecast, trend]);
 
   const transactions = useMemo(
     () => buildRevenueTransactions(filteredBookings, rooms, range),
