@@ -57,7 +57,7 @@ function SidebarPanel({ hotel, onMobileClose, className }: Props) {
         </Link>
       </div>
 
-      <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2.5 py-3">
+      <nav aria-label="Main navigation" className="min-h-0 flex-1 space-y-0.5 overflow-y-auto px-2.5 py-3">
         {SHELL_NAV_ITEMS.map((item) => (
           <SidebarItem
             key={item.labelKey}
@@ -90,7 +90,7 @@ export function Sidebar({ hotel }: Pick<Props, "hotel">) {
         type="button"
         aria-label="Open navigation"
         onClick={() => setMobileOpen(true)}
-        className="fixed left-3.5 top-3.5 z-50 flex h-8 w-8 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:scale-[1.02] hover:bg-[var(--shell-surface-raised)] active:scale-[0.98] lg:hidden"
+        className="fixed left-3.5 top-3.5 z-50 flex h-11 w-11 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:scale-[1.02] hover:bg-[var(--shell-surface-raised)] active:scale-[0.98] lg:hidden"
       >
         <Menu size={16} strokeWidth={2} />
       </button>

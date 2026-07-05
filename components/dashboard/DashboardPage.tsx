@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
 import { createClient } from "@/lib/supabase/client";
@@ -20,11 +21,9 @@ import {
   DashboardAlerts,
   DashboardExecutiveKpis,
   DashboardLatestReservations,
-  DashboardOccupancyTrend,
   DashboardQuickActions,
   DashboardRecentBookings,
   DashboardRecentGuests,
-  DashboardRevenueTrend,
   DashboardRoomStatus,
   DashboardTimeline,
   useDashboardSupplement,
@@ -32,8 +31,25 @@ import {
 import {
   AdminPageStack,
   DashboardPageHeader,
+  DashboardSkeleton,
 } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
+
+const DashboardRevenueTrend = dynamic(
+  () =>
+    import("@/components/dashboard/home/DashboardRevenueTrend").then((mod) => ({
+      default: mod.DashboardRevenueTrend,
+    })),
+  { loading: () => <DashboardSkeleton className="h-52" /> }
+);
+
+const DashboardOccupancyTrend = dynamic(
+  () =>
+    import("@/components/dashboard/home/DashboardOccupancyTrend").then((mod) => ({
+      default: mod.DashboardOccupancyTrend,
+    })),
+  { loading: () => <DashboardSkeleton className="h-52" /> }
+);
 
 type Props = {
   initialLeads: Lead[];
@@ -151,7 +167,7 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
             loading={loading}
           />
           <DashboardAlerts alerts={alerts} loading={loading} />
-          <div className="sticky top-[60px] z-10">
+          <div className="sticky top-[calc(var(--shell-header-height)+0.5rem)] z-10">
             <DashboardQuickActions />
           </div>
         </div>

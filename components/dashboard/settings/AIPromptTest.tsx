@@ -4,15 +4,15 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
 import { testAIPrompt } from "@/lib/services/ai-completion.service";
+import { shellFormLabelClass } from "@/lib/dashboard/design-system";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  DashboardSectionTitle,
-  DashboardSurface,
+  DashboardGlassPanel,
+  DashboardPanelHeader,
 } from "@/components/dashboard/home/DashboardPrimitives";
-import { shellFormLabelClass } from "@/lib/dashboard/design-system";
 
 type TestResult = {
   content: string;
@@ -24,7 +24,7 @@ type TestResult = {
 
 export function AIPromptTest() {
   const [pending, startTransition] = useTransition();
-  const [guestName, setGuestName] = useState("Test guest");
+  const [guestName, setGuestName] = useState("Тестовый гость");
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<TestResult | null>(null);
 
@@ -39,23 +39,23 @@ export function AIPromptTest() {
         });
         setResult(res);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Test failed");
+        toast.error(err instanceof Error ? err.message : "Тест не удался");
       }
     });
   }
 
   return (
-    <DashboardSurface interactive={false} className="p-[var(--ds-surface-padding)]">
-      <DashboardSectionTitle
-        title="Prompt test"
-        subtitle="Test AI response without creating a conversation"
+    <DashboardGlassPanel className="p-[var(--ds-surface-padding)]">
+      <DashboardPanelHeader
+        title="Тестирование"
+        subtitle="Проверка ответа AI без создания диалога"
         className="mb-4"
       />
 
       <form onSubmit={handleTest} className="space-y-4">
         <div className="space-y-1.5">
           <label htmlFor="test-guest" className={shellFormLabelClass}>
-            Guest name
+            Имя гостя
           </label>
           <Input
             id="test-guest"
@@ -66,34 +66,40 @@ export function AIPromptTest() {
 
         <div className="space-y-1.5">
           <label htmlFor="test-msg" className={shellFormLabelClass}>
-            Guest message
+            Сообщение гостя
           </label>
           <Textarea
             id="test-msg"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="What time is check-in?"
+            placeholder="Во сколько заезд?"
             className="min-h-20"
             required
           />
         </div>
 
-        <Button type="submit" size="sm" disabled={pending || !message.trim()} loading={pending}>
-          Run test
+        <Button
+          type="submit"
+          size="sm"
+          disabled={pending || !message.trim()}
+          loading={pending}
+          className="rounded-[var(--ds-radius-sm)] bg-emerald-600 hover:bg-emerald-500"
+        >
+          Запустить тест
         </Button>
       </form>
 
       {result ? (
-        <div className="mt-5 space-y-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-4">
+        <div className="mt-5 space-y-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 p-4">
           <p className="whitespace-pre-wrap text-[13px] text-[var(--shell-text)]">
             {result.content}
           </p>
           <p className="text-[11px] text-[var(--shell-muted)]">
-            {result.model} · {result.usage.total_tokens} tokens · $
-            {result.costUsd.toFixed(6)} · tools: {result.toolRounds}
+            {result.model} · {result.usage.total_tokens} токенов · $
+            {result.costUsd.toFixed(6)} · инструменты: {result.toolRounds}
           </p>
         </div>
       ) : null}
-    </DashboardSurface>
+    </DashboardGlassPanel>
   );
 }

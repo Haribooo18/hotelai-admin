@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
 import { DashboardEmptyState } from "@/components/dashboard/home/DashboardPrimitives";
+import { TableRowsSkeleton } from "@/components/dashboard/shared/TableRowsSkeleton";
+import { tableRowClickableClass, iconActionClass } from "@/lib/dashboard/design-system";
+import { tableRowA11yProps } from "@/lib/dashboard/a11y";
 import { cn } from "@/lib/utils";
 
 import { GuestSatisfactionBadge } from "./GuestSatisfactionBadge";
@@ -39,16 +42,7 @@ export function GuestsTable({
   onToggleFavorite,
 }: Props) {
   if (loading) {
-    return (
-      <div className="space-y-2">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <div
-            key={index}
-            className="ds-skeleton h-14 rounded-[var(--ds-radius-sm)]"
-          />
-        ))}
-      </div>
-    );
+    return <TableRowsSkeleton />;
   }
 
   if (models.length === 0) {
@@ -63,7 +57,8 @@ export function GuestsTable({
 
   return (
     <div className="overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-glass)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-      <table className="w-full">
+      <div className="overflow-x-auto overscroll-x-contain">
+      <table className="w-full min-w-[960px]">
         <caption className="sr-only">Guest list</caption>
         <thead>
           <tr className="border-b border-[var(--shell-border)]/50">
@@ -75,14 +70,18 @@ export function GuestsTable({
               "Last visit",
               "Next stay",
               "Satisfaction",
-              "",
+              "Actions",
             ].map((header) => (
               <th
                 key={header}
                 scope="col"
                 className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.06em] text-[var(--shell-muted)] last:text-right"
               >
-                {header}
+                {header === "Actions" ? (
+                  <span className="sr-only">{header}</span>
+                ) : (
+                  header
+                )}
               </th>
             ))}
           </tr>
@@ -97,7 +96,10 @@ export function GuestsTable({
               <tr
                 key={guest.id}
                 onClick={() => onOpenGuest(model)}
-                className="cursor-pointer border-b border-[var(--shell-border)]/35 transition-[background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] last:border-0 hover:bg-[var(--shell-surface-raised)]/50"
+                className={tableRowClickableClass}
+                {...tableRowA11yProps(`Open guest ${fullName}`, () =>
+                  onOpenGuest(model)
+                )}
               >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
@@ -144,9 +146,7 @@ export function GuestsTable({
                     <DropdownMenuTrigger
                       aria-label={`Actions for ${fullName}`}
                       onClick={(event) => event.stopPropagation()}
-                      className={cn(
-                        "inline-flex h-8 w-8 items-center justify-center rounded-[var(--ds-radius-sm)] text-[var(--shell-muted)] transition-[background-color,color] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
-                      )}
+                      className={cn(iconActionClass, "max-md:opacity-100")}
                     >
                       <MoreHorizontal size={16} />
                     </DropdownMenuTrigger>
@@ -192,6 +192,7 @@ export function GuestsTable({
           })}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

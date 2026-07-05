@@ -88,6 +88,7 @@ html {
   --ds-surface-padding: 18px;
   --ds-input-height: 36px;
   --ds-button-height: 36px;
+  --shell-header-height: 52px;
   --shell-sidebar-width: 252px;
 
   /* Motion */
@@ -427,5 +428,12 @@ html[data-shell-theme="gray"] {
 @keyframes ds-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  html {
+    --ds-input-height: 44px;
+    --ds-button-height: 44px;
   }
 }

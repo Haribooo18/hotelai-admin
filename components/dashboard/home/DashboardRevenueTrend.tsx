@@ -42,7 +42,7 @@ export function DashboardRevenueTrend({ data, loading }: Props) {
           description="When reservations with check-ins from the last week appear, the chart will fill in automatically."
         />
       ) : (
-        <div className="h-52">
+        <div className="h-52" role="img" aria-label="Revenue trend chart for the last 7 days">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
               <defs>

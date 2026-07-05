@@ -117,7 +117,10 @@ export function GuestToolbar({
           />
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
+            <DropdownMenuTrigger
+              aria-label="Sort guests"
+              className={toolbarControlClass}
+            >
               <Filter size={15} className="text-[var(--shell-muted)]" />
               {activeSort}
             </DropdownMenuTrigger>

@@ -9,16 +9,18 @@ import type { AIModelId } from "@/lib/ai/models";
 
 import { AI_MODELS, AI_MODEL_IDS } from "@/lib/ai/models";
 import { updateHotelAISettings } from "@/lib/services/ai-settings.mutations";
+import { shellFormLabelClass } from "@/lib/dashboard/design-system";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { DashboardPanelHeader } from "@/components/dashboard/home/DashboardPrimitives";
 
 const TOOL_CHOICE_OPTIONS = [
-  { value: "auto", label: "Auto" },
-  { value: "none", label: "No tools" },
-  { value: "required", label: "Required" },
+  { value: "auto", label: "Авто" },
+  { value: "none", label: "Без инструментов" },
+  { value: "required", label: "Обязательно" },
 ] as const;
 
 type Props = {
@@ -77,11 +79,11 @@ export function AISettingsForm({ settings, configured }: Props) {
           max_retries: Number(maxRetries),
           extra_instructions: extraInstructions,
         });
-        toast.success("AI settings saved");
+        toast.success("Настройки AI сохранены");
         router.refresh();
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Failed to save"
+          err instanceof Error ? err.message : "Не удалось сохранить"
         );
       }
     });
@@ -91,15 +93,15 @@ export function AISettingsForm({ settings, configured }: Props) {
     <form onSubmit={handleSave} className="space-y-6">
       {!configured && (
         <div
-          className="rounded-[var(--ds-radius)] border border-amber-900/40 bg-amber-950/20 p-4 text-sm text-amber-200"
+          className="rounded-[var(--ds-radius-sm)] border border-amber-900/40 bg-amber-950/20 p-4 text-sm text-amber-200"
           role="alert"
         >
-          OPENAI_API_KEY is not set on the server. AI will be unavailable until the
-          environment variable is configured.
+          OPENAI_API_KEY не задан на сервере. AI будет недоступен, пока переменная
+          окружения не настроена.
         </div>
       )}
 
-      <label className="flex items-center gap-3 text-sm">
+      <label className="flex items-center gap-3 text-sm text-[var(--shell-text)]">
         <input
           type="checkbox"
           checked={enabled}
@@ -107,157 +109,173 @@ export function AISettingsForm({ settings, configured }: Props) {
           disabled={!configured}
           className="h-4 w-4 rounded border-[var(--shell-border)] accent-emerald-600"
         />
-        Enable AI receptionist
+        Включить AI-ресепшен
       </label>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="space-y-2">
-          <label htmlFor="ai-model" className="block text-sm text-[var(--shell-muted)]">
-            Model
-          </label>
-          <Select
-            id="ai-model"
-            value={model}
-            onChange={setModel}
-            options={modelOptions}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-tokens" className="block text-sm text-[var(--shell-muted)]">
-            Max output tokens
-          </label>
-          <Input
-            id="ai-tokens"
-            type="number"
-            value={maxOutputTokens}
-            onChange={(e) => setMaxOutputTokens(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-temp" className="block text-sm text-[var(--shell-muted)]">
-            Temperature
-          </label>
-          <Input
-            id="ai-temp"
-            type="number"
-            step="0.1"
-            min="0"
-            max="2"
-            value={temperature}
-            onChange={(e) => setTemperature(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-top-p" className="block text-sm text-[var(--shell-muted)]">
-            Top P
-          </label>
-          <Input
-            id="ai-top-p"
-            type="number"
-            step="0.05"
-            min="0"
-            max="1"
-            value={topP}
-            onChange={(e) => setTopP(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-tool-choice" className="block text-sm text-[var(--shell-muted)]">
-            Tool choice
-          </label>
-          <Select
-            id="ai-tool-choice"
-            value={toolChoice}
-            onChange={(value) =>
-              setToolChoice(value as HotelAISettings["tool_choice"])
-            }
-            options={TOOL_CHOICE_OPTIONS.map((o) => ({
-              value: o.value,
-              label: o.label,
-            }))}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-lang" className="block text-sm text-[var(--shell-muted)]">
-            System language
-          </label>
-          <Input
-            id="ai-lang"
-            value={systemLanguage}
-            onChange={(e) => setSystemLanguage(e.target.value)}
-            placeholder="ru"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-rate" className="block text-sm text-[var(--shell-muted)]">
-            Rate limit / min
-          </label>
-          <Input
-            id="ai-rate"
-            type="number"
-            value={rateLimit}
-            onChange={(e) => setRateLimit(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-timeout" className="block text-sm text-[var(--shell-muted)]">
-            Timeout (ms)
-          </label>
-          <Input
-            id="ai-timeout"
-            type="number"
-            value={timeoutMs}
-            onChange={(e) => setTimeoutMs(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-rounds" className="block text-sm text-[var(--shell-muted)]">
-            Max tool rounds
-          </label>
-          <Input
-            id="ai-rounds"
-            type="number"
-            value={maxToolRounds}
-            onChange={(e) => setMaxToolRounds(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label htmlFor="ai-retries" className="block text-sm text-[var(--shell-muted)]">
-            Retries on error
-          </label>
-          <Input
-            id="ai-retries"
-            type="number"
-            value={maxRetries}
-            onChange={(e) => setMaxRetries(e.target.value)}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label htmlFor="ai-extra" className="block text-sm text-[var(--shell-muted)]">
-          Additional instructions
-        </label>
-        <Textarea
-          id="ai-extra"
-          value={extraInstructions}
-          onChange={(e) => setExtraInstructions(e.target.value)}
-          placeholder="Special rules for your hotel…"
-          className="min-h-24"
+      <section className="space-y-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
+        <DashboardPanelHeader
+          title="Промпт и личность"
+          subtitle="Дополнительные инструкции для AI"
         />
-      </div>
+        <div className="space-y-1.5">
+          <label htmlFor="ai-extra" className={shellFormLabelClass}>
+            Личность и правила отеля
+          </label>
+          <Textarea
+            id="ai-extra"
+            value={extraInstructions}
+            onChange={(e) => setExtraInstructions(e.target.value)}
+            placeholder="Особые правила для вашего отеля…"
+            className="min-h-28"
+          />
+        </div>
+      </section>
 
-      <Button type="submit" disabled={pending || !configured}>
-        {pending ? "Saving…" : "Save settings"}
+      <section className="space-y-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
+        <DashboardPanelHeader
+          title="Температура и язык"
+          subtitle="Поведение и локализация ответов"
+        />
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <label htmlFor="ai-temp" className={shellFormLabelClass}>
+              Температура
+            </label>
+            <Input
+              id="ai-temp"
+              type="number"
+              step="0.1"
+              min="0"
+              max="2"
+              value={temperature}
+              onChange={(e) => setTemperature(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-lang" className={shellFormLabelClass}>
+              Язык системы
+            </label>
+            <Input
+              id="ai-lang"
+              value={systemLanguage}
+              onChange={(e) => setSystemLanguage(e.target.value)}
+              placeholder="ru"
+            />
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
+        <DashboardPanelHeader
+          title="Модель и надёжность"
+          subtitle="Расширенные параметры"
+        />
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-1.5">
+            <label htmlFor="ai-model" className={shellFormLabelClass}>
+              Модель
+            </label>
+            <Select
+              id="ai-model"
+              value={model}
+              onChange={setModel}
+              options={modelOptions}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-tokens" className={shellFormLabelClass}>
+              Макс. токенов ответа
+            </label>
+            <Input
+              id="ai-tokens"
+              type="number"
+              value={maxOutputTokens}
+              onChange={(e) => setMaxOutputTokens(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-top-p" className={shellFormLabelClass}>
+              Top P
+            </label>
+            <Input
+              id="ai-top-p"
+              type="number"
+              step="0.05"
+              min="0"
+              max="1"
+              value={topP}
+              onChange={(e) => setTopP(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-tool-choice" className={shellFormLabelClass}>
+              Выбор инструментов
+            </label>
+            <Select
+              id="ai-tool-choice"
+              value={toolChoice}
+              onChange={(value) =>
+                setToolChoice(value as HotelAISettings["tool_choice"])
+              }
+              options={TOOL_CHOICE_OPTIONS.map((o) => ({
+                value: o.value,
+                label: o.label,
+              }))}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-rate" className={shellFormLabelClass}>
+              Лимит запросов / мин
+            </label>
+            <Input
+              id="ai-rate"
+              type="number"
+              value={rateLimit}
+              onChange={(e) => setRateLimit(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-timeout" className={shellFormLabelClass}>
+              Таймаут (мс)
+            </label>
+            <Input
+              id="ai-timeout"
+              type="number"
+              value={timeoutMs}
+              onChange={(e) => setTimeoutMs(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-rounds" className={shellFormLabelClass}>
+              Макс. раундов инструментов
+            </label>
+            <Input
+              id="ai-rounds"
+              type="number"
+              value={maxToolRounds}
+              onChange={(e) => setMaxToolRounds(e.target.value)}
+            />
+          </div>
+          <div className="space-y-1.5">
+            <label htmlFor="ai-retries" className={shellFormLabelClass}>
+              Повторы при ошибке
+            </label>
+            <Input
+              id="ai-retries"
+              type="number"
+              value={maxRetries}
+              onChange={(e) => setMaxRetries(e.target.value)}
+            />
+          </div>
+        </div>
+      </section>
+
+      <Button
+        type="submit"
+        disabled={pending || !configured}
+        className="rounded-[var(--ds-radius-sm)] bg-emerald-600 hover:bg-emerald-500"
+      >
+        {pending ? "Сохранение…" : "Сохранить настройки"}
       </Button>
     </form>
   );

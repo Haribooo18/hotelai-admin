@@ -38,7 +38,8 @@ export function GuestAvatar({
 
   return (
     <div
-      aria-hidden="true"
+      role="img"
+      aria-label={fullName}
       className={cn(
         "flex shrink-0 items-center justify-center rounded-full bg-emerald-600/20 font-semibold text-emerald-400",
         sizeMap[size],

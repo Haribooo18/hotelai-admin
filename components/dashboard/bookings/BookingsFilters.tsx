@@ -24,6 +24,7 @@ import {
   stickyToolbarClass,
   toolbarControlClass,
   toolbarInputClass,
+  viewToggleButtonClass,
 } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
@@ -80,6 +81,7 @@ export function BookingsFilters({
       <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
         <div className="relative min-w-0 flex-1 xl:max-w-md">
           <Search
+            aria-hidden
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
             size={17}
           />
@@ -98,11 +100,14 @@ export function BookingsFilters({
             value={dateFilter}
             onChange={(e) => onDateFilterChange(e.target.value)}
             aria-label="Filter by date"
-            className="h-[var(--ds-input-height)] w-[156px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+            className="h-[var(--ds-input-height)] w-full rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)] sm:w-[156px]"
           />
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
+            <DropdownMenuTrigger
+              aria-label="Filter by status"
+              className={toolbarControlClass}
+            >
               <Filter size={15} className="text-[var(--shell-muted)]" />
               {activeStatusLabel}
             </DropdownMenuTrigger>
@@ -147,13 +152,13 @@ export function BookingsFilters({
               aria-pressed={viewMode === "cards"}
               onClick={() => onViewModeChange("cards")}
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+                viewToggleButtonClass,
                 viewMode === "cards"
                   ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
                   : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
               )}
             >
-              <LayoutGrid size={15} />
+              <LayoutGrid size={15} aria-hidden />
             </button>
             <button
               type="button"
@@ -161,13 +166,13 @@ export function BookingsFilters({
               aria-pressed={viewMode === "table"}
               onClick={() => onViewModeChange("table")}
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-[10px] transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+                viewToggleButtonClass,
                 viewMode === "table"
                   ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
                   : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
               )}
             >
-              <List size={15} />
+              <List size={15} aria-hidden />
             </button>
           </div>
 
@@ -188,6 +193,7 @@ export function BookingsFilters({
             <button
               key={chip.id}
               type="button"
+              aria-pressed={active}
               onClick={() => onChipFilterChange(chip.id)}
               className={cn(chipClass, active ? chipActiveClass : chipIdleClass)}
             >

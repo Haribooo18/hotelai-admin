@@ -35,7 +35,7 @@ export function ConfirmDialog({
 
         <Dialog.Popup
           className={cn(
-            "ds-dialog-content fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2",
+            "ds-dialog-content fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2",
             "rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none"
           )}
         >
@@ -49,7 +49,7 @@ export function ConfirmDialog({
             </Dialog.Description>
           ) : null}
 
-          <div className="mt-5 flex justify-end gap-2.5">
+          <div className="mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end">
             <Dialog.Close
               className={cn(
                 buttonVariants({ variant: "outline", size: "sm" }),

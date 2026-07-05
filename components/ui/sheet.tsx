@@ -72,7 +72,7 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-[var(--shell-border)] bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-lg)]",
+          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-[var(--shell-border)] bg-[var(--shell-surface-raised)] pb-[env(safe-area-inset-bottom)] shadow-[var(--shell-shadow-lg)]",
           className
         )}
         {...props}
@@ -83,7 +83,7 @@ function SheetContent({
           <SheetPrimitive.Close
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "absolute right-3 top-3"
+              "absolute right-3 top-3 min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
             )}
           >
             <XIcon className="h-4 w-4" />
@@ -101,7 +101,7 @@ function SheetHeader({
 }: React.ComponentProps<"div">) {
   return (
     <div
-      className={cn("p-6 pb-0", className)}
+      className={cn("p-6 pb-0 pr-14", className)}
       {...props}
     />
   );

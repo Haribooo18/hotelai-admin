@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type UIEvent } from "react";
 
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
@@ -15,7 +15,7 @@ import {
   isWeekend,
   placeBooking,
 } from "@/lib/calendar";
-import { buildBookingCardModel } from "@/components/dashboard/bookings/booking-ops-metrics";
+import { buildBookingCardModels } from "@/components/dashboard/bookings/booking-ops-metrics";
 import {
   DashboardEmptyState,
   DashboardSkeletonBlock,
@@ -57,6 +57,8 @@ export function CalendarTimeline({
   onOpen,
 }: Props) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollTopRef = useRef(0);
+  const scrollRafRef = useRef<number | null>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(600);
 
@@ -108,6 +110,21 @@ export function CalendarTimeline({
     return map;
   }, [bookings]);
 
+  const bookingModelsById = useMemo(() => {
+    const models = buildBookingCardModels(bookings, rooms, guests);
+    return new Map(models.map((model) => [model.booking.id, model]));
+  }, [bookings, rooms, guests]);
+
+  const handleScroll = (event: UIEvent<HTMLDivElement>) => {
+    scrollTopRef.current = event.currentTarget.scrollTop;
+    if (scrollRafRef.current !== null) return;
+
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = null;
+      setScrollTop(scrollTopRef.current);
+    });
+  };
+
   const firstVisible = Math.max(
     0,
     Math.floor((scrollTop - HEADER_HEIGHT) / ROW_HEIGHT) - OVERSCAN
@@ -147,8 +164,10 @@ export function CalendarTimeline({
   return (
     <div
       ref={scrollRef}
-      onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-      className="relative max-h-[calc(100vh-300px)] min-h-[420px] overflow-auto rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl"
+      onScroll={handleScroll}
+      role="region"
+      aria-label="Reservation calendar"
+      className="relative max-h-[min(70svh,720px)] min-h-[420px] overflow-auto overscroll-contain rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl"
     >
       <div style={{ width: totalWidth, minWidth: totalWidth }}>
         <CalendarDateHeader days={days} occupancy={occupancy} />
@@ -191,7 +210,8 @@ export function CalendarTimeline({
                   const placement = placeBooking(booking, days);
                   if (!placement) return null;
 
-                  const model = buildBookingCardModel(booking, [room], guests);
+                  const model = bookingModelsById.get(booking.id);
+                  if (!model) return null;
 
                   return (
                     <CalendarBookingBar

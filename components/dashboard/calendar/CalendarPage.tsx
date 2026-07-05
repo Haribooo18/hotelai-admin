@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -24,6 +24,7 @@ import {
 } from "@/components/dashboard/bookings";
 import {
   buildBookingCardModel,
+  buildBookingCardModels,
   type BookingCardModel,
 } from "@/components/dashboard/bookings/booking-ops-metrics";
 import { useBookingsGuests } from "@/components/dashboard/bookings/useBookingsGuests";
@@ -119,6 +120,18 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
     });
   }, [bookings, search, statusFilter, roomFilter]);
 
+  const bookingModelsById = useMemo(() => {
+    const models = buildBookingCardModels(bookings, rooms, guests);
+    return new Map(models.map((model) => [model.booking.id, model]));
+  }, [bookings, rooms, guests]);
+
+  const getBookingModel = useCallback(
+    (booking: Booking) =>
+      bookingModelsById.get(booking.id) ??
+      buildBookingCardModel(booking, rooms, guests),
+    [bookingModelsById, rooms, guests]
+  );
+
   function goPrevious() {
     setAnchor((current) => {
       if (view === "day") return addDays(current, -1);
@@ -135,22 +148,30 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
     });
   }
 
-  function openDrawer(booking: Booking) {
-    const model = buildBookingCardModel(booking, rooms, guests);
-    setSelectedModel(model);
-    setDrawerOpen(true);
-  }
+  const openDrawer = useCallback(
+    (booking: Booking) => {
+      setSelectedModel(getBookingModel(booking));
+      setDrawerOpen(true);
+    },
+    [getBookingModel]
+  );
 
-  function handleEdit(booking: Booking) {
-    setSelectedModel(buildBookingCardModel(booking, rooms, guests));
-    setDrawerOpen(false);
-    setEditOpen(true);
-  }
+  const handleEdit = useCallback(
+    (booking: Booking) => {
+      setSelectedModel(getBookingModel(booking));
+      setDrawerOpen(false);
+      setEditOpen(true);
+    },
+    [getBookingModel]
+  );
 
-  function handleDeleteRequest(booking: Booking) {
-    setDeleteTarget(buildBookingCardModel(booking, rooms, guests));
-    setDrawerOpen(false);
-  }
+  const handleDeleteRequest = useCallback(
+    (booking: Booking) => {
+      setDeleteTarget(getBookingModel(booking));
+      setDrawerOpen(false);
+    },
+    [getBookingModel]
+  );
 
   function handleDeleteConfirm() {
     if (!deleteTarget) return;

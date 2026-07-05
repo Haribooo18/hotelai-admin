@@ -7,6 +7,8 @@ import {
   type BookingPaymentStatus,
   type BookingSource,
 } from "@/components/dashboard/bookings/booking-ops-metrics";
+import { countNights, todayIso } from "@/lib/dashboard/date";
+import { formatCurrency, formatDateFull } from "@/lib/dashboard/format";
 
 export type RevenueDateRange = {
   from: string;
@@ -69,10 +71,6 @@ const SOURCE_LABELS: Record<BookingSource, string> = {
   phone: "Phone",
 };
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function addDays(date: string, days: number): string {
   const next = new Date(date);
   next.setDate(next.getDate() + days);
@@ -80,8 +78,7 @@ function addDays(date: string, days: number): string {
 }
 
 function nightsBetween(checkIn: string, checkOut: string): number {
-  const diff = new Date(checkOut).getTime() - new Date(checkIn).getTime();
-  return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
+  return countNights(checkIn, checkOut);
 }
 
 function isInRange(date: string, from: string, to: string): boolean {
@@ -93,21 +90,9 @@ function isActiveOnDate(booking: Booking, date: string): boolean {
   return booking.check_in <= date && booking.check_out > date;
 }
 
-export function formatRevenueCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+export const formatRevenueCurrency = formatCurrency;
 
-export function formatRevenueDate(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
-}
+export const formatRevenueDate = formatDateFull;
 
 export function defaultRevenueRange(): RevenueDateRange {
   const to = todayIso();

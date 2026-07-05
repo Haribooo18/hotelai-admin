@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import type { Room } from "@/types/room";
@@ -106,17 +106,17 @@ export function RoomsPage({ rooms }: Props) {
     [cardModels, bookings]
   );
 
-  function handleEdit(room: Room) {
+  const handleEdit = useCallback((room: Room) => {
     setSelectedRoom(room);
     setDuplicateTemplate(null);
     setEditOpen(true);
     setDrawerOpen(false);
-  }
+  }, []);
 
-  function handleOpen(model: RoomCardModel) {
+  const handleOpen = useCallback((model: RoomCardModel) => {
     setDrawerModel(model);
     setDrawerOpen(true);
-  }
+  }, []);
 
   function handleRefresh() {
     startRefresh(() => {

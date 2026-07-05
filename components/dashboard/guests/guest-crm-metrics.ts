@@ -6,6 +6,8 @@ import {
   bookingBelongsToGuest,
   computeGuestStats,
 } from "@/lib/guest-stats";
+import { isActiveStay, todayIso } from "@/lib/dashboard/date";
+import { formatCurrency, formatDateFull } from "@/lib/dashboard/format";
 
 export type GuestSortKey =
   | "name_asc"
@@ -46,16 +48,8 @@ export type GuestCardModel = {
   roomLabel: string | null;
 };
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function isStayingToday(booking: Booking, today: string): boolean {
-  if (booking.status === "cancelled" || booking.status === "checked_out") {
-    return false;
-  }
-
-  return booking.check_in <= today && booking.check_out > today;
+  return isActiveStay(booking, today);
 }
 
 function resolveRoomLabel(roomId: string, rooms: Room[]): string | null {
@@ -194,21 +188,9 @@ export function sortGuestModels(
   return sorted;
 }
 
-export function formatGuestCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+export const formatGuestCurrency = formatCurrency;
 
-export function formatGuestDate(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
-}
+export const formatGuestDate = formatDateFull;
 
 export function formatGuestDateTime(value: string): string {
   return new Intl.DateTimeFormat("en-US", {

@@ -1,9 +1,3 @@
 export { KnowledgePage } from "./KnowledgePage";
 export { KnowledgeEditor } from "./KnowledgeEditor";
-export { KnowledgeCreateDialog } from "./KnowledgeCreateDialog";
-export { KnowledgeDeleteDialog } from "./KnowledgeDeleteDialog";
-export { KnowledgePreview } from "./KnowledgePreview";
-export { KnowledgeStatusBadge } from "./KnowledgeStatusBadge";
-export { KnowledgeEmptyState } from "./KnowledgeEmptyState";
-export { KnowledgeRouteLoading } from "./KnowledgeRouteLoading";
 export { KnowledgeError } from "./KnowledgeError";

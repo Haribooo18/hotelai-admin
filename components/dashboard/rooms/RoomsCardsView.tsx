@@ -76,8 +76,8 @@ export function RoomsCardsView({
         <RoomCard
           key={model.room.id}
           model={model}
-          onOpen={() => onOpenRoom(model)}
-          onEdit={() => onEditRoom(model.room)}
+          onOpen={onOpenRoom}
+          onEdit={onEditRoom}
         />
       ))}
     </div>

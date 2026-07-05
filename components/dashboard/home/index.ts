@@ -11,21 +11,6 @@ export { DashboardOccupancyTrend } from "./DashboardOccupancyTrend";
 export { DashboardLatestReservations } from "./DashboardLatestReservations";
 export { useDashboardSupplement } from "./useDashboardSupplement";
 export {
-  AdminPageSkeleton,
-  AdminPageStack,
-  AnimatedMetric,
-  DashboardEmptyState,
-  DashboardGlassPanel,
-  DashboardKpiCard,
-  DashboardPageHeader,
-  DashboardPanelHeader,
-  DashboardSectionTitle,
-  DashboardSkeleton,
-  DashboardSkeletonBlock,
-  DashboardSkeletonLine,
-  DashboardSurface,
-} from "./DashboardPrimitives";
-export {
   buildAiActivity,
   buildDashboardAlerts,
   buildOccupancyTrend,

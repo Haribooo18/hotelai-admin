@@ -41,7 +41,7 @@ export function DashboardOccupancyTrend({ data, loading }: Props) {
           description="Add rooms and reservations to track daily hotel occupancy."
         />
       ) : (
-        <div className="h-52">
+        <div className="h-52" role="img" aria-label="Occupancy trend chart for the last 7 days">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
               <CartesianGrid

@@ -73,7 +73,10 @@ export function ConversationView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation.id]);
 
-  const visibleMessages = messages.filter((message) => !message.deleted_at);
+  const visibleMessages = useMemo(
+    () => messages.filter((message) => !message.deleted_at),
+    [messages]
+  );
   const showAiTyping = conversation.is_ai_typing || streaming;
 
   const timeline = useMemo(() => {
@@ -98,7 +101,7 @@ export function ConversationView({
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 border-b border-[var(--shell-border)]/50 px-4 py-2 text-[13px] text-[var(--shell-muted)] md:hidden"
+          className="flex min-h-11 items-center gap-2 border-b border-[var(--shell-border)]/50 px-4 py-2 text-[13px] text-[var(--shell-muted)] md:hidden"
         >
           <ArrowLeft size={16} />
           Back to inbox

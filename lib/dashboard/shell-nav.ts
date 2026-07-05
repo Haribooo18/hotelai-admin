@@ -13,7 +13,7 @@ import {
 
 import type { TranslationPath } from "@/lib/i18n/translations";
 
-export type ShellNavItem = {
+type ShellNavItem = {
   labelKey: TranslationPath;
   href: string;
   icon: LucideIcon;

@@ -7,6 +7,11 @@ import {
   buildRoomCardModels,
   computeRoomOpsKpis,
 } from "@/components/dashboard/rooms/room-ops-metrics";
+import { todayIso } from "@/lib/dashboard/date";
+import {
+  formatCurrency,
+  formatPercent,
+} from "@/lib/dashboard/format";
 
 export type DashboardMetrics = {
   occupancyPercent: number;
@@ -51,10 +56,6 @@ export type AiActivityItem = {
   createdAt: string;
 };
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function monthKey(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 }
@@ -68,21 +69,9 @@ function formatDayLabel(date: Date): string {
   return new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date);
 }
 
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+export const formatDashboardCurrency = formatCurrency;
 
-export function formatDashboardCurrency(value: number): string {
-  return formatCurrency(value);
-}
-
-export function formatDashboardPercent(value: number): string {
-  return `${Math.round(value)}%`;
-}
+export const formatDashboardPercent = formatPercent;
 
 export function computeDashboardMetrics(
   bookings: Booking[],

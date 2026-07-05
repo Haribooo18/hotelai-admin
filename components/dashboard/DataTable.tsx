@@ -38,7 +38,8 @@ export function DataTable<T>({
 
   return (
     <div className="overflow-hidden rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)]">
-      <table className="w-full">
+      <div className="overflow-x-auto overscroll-x-contain">
+      <table className="w-full min-w-[480px]">
         {caption && <caption className="sr-only">{caption}</caption>}
 
         <thead className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-raised)]">
@@ -81,6 +82,7 @@ export function DataTable<T>({
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

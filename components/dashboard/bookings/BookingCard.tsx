@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   CalendarDays,
   Moon,
@@ -17,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
 import { cn } from "@/lib/utils";
+import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
 
 import { BookingSourceBadge } from "./BookingSourceBadge";
 import { BookingStatusBadge } from "./BookingStatusBadge";
@@ -35,7 +37,7 @@ type Props = {
   onDelete?: (model: BookingCardModel) => void;
 };
 
-export function BookingCard({
+export const BookingCard = memo(function BookingCard({
   model,
   onSelect,
   onEdit,
@@ -48,6 +50,7 @@ export function BookingCard({
     <article
       role="button"
       tabIndex={0}
+      aria-label={`Open reservation for ${booking.guest_name}`}
       onClick={() => onSelect?.(model)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
@@ -71,7 +74,8 @@ export function BookingCard({
             />
           ) : (
             <div
-              aria-hidden
+              role="img"
+              aria-label={booking.guest_name}
               className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--shell-accent-muted)] text-[12px] font-semibold text-[var(--shell-accent)]"
             >
               {getGuestInitials(booking.guest_name)}
@@ -93,8 +97,9 @@ export function BookingCard({
             aria-label={`Actions for reservation ${booking.guest_name}`}
             onClick={(event) => event.stopPropagation()}
             className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] text-[var(--shell-muted)] opacity-0 transition-[opacity,background-color,transform] duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
-              "group-hover:opacity-100 hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)] focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"
+              iconActionClass,
+              hoverRevealClass,
+              "shrink-0"
             )}
           >
             <MoreHorizontal size={16} />
@@ -163,6 +168,6 @@ export function BookingCard({
       </div>
     </article>
   );
-}
+});
 
 export { buildRoomLabel } from "./booking-ops-metrics";

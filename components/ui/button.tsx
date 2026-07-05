@@ -55,15 +55,19 @@ function Button({
     <ButtonPrimitive
       data-slot="button"
       data-loading={loading ? "true" : undefined}
+      aria-busy={loading || undefined}
       className={cn(buttonVariants({ variant, size, className }))}
       disabled={loading || props.disabled}
       {...props}
     >
       {loading ? (
-        <Loader2
-          aria-hidden
-          className="absolute size-4 animate-spin text-current opacity-80"
-        />
+        <>
+          <Loader2
+            aria-hidden
+            className="absolute size-4 animate-spin text-current opacity-80"
+          />
+          <span className="sr-only">Loading</span>
+        </>
       ) : null}
       {children}
     </ButtonPrimitive>

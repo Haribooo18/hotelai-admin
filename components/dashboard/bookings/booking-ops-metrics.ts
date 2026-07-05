@@ -2,6 +2,16 @@ import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
 
+import {
+  countNights as sharedCountNights,
+  isActiveStay,
+  todayIso,
+} from "@/lib/dashboard/date";
+import {
+  formatCurrency,
+  formatDateFull,
+} from "@/lib/dashboard/format";
+
 export type BookingViewMode = "cards" | "table";
 
 export type BookingPaymentStatus = "paid" | "deposit" | "pending" | "void";
@@ -36,41 +46,13 @@ export type BookingCardModel = {
   internalNotes: string | null;
 };
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function isActiveStay(booking: Booking, today: string): boolean {
-  if (booking.status === "cancelled" || booking.status === "checked_out") {
-    return false;
-  }
-
-  return booking.check_in <= today && booking.check_out > today;
-}
-
 export function countNights(checkIn: string, checkOut: string): number {
-  const start = new Date(checkIn);
-  const end = new Date(checkOut);
-  const diffMs = end.getTime() - start.getTime();
-
-  return Math.max(1, Math.round(diffMs / (1000 * 60 * 60 * 24)));
+  return sharedCountNights(checkIn, checkOut);
 }
 
-export function formatBookingCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+export const formatBookingCurrency = formatCurrency;
 
-export function formatBookingDate(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
-}
+export const formatBookingDate = formatDateFull;
 
 export function formatBookingDateTime(value: string): string {
   return new Intl.DateTimeFormat("en-US", {
@@ -143,23 +125,69 @@ export function matchGuestForBooking(
   booking: Booking,
   guests: Guest[]
 ): Guest | null {
+  const ctx = createBookingLookupContext([], guests);
+  return matchGuestFromContext(booking, ctx);
+}
+
+type BookingLookupContext = {
+  roomById: Map<string, Room>;
+  guestByEmail: Map<string, Guest>;
+  guestByName: Map<string, Guest>;
+};
+
+function createBookingLookupContext(
+  rooms: Room[],
+  guests: Guest[]
+): BookingLookupContext {
+  const roomById = new Map(rooms.map((room) => [room.id, room]));
+  const guestByEmail = new Map<string, Guest>();
+  const guestByName = new Map<string, Guest>();
+
+  for (const guest of guests) {
+    if (guest.email) {
+      guestByEmail.set(guest.email.trim().toLowerCase(), guest);
+    }
+
+    guestByName.set(
+      `${guest.first_name} ${guest.last_name}`.trim().toLowerCase(),
+      guest
+    );
+  }
+
+  return { roomById, guestByEmail, guestByName };
+}
+
+function matchGuestFromContext(
+  booking: Booking,
+  ctx: BookingLookupContext
+): Guest | null {
   const email = booking.guest_email?.trim().toLowerCase();
   if (email) {
-    const byEmail = guests.find(
-      (guest) => guest.email?.trim().toLowerCase() === email
-    );
+    const byEmail = ctx.guestByEmail.get(email);
     if (byEmail) return byEmail;
   }
 
-  const bookingName = booking.guest_name.trim().toLowerCase();
-  return (
-    guests.find((guest) => {
-      const fullName = `${guest.first_name} ${guest.last_name}`
-        .trim()
-        .toLowerCase();
-      return fullName === bookingName;
-    }) ?? null
-  );
+  return ctx.guestByName.get(booking.guest_name.trim().toLowerCase()) ?? null;
+}
+
+function buildBookingCardModelWithContext(
+  booking: Booking,
+  ctx: BookingLookupContext
+): BookingCardModel {
+  const room = ctx.roomById.get(booking.room_id) ?? null;
+  const guest = matchGuestFromContext(booking, ctx);
+
+  return {
+    booking,
+    room,
+    roomLabel: room?.room_type ?? "Room not assigned",
+    guest,
+    nights: countNights(booking.check_in, booking.check_out),
+    guestCount: booking.adults + booking.children,
+    paymentStatus: derivePaymentStatus(booking),
+    source: deriveBookingSource(booking),
+    internalNotes: guest?.notes ?? null,
+  };
 }
 
 export function buildRoomLabel(roomId: string, rooms: Room[]): string {
@@ -172,20 +200,8 @@ export function buildBookingCardModel(
   rooms: Room[],
   guests: Guest[]
 ): BookingCardModel {
-  const room = rooms.find((item) => item.id === booking.room_id) ?? null;
-  const guest = matchGuestForBooking(booking, guests);
-
-  return {
-    booking,
-    room,
-    roomLabel: buildRoomLabel(booking.room_id, rooms),
-    guest,
-    nights: countNights(booking.check_in, booking.check_out),
-    guestCount: booking.adults + booking.children,
-    paymentStatus: derivePaymentStatus(booking),
-    source: deriveBookingSource(booking),
-    internalNotes: guest?.notes ?? null,
-  };
+  const ctx = createBookingLookupContext(rooms, guests);
+  return buildBookingCardModelWithContext(booking, ctx);
 }
 
 export function buildBookingCardModels(
@@ -193,8 +209,9 @@ export function buildBookingCardModels(
   rooms: Room[],
   guests: Guest[]
 ): BookingCardModel[] {
+  const ctx = createBookingLookupContext(rooms, guests);
   return bookings.map((booking) =>
-    buildBookingCardModel(booking, rooms, guests)
+    buildBookingCardModelWithContext(booking, ctx)
   );
 }
 

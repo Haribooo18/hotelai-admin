@@ -11,7 +11,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { iconActionClass } from "@/lib/dashboard/design-system";
+import { iconActionClass, tableRowClickableAltClass } from "@/lib/dashboard/design-system";
+import { tableRowA11yProps } from "@/lib/dashboard/a11y";
 import { cn } from "@/lib/utils";
 import { duplicateKnowledgeArticle } from "@/lib/services/knowledge.mutations";
 
@@ -71,18 +72,19 @@ export function KnowledgeArticlesTable({ models, onOpen, onEdit }: Props) {
   return (
     <>
       <div className="overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/85 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto overscroll-x-contain">
           <table className="w-full min-w-[960px] text-left text-[12px]">
+            <caption className="sr-only">Список статей</caption>
             <thead className="border-b border-[var(--shell-border)]/50 bg-[var(--shell-surface-raised)]/60 text-[11px] uppercase tracking-[0.06em] text-[var(--shell-muted)]">
               <tr>
-                <th className="px-4 py-3 font-medium">Название</th>
-                <th className="px-4 py-3 font-medium">Категория</th>
-                <th className="px-4 py-3 font-medium">Статус</th>
-                <th className="px-4 py-3 font-medium">AI</th>
-                <th className="px-4 py-3 font-medium">Качество</th>
-                <th className="px-4 py-3 font-medium">Обновлено</th>
-                <th className="px-4 py-3 font-medium">Использование</th>
-                <th className="px-4 py-3 font-medium">Действия</th>
+                <th scope="col" className="px-4 py-3 font-medium">Название</th>
+                <th scope="col" className="px-4 py-3 font-medium">Категория</th>
+                <th scope="col" className="px-4 py-3 font-medium">Статус</th>
+                <th scope="col" className="px-4 py-3 font-medium">AI</th>
+                <th scope="col" className="px-4 py-3 font-medium">Качество</th>
+                <th scope="col" className="px-4 py-3 font-medium">Обновлено</th>
+                <th scope="col" className="px-4 py-3 font-medium">Использование</th>
+                <th scope="col" className="px-4 py-3 font-medium">Действия</th>
               </tr>
             </thead>
             <tbody>
@@ -90,7 +92,11 @@ export function KnowledgeArticlesTable({ models, onOpen, onEdit }: Props) {
                 <tr
                   key={model.article.id}
                   onClick={() => onOpen(model)}
-                  className="cursor-pointer border-b border-[var(--shell-border)]/40 transition-[background-color] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:bg-[var(--shell-surface-raised)]/50"
+                  className={tableRowClickableAltClass}
+                  {...tableRowA11yProps(
+                    `Открыть статью ${model.article.title}`,
+                    () => onOpen(model)
+                  )}
                 >
                   <td className="px-4 py-3">
                     <p className="max-w-[240px] truncate font-semibold text-[var(--shell-text)]">

@@ -1,5 +1,5 @@
 import { AppShell } from "@/components/dashboard/AppShell";
-import { SettingsPage } from "@/components/dashboard/settings";
+import { SettingsTabs } from "@/components/dashboard/settings";
 import { isOpenAIConfigured } from "@/lib/ai/config";
 import { isStripeConfigured } from "@/lib/billing/stripe";
 import {
@@ -35,7 +35,7 @@ export default async function SettingsRoute({
 
   return (
     <AppShell hotel={hotel}>
-      <SettingsPage
+      <SettingsTabs
         settings={settings}
         health={health}
         logs={logs}

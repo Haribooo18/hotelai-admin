@@ -1,8 +1,8 @@
 import type { AIHealthStatus } from "@/types/ai-settings";
 
 import {
-  DashboardSectionTitle,
-  DashboardSurface,
+  DashboardGlassPanel,
+  DashboardPanelHeader,
 } from "@/components/dashboard/home/DashboardPrimitives";
 import { cn } from "@/lib/utils";
 
@@ -13,67 +13,69 @@ type Props = {
 export function AIHealthPanel({ health }: Props) {
   const items = [
     {
-      label: "Provider",
-      value: health.configured ? health.provider : "not configured",
+      label: "Провайдер",
+      value: health.configured ? health.provider : "не настроен",
       ok: health.configured,
     },
     {
-      label: "AI enabled",
-      value: health.enabled ? "yes" : "no",
+      label: "AI включён",
+      value: health.enabled ? "да" : "нет",
       ok: health.enabled && health.configured,
     },
-    { label: "Model", value: health.model, ok: true },
+    { label: "Модель", value: health.model, ok: true },
     {
-      label: "Requests (24h)",
+      label: "Запросы (24ч)",
       value: String(health.recent_requests),
       ok: true,
     },
     {
-      label: "Errors (24h)",
+      label: "Ошибки (24ч)",
       value: String(health.recent_errors),
       ok: health.recent_errors === 0,
     },
     {
-      label: "Average duration",
+      label: "Средняя задержка",
       value:
         health.avg_duration_ms != null
-          ? `${health.avg_duration_ms} ms`
+          ? `${health.avg_duration_ms} мс`
           : "—",
-      ok: true,
+      ok: (health.avg_duration_ms ?? 0) < 5000,
     },
     {
-      label: "Cost (24h)",
+      label: "Стоимость (24ч)",
       value: `$${health.total_cost_usd_24h.toFixed(4)}`,
       ok: true,
     },
   ];
 
   return (
-    <DashboardSurface interactive={false} className="p-[var(--ds-surface-padding)]">
-      <DashboardSectionTitle
-        title="AI diagnostics"
-        subtitle="Integration status over the last 24 hours"
+    <DashboardGlassPanel className="p-[var(--ds-surface-padding)]">
+      <DashboardPanelHeader
+        title="Диагностика AI"
+        subtitle="Статус интеграции за 24 часа"
         className="mb-4"
       />
 
-      <dl className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         {items.map((item) => (
           <div
             key={item.label}
-            className="flex items-center justify-between rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] px-3 py-2"
+            className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-3 py-3 transition-[box-shadow,transform] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-sm)]"
           >
-            <dt className="text-[13px] text-[var(--shell-muted)]">{item.label}</dt>
-            <dd
+            <p className="text-[11px] font-medium uppercase tracking-wide text-[var(--shell-muted)]">
+              {item.label}
+            </p>
+            <p
               className={cn(
-                "text-[13px] font-medium",
+                "mt-1.5 text-[15px] font-semibold",
                 item.ok ? "text-[var(--shell-accent)]" : "text-amber-400"
               )}
             >
               {item.value}
-            </dd>
+            </p>
           </div>
         ))}
-      </dl>
-    </DashboardSurface>
+      </div>
+    </DashboardGlassPanel>
   );
 }

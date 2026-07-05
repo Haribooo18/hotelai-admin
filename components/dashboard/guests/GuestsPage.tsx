@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useCallback, useMemo, useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -135,20 +135,20 @@ export function GuestsPage({ guests }: Props) {
     [optimisticGuests, drawerModel]
   );
 
-  function handleEdit(model: GuestCardModel) {
+  const handleEdit = useCallback((model: GuestCardModel) => {
     setSelectedGuest(model.guest);
     setEditOpen(true);
-  }
+  }, []);
 
-  function handleOpenGuest(model: GuestCardModel) {
+  const handleOpenGuest = useCallback((model: GuestCardModel) => {
     setDrawerModel(model);
     setDrawerOpen(true);
-  }
+  }, []);
 
-  function handleDeleteRequest(model: GuestCardModel) {
+  const handleDeleteRequest = useCallback((model: GuestCardModel) => {
     setDrawerOpen(false);
     setDeleteTarget(model);
-  }
+  }, []);
 
   function confirmDelete() {
     if (!deleteTarget) return;
@@ -170,7 +170,7 @@ export function GuestsPage({ guests }: Props) {
     });
   }
 
-  function toggleFavorite(model: GuestCardModel) {
+  const toggleFavorite = useCallback((model: GuestCardModel) => {
     startTransition(async () => {
       try {
         await setGuestFavorite(model.guest.id, !model.guest.is_favorite);
@@ -180,7 +180,7 @@ export function GuestsPage({ guests }: Props) {
         toast.error("Failed to update status");
       }
     });
-  }
+  }, [router, startTransition]);
 
   return (
     <AdminPageStack className="ds-page-enter">

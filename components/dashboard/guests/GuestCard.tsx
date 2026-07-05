@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   CalendarDays,
   Globe,
@@ -18,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
 
 import { GuestAvatar } from "./GuestAvatar";
 import { GuestSatisfactionBadge } from "./GuestSatisfactionBadge";
@@ -31,13 +33,13 @@ import {
 
 type Props = {
   model: GuestCardModel;
-  onOpen: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-  onToggleFavorite: () => void;
+  onOpen?: (model: GuestCardModel) => void;
+  onEdit?: (model: GuestCardModel) => void;
+  onDelete?: (model: GuestCardModel) => void;
+  onToggleFavorite?: (model: GuestCardModel) => void;
 };
 
-export function GuestCard({
+export const GuestCard = memo(function GuestCard({
   model,
   onOpen,
   onEdit,
@@ -60,11 +62,12 @@ export function GuestCard({
     <article
       role="button"
       tabIndex={0}
-      onClick={onOpen}
+      aria-label={`Open guest ${fullName}`}
+      onClick={() => onOpen?.(model)}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onOpen();
+          onOpen?.(model);
         }
       }}
       className={cn(
@@ -98,10 +101,7 @@ export function GuestCard({
           <DropdownMenuTrigger
             aria-label={`Actions for ${fullName}`}
             onClick={(event) => event.stopPropagation()}
-            className={cn(
-              "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] text-[var(--shell-muted)] opacity-0 transition-[opacity,background-color,transform] duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
-              "group-hover:opacity-100 hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)] focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"
-            )}
+            className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
           >
             <MoreHorizontal size={16} />
           </DropdownMenuTrigger>
@@ -113,7 +113,7 @@ export function GuestCard({
             <DropdownMenuItem
               onClick={(event) => {
                 event.stopPropagation();
-                onOpen();
+                onOpen?.(model);
               }}
               className="rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
             >
@@ -122,7 +122,7 @@ export function GuestCard({
             <DropdownMenuItem
               onClick={(event) => {
                 event.stopPropagation();
-                onEdit();
+                onEdit?.(model);
               }}
               className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
             >
@@ -132,7 +132,7 @@ export function GuestCard({
             <DropdownMenuItem
               onClick={(event) => {
                 event.stopPropagation();
-                onToggleFavorite();
+                onToggleFavorite?.(model);
               }}
               className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-[var(--shell-text)]"
             >
@@ -142,7 +142,7 @@ export function GuestCard({
             <DropdownMenuItem
               onClick={(event) => {
                 event.stopPropagation();
-                onDelete();
+                onDelete?.(model);
               }}
               className="gap-2 rounded-[10px] px-3 py-2 text-[13px] text-red-400"
             >
@@ -203,4 +203,4 @@ export function GuestCard({
       ) : null}
     </article>
   );
-}
+});

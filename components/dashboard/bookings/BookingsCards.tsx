@@ -2,19 +2,13 @@
 
 import { CalendarDays } from "lucide-react";
 
-import type { Booking } from "@/types/booking";
-import type { Guest } from "@/types/guest";
-import type { Room } from "@/types/room";
-
 import { DashboardEmptyState } from "@/components/dashboard/home/DashboardPrimitives";
 
 import { BookingCard } from "./BookingCard";
-import { buildBookingCardModels, type BookingCardModel } from "./booking-ops-metrics";
+import type { BookingCardModel } from "./booking-ops-metrics";
 
 type Props = {
-  bookings: Booking[];
-  rooms: Room[];
-  guests: Guest[];
+  models: BookingCardModel[];
   loading?: boolean;
   onSelect?: (model: BookingCardModel) => void;
   onEdit?: (model: BookingCardModel) => void;
@@ -22,15 +16,12 @@ type Props = {
 };
 
 export function BookingsCards({
-  bookings,
-  rooms,
-  guests,
+  models,
   loading = false,
   onSelect,
   onEdit,
   onDelete,
 }: Props) {
-  const models = buildBookingCardModels(bookings, rooms, guests);
 
   if (loading) {
     return (

@@ -3,6 +3,12 @@ import type { BookingPaymentStatus } from "@/components/dashboard/bookings/booki
 import type { Room } from "@/types/room";
 
 import { derivePaymentStatus } from "@/components/dashboard/bookings/booking-ops-metrics";
+import {
+  countNights,
+  isActiveStay,
+  todayIso,
+} from "@/lib/dashboard/date";
+import { formatCurrency, formatDateShort } from "@/lib/dashboard/format";
 
 export type RoomOperationalStatus =
   | "available"
@@ -106,21 +112,12 @@ const HOUSEKEEPING_META: Record<
   },
 };
 
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
 function nightsBetween(checkIn: string, checkOut: string): number {
-  const diff = new Date(checkOut).getTime() - new Date(checkIn).getTime();
-  return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
+  return countNights(checkIn, checkOut);
 }
 
 function isStayingToday(booking: Booking, today: string): boolean {
-  if (booking.status === "cancelled" || booking.status === "checked_out") {
-    return false;
-  }
-
-  return booking.check_in <= today && booking.check_out > today;
+  return isActiveStay(booking, today);
 }
 
 export function getRoomStatusMeta(status: RoomOperationalStatus) {
@@ -131,20 +128,9 @@ export function getHousekeepingMeta(status: HousekeepingStatus) {
   return HOUSEKEEPING_META[status];
 }
 
-export function formatRoomCurrency(value: number): string {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+export const formatRoomCurrency = formatCurrency;
 
-export function formatRoomDate(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-  }).format(new Date(value));
-}
+export const formatRoomDate = formatDateShort;
 
 export function getGuestInitials(name: string | null): string {
   if (!name) return "—";

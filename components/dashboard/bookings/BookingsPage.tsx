@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useOptimistic, useState, useTransition } from "react";
+import { useCallback, useMemo, useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -28,6 +28,7 @@ import { BookingsExecutiveKpis } from "./BookingsExecutiveKpis";
 import { BookingsTable } from "./BookingsTable";
 import {
   buildBookingCardModel,
+  buildBookingCardModels,
   computeBookingOpsKpis,
   type BookingCardModel,
   type BookingViewMode,
@@ -119,26 +120,31 @@ export function BookingsPage({ bookings, rooms }: Props) {
     [optimisticBookings, rooms.length]
   );
 
+  const cardModels = useMemo(
+    () => buildBookingCardModels(filteredBookings, rooms, guests),
+    [filteredBookings, rooms, guests]
+  );
+
   const loading = guestsLoading;
 
-  function openDrawer(model: BookingCardModel) {
+  const openDrawer = useCallback((model: BookingCardModel) => {
     setSelectedModel(model);
     setDrawerOpen(true);
-  }
+  }, []);
 
-  function handleSelect(model: BookingCardModel) {
+  const handleSelect = useCallback((model: BookingCardModel) => {
     openDrawer(model);
-  }
+  }, [openDrawer]);
 
-  function handleEdit(model: BookingCardModel) {
+  const handleEdit = useCallback((model: BookingCardModel) => {
     setSelectedModel(model);
     setEditOpen(true);
-  }
+  }, []);
 
-  function handleDeleteRequest(model: BookingCardModel) {
+  const handleDeleteRequest = useCallback((model: BookingCardModel) => {
     setDrawerOpen(false);
     setDeleteTarget(model);
-  }
+  }, []);
 
   function confirmDelete() {
     if (!deleteTarget) return;
@@ -186,9 +192,7 @@ export function BookingsPage({ bookings, rooms }: Props) {
 
       {viewMode === "cards" ? (
         <BookingsCards
-          bookings={filteredBookings}
-          rooms={rooms}
-          guests={guests}
+          models={cardModels}
           loading={loading}
           onSelect={handleSelect}
           onEdit={handleEdit}
@@ -196,9 +200,7 @@ export function BookingsPage({ bookings, rooms }: Props) {
         />
       ) : (
         <BookingsTable
-          bookings={filteredBookings}
-          rooms={rooms}
-          guests={guests}
+          models={cardModels}
           loading={loading}
           onSelect={handleSelect}
           onEdit={handleEdit}

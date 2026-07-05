@@ -6,6 +6,7 @@ import {
   type RoomOperationalStatus,
 } from "@/components/dashboard/rooms/room-ops-metrics";
 import type { BookingPaymentStatus } from "@/components/dashboard/bookings/booking-ops-metrics";
+import { isActiveStay, todayIso } from "@/lib/dashboard/date";
 
 export type CalendarOpsKpis = {
   occupancyPercent: number;
@@ -21,18 +22,6 @@ export type CalendarRoomModel = {
   status: RoomOperationalStatus;
   isAvailableToday: boolean;
 };
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function isActiveStay(booking: Booking, today: string): boolean {
-  if (booking.status === "cancelled" || booking.status === "checked_out") {
-    return false;
-  }
-
-  return booking.check_in <= today && booking.check_out > today;
-}
 
 export function computeCalendarOpsKpis(
   bookings: Booking[],

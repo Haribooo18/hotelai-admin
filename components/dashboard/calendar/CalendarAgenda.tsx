@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
@@ -9,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { BookingStatusBadge } from "@/components/dashboard/bookings/BookingStatusBadge";
 import { PaymentStatusBadge } from "@/components/dashboard/bookings/PaymentStatusBadge";
 import {
-  buildBookingCardModel,
+  buildBookingCardModels,
   formatBookingCurrency,
 } from "@/components/dashboard/bookings/booking-ops-metrics";
 import {
@@ -32,11 +34,23 @@ export function CalendarAgenda({
   days,
   onOpen,
 }: Props) {
-  const roomName = new Map(rooms.map((room) => [room.id, room.room_type]));
+  const roomName = useMemo(
+    () => new Map(rooms.map((room) => [room.id, room.room_type])),
+    [rooms]
+  );
 
-  const visible = bookings
-    .filter((booking) => placeBooking(booking, days))
-    .sort((a, b) => a.check_in.localeCompare(b.check_in));
+  const visible = useMemo(
+    () =>
+      bookings
+        .filter((booking) => placeBooking(booking, days))
+        .sort((a, b) => a.check_in.localeCompare(b.check_in)),
+    [bookings, days]
+  );
+
+  const modelsById = useMemo(() => {
+    const models = buildBookingCardModels(visible, rooms, guests);
+    return new Map(models.map((model) => [model.booking.id, model]));
+  }, [visible, rooms, guests]);
 
   if (visible.length === 0) {
     return (
@@ -51,7 +65,8 @@ export function CalendarAgenda({
   return (
     <div className="space-y-2">
       {visible.map((booking) => {
-        const model = buildBookingCardModel(booking, rooms, guests);
+        const model = modelsById.get(booking.id);
+        if (!model) return null;
         const displayName = model.guest
           ? `${model.guest.first_name} ${model.guest.last_name}`.trim()
           : booking.guest_name;
@@ -62,14 +77,15 @@ export function CalendarAgenda({
             type="button"
             onClick={() => onOpen(booking)}
             className={cn(
-              "flex w-full items-center justify-between gap-4 rounded-[var(--ds-radius)] bg-[var(--shell-surface)] p-4 text-left shadow-[var(--shell-shadow-sm)] transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-md)]"
+              "flex w-full items-center justify-between gap-4 rounded-[var(--ds-radius)] bg-[var(--shell-surface)] p-4 text-left shadow-[var(--shell-shadow-sm)] transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-md)]",
+              "flex-col items-stretch sm:flex-row sm:items-center"
             )}
           >
             <div className="min-w-0">
               <div className="truncate text-[14px] font-semibold text-[var(--shell-text)]">
                 {displayName}
               </div>
-              <div className="mt-1 text-[12px] text-[var(--shell-muted)]">
+              <div className="mt-1 truncate text-[12px] text-[var(--shell-muted)]">
                 {roomName.get(booking.room_id) ?? "—"} · {booking.check_in} →{" "}
                 {booking.check_out} · {model.nights}n
               </div>

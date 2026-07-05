@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   Copy,
   Eye,
@@ -15,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
 
 import { AiReadyBadge } from "./AiReadyBadge";
 import { KnowledgeStatusBadge } from "./KnowledgeStatusBadge";
@@ -31,7 +33,7 @@ type Props = {
   onDelete: () => void;
 };
 
-export function KnowledgeArticleCard({
+export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
   model,
   onOpen,
   onEdit,
@@ -62,8 +64,8 @@ export function KnowledgeArticleCard({
 
         <DropdownMenu>
           <DropdownMenuTrigger
-            aria-label={`Действия: ${article.title}`}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] text-[var(--shell-muted)] opacity-0 transition-[opacity,background-color] duration-[var(--ds-duration)] group-hover:opacity-100 hover:bg-[var(--shell-nav-hover-bg)]"
+            aria-label={`Действия для статьи ${article.title}`}
+            className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
           >
             <MoreHorizontal size={16} />
           </DropdownMenuTrigger>
@@ -113,7 +115,7 @@ export function KnowledgeArticleCard({
       </div>
     </article>
   );
-}
+});
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (

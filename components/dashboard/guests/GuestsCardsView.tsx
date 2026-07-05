@@ -53,10 +53,10 @@ export function GuestsCardsView({
         <GuestCard
           key={model.guest.id}
           model={model}
-          onOpen={() => onOpenGuest(model)}
-          onEdit={() => onEditGuest(model)}
-          onDelete={() => onDeleteGuest(model)}
-          onToggleFavorite={() => onToggleFavorite(model)}
+          onOpen={onOpenGuest}
+          onEdit={onEditGuest}
+          onDelete={onDeleteGuest}
+          onToggleFavorite={onToggleFavorite}
         />
       ))}
     </div>

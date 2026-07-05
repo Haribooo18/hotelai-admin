@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import {
   CalendarDays,
   Eye,
@@ -16,6 +17,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
+
+import type { Room } from "@/types/room";
 
 import { HousekeepingBadge } from "./HousekeepingBadge";
 import { RoomStatusBadge } from "./RoomStatusBadge";
@@ -28,11 +32,11 @@ import {
 
 type Props = {
   model: RoomCardModel;
-  onOpen: () => void;
-  onEdit: () => void;
+  onOpen?: (model: RoomCardModel) => void;
+  onEdit?: (room: Room) => void;
 };
 
-export function RoomCard({ model, onOpen, onEdit }: Props) {
+export const RoomCard = memo(function RoomCard({ model, onOpen, onEdit }: Props) {
   const {
     room,
     roomCode,
@@ -62,7 +66,7 @@ export function RoomCard({ model, onOpen, onEdit }: Props) {
       )}
     >
       <div className="flex items-start justify-between gap-2">
-        <button type="button" onClick={onOpen} className="min-w-0 text-left">
+        <button type="button" onClick={() => onOpen?.(model)} className="min-w-0 text-left">
           <p className="text-[28px] font-semibold leading-none tracking-[-0.04em] text-[var(--shell-text)]">
             {roomCode}
           </p>
@@ -77,16 +81,16 @@ export function RoomCard({ model, onOpen, onEdit }: Props) {
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label={`Actions for room ${room.room_type}`}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] text-[var(--shell-muted)] opacity-0 transition-[opacity,background-color] duration-[var(--ds-duration)] group-hover:opacity-100 hover:bg-[var(--shell-nav-hover-bg)]"
+            className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
           >
             <MoreHorizontal size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onOpen} className="gap-2">
+            <DropdownMenuItem onClick={() => onOpen?.(model)} className="gap-2">
               <Eye size={14} />
               Open
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onEdit} className="gap-2">
+            <DropdownMenuItem onClick={() => onEdit?.(model.room)} className="gap-2">
               <Pencil size={14} />
               Edit
             </DropdownMenuItem>
@@ -146,14 +150,14 @@ export function RoomCard({ model, onOpen, onEdit }: Props) {
       <div className="mt-3 flex gap-2">
         <button
           type="button"
-          onClick={onOpen}
+          onClick={() => onOpen?.(model)}
           className="h-8 flex-1 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] text-[11px] font-medium text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-[background-color] hover:bg-[var(--shell-nav-hover-bg)]"
         >
           Details
         </button>
         <button
           type="button"
-          onClick={onEdit}
+          onClick={() => onEdit?.(model.room)}
           className="h-8 flex-1 rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[11px] font-medium text-[var(--shell-accent)] transition-[background-color] hover:bg-[var(--shell-nav-active-bg)]"
         >
           Edit
@@ -161,4 +165,4 @@ export function RoomCard({ model, onOpen, onEdit }: Props) {
       </div>
     </article>
   );
-}
+});

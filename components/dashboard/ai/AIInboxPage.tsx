@@ -167,7 +167,7 @@ export function AIInboxPage({
         onRefresh={handleRefresh}
       />
 
-      <div className="flex h-[calc(100vh-18rem)] min-h-[520px] overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
+      <div className="flex min-h-[min(65svh,720px)] overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
         <div
           className={
             selectedId

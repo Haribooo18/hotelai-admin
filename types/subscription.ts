@@ -24,12 +24,3 @@ export type HotelSubscription = {
   created_at: string;
   updated_at: string;
 };
-
-export type SubscriptionEvent = {
-  id: string;
-  hotel_id: string | null;
-  stripe_event_id: string;
-  event_type: string;
-  payload: Record<string, unknown>;
-  created_at: string;
-};

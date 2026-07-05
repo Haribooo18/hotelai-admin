@@ -11,19 +11,13 @@ import {
   DashboardSkeleton,
   DashboardSurface,
 } from "./DashboardPrimitives";
+import { formatDateShort } from "@/lib/dashboard/format";
 import { formatDashboardCurrency } from "./dashboard-metrics";
 
 type Props = {
   bookings: Booking[];
   loading: boolean;
 };
-
-function formatDate(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-  }).format(new Date(value));
-}
 
 export function DashboardRecentBookings({ bookings, loading }: Props) {
   return (
@@ -63,7 +57,7 @@ export function DashboardRecentBookings({ bookings, loading }: Props) {
                     {booking.guest_name}
                   </p>
                   <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
-                    {formatDate(booking.check_in)} — {formatDate(booking.check_out)}
+                    {formatDateShort(booking.check_in)} — {formatDateShort(booking.check_out)}
                   </p>
                 </div>
                 <p className="shrink-0 text-[12px] font-semibold text-[var(--shell-text)]">

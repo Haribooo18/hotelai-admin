@@ -8,7 +8,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { iconActionClass } from "@/lib/dashboard/design-system";
+import { iconActionClass, tableRowClickableAltClass } from "@/lib/dashboard/design-system";
+import { tableRowA11yProps } from "@/lib/dashboard/a11y";
 import { cn } from "@/lib/utils";
 
 import { HousekeepingBadge } from "./HousekeepingBadge";
@@ -29,18 +30,19 @@ type Props = {
 export function RoomsTable({ models, onOpen, onEdit }: Props) {
   return (
     <div className="overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/85 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto overscroll-x-contain">
         <table className="w-full min-w-[920px] text-left text-[12px]">
+          <caption className="sr-only">Room list</caption>
           <thead className="border-b border-[var(--shell-border)]/50 bg-[var(--shell-surface-raised)]/60 text-[11px] uppercase tracking-[0.06em] text-[var(--shell-muted)]">
             <tr>
-              <th className="px-4 py-3 font-medium">Room</th>
-              <th className="px-4 py-3 font-medium">Type</th>
-              <th className="px-4 py-3 font-medium">Guest</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Housekeeping</th>
-              <th className="px-4 py-3 font-medium">Revenue</th>
-              <th className="px-4 py-3 font-medium">Stay</th>
-              <th className="px-4 py-3 font-medium">Actions</th>
+              <th scope="col" className="px-4 py-3 font-medium">Room</th>
+              <th scope="col" className="px-4 py-3 font-medium">Type</th>
+              <th scope="col" className="px-4 py-3 font-medium">Guest</th>
+              <th scope="col" className="px-4 py-3 font-medium">Status</th>
+              <th scope="col" className="px-4 py-3 font-medium">Housekeeping</th>
+              <th scope="col" className="px-4 py-3 font-medium">Revenue</th>
+              <th scope="col" className="px-4 py-3 font-medium">Stay</th>
+              <th scope="col" className="px-4 py-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -51,7 +53,10 @@ export function RoomsTable({ models, onOpen, onEdit }: Props) {
                 <tr
                   key={model.room.id}
                   onClick={() => onOpen(model)}
-                  className="cursor-pointer border-b border-[var(--shell-border)]/40 transition-[background-color] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:bg-[var(--shell-surface-raised)]/50"
+                  className={tableRowClickableAltClass}
+                  {...tableRowA11yProps(`Open room ${model.roomCode}`, () =>
+                    onOpen(model)
+                  )}
                 >
                   <td className="px-4 py-3">
                     <p className="font-semibold text-[var(--shell-text)]">
@@ -92,7 +97,7 @@ export function RoomsTable({ models, onOpen, onEdit }: Props) {
                     <DropdownMenu>
                       <DropdownMenuTrigger
                         aria-label={`Actions for room ${model.roomCode}`}
-                        className={cn(iconActionClass, "h-8 w-8")}
+                        className={cn(iconActionClass, "max-md:opacity-100")}
                         onClick={(event) => event.stopPropagation()}
                       >
                         <MoreHorizontal size={16} />

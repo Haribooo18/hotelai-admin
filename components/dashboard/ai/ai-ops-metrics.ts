@@ -4,6 +4,8 @@ import type { KnowledgeArticle } from "@/types/knowledge-article";
 import type { Lead } from "@/types/lead";
 import type { Message } from "@/types/message";
 
+import { todayIso } from "@/lib/dashboard/date";
+
 export type AIOpsKpis = {
   activeConversations: number;
   aiResolvedToday: number;
@@ -40,10 +42,6 @@ export type GuestContext = {
   tags: string[];
   preferences: string[];
 };
-
-function todayIso(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 function isActiveConversation(conversation: Conversation): boolean {
   return !["resolved", "archived"].includes(conversation.status);

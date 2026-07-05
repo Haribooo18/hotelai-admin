@@ -1,15 +1,19 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import {
+  AdminPageStack,
+  DashboardPageHeader,
+  DashboardSkeletonBlock,
+} from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
 
-import { RevenueAnalytics } from "./RevenueAnalytics";
 import { RevenueExecutiveKpis } from "./RevenueExecutiveKpis";
 import { RevenueOperations } from "./RevenueOperations";
 import {
@@ -26,6 +30,23 @@ import {
   type RevenueDateRange,
 } from "./revenue-metrics";
 import { RevenueToolbar } from "./RevenueToolbar";
+
+const RevenueAnalytics = dynamic(
+  () =>
+    import("./RevenueAnalytics").then((mod) => ({
+      default: mod.RevenueAnalytics,
+    })),
+  {
+    loading: () => (
+      <div className="grid gap-4 xl:grid-cols-2">
+        <DashboardSkeletonBlock className="h-64" />
+        <DashboardSkeletonBlock className="h-64" />
+        <DashboardSkeletonBlock className="h-64" />
+        <DashboardSkeletonBlock className="h-64" />
+      </div>
+    ),
+  }
+);
 
 type Props = {
   bookings: Booking[];

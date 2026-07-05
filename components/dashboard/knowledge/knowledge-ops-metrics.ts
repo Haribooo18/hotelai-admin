@@ -1,4 +1,6 @@
 import { countWords } from "@/lib/knowledge";
+import { minutesSince } from "@/lib/dashboard/date";
+import { formatDateFull } from "@/lib/dashboard/format";
 import type { KnowledgeArticle } from "@/types/knowledge-article";
 
 export type KnowledgeViewMode = "grid" | "list";
@@ -47,18 +49,9 @@ function excerpt(content: string, max = 120): string {
   return plain.length > max ? `${plain.slice(0, max)}…` : plain;
 }
 
-export function formatKnowledgeDate(value: string): string {
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
-}
+export const formatKnowledgeDate = formatDateFull;
 
-export function formatRelativeMinutes(value: string): number {
-  const diffMs = Date.now() - new Date(value).getTime();
-  return Math.max(0, Math.round(diffMs / 60000));
-}
+export const formatRelativeMinutes = minutesSince;
 
 function deriveQualityScore(article: KnowledgeArticle): number {
   let score = 35;

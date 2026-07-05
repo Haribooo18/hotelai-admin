@@ -20,7 +20,7 @@ export function TopBar() {
             type="date"
             defaultValue={today}
             aria-label="Select date"
-            className="hidden h-[var(--ds-input-height)] w-[140px] border-0 bg-transparent shadow-none focus-visible:ring-0 sm:block"
+            className="hidden h-[var(--ds-input-height)] w-[140px] border-0 bg-transparent shadow-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)] sm:block"
           />
 
           <Link

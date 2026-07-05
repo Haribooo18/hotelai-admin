@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from "react";
 
 import {
   glassClass,
-  labelClass,
   pageStackClass,
   sectionTitleClass,
   shellEmptyStateClass,
@@ -37,45 +36,6 @@ export function DashboardSurface({
     >
       {children}
     </div>
-  );
-}
-
-type KpiCardProps = {
-  label: string;
-  value: string | number;
-  hint?: string;
-  icon?: ReactNode;
-};
-
-export function DashboardKpiCard({
-  label,
-  value,
-  hint,
-  icon,
-}: KpiCardProps) {
-  return (
-    <DashboardSurface className="p-[var(--ds-surface-padding)]">
-      <div className="flex items-start justify-between gap-3">
-        <p className={cn(labelClass, "normal-case tracking-[0.01em]")}>
-          {label}
-        </p>
-        {icon ? (
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)]">
-            {icon}
-          </div>
-        ) : null}
-      </div>
-      <p
-        className="mt-3 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] leading-[var(--type-kpi-leading)] tracking-[var(--type-kpi-tracking)] text-[var(--shell-text)]"
-      >
-        {value}
-      </p>
-      {hint ? (
-        <p className="mt-1 text-[var(--type-caption-size)] leading-[var(--type-caption-leading)] text-[var(--shell-muted)]">
-          {hint}
-        </p>
-      ) : null}
-    </DashboardSurface>
   );
 }
 
@@ -120,14 +80,6 @@ export function DashboardSkeleton({ className }: { className?: string }) {
       <div className="ds-skeleton h-20 w-full" />
     </div>
   );
-}
-
-export function DashboardSkeletonLine({
-  className,
-}: {
-  className?: string;
-}) {
-  return <div className={cn("ds-skeleton h-3.5", className)} />;
 }
 
 export function DashboardSkeletonBlock({
@@ -234,27 +186,6 @@ export function DashboardPanelHeader({
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
-    </div>
-  );
-}
-
-export function DashboardSectionTitle({
-  title,
-  subtitle,
-  className,
-}: {
-  title: string;
-  subtitle?: string;
-  className?: string;
-}) {
-  return (
-    <div className={cn("mb-4", className)}>
-      <h2 className={sectionTitleClass}>{title}</h2>
-      {subtitle ? (
-        <p className="mt-1 text-[var(--type-caption-size)] leading-[var(--type-caption-leading)] text-[var(--shell-muted)]">
-          {subtitle}
-        </p>
-      ) : null}
     </div>
   );
 }
