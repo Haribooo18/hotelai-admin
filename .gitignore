@@ -52,6 +52,7 @@ types-debug/
 # local database exports
 schema.sql
 initial_schema.sql
+supabase/migrations/0000_initial_schema.sql
 
 # local helper scripts
 scripts/
