@@ -1,6 +1,13 @@
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
+import {
+  deriveBookingSource,
+  derivePaymentStatus,
+  type BookingPaymentStatus,
+  type BookingSource,
+} from "@/components/dashboard/bookings/booking-ops-metrics";
+
 export type RevenueDateRange = {
   from: string;
   to: string;
@@ -23,11 +30,18 @@ export type RevenueTrendPoint = {
   revenue: number;
   occupancy: number;
   adr: number;
+  revpar: number;
 };
 
 export type RevenueBreakdownPoint = {
   label: string;
   value: number;
+};
+
+export type RevenueForecastPoint = {
+  label: string;
+  date: string;
+  projected: number;
 };
 
 export type RevenueTransaction = {
@@ -38,6 +52,8 @@ export type RevenueTransaction = {
   paymentMethod: string;
   amount: number;
   status: Booking["status"];
+  paymentStatus: BookingPaymentStatus;
+  source: BookingSource;
   date: string;
   booking: Booking;
 };
@@ -45,6 +61,12 @@ export type RevenueTransaction = {
 export type RevenueInsight = {
   id: string;
   text: string;
+};
+
+const SOURCE_LABELS: Record<BookingSource, string> = {
+  direct: "Direct",
+  online: "Online",
+  phone: "Phone",
 };
 
 function todayIso(): string {
@@ -93,7 +115,24 @@ export function defaultRevenueRange(): RevenueDateRange {
   return { from, to };
 }
 
-function filterBookingsInRange(
+export function buildPreviousPeriodRange(
+  range: RevenueDateRange
+): RevenueDateRange {
+  const dayCount = Math.max(
+    1,
+    Math.round(
+      (new Date(range.to).getTime() - new Date(range.from).getTime()) /
+        (1000 * 60 * 60 * 24)
+    ) + 1
+  );
+
+  return {
+    from: addDays(range.from, -dayCount),
+    to: addDays(range.from, -1),
+  };
+}
+
+export function filterBookingsInRange(
   bookings: Booking[],
   range: RevenueDateRange
 ): Booking[] {
@@ -215,6 +254,7 @@ export function buildRevenueTrend(
       occupancy:
         rooms.length > 0 ? Math.round((occupied / rooms.length) * 100) : 0,
       adr: nights > 0 ? revenue / nights : 0,
+      revpar: rooms.length > 0 ? revenue / rooms.length : 0,
     });
 
     cursor = addDays(cursor, 1);
@@ -236,7 +276,7 @@ export function buildRevenueByRoomType(
 
   for (const booking of inRange) {
     const room = rooms.find((item) => item.id === booking.room_id);
-    const label = room?.room_type ?? "No type";
+    const label = room?.room_type ?? "Unassigned";
     totals.set(label, (totals.get(label) ?? 0) + Number(booking.total_price));
   }
 
@@ -245,7 +285,7 @@ export function buildRevenueByRoomType(
     .sort((a, b) => b.value - a.value);
 }
 
-export function buildRevenueByChannel(
+export function buildRevenueBySource(
   bookings: Booking[],
   range: RevenueDateRange
 ): RevenueBreakdownPoint[] {
@@ -253,14 +293,46 @@ export function buildRevenueByChannel(
     (b) => b.status !== "cancelled"
   );
 
-  if (inRange.length === 0) return [];
+  const totals = new Map<BookingSource, number>();
 
-  return [
-    {
-      label: "Direct booking",
-      value: revenueForBookings(inRange),
-    },
-  ];
+  for (const booking of inRange) {
+    const source = deriveBookingSource(booking);
+    totals.set(source, (totals.get(source) ?? 0) + Number(booking.total_price));
+  }
+
+  return (["direct", "online", "phone"] as BookingSource[])
+    .map((source) => ({
+      label: SOURCE_LABELS[source],
+      value: totals.get(source) ?? 0,
+    }))
+    .filter((item) => item.value > 0);
+}
+
+export function buildRevenueForecast(
+  trend: RevenueTrendPoint[]
+): RevenueForecastPoint[] {
+  const sample = trend.slice(-7);
+  if (sample.length === 0) return [];
+
+  const average =
+    sample.reduce((sum, point) => sum + point.revenue, 0) / sample.length;
+
+  const lastDate = sample[sample.length - 1]?.date ?? todayIso();
+  const points: RevenueForecastPoint[] = [];
+
+  for (let index = 1; index <= 7; index += 1) {
+    const date = addDays(lastDate, index);
+    points.push({
+      date,
+      label: new Intl.DateTimeFormat("en-US", {
+        day: "numeric",
+        month: "short",
+      }).format(new Date(date)),
+      projected: Math.round(average),
+    });
+  }
+
+  return points;
 }
 
 export function buildMonthlyComparison(
@@ -298,15 +370,18 @@ export function buildRevenueTransactions(
     .sort((a, b) => b.check_in.localeCompare(a.check_in))
     .map((booking) => {
       const room = rooms.find((item) => item.id === booking.room_id);
+      const source = deriveBookingSource(booking);
 
       return {
         id: booking.id,
         guestName: booking.guest_name,
         roomLabel: room?.room_type ?? "Room not assigned",
         bookingLabel: `${booking.check_in} — ${booking.check_out}`,
-        paymentMethod: "Direct",
+        paymentMethod: SOURCE_LABELS[source],
         amount: Number(booking.total_price),
         status: booking.status,
+        paymentStatus: derivePaymentStatus(booking),
+        source,
         date: booking.check_in,
         booking,
       };
@@ -318,18 +393,7 @@ export function buildRevenueInsights(
   rooms: Room[],
   range: RevenueDateRange
 ): RevenueInsight[] {
-  const rangeDays = Math.max(
-    1,
-    Math.round(
-      (new Date(range.to).getTime() - new Date(range.from).getTime()) /
-        (1000 * 60 * 60 * 24)
-    ) + 1
-  );
-
-  const previousRange: RevenueDateRange = {
-    from: addDays(range.from, -rangeDays),
-    to: addDays(range.from, -1),
-  };
+  const previousRange = buildPreviousPeriodRange(range);
 
   const currentRevenue = revenueForBookings(
     filterBookingsInRange(bookings, range).filter((b) => b.status !== "cancelled")
@@ -351,8 +415,8 @@ export function buildRevenueInsights(
       id: "revenue-change",
       text:
         change >= 0
-          ? `Revenue increased by ${change}% for the selected period`
-          : `Revenue decreased by ${Math.abs(change)}% for the selected period`,
+          ? `Revenue increased by ${change}% versus the previous period`
+          : `Revenue decreased by ${Math.abs(change)}% versus the previous period`,
     });
   }
 
@@ -367,7 +431,7 @@ export function buildRevenueInsights(
       id: "adr-change",
       text:
         adrChange === 0
-          ? "ADR is stable"
+          ? "ADR is stable period over period"
           : adrChange > 0
             ? `ADR increased by ${adrChange}%`
             : `ADR decreased by ${Math.abs(adrChange)}%`,
@@ -381,14 +445,29 @@ export function buildRevenueInsights(
         ? "Occupancy is high — consider raising rates"
         : currentKpis.occupancy < 40
           ? "Occupancy is low — consider promotional offers"
-          : "Occupancy is stable",
+          : "Occupancy is stable for today",
   });
 
   const roomTypes = buildRevenueByRoomType(bookings, rooms, range);
   if (roomTypes[0]) {
     insights.push({
       id: "top-room",
-      text: `Top room type: ${roomTypes[0].label}`,
+      text: `Top-performing room type: ${roomTypes[0].label} (${formatRevenueCurrency(roomTypes[0].value)})`,
+    });
+  }
+
+  const sources = buildRevenueBySource(bookings, range);
+  if (sources[0]) {
+    insights.push({
+      id: "top-source",
+      text: `Primary revenue source: ${sources[0].label}`,
+    });
+  }
+
+  if (currentKpis.cancellationRate > 15) {
+    insights.push({
+      id: "cancellations",
+      text: `Cancellation rate is elevated at ${currentKpis.cancellationRate}%`,
     });
   }
 
@@ -396,7 +475,7 @@ export function buildRevenueInsights(
   if (topRoom && currentKpis.adr > 0 && topRoom.price < currentKpis.adr) {
     insights.push({
       id: "pricing",
-      text: `Recommendation: raise the price of "${topRoom.room_type}" to ${formatRevenueCurrency(Math.round(currentKpis.adr))}`,
+      text: `Consider raising "${topRoom.room_type}" to ${formatRevenueCurrency(Math.round(currentKpis.adr))}`,
     });
   }
 
@@ -408,7 +487,8 @@ export function exportBookingsCsv(transactions: RevenueTransaction[]): void {
     "Guest",
     "Room",
     "Booking",
-    "Payment method",
+    "Source",
+    "Payment status",
     "Amount",
     "Status",
     "Date",
@@ -419,6 +499,7 @@ export function exportBookingsCsv(transactions: RevenueTransaction[]): void {
     item.roomLabel,
     item.bookingLabel,
     item.paymentMethod,
+    item.paymentStatus,
     String(item.amount),
     item.status,
     item.date,

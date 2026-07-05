@@ -1,18 +1,22 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
-import { RevenueCharts } from "./RevenueCharts";
-import { RevenueInsights } from "./RevenueInsights";
-import { RevenueKpiGrid } from "./RevenueKpiGrid";
 import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
 import { useI18n } from "@/lib/i18n";
+
+import { RevenueAnalytics } from "./RevenueAnalytics";
+import { RevenueExecutiveKpis } from "./RevenueExecutiveKpis";
+import { RevenueOperations } from "./RevenueOperations";
 import {
-  buildMonthlyComparison,
-  buildRevenueByChannel,
+  buildPreviousPeriodRange,
   buildRevenueByRoomType,
+  buildRevenueBySource,
+  buildRevenueForecast,
   buildRevenueInsights,
   buildRevenueTransactions,
   buildRevenueTrend,
@@ -22,53 +26,84 @@ import {
   type RevenueDateRange,
 } from "./revenue-metrics";
 import { RevenueToolbar } from "./RevenueToolbar";
-import { RevenueTransactions } from "./RevenueTransactions";
-import { RevenueWidgets } from "./RevenueWidgets";
 
 type Props = {
   bookings: Booking[];
   rooms: Room[];
 };
 
+function matchesSearch(
+  booking: Booking,
+  rooms: Room[],
+  query: string
+): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+
+  const room = rooms.find((item) => item.id === booking.room_id);
+  return (
+    booking.guest_name.toLowerCase().includes(q) ||
+    (room?.room_type.toLowerCase().includes(q) ?? false)
+  );
+}
+
 export function RevenuePage({ bookings, rooms }: Props) {
   const { t } = useI18n();
+  const router = useRouter();
+  const [refreshing, startRefresh] = useTransition();
+
   const [range, setRange] = useState<RevenueDateRange>(() => defaultRevenueRange());
   const [compareEnabled, setCompareEnabled] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [roomFilter, setRoomFilter] = useState("");
+
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((booking) => {
+      if (statusFilter && booking.status !== statusFilter) return false;
+      if (roomFilter && booking.room_id !== roomFilter) return false;
+      if (!matchesSearch(booking, rooms, search)) return false;
+      return true;
+    });
+  }, [bookings, statusFilter, roomFilter, search, rooms]);
 
   const kpis = useMemo(
-    () => computeRevenueKpis(bookings, rooms, range),
-    [bookings, rooms, range]
+    () => computeRevenueKpis(filteredBookings, rooms, range),
+    [filteredBookings, rooms, range]
   );
 
   const trend = useMemo(
-    () => buildRevenueTrend(bookings, rooms, range),
-    [bookings, rooms, range]
+    () => buildRevenueTrend(filteredBookings, rooms, range),
+    [filteredBookings, rooms, range]
   );
 
-  const byChannel = useMemo(
-    () => buildRevenueByChannel(bookings, range),
-    [bookings, range]
+  const compareTrend = useMemo(() => {
+    if (!compareEnabled) return [];
+    const previousRange = buildPreviousPeriodRange(range);
+    return buildRevenueTrend(filteredBookings, rooms, previousRange);
+  }, [compareEnabled, filteredBookings, rooms, range]);
+
+  const bySource = useMemo(
+    () => buildRevenueBySource(filteredBookings, range),
+    [filteredBookings, range]
   );
 
   const byRoomType = useMemo(
-    () => buildRevenueByRoomType(bookings, rooms, range),
-    [bookings, rooms, range]
+    () => buildRevenueByRoomType(filteredBookings, rooms, range),
+    [filteredBookings, rooms, range]
   );
 
-  const monthlyComparison = useMemo(
-    () => buildMonthlyComparison(bookings),
-    [bookings]
-  );
+  const forecast = useMemo(() => buildRevenueForecast(trend), [trend]);
 
   const transactions = useMemo(
-    () => buildRevenueTransactions(bookings, rooms, range),
-    [bookings, rooms, range]
+    () => buildRevenueTransactions(filteredBookings, rooms, range),
+    [filteredBookings, rooms, range]
   );
 
   const insights = useMemo(
-    () => buildRevenueInsights(bookings, rooms, range),
-    [bookings, rooms, range]
+    () => buildRevenueInsights(filteredBookings, rooms, range),
+    [filteredBookings, rooms, range]
   );
 
   function handleExport() {
@@ -77,41 +112,51 @@ export function RevenuePage({ bookings, rooms }: Props) {
     setExporting(false);
   }
 
+  function handleRefresh() {
+    startRefresh(() => {
+      router.refresh();
+    });
+  }
+
   return (
-    <AdminPageStack>
+    <AdminPageStack className="ds-page-enter">
       <DashboardPageHeader
         title={t("pages.revenue.title")}
         subtitle={t("pages.revenue.subtitle")}
-        actions={
-          <RevenueToolbar
-            range={range}
-            compareEnabled={compareEnabled}
-            exporting={exporting}
-            canExport={transactions.length > 0}
-            onRangeChange={setRange}
-            onCompareChange={setCompareEnabled}
-            onExport={handleExport}
-          />
-        }
       />
 
-      <RevenueKpiGrid kpis={kpis} />
+      <RevenueExecutiveKpis kpis={kpis} loading={refreshing} />
 
-      <RevenueCharts
-        trend={trend}
-        occupancyTrend={trend}
-        adrTrend={trend}
-        byChannel={byChannel}
-        byRoomType={byRoomType}
-        monthlyComparison={monthlyComparison}
+      <RevenueToolbar
+        range={range}
         compareEnabled={compareEnabled}
+        exporting={exporting}
+        refreshing={refreshing}
+        canExport={transactions.length > 0}
+        search={search}
+        statusFilter={statusFilter}
+        roomFilter={roomFilter}
+        rooms={rooms}
+        onRangeChange={setRange}
+        onCompareChange={setCompareEnabled}
+        onExport={handleExport}
+        onRefresh={handleRefresh}
+        onSearchChange={setSearch}
+        onStatusFilterChange={setStatusFilter}
+        onRoomFilterChange={setRoomFilter}
       />
 
-      <RevenueWidgets transactions={transactions} />
+      <RevenueAnalytics
+        trend={trend}
+        compareTrend={compareTrend}
+        bySource={bySource}
+        byRoomType={byRoomType}
+        forecast={forecast}
+        compareEnabled={compareEnabled}
+        loading={refreshing}
+      />
 
-      <RevenueInsights insights={insights} />
-
-      <RevenueTransactions transactions={transactions} />
+      <RevenueOperations transactions={transactions} insights={insights} />
     </AdminPageStack>
   );
 }
