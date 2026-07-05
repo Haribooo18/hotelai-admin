@@ -1,12 +1,19 @@
 "use client";
 
 import type { Conversation } from "@/types/conversation";
-import { cn } from "@/lib/utils";
 import { getConversationChannelMeta } from "@/lib/ai/metadata";
+
+import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
+import { Badge } from "@/components/ui/display/Badge";
+import { Counter } from "@/components/ui/display/Counter";
+import { StatusDot } from "@/components/ui/display/StatusDot";
+import { Scrollable } from "@/components/ui/primitives/Scrollable";
+import { cn } from "@/lib/utils";
 
 import { AIStatusBadge } from "./AIStatusBadge";
 import { ChannelIcon } from "./ChannelIcon";
 import { PriorityBadge } from "./PriorityBadge";
+import { AIConversationCard } from "./ai-ui";
 import {
   formatRelativeTime,
   getGuestInitials,
@@ -19,9 +26,9 @@ type Props = {
   onSelect: (id: string) => void;
 };
 
-const PRIORITY_DOT: Record<string, string> = {
-  high: "bg-amber-400",
-  urgent: "bg-red-400",
+const PRIORITY_TONE: Record<string, "warning" | "danger" | "default"> = {
+  high: "warning",
+  urgent: "danger",
 };
 
 export function ConversationList({
@@ -30,12 +37,11 @@ export function ConversationList({
   onSelect,
 }: Props) {
   return (
-    <aside className="flex h-full w-full flex-col border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/85 backdrop-blur-xl md:w-[300px] md:shrink-0">
-      <div
-        className="flex-1 overflow-y-auto"
-        role="listbox"
-        aria-label="Conversation list"
-      >
+    <aside
+      className="flex h-full w-full flex-col border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/85 backdrop-blur-xl md:w-[320px] md:shrink-0 lg:w-[340px]"
+      aria-label="Conversation list"
+    >
+      <Scrollable className="flex-1" role="listbox">
         {conversations.length === 0 ? (
           <div className="p-8 text-center text-[13px] text-[var(--shell-muted)]">
             No conversations match your filters
@@ -46,31 +52,27 @@ export function ConversationList({
               getConversationChannelMeta(conversation.channel)?.label ??
               conversation.channel;
             const human = isHumanHandled(conversation);
+            const selected = selectedId === conversation.id;
 
             return (
-              <button
+              <AIConversationCard
                 key={conversation.id}
-                type="button"
-                role="option"
-                aria-selected={selectedId === conversation.id}
+                selected={selected}
+                aria-selected={selected}
                 onClick={() => onSelect(conversation.id)}
-                className={cn(
-                  "group w-full border-b border-[var(--shell-border)]/40 px-3 py-3 text-left transition-[background-color,transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:bg-[var(--shell-surface-raised)]/70",
-                  selectedId === conversation.id &&
-                    "bg-[var(--shell-nav-active-bg)]/50 shadow-[inset_2px_0_0_0_var(--shell-accent)]"
-                )}
               >
                 <div className="flex items-start gap-2.5">
                   <div className="relative shrink-0">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--shell-accent-muted)] text-[11px] font-semibold text-[var(--shell-accent)]">
-                      {getGuestInitials(conversation.guest_name)}
-                    </div>
-                    {conversation.priority in PRIORITY_DOT ? (
-                      <span
-                        className={cn(
-                          "absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full ring-2 ring-[var(--shell-surface)]",
-                          PRIORITY_DOT[conversation.priority]
-                        )}
+                    <Avatar className="size-9">
+                      <AvatarFallback className="text-[11px] font-semibold">
+                        {getGuestInitials(conversation.guest_name)}
+                      </AvatarFallback>
+                    </Avatar>
+                    {conversation.priority in PRIORITY_TONE ? (
+                      <StatusDot
+                        tone={PRIORITY_TONE[conversation.priority] ?? "default"}
+                        pulse={conversation.priority === "urgent"}
+                        className="absolute -right-0.5 -top-0.5 ring-2 ring-[var(--shell-surface)]"
                       />
                     ) : null}
                   </div>
@@ -84,8 +86,6 @@ export function ConversationList({
                         <p className="mt-0.5 flex items-center gap-1 text-[11px] text-[var(--shell-muted)]">
                           <ChannelIcon channel={conversation.channel} size={12} />
                           <span className="truncate">{channelLabel}</span>
-                          <span>·</span>
-                          <span className="truncate">On-property</span>
                         </p>
                       </div>
 
@@ -94,12 +94,13 @@ export function ConversationList({
                           {formatRelativeTime(conversation.last_message_at)}
                         </span>
                         {conversation.unread_count > 0 ? (
-                          <span
-                            className="flex h-5 min-w-5 animate-pulse items-center justify-center rounded-full bg-emerald-500 px-1.5 text-[10px] font-bold text-white"
+                          <Badge
+                            variant="success"
+                            className="h-5 min-w-5 animate-pulse justify-center px-1.5 text-[10px] font-bold"
                             aria-label={`${conversation.unread_count} unread`}
                           >
-                            {conversation.unread_count}
-                          </span>
+                            <Counter value={conversation.unread_count} />
+                          </Badge>
                         ) : null}
                       </div>
                     </div>
@@ -109,26 +110,26 @@ export function ConversationList({
                     </p>
 
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                      <span
+                      <Badge
+                        variant={human ? "default" : "success"}
                         className={cn(
-                          "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium",
                           human
                             ? "bg-violet-500/12 text-violet-400"
-                            : "bg-emerald-500/12 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.12)]"
+                            : "shadow-[0_0_12px_rgba(16,185,129,0.12)]"
                         )}
                       >
                         {human ? "Human" : "AI"}
-                      </span>
+                      </Badge>
                       <AIStatusBadge status={conversation.status} />
                       <PriorityBadge priority={conversation.priority} />
                     </div>
                   </div>
                 </div>
-              </button>
+              </AIConversationCard>
             );
           })
         )}
-      </div>
+      </Scrollable>
     </aside>
   );
 }

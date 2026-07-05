@@ -8,12 +8,16 @@ import type { Conversation } from "@/types/conversation";
 import type { Message } from "@/types/message";
 
 import { markConversationRead } from "@/lib/services/ai.mutations";
+import { Button } from "@/components/ui/core/Button";
+import { Scrollable } from "@/components/ui/primitives/Scrollable";
+import { Surface } from "@/components/ui/primitives/Surface";
 
 import { ConversationHeader } from "./ConversationHeader";
 import { MessageBubble } from "./MessageBubble";
 import { MessageComposer } from "./MessageComposer";
 import { QuickActions } from "./QuickActions";
 import { TypingIndicator } from "./TypingIndicator";
+import { AIDateSeparator, AIStreamBubble } from "./ai-ui";
 
 type Props = {
   conversation: Conversation;
@@ -96,16 +100,23 @@ export function ConversationView({
   }, [visibleMessages]);
 
   return (
-    <div className="flex h-full min-h-0 flex-1 flex-col bg-[var(--shell-surface)]/60">
+    <Surface
+      interactive={false}
+      className="flex h-full min-h-0 flex-1 flex-col bg-[var(--shell-surface)]/60"
+    >
       {showBack && onBack ? (
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex min-h-11 items-center gap-2 border-b border-[var(--shell-border)]/50 px-4 py-2 text-[13px] text-[var(--shell-muted)] md:hidden"
-        >
-          <ArrowLeft size={16} />
-          Back to inbox
-        </button>
+        <div className="border-b border-[var(--shell-border)]/50 px-3 py-2 md:hidden">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={onBack}
+            className="min-h-11 justify-start gap-2 px-2 text-[var(--shell-muted)]"
+          >
+            <ArrowLeft size={16} aria-hidden />
+            Back to inbox
+          </Button>
+        </div>
       ) : null}
 
       <ConversationHeader conversation={conversation} />
@@ -128,62 +139,55 @@ export function ConversationView({
         aria-label="Messages"
         aria-live="polite"
       >
-        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
-          {visibleMessages.length === 0 ? (
-            <p className="py-12 text-center text-[13px] text-[var(--shell-muted)]">
-              No messages yet. Start the conversation below.
-            </p>
-          ) : (
-            timeline.map((group) => (
-              <div key={group.day} className="space-y-3">
-                <div className="flex items-center gap-3 py-1">
-                  <div className="h-px flex-1 bg-[var(--shell-border)]/60" />
-                  <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-                    {group.day}
-                  </span>
-                  <div className="h-px flex-1 bg-[var(--shell-border)]/60" />
+        <Scrollable className="flex-1 px-4 py-4">
+          <div className="space-y-4">
+            {visibleMessages.length === 0 ? (
+              <p className="py-12 text-center text-[13px] text-[var(--shell-muted)]">
+                No messages yet. Start the conversation below.
+              </p>
+            ) : (
+              timeline.map((group) => (
+                <div key={group.day} className="space-y-3">
+                  <AIDateSeparator label={group.day} />
+
+                  {group.messages.map((message, index) => {
+                    const previous = group.messages[index - 1];
+                    const grouped =
+                      previous?.role === message.role &&
+                      !message.is_internal &&
+                      !previous.is_internal;
+
+                    return (
+                      <MessageBubble
+                        key={message.id}
+                        message={message}
+                        guestName={conversation.guest_name}
+                        grouped={grouped}
+                      />
+                    );
+                  })}
                 </div>
+              ))
+            )}
 
-                {group.messages.map((message, index) => {
-                  const previous = group.messages[index - 1];
-                  const grouped =
-                    previous?.role === message.role &&
-                    !message.is_internal &&
-                    !previous.is_internal;
+            {streaming && streamText ? (
+              <AIStreamBubble>{streamText}</AIStreamBubble>
+            ) : null}
 
-                  return (
-                    <MessageBubble
-                      key={message.id}
-                      message={message}
-                      guestName={conversation.guest_name}
-                      grouped={grouped}
-                    />
-                  );
-                })}
-              </div>
-            ))
-          )}
+            {showAiTyping ? <TypingIndicator actor="ai" /> : null}
+            {conversation.is_guest_typing ? (
+              <TypingIndicator actor="guest" />
+            ) : null}
 
-          {streaming && streamText ? (
-            <div className="flex justify-start">
-              <div className="max-w-[78%] rounded-[var(--ds-radius)] border border-emerald-500/20 bg-emerald-500/10 px-3.5 py-2.5 text-[13px] text-[var(--shell-text)] shadow-[0_0_20px_rgba(16,185,129,0.08)]">
-                {streamText}
-              </div>
-            </div>
-          ) : null}
-
-          {showAiTyping ? <TypingIndicator actor="ai" /> : null}
-          {conversation.is_guest_typing ? (
-            <TypingIndicator actor="guest" />
-          ) : null}
-
-          <div ref={bottomRef} />
-        </div>
+            <div ref={bottomRef} />
+          </div>
+        </Scrollable>
 
         <MessageComposer
           conversationId={conversation.id}
           conversation={conversation}
           aiEnabled={aiEnabled}
+          streaming={streaming}
           onStreamDelta={setStreamText}
           onStreamEnd={() => {
             setStreaming(false);
@@ -191,6 +195,6 @@ export function ConversationView({
           }}
         />
       </div>
-    </div>
+    </Surface>
   );
 }

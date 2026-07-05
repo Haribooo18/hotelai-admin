@@ -13,17 +13,19 @@ import { createConversation } from "@/lib/services/ai.mutations";
 import { conversationCreateSchema } from "@/lib/validations/ai";
 import { CONVERSATION_CHANNEL_OPTIONS } from "@/lib/ai/metadata";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select } from "@/components/ui/select";
+import { Button } from "@/components/ui/core/Button";
+import { Input } from "@/components/ui/core/Input";
+import { Select } from "@/components/ui/core/Select";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/overlay/Drawer";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
+import { shellFormLabelClass } from "@/lib/dashboard/design-system";
 import { useI18n } from "@/lib/i18n";
 
 import { AIContextPanel } from "./AIContextPanel";
@@ -151,8 +153,8 @@ export function AIInboxPage({
   }
 
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.messages.title")}
         subtitle={t("pages.messages.subtitle")}
       />
@@ -167,7 +169,7 @@ export function AIInboxPage({
         onRefresh={handleRefresh}
       />
 
-      <div className="flex min-h-[min(65svh,720px)] overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
+      <GlassSurface className="flex min-h-[min(65svh,720px)] overflow-hidden shadow-[var(--shell-shadow-sm)]">
         <div
           className={
             selectedId
@@ -213,30 +215,30 @@ export function AIInboxPage({
           aiEnabled={aiEnabled}
           onRegenerate={aiEnabled ? handleRegenerate : undefined}
         />
-      </div>
+      </GlassSurface>
 
-      <Sheet open={createOpen} onOpenChange={setCreateOpen}>
-        <SheetContent className="border-0 bg-[var(--shell-content)] sm:max-w-md">
-          <SheetHeader>
-            <SheetTitle>New conversation</SheetTitle>
-          </SheetHeader>
+      <Drawer open={createOpen} onOpenChange={setCreateOpen}>
+        <DrawerContent className="border-0 bg-[var(--shell-content)] sm:max-w-md">
+          <DrawerHeader>
+            <DrawerTitle>New conversation</DrawerTitle>
+          </DrawerHeader>
 
           <form onSubmit={handleCreate} className="mt-6 space-y-4 px-6 pb-6">
             <div className="space-y-1.5">
-              <label htmlFor="guest_name" className="text-[13px] text-[var(--shell-muted)]">
+              <label htmlFor="guest_name" className={shellFormLabelClass}>
                 Guest name
               </label>
               <Input
                 id="guest_name"
                 value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
+                onChange={(event) => setGuestName(event.target.value)}
                 required
                 className="rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="channel" className="text-[13px] text-[var(--shell-muted)]">
+              <label htmlFor="channel" className={shellFormLabelClass}>
                 Channel
               </label>
               <Select
@@ -250,14 +252,15 @@ export function AIInboxPage({
 
             <Button
               type="submit"
-              className="h-[var(--ds-input-height)] w-full rounded-[var(--ds-radius-sm)] bg-emerald-600 hover:bg-emerald-500"
+              className="h-[var(--ds-input-height)] w-full bg-emerald-600 hover:bg-emerald-500"
               disabled={pending}
+              loading={pending}
             >
               {pending ? "Creating…" : "Create conversation"}
             </Button>
           </form>
-        </SheetContent>
-      </Sheet>
-    </AdminPageStack>
+        </DrawerContent>
+      </Drawer>
+    </Stack>
   );
 }

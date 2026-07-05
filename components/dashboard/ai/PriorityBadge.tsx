@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import { getConversationPriorityMeta } from "@/lib/ai/metadata";
 
+import { Badge } from "@/components/ui/display/Badge";
+
 type Props = {
   priority: string;
   className?: string;
@@ -12,14 +14,15 @@ export function PriorityBadge({ priority, className }: Props) {
   if (priority === "normal") return null;
 
   return (
-    <span
+    <Badge
+      variant={priority === "urgent" ? "destructive" : "warning"}
       className={cn(
-        "inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
-        meta?.badgeClassName ?? "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]",
+        "uppercase",
+        meta?.badgeClassName,
         className
       )}
     >
       {meta?.label ?? priority}
-    </span>
+    </Badge>
   );
 }

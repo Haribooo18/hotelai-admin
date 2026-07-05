@@ -1,12 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Bot, Copy, Sparkles, UserRound } from "lucide-react";
+import { Bot, Copy, Paperclip, Sparkles, UserRound } from "lucide-react";
 import { toast } from "sonner";
 
+import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
+import { Badge } from "@/components/ui/display/Badge";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types/message";
 
+import { AIThinkingBlock, AIToolBlock } from "./ai-ui";
 import { getGuestInitials } from "./ai-ops-metrics";
 
 type Props = {
@@ -29,10 +33,39 @@ const roleLabels: Record<string, string> = {
   system: "System",
 };
 
+function getToolMetadata(message: Message): { title: string; detail?: string } | null {
+  const metadata = message.metadata;
+  if (!metadata || typeof metadata !== "object") return null;
+
+  const toolName =
+    (typeof metadata.tool_name === "string" && metadata.tool_name) ||
+    (typeof metadata.tool === "string" && metadata.tool) ||
+    null;
+
+  if (!toolName) return null;
+
+  const detail =
+    typeof metadata.tool_result === "string"
+      ? metadata.tool_result
+      : typeof metadata.summary === "string"
+        ? metadata.summary
+        : undefined;
+
+  return { title: toolName, detail };
+}
+
+function isThinkingMessage(message: Message): boolean {
+  const metadata = message.metadata;
+  if (!metadata || typeof metadata !== "object") return false;
+  return metadata.thinking === true || metadata.is_thinking === true;
+}
+
 export function MessageBubble({ message, guestName, grouped = false }: Props) {
   const [copied, setCopied] = useState(false);
   const isOwn = message.role === "staff" || message.role === "ai";
   const isInternal = message.is_internal;
+  const toolMeta = getToolMetadata(message);
+  const thinking = isThinkingMessage(message);
 
   async function handleCopy() {
     try {
@@ -46,7 +79,7 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
   }
 
   return (
-    <div
+    <article
       className={cn(
         "group flex w-full gap-2",
         isOwn ? "justify-end" : "justify-start",
@@ -54,32 +87,40 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
       )}
     >
       {!isOwn && !grouped ? (
-        <div className="mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[var(--shell-surface-raised)] text-[10px] font-semibold text-[var(--shell-muted)]">
-          {getGuestInitials(guestName)}
-        </div>
+        <Avatar className="mt-1 size-7">
+          <AvatarFallback className="text-[10px] font-semibold">
+            {getGuestInitials(guestName)}
+          </AvatarFallback>
+        </Avatar>
       ) : !isOwn ? (
-        <div className="w-7 shrink-0" />
+        <div className="w-7 shrink-0" aria-hidden />
       ) : null}
 
       <div className={cn("max-w-[78%]", isOwn && "order-first")}>
         {!grouped ? (
           <div
             className={cn(
-              "mb-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.06em]",
-              isOwn ? "justify-end text-[var(--shell-muted)]" : "text-[var(--shell-muted)]"
+              "mb-1 flex items-center gap-2 text-[10px] uppercase tracking-[0.06em] text-[var(--shell-muted)]",
+              isOwn && "justify-end"
             )}
           >
             {isOwn && message.role === "ai" ? (
-              <Bot size={12} className="text-emerald-400" />
+              <Bot size={12} className="text-emerald-400" aria-hidden />
             ) : null}
             <span>{roleLabels[message.role] ?? message.role}</span>
-            {isInternal ? <span>· internal</span> : null}
+            {isInternal ? (
+              <Badge variant="warning" className="normal-case">
+                internal
+              </Badge>
+            ) : null}
           </div>
         ) : null}
 
         <div
           className={cn(
-            "relative rounded-[var(--ds-radius)] px-3.5 py-2.5 text-[13px] leading-relaxed shadow-[var(--shell-shadow-sm)] transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] group-hover:-translate-y-px group-hover:shadow-[var(--shell-shadow-md)]",
+            "relative rounded-[var(--ds-radius)] px-3.5 py-2.5 text-[13px] leading-relaxed shadow-[var(--shell-shadow-sm)]",
+            motionPresets.transitionBase,
+            motionPresets.hover.surfaceLift,
             isInternal &&
               "border border-dashed border-amber-500/30 bg-amber-500/10 text-[var(--shell-text)]",
             !isInternal &&
@@ -96,7 +137,13 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
               "bg-[var(--shell-surface-raised)]/80 text-[var(--shell-muted)] text-[12px]"
           )}
         >
+          {thinking ? <AIThinkingBlock /> : null}
+
           <p className="whitespace-pre-wrap break-words">{message.body}</p>
+
+          {toolMeta ? (
+            <AIToolBlock title={toolMeta.title} detail={toolMeta.detail} />
+          ) : null}
 
           <div
             className={cn(
@@ -120,13 +167,13 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
               type="button"
               onClick={handleCopy}
               className={cn(
-                "inline-flex items-center gap-1 rounded-[var(--ds-radius-sm)] px-1.5 py-0.5 text-[10px] opacity-0 transition-opacity duration-[var(--ds-duration)] group-hover:opacity-100",
+                "inline-flex items-center gap-1 rounded-[var(--ds-radius-sm)] px-1.5 py-0.5 text-[10px] opacity-0 transition-opacity duration-[var(--ds-duration)] group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]",
                 message.role === "staff" || message.role === "ai"
                   ? "text-white/80 hover:bg-white/10"
                   : "text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)]"
               )}
             >
-              <Copy size={11} />
+              <Copy size={11} aria-hidden />
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
@@ -138,12 +185,14 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
         Array.isArray(message.metadata.attachments) ? (
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {(message.metadata.attachments as string[]).map((attachment) => (
-              <span
+              <Badge
                 key={attachment}
-                className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] px-2 py-1 text-[11px] text-[var(--shell-muted)]"
+                variant="outline"
+                className="gap-1 normal-case"
               >
+                <Paperclip size={11} aria-hidden />
                 {attachment}
-              </span>
+              </Badge>
             ))}
           </div>
         ) : null}
@@ -152,21 +201,21 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
       {isOwn && !grouped ? (
         <div
           className={cn(
-            "mt-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full",
+            "mt-1 flex size-7 shrink-0 items-center justify-center rounded-full",
             message.role === "ai"
               ? "bg-emerald-500/15 text-emerald-400"
               : "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]"
           )}
         >
           {message.role === "ai" ? (
-            <Sparkles size={13} />
+            <Sparkles size={13} aria-hidden />
           ) : (
-            <UserRound size={13} />
+            <UserRound size={13} aria-hidden />
           )}
         </div>
       ) : isOwn ? (
-        <div className="w-7 shrink-0" />
+        <div className="w-7 shrink-0" aria-hidden />
       ) : null}
-    </div>
+    </article>
   );
 }

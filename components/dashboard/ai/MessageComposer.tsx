@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Send, User } from "lucide-react";
+import { Paperclip, Send, Sparkles, User } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Conversation } from "@/types/conversation";
@@ -11,9 +11,14 @@ import { sendMessage } from "@/lib/services/ai.mutations";
 import { sendGuestMessage } from "@/lib/services/ai-completion.service";
 import { sendMessageSchema } from "@/lib/validations/ai";
 
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { chipClass, chipIdleClass } from "@/lib/dashboard/design-system";
+import { Button } from "@/components/ui/core/Button";
+import { Checkbox } from "@/components/ui/core/Checkbox";
+import { Textarea } from "@/components/ui/core/Textarea";
+import { FilterChip } from "@/components/ui/data/FilterBar";
+import { Spinner } from "@/components/ui/feedback/Spinner";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Inline } from "@/components/ui/primitives/Inline";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
 import { getSuggestedReplies } from "./ai-ops-metrics";
@@ -23,15 +28,23 @@ type Props = {
   conversationId: string;
   conversation: Conversation;
   aiEnabled?: boolean;
+  streaming?: boolean;
   onSent?: () => void;
   onStreamDelta?: (text: string) => void;
   onStreamEnd?: () => void;
 };
 
+const PROMPT_SHORTCUTS = [
+  "Share check-in time",
+  "Offer late checkout",
+  "Confirm reservation details",
+] as const;
+
 export function MessageComposer({
   conversationId,
   conversation,
   aiEnabled = false,
+  streaming = false,
   onSent,
   onStreamDelta,
   onStreamEnd,
@@ -47,6 +60,8 @@ export function MessageComposer({
     () => getSuggestedReplies(conversation),
     [conversation]
   );
+
+  const disabled = pending || streaming;
 
   async function streamAIResponse() {
     await streamAIConversation(conversationId, {
@@ -116,98 +131,125 @@ export function MessageComposer({
   }
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="border-t border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/92 p-3 backdrop-blur-xl"
-      noValidate
-    >
-      {suggestions.length > 0 ? (
-        <div className="mb-2 flex flex-wrap gap-1.5">
-          {suggestions.map((suggestion) => (
-            <button
-              key={suggestion}
-              type="button"
-              onClick={() => setBody(suggestion)}
-              className={cn(chipClass, chipIdleClass, "rounded-full px-3 py-1 text-[11px]")}
-            >
-              {suggestion}
-            </button>
-          ))}
-        </div>
-      ) : null}
+    <GlassSurface className="border-t border-[var(--shell-border)]/50 p-3">
+      <form onSubmit={handleSubmit} className="space-y-2.5" noValidate>
+        <Inline gap="sm" wrap className="justify-between">
+          <Inline gap="sm" wrap>
+            {suggestions.map((suggestion) => (
+              <FilterChip
+                key={suggestion}
+                active={body === suggestion}
+                onClick={() => setBody(suggestion)}
+              >
+                {suggestion}
+              </FilterChip>
+            ))}
+          </Inline>
+          <Inline gap="sm" wrap>
+            {PROMPT_SHORTCUTS.map((shortcut) => (
+              <button
+                key={shortcut}
+                type="button"
+                onClick={() => setBody(shortcut)}
+                className={cn(
+                  "inline-flex items-center gap-1 rounded-full bg-[var(--shell-surface-raised)] px-2.5 py-1 text-[10px] font-medium text-[var(--shell-muted)] shadow-[var(--shell-shadow-sm)]",
+                  motionPresets.transitionBase,
+                  "hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)] focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"
+                )}
+              >
+                <Sparkles size={11} aria-hidden />
+                {shortcut}
+              </button>
+            ))}
+          </Inline>
+        </Inline>
 
-      <label htmlFor="message-body" className="sr-only">
-        Message
-      </label>
+        <label htmlFor="message-body" className="sr-only">
+          Message
+        </label>
 
-      <Textarea
-        id="message-body"
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        placeholder={
-          asGuest
-            ? "Message as guest (test)…"
-            : isInternal
-              ? "Internal note (not visible to guest)…"
-              : "Write a reply…"
-        }
-        aria-invalid={Boolean(error)}
-        aria-describedby={error ? "message-error" : undefined}
-        className="min-h-[88px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit(e);
+        <Textarea
+          id="message-body"
+          value={body}
+          onChange={(event) => setBody(event.target.value)}
+          placeholder={
+            asGuest
+              ? "Message as guest (test)…"
+              : isInternal
+                ? "Internal note (not visible to guest)…"
+                : "Write a reply…"
           }
-        }}
-      />
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? "message-error" : undefined}
+          disabled={disabled}
+          className="min-h-[88px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              handleSubmit(event);
+            }
+          }}
+        />
 
-      {error ? (
-        <p id="message-error" className="mt-1 text-[12px] text-red-400">
-          {error}
-        </p>
-      ) : null}
+        {error ? (
+          <p id="message-error" className="text-[12px] text-red-400">
+            {error}
+          </p>
+        ) : null}
 
-      <div className="mt-2.5 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <label className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
-            <input
-              type="checkbox"
-              checked={isInternal}
-              onChange={(e) => {
-                setIsInternal(e.target.checked);
-                if (e.target.checked) setAsGuest(false);
-              }}
-              disabled={asGuest}
-              className="h-3.5 w-3.5 rounded border-[var(--shell-border)] accent-emerald-600"
-            />
-            Internal note
-          </label>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Inline gap="md" wrap>
+            <label className="inline-flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
+              <Checkbox
+                checked={isInternal}
+                onCheckedChange={(checked) => {
+                  const next = checked === true;
+                  setIsInternal(next);
+                  if (next) setAsGuest(false);
+                }}
+                disabled={asGuest || disabled}
+              />
+              Internal note
+            </label>
 
-          <label className="flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
-            <input
-              type="checkbox"
-              checked={asGuest}
-              onChange={(e) => {
-                setAsGuest(e.target.checked);
-                if (e.target.checked) setIsInternal(false);
-              }}
-              className="h-3.5 w-3.5 rounded border-[var(--shell-border)] accent-emerald-600"
-            />
-            <User size={13} />
-            As guest
-          </label>
+            <label className="inline-flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
+              <Checkbox
+                checked={asGuest}
+                onCheckedChange={(checked) => {
+                  const next = checked === true;
+                  setAsGuest(next);
+                  if (next) setIsInternal(false);
+                }}
+                disabled={disabled}
+              />
+              <User size={13} aria-hidden />
+              As guest
+            </label>
+
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              disabled
+              aria-label="Attachments coming soon"
+              title="Attachments coming soon"
+            >
+              <Paperclip size={14} aria-hidden />
+              Attach
+            </Button>
+          </Inline>
+
+          <Button
+            type="submit"
+            disabled={disabled || !body.trim()}
+            loading={pending}
+            className="gap-2 bg-emerald-600 hover:bg-emerald-500"
+          >
+            {streaming ? <Spinner size={14} label="Streaming" /> : <Send size={14} aria-hidden />}
+            {pending ? "Sending…" : streaming ? "Streaming…" : "Send"}
+          </Button>
         </div>
-
-        <Button
-          type="submit"
-          disabled={pending || !body.trim()}
-          className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
-        >
-          <Send size={14} />
-          {pending ? "Sending…" : "Send"}
-        </Button>
-      </div>
-    </form>
+      </form>
+    </GlassSurface>
   );
 }

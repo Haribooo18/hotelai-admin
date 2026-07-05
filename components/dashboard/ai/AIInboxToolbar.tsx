@@ -1,30 +1,28 @@
 "use client";
 
 import {
+  Download,
   Filter,
   Plus,
   RefreshCw,
-  Search,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/core/Button";
+import { Input } from "@/components/ui/core/Input";
+import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/overlay/DropdownMenu";
+import { FilterBar } from "@/components/ui/data/FilterBar";
 import {
   CONVERSATION_CHANNEL_OPTIONS,
   CONVERSATION_PRIORITY_OPTIONS,
   CONVERSATION_STATUS_OPTIONS,
 } from "@/lib/ai/metadata";
-import {
-  stickyToolbarClass,
-  toolbarControlClass,
-  toolbarInputClass,
-} from "@/lib/dashboard/design-system";
+import { toolbarControlClass } from "@/lib/dashboard/design-system";
 
 import type { AIInboxFilters } from "./ai-ops-metrics";
 
@@ -68,26 +66,21 @@ export function AIInboxToolbar({
     "All assignments";
 
   return (
-    <div className={stickyToolbarClass}>
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="relative min-w-0 flex-1 xl:max-w-md">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={17}
-          />
-          <Input
-            className={toolbarInputClass}
-            placeholder="Search conversations"
-            aria-label="Search conversations"
-            value={filters.search}
-            onChange={(e) => patch({ search: e.target.value })}
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
+    <FilterBar
+      leading={
+        <SearchInput
+          containerClassName="flex-1 xl:max-w-md"
+          placeholder="Search conversations"
+          aria-label="Search conversations"
+          value={filters.search}
+          onChange={(event) => patch({ search: event.target.value })}
+        />
+      }
+      trailing={
+        <>
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Channel filter">
+              <Filter size={15} aria-hidden />
               {activeChannel}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -106,8 +99,8 @@ export function AIInboxToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Status filter">
+              <Filter size={15} aria-hidden />
               {activeStatus}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -126,8 +119,8 @@ export function AIInboxToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Assignment filter">
+              <Filter size={15} aria-hidden />
               {activeAssigned}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -143,8 +136,8 @@ export function AIInboxToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Priority filter">
+              <Filter size={15} aria-hidden />
               {activePriority}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -165,7 +158,7 @@ export function AIInboxToolbar({
           <Input
             type="date"
             value={filters.date}
-            onChange={(e) => patch({ date: e.target.value })}
+            onChange={(event) => patch({ date: event.target.value })}
             aria-label="Filter by date"
             className="h-[var(--ds-input-height)] w-[148px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
           />
@@ -177,22 +170,34 @@ export function AIInboxToolbar({
             onClick={onRefresh}
             disabled={refreshing}
             loading={refreshing}
-            className="gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
+            aria-label="Refresh inbox"
           >
-            <RefreshCw size={15} />
+            <RefreshCw size={15} aria-hidden />
             Refresh
           </Button>
 
           <Button
             type="button"
-            onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
+            variant="outline"
+            size="sm"
+            disabled
+            aria-label="Bulk actions"
+            title="Bulk actions coming soon"
           >
-            <Plus size={15} />
+            <Download size={15} aria-hidden />
+            Bulk
+          </Button>
+
+          <Button
+            type="button"
+            onClick={onCreateClick}
+            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
+          >
+            <Plus size={15} aria-hidden />
             New conversation
           </Button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

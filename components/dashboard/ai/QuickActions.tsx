@@ -20,8 +20,8 @@ import {
   updateConversationPriority,
   updateConversationStatus,
 } from "@/lib/services/ai.mutations";
-import { toolbarControlClass } from "@/lib/dashboard/design-system";
-import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/core/Button";
+import { Inline } from "@/components/ui/primitives/Inline";
 
 import { streamAIConversation } from "./ai-stream-client";
 
@@ -152,29 +152,29 @@ export function QuickActions({
   ].filter((action) => !("hidden" in action && action.hidden));
 
   return (
-    <div
-      className="flex flex-wrap gap-2"
+    <Inline
+      gap="sm"
+      wrap
       role="toolbar"
       aria-label="Quick actions"
     >
       {actions.map((action) => {
         const Icon = action.icon;
         return (
-          <button
+          <Button
             key={action.key}
             type="button"
-            disabled={pending || action.disabled}
+            variant="outline"
+            size="sm"
+            disabled={pending || ("disabled" in action && action.disabled)}
             onClick={action.onClick}
-            className={cn(
-              toolbarControlClass,
-              "h-8 px-2.5 text-[12px] disabled:opacity-50"
-            )}
+            className="h-8 gap-1.5 bg-[var(--shell-surface-raised)] text-[12px] shadow-[var(--shell-shadow-sm)]"
           >
-            <Icon size={14} />
+            <Icon size={14} aria-hidden />
             {action.label}
-          </button>
+          </Button>
         );
       })}
-    </div>
+    </Inline>
   );
 }
