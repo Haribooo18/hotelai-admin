@@ -72,7 +72,7 @@ function SheetContent({
         data-slot="sheet-content"
         data-side={side}
         className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-zinc-800 bg-zinc-950 shadow-xl",
+          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-[var(--shell-border)] bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-lg)]",
           className
         )}
         {...props}
@@ -137,7 +137,7 @@ function SheetDescription({
 }: SheetPrimitive.Description.Props) {
   return (
     <SheetPrimitive.Description
-      className={cn("text-zinc-400", className)}
+      className={cn("text-[var(--shell-muted)]", className)}
       {...props}
     />
   );

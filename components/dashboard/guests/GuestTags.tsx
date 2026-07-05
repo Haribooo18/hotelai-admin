@@ -11,7 +11,7 @@ type Props = {
 
 export function GuestTags({ tags = [], isVip, isFavorite, className }: Props) {
   if (!isVip && !isFavorite && tags.length === 0) {
-    return <span className="text-sm text-zinc-600">—</span>;
+    return <span className="text-sm text-[var(--shell-muted)]">—</span>;
   }
 
   return (
@@ -33,7 +33,7 @@ export function GuestTags({ tags = [], isVip, isFavorite, className }: Props) {
       {tags.map((tag) => (
         <span
           key={tag}
-          className="inline-flex rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300"
+          className="inline-flex rounded-full border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] px-2 py-0.5 text-xs text-[var(--shell-text)]"
         >
           {tag}
         </span>

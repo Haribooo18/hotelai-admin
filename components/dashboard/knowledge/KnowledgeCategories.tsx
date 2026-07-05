@@ -23,8 +23,8 @@ export function KnowledgeCategories({
         className={cn(
           "rounded-full px-3 py-1 text-xs transition",
           selected === ""
-            ? "bg-zinc-100 text-zinc-900"
-            : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800"
+            ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
+            : "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)]"
         )}
       >
         All
@@ -37,8 +37,8 @@ export function KnowledgeCategories({
           className={cn(
             "rounded-full px-3 py-1 text-xs transition",
             selected === cat
-              ? "bg-zinc-100 text-zinc-900"
-              : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800"
+              ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
+              : "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)]"
           )}
         >
           {cat}

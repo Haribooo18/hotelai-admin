@@ -63,7 +63,7 @@ export function BookingsTable({ bookings, onEdit }: Props) {
           <div>
             <div className="font-medium">{booking.guest_name}</div>
 
-            <div className="text-sm text-zinc-500">{booking.guest_email}</div>
+            <div className="text-sm text-[var(--shell-muted)]">{booking.guest_email}</div>
           </div>
         </div>
       ),
@@ -125,7 +125,7 @@ export function BookingsTable({ bookings, onEdit }: Props) {
         getRowId={(booking) => booking.id}
         caption="Reservation list"
         empty={
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
+          <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
             No reservations yet
           </div>
         }

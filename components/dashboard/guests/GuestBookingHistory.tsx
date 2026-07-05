@@ -33,7 +33,7 @@ export function GuestBookingHistory({ bookings }: Props) {
       getRowId={(b) => b.id}
       caption="Guest booking history"
       empty={
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-12 text-center text-zinc-500">
+        <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] py-12 text-center text-[var(--shell-muted)]">
           No booking history
         </div>
       }

@@ -40,9 +40,9 @@ export function ChannelIcon({
 
   return (
     <span className={`inline-flex items-center gap-1.5 ${className ?? ""}`}>
-      <Icon size={size} className="shrink-0 text-zinc-400" aria-hidden />
+      <Icon size={size} className="shrink-0 text-[var(--shell-muted)]" aria-hidden />
       {showLabel && (
-        <span className="text-xs text-zinc-500">{meta?.label ?? channel}</span>
+        <span className="text-xs text-[var(--shell-muted)]">{meta?.label ?? channel}</span>
       )}
     </span>
   );

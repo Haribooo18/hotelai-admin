@@ -227,7 +227,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm text-zinc-400">
+      <label htmlFor={htmlFor} className="block text-sm text-[var(--shell-muted)]">
         {label}
       </label>
 
@@ -260,7 +260,7 @@ function Checkbox({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-4 w-4 rounded border-zinc-700 bg-zinc-900 accent-emerald-600"
+        className="h-4 w-4 rounded border-[var(--shell-border)] bg-[var(--shell-surface-raised)] accent-emerald-600"
       />
       {label}
     </label>

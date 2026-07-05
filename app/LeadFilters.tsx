@@ -73,7 +73,7 @@ function Filter({
       className={`rounded-full px-5 py-2 text-sm transition-all ${
         active
           ? "bg-emerald-600 text-white shadow"
-          : "border border-zinc-800 bg-zinc-900 text-zinc-300 hover:bg-zinc-800"
+          : "border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] text-[var(--shell-text)] hover:bg-[var(--shell-nav-hover-bg)]"
       }`}
     >
       {children}

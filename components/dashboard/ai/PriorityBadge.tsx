@@ -15,7 +15,7 @@ export function PriorityBadge({ priority, className }: Props) {
     <span
       className={cn(
         "inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase",
-        meta?.badgeClassName ?? "bg-zinc-800 text-zinc-400",
+        meta?.badgeClassName ?? "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]",
         className
       )}
     >

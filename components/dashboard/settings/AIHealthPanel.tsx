@@ -45,9 +45,9 @@ export function AIHealthPanel({ health }: Props) {
   ];
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+    <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
       <h3 className="font-semibold">AI diagnostics</h3>
-      <p className="mt-1 text-sm text-zinc-500">
+      <p className="mt-1 text-sm text-[var(--shell-muted)]">
         Integration status over the last 24 hours
       </p>
 
@@ -55,9 +55,9 @@ export function AIHealthPanel({ health }: Props) {
         {items.map((item) => (
           <div
             key={item.label}
-            className="flex items-center justify-between rounded-lg bg-zinc-900 px-3 py-2"
+            className="flex items-center justify-between rounded-lg bg-[var(--shell-surface-raised)] px-3 py-2"
           >
-            <dt className="text-sm text-zinc-400">{item.label}</dt>
+            <dt className="text-sm text-[var(--shell-muted)]">{item.label}</dt>
             <dd
               className={cn(
                 "text-sm font-medium",

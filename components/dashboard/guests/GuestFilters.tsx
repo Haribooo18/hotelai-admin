@@ -28,7 +28,7 @@ export function GuestFilters({
     <div className="grid gap-4 md:grid-cols-3">
       <div className="relative">
         <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
           size={18}
         />
 

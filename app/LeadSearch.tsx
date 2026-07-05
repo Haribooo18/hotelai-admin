@@ -20,14 +20,14 @@ export function LeadSearch({
           w-full
           rounded-xl
           border
-          border-zinc-800
-          bg-zinc-900
+          border-[var(--shell-border)]
+          bg-[var(--shell-surface-raised)]
           px-5
           text-sm
           text-white
           outline-none
           transition
-          placeholder:text-zinc-500
+          placeholder:text-[var(--shell-muted)]
           focus:border-emerald-500
         "
       />

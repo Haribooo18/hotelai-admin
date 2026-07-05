@@ -10,7 +10,7 @@ type Props = {
 };
 
 const STATUS_STYLES: Record<KnowledgeArticleStatus, string> = {
-  draft: "bg-zinc-800 text-zinc-300",
+  draft: "bg-[var(--shell-surface-raised)] text-[var(--shell-text)]",
   published: "bg-emerald-950 text-emerald-400",
   archived: "bg-amber-950 text-amber-400",
 };

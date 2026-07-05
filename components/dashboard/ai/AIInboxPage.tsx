@@ -137,7 +137,7 @@ export function AIInboxPage({
             <button
               type="button"
               onClick={handleBack}
-              className="flex items-center gap-2 border-b border-zinc-800 px-4 py-2 text-sm text-zinc-400 md:hidden"
+              className="flex items-center gap-2 border-b border-[var(--shell-border)] px-4 py-2 text-sm text-[var(--shell-muted)] md:hidden"
             >
               <ArrowLeft size={16} />
               Back to list
@@ -169,7 +169,7 @@ export function AIInboxPage({
 
           <form onSubmit={handleCreate} className="mt-6 space-y-4 px-6 pb-6">
             <div className="space-y-1.5">
-              <label htmlFor="guest_name" className="text-sm text-zinc-400">
+              <label htmlFor="guest_name" className="text-sm text-[var(--shell-muted)]">
                 Guest name
               </label>
               <Input
@@ -181,7 +181,7 @@ export function AIInboxPage({
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="channel" className="text-sm text-zinc-400">
+              <label htmlFor="channel" className="text-sm text-[var(--shell-muted)]">
                 Channel
               </label>
               <Select

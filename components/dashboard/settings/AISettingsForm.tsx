@@ -105,14 +105,14 @@ export function AISettingsForm({ settings, configured }: Props) {
           checked={enabled}
           onChange={(e) => setEnabled(e.target.checked)}
           disabled={!configured}
-          className="h-4 w-4 rounded border-zinc-700 accent-emerald-600"
+          className="h-4 w-4 rounded border-[var(--shell-border)] accent-emerald-600"
         />
         Enable AI receptionist
       </label>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
-          <label htmlFor="ai-model" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-model" className="block text-sm text-[var(--shell-muted)]">
             Model
           </label>
           <Select
@@ -124,7 +124,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-tokens" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-tokens" className="block text-sm text-[var(--shell-muted)]">
             Max output tokens
           </label>
           <Input
@@ -136,7 +136,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-temp" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-temp" className="block text-sm text-[var(--shell-muted)]">
             Temperature
           </label>
           <Input
@@ -151,7 +151,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-top-p" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-top-p" className="block text-sm text-[var(--shell-muted)]">
             Top P
           </label>
           <Input
@@ -166,7 +166,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-tool-choice" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-tool-choice" className="block text-sm text-[var(--shell-muted)]">
             Tool choice
           </label>
           <Select
@@ -183,7 +183,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-lang" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-lang" className="block text-sm text-[var(--shell-muted)]">
             System language
           </label>
           <Input
@@ -195,7 +195,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-rate" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-rate" className="block text-sm text-[var(--shell-muted)]">
             Rate limit / min
           </label>
           <Input
@@ -207,7 +207,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-timeout" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-timeout" className="block text-sm text-[var(--shell-muted)]">
             Timeout (ms)
           </label>
           <Input
@@ -219,7 +219,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-rounds" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-rounds" className="block text-sm text-[var(--shell-muted)]">
             Max tool rounds
           </label>
           <Input
@@ -231,7 +231,7 @@ export function AISettingsForm({ settings, configured }: Props) {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="ai-retries" className="block text-sm text-zinc-400">
+          <label htmlFor="ai-retries" className="block text-sm text-[var(--shell-muted)]">
             Retries on error
           </label>
           <Input
@@ -244,7 +244,7 @@ export function AISettingsForm({ settings, configured }: Props) {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="ai-extra" className="block text-sm text-zinc-400">
+        <label htmlFor="ai-extra" className="block text-sm text-[var(--shell-muted)]">
           Additional instructions
         </label>
         <Textarea

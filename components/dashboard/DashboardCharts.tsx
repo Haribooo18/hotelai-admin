@@ -31,7 +31,7 @@ const rooms = [
 export function DashboardCharts() {
   return (
     <div className="mb-8 grid gap-6 xl:grid-cols-2">
-      <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+      <section className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
         <h2 className="mb-6 text-lg font-semibold">
           Requests this week
         </h2>
@@ -53,7 +53,7 @@ export function DashboardCharts() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+      <section className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
         <h2 className="mb-6 text-lg font-semibold">
           Room popularity
         </h2>

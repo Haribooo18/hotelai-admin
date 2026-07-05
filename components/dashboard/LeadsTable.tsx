@@ -40,20 +40,20 @@ export function LeadsTable({ leads }: Props) {
 
   return (
     <>
-      <section className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-xl">
-        <div className="border-b border-zinc-800 px-6 py-5">
+      <section className="overflow-hidden rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] shadow-xl">
+        <div className="border-b border-[var(--shell-border)] px-6 py-5">
           <h2 className="text-xl font-bold">
             Recent requests
           </h2>
 
-          <p className="mt-1 text-sm text-zinc-500">
+          <p className="mt-1 text-sm text-[var(--shell-muted)]">
             Total requests: {leads.length}
           </p>
         </div>
 
         <Table>
           <TableHeader>
-            <TableRow className="border-zinc-800">
+            <TableRow className="border-[var(--shell-border)]">
               <TableHead>Guest</TableHead>
               <TableHead>Contact</TableHead>
               <TableHead>Room</TableHead>
@@ -72,7 +72,7 @@ export function LeadsTable({ leads }: Props) {
               <TableRow
                 key={lead.lead_id}
                 onClick={() => setSelectedLead(lead)}
-                className="cursor-pointer border-zinc-900 transition hover:bg-zinc-900/70"
+                className="cursor-pointer border-[var(--shell-border)] transition hover:bg-[var(--shell-surface-raised)]/70"
               >
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -87,7 +87,7 @@ export function LeadsTable({ leads }: Props) {
                         {lead.guest_name || "No name"}
                       </div>
 
-                      <div className="text-xs text-zinc-500">
+                      <div className="text-xs text-[var(--shell-muted)]">
                         #{lead.lead_id.slice(0, 8)}
                       </div>
                     </div>
@@ -104,7 +104,7 @@ export function LeadsTable({ leads }: Props) {
                     )}
 
                     {lead.email && (
-                      <div className="flex items-center gap-2 text-zinc-400">
+                      <div className="flex items-center gap-2 text-[var(--shell-muted)]">
                         <Mail size={14} />
                         {lead.email}
                       </div>
@@ -123,7 +123,7 @@ export function LeadsTable({ leads }: Props) {
                       {lead.check_in}
                     </div>
 
-                    <div className="text-zinc-500">
+                    <div className="text-[var(--shell-muted)]">
                       {lead.check_out}
                     </div>
                   </div>
@@ -140,7 +140,7 @@ export function LeadsTable({ leads }: Props) {
                   <StatusBadge status={lead.status || "new"} />
                 </TableCell>
 
-                <TableCell className="max-w-[260px] truncate text-zinc-400">
+                <TableCell className="max-w-[260px] truncate text-[var(--shell-muted)]">
                   {lead.comment || "—"}
                 </TableCell>
 
@@ -160,7 +160,7 @@ export function LeadsTable({ leads }: Props) {
               <TableRow>
                 <TableCell
                   colSpan={8}
-                  className="py-16 text-center text-zinc-500"
+                  className="py-16 text-center text-[var(--shell-muted)]"
                 >
                   No requests yet
                 </TableCell>

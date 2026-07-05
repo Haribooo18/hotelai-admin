@@ -12,7 +12,7 @@ export function BookingStatusBadge({ status }: Props) {
     <span
       className={cn(
         "inline-flex rounded-full px-3 py-1 text-xs font-semibold",
-        meta?.badgeClassName ?? "bg-zinc-800 text-zinc-400"
+        meta?.badgeClassName ?? "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]"
       )}
     >
       {meta?.label ?? status}

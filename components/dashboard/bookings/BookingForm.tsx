@@ -208,7 +208,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm text-zinc-400">
+      <label htmlFor={htmlFor} className="block text-sm text-[var(--shell-muted)]">
         {label}
       </label>
 

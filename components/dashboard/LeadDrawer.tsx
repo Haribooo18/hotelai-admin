@@ -47,8 +47,8 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
-          <section className="rounded-xl border p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <section className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-4 shadow-[var(--shell-shadow-sm)]">
+            <h3 className="mb-4 text-sm font-medium text-[var(--shell-muted)]">
               Status
             </h3>
 
@@ -58,8 +58,8 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
             />
           </section>
 
-          <section className="rounded-xl border p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <section className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-4 shadow-[var(--shell-shadow-sm)]">
+            <h3 className="mb-4 text-sm font-medium text-[var(--shell-muted)]">
               Contacts
             </h3>
 
@@ -70,7 +70,7 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
               {lead.phone && (
                 <a
                   href={`tel:${lead.phone}`}
-                  className="rounded-xl border px-3 py-2 text-sm hover:bg-muted"
+                  className="rounded-[var(--ds-radius-sm)] border border-[var(--shell-border)] px-3 py-2 text-sm text-[var(--shell-text)] transition-colors hover:bg-[var(--shell-nav-hover-bg)]"
                 >
                   Call
                 </a>
@@ -81,7 +81,7 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
                   href={`https://wa.me/${whatsappPhone}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="rounded-xl bg-primary px-3 py-2 text-sm text-primary-foreground hover:opacity-90"
+                  className="rounded-[var(--ds-radius-sm)] bg-emerald-600 px-3 py-2 text-sm text-white hover:bg-emerald-500"
                 >
                   WhatsApp
                 </a>
@@ -90,7 +90,7 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
               {lead.email && (
                 <a
                   href={`mailto:${lead.email}`}
-                  className="rounded-xl border px-3 py-2 text-sm hover:bg-muted"
+                  className="rounded-[var(--ds-radius-sm)] border border-[var(--shell-border)] px-3 py-2 text-sm text-[var(--shell-text)] transition-colors hover:bg-[var(--shell-nav-hover-bg)]"
                 >
                   Email
                 </a>
@@ -98,8 +98,8 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
             </div>
           </section>
 
-          <section className="rounded-xl border p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <section className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-4 shadow-[var(--shell-shadow-sm)]">
+            <h3 className="mb-4 text-sm font-medium text-[var(--shell-muted)]">
               Reservation
             </h3>
 
@@ -109,18 +109,18 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
             <Info label="Guests" value={lead.guests?.toString()} />
           </section>
 
-          <section className="rounded-xl border p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <section className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-4 shadow-[var(--shell-shadow-sm)]">
+            <h3 className="mb-4 text-sm font-medium text-[var(--shell-muted)]">
               Comment
             </h3>
 
-            <p className="whitespace-pre-wrap text-sm">
+            <p className="whitespace-pre-wrap text-sm text-[var(--shell-text)]">
               {lead.comment || "No comment."}
             </p>
           </section>
 
-          <section className="rounded-xl border p-4">
-            <h3 className="mb-4 text-sm font-medium text-muted-foreground">
+          <section className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-4 shadow-[var(--shell-shadow-sm)]">
+            <h3 className="mb-4 text-sm font-medium text-[var(--shell-muted)]">
               System information
             </h3>
 
@@ -143,8 +143,8 @@ function Info({
 }) {
   return (
     <div className="mb-3">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-sm font-medium">{value || "—"}</p>
+      <p className="text-xs text-[var(--shell-muted)]">{label}</p>
+      <p className="mt-1 text-sm font-medium text-[var(--shell-text)]">{value || "—"}</p>
     </div>
   );
 }

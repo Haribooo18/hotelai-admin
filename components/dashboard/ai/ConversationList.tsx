@@ -76,11 +76,11 @@ export function ConversationList({
   }, [conversations, search, status, channel, priority]);
 
   return (
-    <aside className="flex h-full w-full flex-col border-r border-zinc-800 bg-zinc-950 md:w-80 md:shrink-0">
-      <div className="space-y-3 border-b border-zinc-800 p-4">
+    <aside className="flex h-full w-full flex-col border-r border-[var(--shell-border)] bg-[var(--shell-surface)] md:w-80 md:shrink-0">
+      <div className="space-y-3 border-b border-[var(--shell-border)] p-4">
         <div className="relative">
           <Search
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500"
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
             size={16}
           />
           <Input
@@ -123,7 +123,7 @@ export function ConversationList({
         aria-label="Conversation list"
       >
         {filtered.length === 0 ? (
-          <div className="p-8 text-center text-sm text-zinc-500">
+          <div className="p-8 text-center text-sm text-[var(--shell-muted)]">
             No conversations found
           </div>
         ) : (
@@ -135,8 +135,8 @@ export function ConversationList({
               aria-selected={selectedId === conversation.id}
               onClick={() => onSelect(conversation.id)}
               className={cn(
-                "flex w-full flex-col gap-1.5 border-b border-zinc-900 px-4 py-3 text-left transition hover:bg-zinc-900/60",
-                selectedId === conversation.id && "bg-zinc-900"
+                "flex w-full flex-col gap-1.5 border-b border-[var(--shell-border)] px-4 py-3 text-left transition hover:bg-[var(--shell-surface-raised)]/60",
+                selectedId === conversation.id && "bg-[var(--shell-surface-raised)]"
               )}
             >
               <div className="flex items-start justify-between gap-2">
@@ -156,13 +156,13 @@ export function ConversationList({
                       {conversation.unread_count}
                     </span>
                   )}
-                  <span className="text-[10px] text-zinc-500">
+                  <span className="text-[10px] text-[var(--shell-muted)]">
                     {formatRelative(conversation.last_message_at)}
                   </span>
                 </div>
               </div>
 
-              <p className="truncate text-sm text-zinc-500">
+              <p className="truncate text-sm text-[var(--shell-muted)]">
                 {conversation.last_message_preview ?? "No messages"}
               </p>
 

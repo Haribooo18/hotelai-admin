@@ -26,7 +26,7 @@ export function CalendarToolbar({
   onViewChange,
 }: Props) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-zinc-800 bg-zinc-950 p-4">
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
       <div className="flex items-center gap-3">
         <Button
           variant="outline"
@@ -54,7 +54,7 @@ export function CalendarToolbar({
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="hidden text-sm text-zinc-400 sm:block">
+        <div className="hidden text-sm text-[var(--shell-muted)] sm:block">
           Average occupancy:{" "}
           <span className="font-semibold text-emerald-400">
             {occupancyPercent}%
@@ -64,7 +64,7 @@ export function CalendarToolbar({
         <div
           role="tablist"
           aria-label="View mode"
-          className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1"
+          className="flex rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-1"
         >
           {(["month", "week"] as CalendarView[]).map((mode) => (
             <button
@@ -77,7 +77,7 @@ export function CalendarToolbar({
                 "rounded-md px-3 py-1.5 text-sm font-medium transition",
                 view === mode
                   ? "bg-emerald-600 text-white"
-                  : "text-zinc-400 hover:text-white"
+                  : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
               )}
             >
               {mode === "month" ? "Month" : "Week"}

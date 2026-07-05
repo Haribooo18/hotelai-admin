@@ -22,7 +22,7 @@ export default function CalendarError({
 
       <h2 className="text-xl font-semibold">Failed to load calendar</h2>
 
-      <p className="max-w-md text-sm text-zinc-500">
+      <p className="max-w-md text-sm text-[var(--shell-muted)]">
         An error occurred while loading data. Try refreshing the page.
       </p>
 

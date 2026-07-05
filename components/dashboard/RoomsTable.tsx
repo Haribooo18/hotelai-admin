@@ -83,7 +83,7 @@ export function RoomsTable({ rooms }: Props) {
               <button
                 type="button"
                 aria-label={`Edit room ${room.room_type}`}
-                className="rounded-lg border border-zinc-700 p-2 transition hover:bg-zinc-800"
+                className="rounded-lg border border-[var(--shell-border)] p-2 transition hover:bg-[var(--shell-nav-hover-bg)]"
               >
                 <Pencil size={16} />
               </button>
@@ -111,7 +111,7 @@ export function RoomsTable({ rooms }: Props) {
         getRowId={(room) => room.id}
         caption="Room list"
         empty={
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
+          <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
             No rooms yet. Add your first room.
           </div>
         }

@@ -15,9 +15,9 @@ type Props = {
 
 export function CalendarDateHeader({ days, occupancy }: Props) {
   return (
-    <div className="sticky top-0 z-30 flex border-b border-zinc-800 bg-zinc-900">
+    <div className="sticky top-0 z-30 flex border-b border-[var(--shell-border)] bg-[var(--shell-surface-raised)]">
       <div
-        className="sticky left-0 z-40 flex items-center border-r border-zinc-800 bg-zinc-900 px-4 text-sm font-semibold"
+        className="sticky left-0 z-40 flex items-center border-r border-[var(--shell-border)] bg-[var(--shell-surface-raised)] px-4 text-sm font-semibold"
         style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
       >
         Room
@@ -31,13 +31,13 @@ export function CalendarDateHeader({ days, occupancy }: Props) {
           <div
             key={index}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 border-r border-zinc-800 py-2",
-              isWeekend(day) && "bg-zinc-800/40",
+              "flex flex-col items-center justify-center gap-0.5 border-r border-[var(--shell-border)] py-2",
+              isWeekend(day) && "bg-[var(--shell-surface-raised)]/40",
               isToday(day) && "bg-emerald-950/50"
             )}
             style={{ width: DAY_WIDTH, minWidth: DAY_WIDTH }}
           >
-            <span className="text-[10px] uppercase text-zinc-500">
+            <span className="text-[10px] uppercase text-[var(--shell-muted)]">
               {WEEKDAYS_SHORT_RU[day.getDay()]}
             </span>
 
@@ -51,7 +51,7 @@ export function CalendarDateHeader({ days, occupancy }: Props) {
             </span>
 
             <div
-              className="mt-1 h-1 w-8 overflow-hidden rounded-full bg-zinc-700"
+              className="mt-1 h-1 w-8 overflow-hidden rounded-full bg-[var(--shell-nav-hover-bg)]"
               title={`Occupancy ${percent}%`}
             >
               <div

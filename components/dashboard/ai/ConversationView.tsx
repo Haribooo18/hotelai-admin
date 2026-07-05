@@ -68,7 +68,7 @@ export function ConversationView({
     <div className="flex h-full min-h-0 flex-1 flex-col">
       <ConversationHeader conversation={conversation} />
 
-      <div className="border-b border-zinc-800 px-5 py-3">
+      <div className="border-b border-[var(--shell-border)] px-5 py-3">
         <QuickActions
           conversation={conversation}
           currentUserId={currentUserId}
@@ -89,7 +89,7 @@ export function ConversationView({
         >
           <div className="flex-1 space-y-4 overflow-y-auto p-5">
             {visibleMessages.length === 0 ? (
-              <p className="text-center text-sm text-zinc-500">
+              <p className="text-center text-sm text-[var(--shell-muted)]">
                 No messages yet. Start the conversation.
               </p>
             ) : (
@@ -99,7 +99,7 @@ export function ConversationView({
             )}
 
             {streaming && streamText && (
-              <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-zinc-200">
+              <div className="rounded-xl border border-emerald-900/40 bg-emerald-950/20 px-4 py-3 text-sm text-[var(--shell-text)]">
                 {streamText}
               </div>
             )}
@@ -123,7 +123,7 @@ export function ConversationView({
           />
         </div>
 
-        <aside className="hidden w-64 shrink-0 overflow-y-auto border-l border-zinc-800 bg-zinc-950 p-4 lg:block">
+        <aside className="hidden w-64 shrink-0 overflow-y-auto border-l border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 lg:block">
           <LeadCard lead={lead} />
 
           {conversation.internal_notes && (
@@ -131,14 +131,14 @@ export function ConversationView({
               <p className="text-xs uppercase tracking-widest text-amber-500/80">
                 Internal notes
               </p>
-              <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">
+              <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--shell-text)]">
                 {conversation.internal_notes}
               </p>
             </div>
           )}
 
           <div className="mt-4">
-            <p className="mb-2 text-xs uppercase tracking-widest text-zinc-500">
+            <p className="mb-2 text-xs uppercase tracking-widest text-[var(--shell-muted)]">
               AI Replay
             </p>
             <ConversationReplay actions={aiActions} />

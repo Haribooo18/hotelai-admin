@@ -163,7 +163,7 @@ export function CalendarBookingBar({
         onPointerDown={(e) => beginDrag("resize-start", e)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="absolute inset-y-0 left-0 w-2 cursor-ew-resize rounded-l-lg hover:bg-white/20"
+        className="absolute inset-y-0 left-0 w-2 cursor-ew-resize rounded-l-lg hover:bg-[var(--shell-nav-hover-bg)]"
         style={{ touchAction: "none" }}
       />
       <div
@@ -171,18 +171,18 @@ export function CalendarBookingBar({
         onPointerDown={(e) => beginDrag("resize-end", e)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="absolute inset-y-0 right-0 w-2 cursor-ew-resize rounded-r-lg hover:bg-white/20"
+        className="absolute inset-y-0 right-0 w-2 cursor-ew-resize rounded-r-lg hover:bg-[var(--shell-nav-hover-bg)]"
         style={{ touchAction: "none" }}
       />
 
       {/* Hover / focus summary card */}
-      <div className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-56 rounded-xl border border-zinc-700 bg-zinc-900 p-3 text-left shadow-xl group-hover:block group-focus-within:block">
+      <div className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-56 rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-3 text-left shadow-xl group-hover:block group-focus-within:block">
         <p className="font-semibold text-white">{booking.guest_name}</p>
-        <p className="mt-1 text-xs text-zinc-400">
+        <p className="mt-1 text-xs text-[var(--shell-muted)]">
           {booking.check_in} → {booking.check_out} · {nights} nights
         </p>
         <div className="mt-2 flex items-center justify-between text-xs">
-          <span className="text-zinc-400">{meta?.label ?? booking.status}</span>
+          <span className="text-[var(--shell-muted)]">{meta?.label ?? booking.status}</span>
           <span className="font-semibold text-white">
             ${booking.total_price}
           </span>

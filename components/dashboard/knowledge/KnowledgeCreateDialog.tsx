@@ -84,7 +84,7 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
 
         <form className="mt-6 space-y-4 px-6 pb-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <label htmlFor="kb-title" className="block text-sm text-zinc-400">
+            <label htmlFor="kb-title" className="block text-sm text-[var(--shell-muted)]">
               Title
             </label>
             <Input
@@ -99,7 +99,7 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
           <div className="space-y-2">
             <label
               htmlFor="kb-category"
-              className="block text-sm text-zinc-400"
+              className="block text-sm text-[var(--shell-muted)]"
             >
               Category
             </label>
@@ -118,7 +118,7 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
           <div className="space-y-2">
             <label
               htmlFor="kb-language"
-              className="block text-sm text-zinc-400"
+              className="block text-sm text-[var(--shell-muted)]"
             >
               Language
             </label>

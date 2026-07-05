@@ -85,7 +85,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
               {guest.first_name} {guest.last_name}
             </Link>
 
-            <div className="text-sm text-zinc-500">{guest.email ?? "—"}</div>
+            <div className="text-sm text-[var(--shell-muted)]">{guest.email ?? "—"}</div>
           </div>
         </div>
       ),
@@ -95,7 +95,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
       cell: (guest) => (
         <div className="text-sm">
           <div>{guest.phone ?? "—"}</div>
-          <div className="text-zinc-500">
+          <div className="text-[var(--shell-muted)]">
             {[guest.city, guest.country].filter(Boolean).join(", ") || "—"}
           </div>
         </div>
@@ -133,7 +133,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
               "rounded-lg border p-2 transition",
               guest.is_favorite
                 ? "border-emerald-700 text-emerald-400 hover:bg-emerald-950"
-                : "border-zinc-700 text-zinc-400 hover:bg-zinc-800"
+                : "border-[var(--shell-border)] text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)]"
             )}
           >
             <Star
@@ -146,7 +146,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
             type="button"
             aria-label={`Edit ${guest.first_name} ${guest.last_name}`}
             onClick={() => onEdit?.(guest)}
-            className="rounded-lg border border-zinc-700 p-2 transition hover:bg-zinc-800"
+            className="rounded-lg border border-[var(--shell-border)] p-2 transition hover:bg-[var(--shell-nav-hover-bg)]"
           >
             <Pencil size={16} />
           </button>
@@ -172,7 +172,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
         getRowId={(guest) => guest.id}
         caption="Guest list"
         empty={
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
+          <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
             No guests found
           </div>
         }

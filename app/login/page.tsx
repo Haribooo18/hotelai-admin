@@ -23,7 +23,7 @@ export default async function LoginPage({ searchParams }: Props) {
     : redirectedFromParam;
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-950 p-6">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--shell-surface)] p-6">
       <div className="w-full max-w-sm">
         <div className="mb-8 flex flex-col items-center text-center">
           <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-600">
@@ -32,12 +32,12 @@ export default async function LoginPage({ searchParams }: Props) {
 
           <h1 className="text-2xl font-bold">Monavel</h1>
 
-          <p className="mt-2 text-sm text-zinc-500">
+          <p className="mt-2 text-sm text-[var(--shell-muted)]">
             Sign in to your hotel dashboard
           </p>
         </div>
 
-        <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6">
+        <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-6">
           <LoginForm redirectedFrom={redirectedFrom} />
         </div>
       </div>

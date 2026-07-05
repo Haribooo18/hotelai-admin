@@ -94,10 +94,10 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+      <div className="rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface-raised)]/50 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-zinc-500">Current plan</p>
+            <p className="text-sm text-[var(--shell-muted)]">Current plan</p>
             <p className="mt-1 text-xl font-semibold">
               {subscription ? formatPlanLabel(subscription.plan) : "Not selected"}
             </p>
@@ -109,14 +109,14 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
 
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-zinc-500">Renewal date</dt>
-            <dd className="mt-1 text-zinc-200">
+            <dt className="text-[var(--shell-muted)]">Renewal date</dt>
+            <dd className="mt-1 text-[var(--shell-text)]">
               {formatRenewalDate(subscription?.current_period_end ?? null)}
             </dd>
           </div>
           <div>
-            <dt className="text-zinc-500">Cancel at period end</dt>
-            <dd className="mt-1 text-zinc-200">
+            <dt className="text-[var(--shell-muted)]">Cancel at period end</dt>
+            <dd className="mt-1 text-[var(--shell-text)]">
               {subscription?.cancel_at_period_end ? "Yes" : "No"}
             </dd>
           </div>
@@ -135,15 +135,15 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
 
       {!hasActiveSubscription && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-zinc-300">Choose a plan</h3>
+          <h3 className="text-sm font-medium text-[var(--shell-text)]">Choose a plan</h3>
           <div className="grid gap-3 sm:grid-cols-3">
             {BILLING_PLAN_IDS.map((planId) => (
               <div
                 key={planId}
-                className="rounded-lg border border-zinc-800 bg-zinc-900/40 p-4"
+                className="rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface-raised)]/40 p-4"
               >
                 <p className="font-medium">{BILLING_PLANS[planId].name}</p>
-                <p className="mt-1 text-sm text-zinc-500">
+                <p className="mt-1 text-sm text-[var(--shell-muted)]">
                   {BILLING_PLANS[planId].description}
                 </p>
                 <Button

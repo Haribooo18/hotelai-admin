@@ -15,7 +15,7 @@ export function GuestProfileCard({ guest, actions }: Props) {
   const location = [guest.city, guest.country].filter(Boolean).join(", ");
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
+    <div className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="flex items-center gap-4">
           <GuestAvatar
@@ -58,11 +58,11 @@ export function GuestProfileCard({ guest, actions }: Props) {
       </dl>
 
       {guest.notes && (
-        <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-          <p className="text-xs uppercase tracking-widest text-zinc-500">
+        <div className="mt-6 rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
+          <p className="text-xs uppercase tracking-widest text-[var(--shell-muted)]">
             Notes
           </p>
-          <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">
+          <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--shell-text)]">
             {guest.notes}
           </p>
         </div>
@@ -82,11 +82,11 @@ function ContactItem({
 }) {
   return (
     <div>
-      <dt className="flex items-center gap-2 text-xs uppercase tracking-widest text-zinc-500">
+      <dt className="flex items-center gap-2 text-xs uppercase tracking-widest text-[var(--shell-muted)]">
         {icon}
         {label}
       </dt>
-      <dd className="mt-1.5 text-sm text-zinc-200">{children}</dd>
+      <dd className="mt-1.5 text-sm text-[var(--shell-text)]">{children}</dd>
     </div>
   );
 }

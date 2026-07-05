@@ -13,7 +13,7 @@ export function AIStatusBadge({ status, className }: Props) {
     <span
       className={cn(
         "inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold",
-        meta?.badgeClassName ?? "bg-zinc-800 text-zinc-400",
+        meta?.badgeClassName ?? "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)]",
         className
       )}
     >

@@ -17,12 +17,12 @@ export function TypingIndicator({
       aria-live="polite"
       aria-label={label ?? defaultLabel}
     >
-      <span className="text-sm text-zinc-500">{label ?? defaultLabel}</span>
+      <span className="text-sm text-[var(--shell-muted)]">{label ?? defaultLabel}</span>
       <span className="flex gap-1">
         {[0, 1, 2].map((i) => (
           <span
             key={i}
-            className="h-1.5 w-1.5 animate-bounce rounded-full bg-zinc-500"
+            className="h-1.5 w-1.5 animate-bounce rounded-full bg-[var(--shell-muted)]"
             style={{ animationDelay: `${i * 150}ms` }}
           />
         ))}

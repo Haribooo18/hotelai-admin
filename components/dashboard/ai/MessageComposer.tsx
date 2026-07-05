@@ -153,7 +153,7 @@ export function MessageComposer({
   return (
     <form
       onSubmit={handleSubmit}
-      className="border-t border-zinc-800 bg-zinc-950 p-4"
+      className="border-t border-[var(--shell-border)] bg-[var(--shell-surface)] p-4"
       noValidate
     >
       <label htmlFor="message-body" className="sr-only">
@@ -190,7 +190,7 @@ export function MessageComposer({
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-4">
-          <label className="flex items-center gap-2 text-sm text-zinc-400">
+          <label className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
             <input
               type="checkbox"
               checked={isInternal}
@@ -199,12 +199,12 @@ export function MessageComposer({
                 if (e.target.checked) setAsGuest(false);
               }}
               disabled={asGuest}
-              className="h-4 w-4 rounded border-zinc-700 accent-emerald-600"
+              className="h-4 w-4 rounded border-[var(--shell-border)] accent-emerald-600"
             />
             Internal note
           </label>
 
-          <label className="flex items-center gap-2 text-sm text-zinc-400">
+          <label className="flex items-center gap-2 text-sm text-[var(--shell-muted)]">
             <input
               type="checkbox"
               checked={asGuest}
@@ -212,7 +212,7 @@ export function MessageComposer({
                 setAsGuest(e.target.checked);
                 if (e.target.checked) setIsInternal(false);
               }}
-              className="h-4 w-4 rounded border-zinc-700 accent-emerald-600"
+              className="h-4 w-4 rounded border-[var(--shell-border)] accent-emerald-600"
             />
             <User size={14} />
             As guest

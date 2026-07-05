@@ -4,7 +4,7 @@ export function KnowledgeLoading() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="h-16 animate-pulse rounded-lg bg-zinc-900"
+          className="h-16 animate-pulse rounded-lg bg-[var(--shell-surface-raised)]"
         />
       ))}
     </div>

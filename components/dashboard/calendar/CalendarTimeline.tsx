@@ -113,7 +113,7 @@ export function CalendarTimeline({
     <div
       ref={scrollRef}
       onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-      className="relative max-h-[70vh] overflow-auto rounded-2xl border border-zinc-800 bg-zinc-950"
+      className="relative max-h-[70vh] overflow-auto rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)]"
     >
       <div style={{ width: totalWidth, minWidth: totalWidth }}>
         <CalendarDateHeader days={days} occupancy={occupancy} />
@@ -144,7 +144,7 @@ export function CalendarTimeline({
           return (
             <div
               key={room.id}
-              className="relative flex border-b border-zinc-900"
+              className="relative flex border-b border-[var(--shell-border)]"
               style={{ height: ROW_HEIGHT }}
             >
               <CalendarRoomCell
@@ -159,8 +159,8 @@ export function CalendarTimeline({
                   <div
                     key={index}
                     className={cn(
-                      "absolute inset-y-0 border-r border-zinc-900",
-                      isWeekend(day) && "bg-zinc-800/20",
+                      "absolute inset-y-0 border-r border-[var(--shell-border)]",
+                      isWeekend(day) && "bg-[var(--shell-surface-raised)]/20",
                       isToday(day) && "bg-emerald-950/20"
                     )}
                     style={{ left: index * DAY_WIDTH, width: DAY_WIDTH }}

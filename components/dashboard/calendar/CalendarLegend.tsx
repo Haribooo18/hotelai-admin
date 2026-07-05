@@ -3,7 +3,7 @@ import { BOOKING_STATUSES } from "@/lib/booking-status";
 
 export function CalendarLegend() {
   return (
-    <div className="flex flex-wrap items-center gap-4 text-sm text-zinc-400">
+    <div className="flex flex-wrap items-center gap-4 text-sm text-[var(--shell-muted)]">
       {BOOKING_STATUSES.map((status) => (
         <div key={status.value} className="flex items-center gap-2">
           <span

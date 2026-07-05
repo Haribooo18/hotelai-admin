@@ -40,10 +40,10 @@ export function GuestStats({ stats }: Props) {
         return (
           <div
             key={card.title}
-            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-5"
+            className="rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5"
           >
             <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-500">{card.title}</p>
+              <p className="text-sm text-[var(--shell-muted)]">{card.title}</p>
               <Icon size={18} className="text-emerald-500" />
             </div>
             <div className="mt-4 text-2xl font-bold">{card.value}</div>

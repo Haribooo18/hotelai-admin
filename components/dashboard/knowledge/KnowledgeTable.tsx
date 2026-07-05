@@ -89,12 +89,12 @@ export function KnowledgeTable({ articles }: Props) {
         <div className="min-w-0">
           <Link
             href={`/knowledge/${a.id}`}
-            className="font-medium text-zinc-100 hover:underline"
+            className="font-medium text-[var(--shell-text)] hover:underline"
           >
             {a.title}
           </Link>
           {a.category && (
-            <p className="mt-0.5 text-xs text-zinc-500">{a.category}</p>
+            <p className="mt-0.5 text-xs text-[var(--shell-muted)]">{a.category}</p>
           )}
         </div>
       ),
@@ -106,17 +106,17 @@ export function KnowledgeTable({ articles }: Props) {
     {
       header: "Language",
       cell: (a) => (
-        <span className="text-xs uppercase text-zinc-400">{a.language}</span>
+        <span className="text-xs uppercase text-[var(--shell-muted)]">{a.language}</span>
       ),
     },
     {
       header: "Version",
-      cell: (a) => <span className="text-zinc-400">v{a.version}</span>,
+      cell: (a) => <span className="text-[var(--shell-muted)]">v{a.version}</span>,
     },
     {
       header: "Updated",
       cell: (a) => (
-        <span className="text-xs text-zinc-500">
+        <span className="text-xs text-[var(--shell-muted)]">
           {new Date(a.updated_at).toLocaleDateString("en-US")}
         </span>
       ),
@@ -128,7 +128,7 @@ export function KnowledgeTable({ articles }: Props) {
         <div className="flex justify-end gap-1">
           <button
             type="button"
-            className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-amber-400"
+            className="rounded p-1.5 text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-amber-400"
             aria-label={a.is_pinned ? "Unpin" : "Pin"}
             onClick={() => togglePin(a)}
             disabled={pending}
@@ -137,14 +137,14 @@ export function KnowledgeTable({ articles }: Props) {
           </button>
           <Link
             href={`/knowledge/${a.id}`}
-            className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+            className="rounded p-1.5 text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
             aria-label="Edit"
           >
             <Pencil size={14} />
           </Link>
           <button
             type="button"
-            className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
+            className="rounded p-1.5 text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
             aria-label="Duplicate"
             onClick={() => handleDuplicate(a)}
             disabled={pending}
@@ -153,7 +153,7 @@ export function KnowledgeTable({ articles }: Props) {
           </button>
           <button
             type="button"
-            className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-red-400"
+            className="rounded p-1.5 text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-red-400"
             aria-label="Delete"
             onClick={() => setDeleteTarget(a)}
             disabled={pending}
@@ -172,7 +172,7 @@ export function KnowledgeTable({ articles }: Props) {
         data={optimisticArticles}
         getRowId={(a) => a.id}
         caption="Knowledge base articles"
-        empty={<p className="text-center text-sm text-zinc-500">No articles found</p>}
+        empty={<p className="text-center text-sm text-[var(--shell-muted)]">No articles found</p>}
       />
 
       <KnowledgeDeleteDialog

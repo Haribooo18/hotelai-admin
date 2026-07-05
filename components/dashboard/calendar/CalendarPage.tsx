@@ -142,7 +142,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
       />
 
       {rooms.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
+        <div className="rounded-2xl border border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
           No rooms. Add rooms to see the calendar.
         </div>
       ) : (

@@ -21,7 +21,7 @@ export function LoginForm({ redirectedFrom }: Props) {
       <input type="hidden" name="redirectedFrom" value={redirectedFrom ?? ""} />
 
       <div className="space-y-2">
-        <label htmlFor="email" className="text-sm text-zinc-400">
+        <label htmlFor="email" className="text-sm text-[var(--shell-muted)]">
           Email
         </label>
         <Input
@@ -35,7 +35,7 @@ export function LoginForm({ redirectedFrom }: Props) {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="password" className="text-sm text-zinc-400">
+        <label htmlFor="password" className="text-sm text-[var(--shell-muted)]">
           Password
         </label>
         <Input

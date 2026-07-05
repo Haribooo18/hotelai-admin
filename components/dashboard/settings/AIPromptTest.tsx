@@ -41,18 +41,18 @@ export function AIPromptTest() {
   }
 
   return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
+    <div className="rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5">
       <h3 className="flex items-center gap-2 font-semibold">
         <FlaskConical size={18} className="text-emerald-500" />
         Prompt test
       </h3>
-      <p className="mt-1 text-sm text-zinc-500">
+      <p className="mt-1 text-sm text-[var(--shell-muted)]">
         Test AI response without creating a conversation
       </p>
 
       <form onSubmit={handleTest} className="mt-4 space-y-4">
         <div className="space-y-2">
-          <label htmlFor="test-guest" className="block text-sm text-zinc-400">
+          <label htmlFor="test-guest" className="block text-sm text-[var(--shell-muted)]">
             Guest name
           </label>
           <Input
@@ -63,7 +63,7 @@ export function AIPromptTest() {
         </div>
 
         <div className="space-y-2">
-          <label htmlFor="test-msg" className="block text-sm text-zinc-400">
+          <label htmlFor="test-msg" className="block text-sm text-[var(--shell-muted)]">
             Guest message
           </label>
           <Textarea
@@ -82,11 +82,11 @@ export function AIPromptTest() {
       </form>
 
       {result && (
-        <div className="mt-6 space-y-3 rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-          <p className="whitespace-pre-wrap text-sm text-zinc-200">
+        <div className="mt-6 space-y-3 rounded-lg border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
+          <p className="whitespace-pre-wrap text-sm text-[var(--shell-text)]">
             {result.content}
           </p>
-          <p className="text-xs text-zinc-500">
+          <p className="text-xs text-[var(--shell-muted)]">
             {result.model} · {result.usage.total_tokens} tokens · $
             {result.costUsd.toFixed(6)} · tools: {result.toolRounds}
           </p>

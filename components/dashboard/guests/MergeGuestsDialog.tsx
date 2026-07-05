@@ -64,7 +64,7 @@ export function MergeGuestsDialog({
         </SheetHeader>
 
         <div className="mt-6 space-y-5 px-6 pb-6">
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-[var(--shell-muted)]">
             The selected guest&apos;s data will be merged into{" "}
             <span className="font-medium text-white">
               {target.first_name} {target.last_name}
@@ -73,7 +73,7 @@ export function MergeGuestsDialog({
           </p>
 
           <div className="space-y-1.5">
-            <label htmlFor="merge-source" className="block text-sm text-zinc-400">
+            <label htmlFor="merge-source" className="block text-sm text-[var(--shell-muted)]">
               Duplicate guest
             </label>
 

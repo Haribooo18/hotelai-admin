@@ -46,3 +46,17 @@ export const sectionTitleClass =
 /** Eyebrow label */
 export const labelClass =
   "text-[var(--type-label-size)] font-[var(--type-label-weight)] uppercase leading-[var(--type-label-leading)] tracking-[var(--type-label-tracking)] text-[var(--shell-muted)]";
+
+/** Shell semantic helpers */
+export const shellTextClass = "text-[var(--shell-text)]";
+export const shellMutedClass = "text-[var(--shell-muted)]";
+export const shellSurfaceClass = "bg-[var(--shell-surface)]";
+export const shellSurfaceRaisedClass = "bg-[var(--shell-surface-raised)]";
+export const shellBorderClass = "border-[var(--shell-border)]";
+export const shellFormLabelClass = "block text-sm text-[var(--shell-muted)]";
+export const shellEmptyStateClass =
+  "rounded-[var(--ds-radius)] border border-dashed border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]";
+export const shellPanelClass =
+  "rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]";
+export const shellPanelRaisedClass =
+  "rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]";

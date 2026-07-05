@@ -248,7 +248,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
         <div className="flex items-center gap-3">
           <Link
             href="/knowledge"
-            className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
+            className="rounded-lg p-2 text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
             aria-label="Back to list"
           >
             <ArrowLeft size={18} />
@@ -257,9 +257,9 @@ export function KnowledgeEditor({ article: initial }: Props) {
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-semibold">Article editor</h1>
               <KnowledgeStatusBadge status={initial.status} />
-              <span className="text-xs text-zinc-500">v{initial.version}</span>
+              <span className="text-xs text-[var(--shell-muted)]">v{initial.version}</span>
             </div>
-            <p className="text-xs text-zinc-500">
+            <p className="text-xs text-[var(--shell-muted)]">
               {pending || isDirty ? "Saving…" : "Saved"} · {wordCount} words
             </p>
           </div>
@@ -293,9 +293,9 @@ export function KnowledgeEditor({ article: initial }: Props) {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
-        <aside className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-950 p-4">
+        <aside className="space-y-4 rounded-xl border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
           <div className="space-y-2">
-            <label htmlFor="kb-edit-title" className="block text-sm text-zinc-400">
+            <label htmlFor="kb-edit-title" className="block text-sm text-[var(--shell-muted)]">
               Title
             </label>
             <Input
@@ -306,7 +306,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="kb-edit-category" className="block text-sm text-zinc-400">
+            <label htmlFor="kb-edit-category" className="block text-sm text-[var(--shell-muted)]">
               Category
             </label>
             <Select
@@ -319,7 +319,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="kb-edit-language" className="block text-sm text-zinc-400">
+            <label htmlFor="kb-edit-language" className="block text-sm text-[var(--shell-muted)]">
               Language
             </label>
             <Select
@@ -334,7 +334,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="kb-edit-priority" className="block text-sm text-zinc-400">
+            <label htmlFor="kb-edit-priority" className="block text-sm text-[var(--shell-muted)]">
               Priority
             </label>
             <Select
@@ -349,7 +349,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <span className="block text-sm text-zinc-400">Tags</span>
+            <span className="block text-sm text-[var(--shell-muted)]">Tags</span>
             <div className="flex gap-2">
               <Input
                 value={tagInput}
@@ -365,13 +365,13 @@ export function KnowledgeEditor({ article: initial }: Props) {
               {parseList(tags).map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center gap-1 rounded-full bg-zinc-800 px-2 py-0.5 text-xs"
+                  className="inline-flex items-center gap-1 rounded-full bg-[var(--shell-surface-raised)] px-2 py-0.5 text-xs"
                 >
                   {tag}
                   <button
                     type="button"
                     onClick={() => removeTag(tag)}
-                    className="text-zinc-500 hover:text-zinc-200"
+                    className="text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
                     aria-label={`Remove tag ${tag}`}
                   >
                     <X size={10} />
@@ -382,7 +382,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="kb-keywords" className="block text-sm text-zinc-400">
+            <label htmlFor="kb-keywords" className="block text-sm text-[var(--shell-muted)]">
               Keywords (search)
             </label>
             <Input
@@ -391,19 +391,19 @@ export function KnowledgeEditor({ article: initial }: Props) {
               onChange={(e) => setKeywords(e.target.value)}
               placeholder="check-in, checkout, wifi"
             />
-            <p className="text-xs text-zinc-500">Comma-separated</p>
+            <p className="text-xs text-[var(--shell-muted)]">Comma-separated</p>
           </div>
         </aside>
 
         <div className="space-y-3">
-          <div className="flex gap-2 border-b border-zinc-800">
+          <div className="flex gap-2 border-b border-[var(--shell-border)]">
             <button
               type="button"
               className={cn(
                 "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition",
                 tab === "edit"
-                  ? "border-zinc-100 text-zinc-100"
-                  : "border-transparent text-zinc-500 hover:text-zinc-300"
+                  ? "border-[var(--shell-text)] text-[var(--shell-text)]"
+                  : "border-transparent text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
               )}
               onClick={() => setTab("edit")}
             >
@@ -415,8 +415,8 @@ export function KnowledgeEditor({ article: initial }: Props) {
               className={cn(
                 "flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition",
                 tab === "preview"
-                  ? "border-zinc-100 text-zinc-100"
-                  : "border-transparent text-zinc-500 hover:text-zinc-300"
+                  ? "border-[var(--shell-text)] text-[var(--shell-text)]"
+                  : "border-transparent text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
               )}
               onClick={() => setTab("preview")}
             >

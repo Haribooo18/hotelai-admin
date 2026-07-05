@@ -36,10 +36,10 @@ export function MessageBubble({ message }: Props) {
         className={cn(
           "max-w-[75%] rounded-2xl px-4 py-2.5 text-sm",
           isInternal && "border border-dashed border-amber-600/40 bg-amber-950/30",
-          !isInternal && message.role === "guest" && "bg-zinc-800 text-zinc-100",
+          !isInternal && message.role === "guest" && "bg-[var(--shell-surface-raised)] text-[var(--shell-text)]",
           !isInternal && message.role === "staff" && "bg-emerald-700 text-white",
           !isInternal && message.role === "ai" && "bg-blue-700 text-white",
-          !isInternal && message.role === "system" && "bg-zinc-900 text-zinc-400 text-xs"
+          !isInternal && message.role === "system" && "bg-[var(--shell-surface-raised)] text-[var(--shell-muted)] text-xs"
         )}
       >
         <div className="mb-1 flex items-center gap-2 text-[10px] uppercase tracking-wider opacity-70">

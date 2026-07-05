@@ -43,7 +43,7 @@ export default async function GuestProfileRoute({ params }: Props) {
       <div className="space-y-8">
         <Link
           href="/guests"
-          className="inline-flex items-center gap-2 text-sm text-zinc-400 transition hover:text-white"
+          className="inline-flex items-center gap-2 text-sm text-[var(--shell-muted)] transition hover:text-[var(--shell-text)]"
         >
           <ArrowLeft size={16} />
           Back to list
@@ -61,7 +61,7 @@ export default async function GuestProfileRoute({ params }: Props) {
         <section className="space-y-5">
           <div>
             <h2 className="text-xl font-semibold">Booking history</h2>
-            <p className="mt-1 text-sm text-zinc-500">
+            <p className="mt-1 text-sm text-[var(--shell-muted)]">
               Reservations matched by guest email or name.
             </p>
           </div>

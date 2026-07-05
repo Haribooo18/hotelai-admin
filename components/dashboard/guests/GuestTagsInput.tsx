@@ -36,14 +36,14 @@ export function GuestTagsInput({ value, onChange, id }: Props) {
           {value.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300"
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] px-2 py-0.5 text-xs text-[var(--shell-text)]"
             >
               {tag}
               <button
                 type="button"
                 aria-label={`Remove tag ${tag}`}
                 onClick={() => removeTag(tag)}
-                className="text-zinc-500 transition hover:text-white"
+                className="text-[var(--shell-muted)] transition hover:text-[var(--shell-text)]"
               >
                 <X size={12} />
               </button>

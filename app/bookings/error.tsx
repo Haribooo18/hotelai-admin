@@ -24,7 +24,7 @@ export default function BookingsError({
         Failed to load reservations
       </h2>
 
-      <p className="max-w-md text-sm text-zinc-500">
+      <p className="max-w-md text-sm text-[var(--shell-muted)]">
         An error occurred while loading data. Try refreshing the page.
       </p>
 

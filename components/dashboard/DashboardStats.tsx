@@ -16,7 +16,7 @@ export function DashboardStats({ counts }: Props) {
       <StatCard
         title="Total requests"
         value={counts.all}
-        color="text-white"
+        color="text-[var(--shell-text)]"
       />
 
       <StatCard
@@ -50,8 +50,8 @@ function StatCard({
   color: string;
 }) {
   return (
-    <Card className="rounded-2xl border bg-card p-6 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl">
-      <p className="text-sm text-muted-foreground">
+    <Card className="rounded-[var(--ds-radius)] p-6 transition-all duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-md)]">
+      <p className="text-sm text-[var(--shell-muted)]">
         {title}
       </p>
 

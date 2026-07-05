@@ -37,18 +37,18 @@ export function DataTable<T>({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950">
+    <div className="overflow-hidden rounded-2xl border border-[var(--shell-border)] bg-[var(--shell-surface)]">
       <table className="w-full">
         {caption && <caption className="sr-only">{caption}</caption>}
 
-        <thead className="border-b border-zinc-800 bg-zinc-900">
+        <thead className="border-b border-[var(--shell-border)] bg-[var(--shell-surface-raised)]">
           <tr>
             {columns.map((column, index) => (
               <th
                 key={index}
                 scope="col"
                 className={cn(
-                  "px-6 py-4 text-xs uppercase text-zinc-500",
+                  "px-6 py-4 text-xs uppercase text-[var(--shell-muted)]",
                   column.align === "right" ? "text-right" : "text-left",
                   column.headerClassName
                 )}
@@ -63,7 +63,7 @@ export function DataTable<T>({
           {data.map((row) => (
             <tr
               key={getRowId(row)}
-              className="border-b border-zinc-900 last:border-0 hover:bg-zinc-900/60"
+              className="border-b border-[var(--shell-border)] last:border-0 hover:bg-[var(--shell-surface-raised)]/60"
             >
               {columns.map((column, index) => (
                 <td

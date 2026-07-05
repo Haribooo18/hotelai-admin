@@ -24,7 +24,7 @@ export default function GuestProfileError({
 
       <h2 className="text-xl font-semibold">Failed to load profile</h2>
 
-      <p className="max-w-md text-sm text-zinc-500">
+      <p className="max-w-md text-sm text-[var(--shell-muted)]">
         An error occurred while loading guest data.
       </p>
 

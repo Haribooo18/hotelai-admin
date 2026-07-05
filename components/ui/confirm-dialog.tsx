@@ -36,7 +36,7 @@ export function ConfirmDialog({
         <Dialog.Popup
           className={cn(
             "ds-dialog-content fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2",
-            "rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-lg)] outline-none"
+            "rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none"
           )}
         >
           <Dialog.Title className="ds-section-title text-[15px]">
