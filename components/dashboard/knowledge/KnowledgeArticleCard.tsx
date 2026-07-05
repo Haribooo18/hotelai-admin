@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, type ReactNode } from "react";
 import {
   Copy,
   Eye,
@@ -14,9 +14,11 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from "@/components/ui/overlay/DropdownMenu";
+import { Metric } from "@/components/ui/display/Metric";
+import { iconActionClass } from "@/lib/dashboard/design-system";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
-import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
 
 import { AiReadyBadge } from "./AiReadyBadge";
 import { KnowledgeStatusBadge } from "./KnowledgeStatusBadge";
@@ -24,9 +26,12 @@ import {
   formatKnowledgeDate,
   type KnowledgeArticleModel,
 } from "./knowledge-ops-metrics";
+import { KnowledgeWorkspaceCard } from "./knowledge-ui";
 
 type Props = {
   model: KnowledgeArticleModel;
+  selected?: boolean;
+  onSelect?: () => void;
   onOpen: () => void;
   onEdit: () => void;
   onDuplicate: () => void;
@@ -35,6 +40,8 @@ type Props = {
 
 export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
   model,
+  selected = false,
+  onSelect,
   onOpen,
   onEdit,
   onDuplicate,
@@ -43,15 +50,26 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
   const { article, description, qualityScore, usageCount, aiReady, authorLabel } =
     model;
 
+  function handleCardClick() {
+    onSelect?.();
+  }
+
   return (
-    <article
-      className={cn(
-        "group rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/85 p-4 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
-        "transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-0.5 hover:shadow-[var(--shell-shadow-md)]"
-      )}
+    <KnowledgeWorkspaceCard
+      selected={selected}
+      role="listitem"
+      aria-label={`Статья ${article.title}`}
+      tabIndex={0}
+      onClick={handleCardClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleCardClick();
+        }
+      }}
     >
       <div className="flex items-start justify-between gap-2">
-        <button type="button" onClick={onOpen} className="min-w-0 flex-1 text-left">
+        <div className="min-w-0 flex-1">
           <p className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-0.02em] text-[var(--shell-text)]">
             {article.title}
           </p>
@@ -60,30 +78,53 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
               {article.category}
             </p>
           )}
-        </button>
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger
             aria-label={`Действия для статьи ${article.title}`}
-            className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
+            className={cn(
+              iconActionClass,
+              "shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+              motionPresets.transitionBase
+            )}
+            onClick={(event) => event.stopPropagation()}
           >
             <MoreHorizontal size={16} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={onOpen}>
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpen();
+              }}
+            >
               <Eye size={14} className="mr-2" />
               Открыть
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onEdit}>
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.stopPropagation();
+                onEdit();
+              }}
+            >
               <Pencil size={14} className="mr-2" />
               Редактировать
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={onDuplicate}>
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.stopPropagation();
+                onDuplicate();
+              }}
+            >
               <Copy size={14} className="mr-2" />
               Дублировать
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={onDelete}
+              onClick={(event) => {
+                event.stopPropagation();
+                onDelete();
+              }}
               className="text-red-400 focus:text-red-400"
             >
               <Trash2 size={14} className="mr-2" />
@@ -93,11 +134,9 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
         </DropdownMenu>
       </div>
 
-      <button type="button" onClick={onOpen} className="mt-3 block w-full text-left">
-        <p className="line-clamp-2 text-[12px] leading-relaxed text-[var(--shell-muted)]">
-          {description}
-        </p>
-      </button>
+      <p className="mt-3 line-clamp-2 text-[12px] leading-relaxed text-[var(--shell-muted)]">
+        {description}
+      </p>
 
       <div className="mt-3 flex flex-wrap gap-2">
         <AiReadyBadge ready={aiReady} />
@@ -105,26 +144,35 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
       </div>
 
       <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
-        <Metric label="Качество" value={`${qualityScore}%`} />
-        <Metric label="Использование" value={String(usageCount)} />
-        <Metric
-          label="Обновлено"
-          value={formatKnowledgeDate(article.updated_at)}
-        />
-        <Metric label="Автор" value={authorLabel} />
+        <MetricCell label="Качество">
+          <Metric value={qualityScore} formatter={(value) => `${Math.round(value)}%`} />
+        </MetricCell>
+        <MetricCell label="Использование">
+          <Metric value={usageCount} />
+        </MetricCell>
+        <MetricCell label="Обновлено" value={formatKnowledgeDate(article.updated_at)} />
+        <MetricCell label="Автор" value={authorLabel} />
       </div>
-    </article>
+    </KnowledgeWorkspaceCard>
   );
 });
 
-function Metric({ label, value }: { label: string; value: string }) {
+function MetricCell({
+  label,
+  value,
+  children,
+}: {
+  label: string;
+  value?: string;
+  children?: ReactNode;
+}) {
   return (
     <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-2.5 py-2">
       <p className="text-[10px] uppercase tracking-wide text-[var(--shell-muted)]">
         {label}
       </p>
       <p className="mt-0.5 truncate text-[12px] font-medium text-[var(--shell-text)]">
-        {value}
+        {children ?? value}
       </p>
     </div>
   );

@@ -6,30 +6,24 @@ import {
   List,
   Plus,
   RefreshCw,
-  Search,
   Upload,
 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/core/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  chipActiveClass,
-  chipClass,
-  chipIdleClass,
-  stickyToolbarClass,
-  toolbarControlClass,
-  toolbarInputClass,
-} from "@/lib/dashboard/design-system";
+} from "@/components/ui/overlay/DropdownMenu";
+import { FilterBar } from "@/components/ui/data/FilterBar";
+import { SearchInput } from "@/components/ui/core/SearchInput";
+import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
 import { KNOWLEDGE_STATUS_LABELS } from "@/lib/knowledge";
-import { cn } from "@/lib/utils";
+import { toolbarControlClass } from "@/lib/dashboard/design-system";
 
 import type { KnowledgeSortKey, KnowledgeViewMode } from "./knowledge-ops-metrics";
+import type { KnowledgeToolbarFilters } from "./knowledge-ui";
 
 const SORT_OPTIONS: { value: KnowledgeSortKey; label: string }[] = [
   { value: "updated_desc", label: "Недавно обновлённые" },
@@ -51,20 +45,19 @@ const AI_READY_OPTIONS = [
   { value: "pending", label: "Не проиндексировано" },
 ] as const;
 
+const QUALITY_OPTIONS = [
+  { value: "", label: "Любое качество" },
+  { value: "high", label: "Высокое (80%+)" },
+  { value: "medium", label: "Среднее (60–79%)" },
+  { value: "low", label: "Низкое (<60%)" },
+] as const;
+
 type Props = {
-  search: string;
-  category: string;
-  status: string;
-  aiReady: string;
-  sortKey: KnowledgeSortKey;
+  filters: KnowledgeToolbarFilters;
   viewMode: KnowledgeViewMode;
   categories: string[];
   refreshing: boolean;
-  onSearchChange: (value: string) => void;
-  onCategoryChange: (value: string) => void;
-  onStatusChange: (value: string) => void;
-  onAiReadyChange: (value: string) => void;
-  onSortChange: (value: KnowledgeSortKey) => void;
+  onFiltersChange: (filters: KnowledgeToolbarFilters) => void;
   onViewModeChange: (value: KnowledgeViewMode) => void;
   onCreateClick: () => void;
   onImportClick: () => void;
@@ -72,63 +65,60 @@ type Props = {
 };
 
 export function KnowledgeToolbar({
-  search,
-  category,
-  status,
-  aiReady,
-  sortKey,
+  filters,
   viewMode,
   categories,
   refreshing,
-  onSearchChange,
-  onCategoryChange,
-  onStatusChange,
-  onAiReadyChange,
-  onSortChange,
+  onFiltersChange,
   onViewModeChange,
   onCreateClick,
   onImportClick,
   onRefresh,
 }: Props) {
+  function patch(partial: Partial<KnowledgeToolbarFilters>) {
+    onFiltersChange({ ...filters, ...partial });
+  }
+
   const activeSort =
-    SORT_OPTIONS.find((option) => option.value === sortKey)?.label ?? "Сортировка";
+    SORT_OPTIONS.find((option) => option.value === filters.sort)?.label ??
+    "Сортировка";
   const activeStatus =
-    STATUS_OPTIONS.find((option) => option.value === status)?.label ?? "Все статусы";
+    STATUS_OPTIONS.find((option) => option.value === filters.status)?.label ??
+    "Все статусы";
   const activeAiReady =
-    AI_READY_OPTIONS.find((option) => option.value === aiReady)?.label ?? "Все статьи";
-  const activeCategory = category || "Все категории";
+    AI_READY_OPTIONS.find((option) => option.value === filters.aiReady)?.label ??
+    "Все статьи";
+  const activeQuality =
+    QUALITY_OPTIONS.find((option) => option.value === filters.quality)?.label ??
+    "Любое качество";
+  const activeCategory = filters.category || "Все категории";
 
   return (
-    <div className={stickyToolbarClass}>
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-        <div className="relative min-w-0 flex-1 xl:max-w-md">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[var(--shell-muted)]"
-            size={17}
-          />
-          <Input
-            className={toolbarInputClass}
-            placeholder="Поиск статей"
-            aria-label="Поиск статей"
-            value={search}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
+    <FilterBar
+      leading={
+        <SearchInput
+          containerClassName="flex-1 xl:max-w-md"
+          placeholder="Поиск статей"
+          aria-label="Поиск статей"
+          value={filters.search}
+          onChange={(event) => patch({ search: event.target.value })}
+        />
+      }
+      trailing={
+        <>
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+              <Filter size={15} aria-hidden />
               {activeCategory}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onCategoryChange("")}>
+              <DropdownMenuItem onClick={() => patch({ category: "" })}>
                 Все категории
               </DropdownMenuItem>
               {categories.map((value) => (
                 <DropdownMenuItem
                   key={value}
-                  onClick={() => onCategoryChange(value)}
+                  onClick={() => patch({ category: value })}
                 >
                   {value}
                 </DropdownMenuItem>
@@ -138,14 +128,14 @@ export function KnowledgeToolbar({
 
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+              <Filter size={15} aria-hidden />
               {activeStatus}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {STATUS_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
-                  onClick={() => onStatusChange(option.value)}
+                  onClick={() => patch({ status: option.value })}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -155,14 +145,14 @@ export function KnowledgeToolbar({
 
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
+              <Filter size={15} aria-hidden />
               {activeAiReady}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               {AI_READY_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
-                  onClick={() => onAiReadyChange(option.value)}
+                  onClick={() => patch({ aiReady: option.value })}
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -172,14 +162,18 @@ export function KnowledgeToolbar({
 
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} />
-              {activeSort}
+              <Filter size={15} aria-hidden />
+              {activeQuality}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {SORT_OPTIONS.map((option) => (
+              {QUALITY_OPTIONS.map((option) => (
                 <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => onSortChange(option.value)}
+                  key={option.value || "all"}
+                  onClick={() =>
+                    patch({
+                      quality: option.value as KnowledgeToolbarFilters["quality"],
+                    })
+                  }
                 >
                   {option.label}
                 </DropdownMenuItem>
@@ -187,49 +181,58 @@ export function KnowledgeToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <div
-            role="tablist"
-            aria-label="Режим отображения"
-            className="flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === "grid"}
-              onClick={() => onViewModeChange("grid")}
-              className={cn(
-                chipClass,
-                "rounded-[var(--ds-radius-sm)] px-3 py-1",
-                viewMode === "grid" ? chipActiveClass : chipIdleClass
-              )}
-            >
-              <LayoutGrid size={14} className="mr-1 inline" />
-              Карточки
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={viewMode === "list"}
-              onClick={() => onViewModeChange("list")}
-              className={cn(
-                chipClass,
-                "rounded-[var(--ds-radius-sm)] px-3 py-1",
-                viewMode === "list" ? chipActiveClass : chipIdleClass
-              )}
-            >
-              <List size={14} className="mr-1 inline" />
-              Список
-            </button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger className={toolbarControlClass}>
+              <Filter size={15} aria-hidden />
+              {activeSort}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {SORT_OPTIONS.map((option) => (
+                <DropdownMenuItem
+                  key={option.value}
+                  onClick={() => patch({ sort: option.value })}
+                >
+                  {option.label}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          <SegmentedControl
+            value={viewMode}
+            onChange={onViewModeChange}
+            options={[
+              {
+                value: "grid",
+                ariaLabel: "Карточки",
+                label: (
+                  <>
+                    <LayoutGrid size={15} aria-hidden />
+                    <span className="sr-only sm:not-sr-only sm:ml-1.5">Карточки</span>
+                  </>
+                ),
+              },
+              {
+                value: "list",
+                ariaLabel: "Таблица",
+                label: (
+                  <>
+                    <List size={15} aria-hidden />
+                    <span className="sr-only sm:not-sr-only sm:ml-1.5">Таблица</span>
+                  </>
+                ),
+              },
+            ]}
+          />
 
           <Button
             type="button"
             variant="outline"
             size="sm"
             onClick={onImportClick}
-            className="gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
+            className="gap-2"
           >
-            <Upload size={15} />
+            <Upload size={15} aria-hidden />
             Импорт
           </Button>
 
@@ -240,22 +243,18 @@ export function KnowledgeToolbar({
             onClick={onRefresh}
             disabled={refreshing}
             loading={refreshing}
-            className="gap-2 rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
+            className="gap-2"
           >
-            <RefreshCw size={15} />
+            <RefreshCw size={15} aria-hidden />
             Обновить
           </Button>
 
-          <Button
-            type="button"
-            onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 text-[13px] hover:bg-emerald-500"
-          >
-            <Plus size={15} />
+          <Button type="button" size="sm" onClick={onCreateClick} className="gap-2">
+            <Plus size={15} aria-hidden />
             Новая статья
           </Button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }

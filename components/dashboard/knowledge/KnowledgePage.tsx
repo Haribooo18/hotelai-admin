@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -8,7 +8,9 @@ import type { KnowledgeArticle } from "@/types/knowledge-article";
 
 import { rankKnowledgeArticles } from "@/lib/knowledge-search";
 import { duplicateKnowledgeArticle } from "@/lib/services/knowledge.mutations";
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
+import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { useI18n } from "@/lib/i18n";
 
 import { KnowledgeArticlesView } from "./KnowledgeArticlesView";
@@ -17,6 +19,7 @@ import { KnowledgeDeleteDialog } from "./KnowledgeDeleteDialog";
 import { KnowledgeDetailDrawer } from "./KnowledgeDetailDrawer";
 import { KnowledgeEmptyState } from "./KnowledgeEmptyState";
 import { KnowledgeExecutiveKpis } from "./KnowledgeExecutiveKpis";
+import { KnowledgeInspector } from "./KnowledgeInspector";
 import { KnowledgeOperations } from "./KnowledgeOperations";
 import { KnowledgeToolbar } from "./KnowledgeToolbar";
 import {
@@ -25,13 +28,25 @@ import {
   computeKnowledgeOpsKpis,
   sortKnowledgeModels,
   type KnowledgeArticleModel,
-  type KnowledgeSortKey,
   type KnowledgeViewMode,
 } from "./knowledge-ops-metrics";
+import {
+  matchesKnowledgeQualityFilter,
+  type KnowledgeToolbarFilters,
+} from "./knowledge-ui";
 
 type Props = {
   articles: KnowledgeArticle[];
   categories: string[];
+};
+
+const DEFAULT_FILTERS: KnowledgeToolbarFilters = {
+  search: "",
+  category: "",
+  status: "",
+  aiReady: "",
+  quality: "",
+  sort: "updated_desc",
 };
 
 export function KnowledgePage({ articles, categories }: Props) {
@@ -45,15 +60,11 @@ export function KnowledgePage({ articles, categories }: Props) {
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeArticleModel | null>(
     null
   );
-  const [drawerModel, setDrawerModel] = useState<KnowledgeArticleModel | null>(
+  const [selectedModel, setSelectedModel] = useState<KnowledgeArticleModel | null>(
     null
   );
 
-  const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
-  const [status, setStatus] = useState("");
-  const [aiReady, setAiReady] = useState("");
-  const [sortKey, setSortKey] = useState<KnowledgeSortKey>("updated_desc");
+  const [filters, setFilters] = useState<KnowledgeToolbarFilters>(DEFAULT_FILTERS);
   const [viewMode, setViewMode] = useState<KnowledgeViewMode>("grid");
 
   const articleModels = useMemo(
@@ -68,22 +79,25 @@ export function KnowledgePage({ articles, categories }: Props) {
 
   const filteredModels = useMemo(() => {
     const ranked = rankKnowledgeArticles(articles, {
-      query: search,
-      status: status || undefined,
-      category: category || undefined,
+      query: filters.search,
+      status: filters.status || undefined,
+      category: filters.category || undefined,
     });
 
     const models = ranked
       .map((article) => modelById.get(article.id))
       .filter((model): model is KnowledgeArticleModel => model !== undefined)
       .filter((model) => {
-        if (aiReady === "ready") return model.aiReady;
-        if (aiReady === "pending") return !model.aiReady;
+        if (filters.aiReady === "ready") return model.aiReady;
+        if (filters.aiReady === "pending") return !model.aiReady;
         return true;
-      });
+      })
+      .filter((model) =>
+        matchesKnowledgeQualityFilter(model.qualityScore, filters.quality)
+      );
 
-    return sortKnowledgeModels(models, sortKey);
-  }, [articles, search, status, category, aiReady, sortKey, modelById]);
+    return sortKnowledgeModels(models, filters.sort);
+  }, [articles, filters, modelById]);
 
   const kpis = useMemo(
     () => computeKnowledgeOpsKpis(articles, articleModels),
@@ -95,30 +109,43 @@ export function KnowledgePage({ articles, categories }: Props) {
     [articleModels]
   );
 
-  function handleOpen(model: KnowledgeArticleModel) {
-    setDrawerModel(model);
+  const selectedId = selectedModel?.article.id ?? null;
+
+  const handleSelect = useCallback((model: KnowledgeArticleModel) => {
+    setSelectedModel(model);
+  }, []);
+
+  const handleOpen = useCallback((model: KnowledgeArticleModel) => {
+    setSelectedModel(model);
     setDrawerOpen(true);
-  }
+  }, []);
 
-  function handleEdit(model: KnowledgeArticleModel) {
-    router.push(`/knowledge/${model.article.id}`);
-  }
+  const handleEdit = useCallback(
+    (model: KnowledgeArticleModel) => {
+      router.push(`/knowledge/${model.article.id}`);
+    },
+    [router]
+  );
 
-  function handleDuplicate(model: KnowledgeArticleModel) {
-    startAction(async () => {
-      try {
-        const id = await duplicateKnowledgeArticle(model.article.id);
-        toast.success("Копия статьи создана");
-        router.push(`/knowledge/${id}`);
-      } catch {
-        toast.error("Не удалось дублировать статью");
-      }
-    });
-  }
+  const handleDuplicate = useCallback(
+    (model: KnowledgeArticleModel) => {
+      startAction(async () => {
+        try {
+          const id = await duplicateKnowledgeArticle(model.article.id);
+          toast.success("Копия статьи создана");
+          router.push(`/knowledge/${id}`);
+        } catch {
+          toast.error("Не удалось дублировать статью");
+        }
+      });
+    },
+    [router, startAction]
+  );
 
-  function handleDelete(model: KnowledgeArticleModel) {
+  const handleDelete = useCallback((model: KnowledgeArticleModel) => {
+    setDrawerOpen(false);
     setDeleteTarget(model);
-  }
+  }, []);
 
   function confirmDelete() {
     if (!deleteTarget) return;
@@ -131,11 +158,13 @@ export function KnowledgePage({ articles, categories }: Props) {
         );
         await deleteKnowledgeArticle(id);
         toast.success("Статья удалена");
+        setDeleteTarget(null);
+        if (selectedModel?.article.id === id) {
+          setSelectedModel(null);
+        }
         router.refresh();
       } catch {
         toast.error("Не удалось удалить статью");
-      } finally {
-        setDeleteTarget(null);
       }
     });
   }
@@ -151,8 +180,8 @@ export function KnowledgePage({ articles, categories }: Props) {
   }
 
   return (
-    <AdminPageStack className="ds-page-enter">
-      <DashboardPageHeader
+    <Stack gap="md" className="ds-page-enter">
+      <PageHeader
         title={t("pages.reports.title")}
         subtitle={t("pages.reports.subtitle")}
       />
@@ -160,19 +189,11 @@ export function KnowledgePage({ articles, categories }: Props) {
       <KnowledgeExecutiveKpis kpis={kpis} loading={refreshing} />
 
       <KnowledgeToolbar
-        search={search}
-        category={category}
-        status={status}
-        aiReady={aiReady}
-        sortKey={sortKey}
+        filters={filters}
         viewMode={viewMode}
         categories={categories}
         refreshing={refreshing}
-        onSearchChange={setSearch}
-        onCategoryChange={setCategory}
-        onStatusChange={setStatus}
-        onAiReadyChange={setAiReady}
-        onSortChange={setSortKey}
+        onFiltersChange={setFilters}
         onViewModeChange={setViewMode}
         onCreateClick={() => setCreateOpen(true)}
         onImportClick={handleImport}
@@ -182,26 +203,45 @@ export function KnowledgePage({ articles, categories }: Props) {
       {articles.length === 0 ? (
         <KnowledgeEmptyState onCreate={() => setCreateOpen(true)} />
       ) : (
-        <KnowledgeArticlesView
-          models={filteredModels}
-          viewMode={viewMode}
-          loading={refreshing}
-          onOpen={handleOpen}
-          onEdit={handleEdit}
-          onDuplicate={handleDuplicate}
-          onDelete={handleDelete}
-        />
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+          <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+            <KnowledgeArticlesView
+              models={filteredModels}
+              viewMode={viewMode}
+              loading={refreshing}
+              selectedId={selectedId}
+              onSelect={handleSelect}
+              onOpen={handleOpen}
+              onEdit={handleEdit}
+              onDuplicate={handleDuplicate}
+              onDelete={handleDelete}
+            />
+          </GlassSurface>
+
+          <div className="hidden xl:block">
+            <KnowledgeInspector
+              model={selectedModel}
+              onOpen={() => {
+                if (selectedModel) handleOpen(selectedModel);
+              }}
+            />
+          </div>
+        </div>
       )}
 
-      <KnowledgeOperations snapshot={operations} />
+      <KnowledgeOperations
+        snapshot={operations}
+        loading={refreshing}
+        onSelect={handleOpen}
+      />
 
       <KnowledgeDetailDrawer
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
-        model={drawerModel}
+        model={selectedModel}
         allModels={articleModels}
         onEdit={() => {
-          if (drawerModel) handleEdit(drawerModel);
+          if (selectedModel) handleEdit(selectedModel);
         }}
       />
 
@@ -214,6 +254,6 @@ export function KnowledgePage({ articles, categories }: Props) {
         onConfirm={confirmDelete}
         pending={actionPending}
       />
-    </AdminPageStack>
+    </Stack>
   );
 }

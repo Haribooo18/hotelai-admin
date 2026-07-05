@@ -1,7 +1,8 @@
 import { BookOpen } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { DashboardEmptyState } from "@/components/dashboard/home/DashboardPrimitives";
+import { Button } from "@/components/ui/core/Button";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 
 type Props = {
   onCreate?: () => void;
@@ -9,8 +10,8 @@ type Props = {
 
 export function KnowledgeEmptyState({ onCreate }: Props) {
   return (
-    <div className="rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 p-6 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
-      <DashboardEmptyState
+    <GlassSurface className="p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+      <EmptyState
         title="База знаний пуста"
         description="Создайте статьи с ответами на частые вопросы — AI-ресепшен будет использовать их при общении с гостями."
         icon={<BookOpen size={20} />}
@@ -22,6 +23,6 @@ export function KnowledgeEmptyState({ onCreate }: Props) {
           ) : undefined
         }
       />
-    </div>
+    </GlassSurface>
   );
 }

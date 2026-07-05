@@ -1,33 +1,27 @@
-import {
-  AdminPageStack,
-  DashboardGlassPanel,
-  DashboardSkeletonBlock,
-} from "@/components/dashboard/home/DashboardPrimitives";
-import { RoutePageHeaderSkeleton } from "@/components/dashboard/shared/RoutePageHeaderSkeleton";
+import { Skeleton } from "@/components/ui/display/Skeleton";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Stack } from "@/components/ui/primitives/Stack";
 
 export function KnowledgeRouteLoading() {
   return (
-    <AdminPageStack className="ds-page-enter">
-      <RoutePageHeaderSkeleton />
-
-      <DashboardGlassPanel className="p-[var(--ds-surface-padding)]">
+    <Stack gap="md" aria-busy="true" aria-label="Загрузка базы знаний">
+      <Skeleton className="h-8 w-56 rounded-[var(--ds-radius-sm)]" />
+      <GlassSurface className="p-[var(--ds-surface-padding)]">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8">
           {Array.from({ length: 8 }).map((_, index) => (
             <div key={index} className="space-y-2 px-2 py-1">
-              <DashboardSkeletonBlock className="h-3 w-20" />
-              <DashboardSkeletonBlock className="h-7 w-14" />
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-7 w-16" />
             </div>
           ))}
         </div>
-      </DashboardGlassPanel>
-
-      <DashboardSkeletonBlock className="h-14 w-full" />
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, index) => (
-          <DashboardSkeletonBlock key={index} className="h-52" />
-        ))}
+      </GlassSurface>
+      <Skeleton className="h-14 rounded-[var(--ds-radius)]" />
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <Skeleton className="min-h-[420px] rounded-[var(--ds-radius)]" />
+        <Skeleton className="hidden min-h-[420px] rounded-[var(--ds-radius)] xl:block" />
       </div>
-    </AdminPageStack>
+      <Skeleton className="h-48 rounded-[var(--ds-radius)]" />
+    </Stack>
   );
 }

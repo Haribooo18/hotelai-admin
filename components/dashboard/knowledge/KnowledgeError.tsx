@@ -1,8 +1,7 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/core/Button";
+import { ErrorState } from "@/components/ui/feedback/ErrorState";
 
 type Props = {
   message?: string;
@@ -10,21 +9,20 @@ type Props = {
 };
 
 export function KnowledgeError({
-  message = "Failed to load knowledge base",
+  message = "Не удалось загрузить базу знаний",
   reset,
 }: Props) {
   return (
-    <div
-      className="flex flex-col items-center justify-center rounded-[var(--ds-radius)] border border-red-900/50 bg-red-950/20 px-6 py-12 text-center"
-      role="alert"
-    >
-      <AlertTriangle className="mb-3 text-red-400" size={32} />
-      <p className="text-sm text-red-300">{message}</p>
-      {reset && (
-        <Button variant="outline" className="mt-4" onClick={reset}>
-          Retry
-        </Button>
-      )}
-    </div>
+    <ErrorState
+      title={message}
+      description="Проверьте подключение и попробуйте снова."
+      action={
+        reset ? (
+          <Button variant="outline" size="sm" onClick={reset}>
+            Повторить
+          </Button>
+        ) : undefined
+      }
+    />
   );
 }
