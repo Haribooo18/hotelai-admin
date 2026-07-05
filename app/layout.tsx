@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 
 import "./globals.css";
 import { Providers } from "./providers";
+import { SHELL_THEME_STORAGE_KEY } from "@/lib/dashboard/shell-theme";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,6 +21,8 @@ export const metadata: Metadata = {
   description: "Monavel — AI Platform for Modern Hotels",
 };
 
+const shellThemeInitScript = `(function(){try{var k=${JSON.stringify(SHELL_THEME_STORAGE_KEY)};var t=localStorage.getItem(k);if(t==="light"||t==="gray"||t==="dark"){document.documentElement.dataset.shellTheme=t;}else{document.documentElement.dataset.shellTheme="dark";}}catch(e){document.documentElement.dataset.shellTheme="dark";}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,8 +32,16 @@ export default function RootLayout({
     <html
       lang="ru"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-screen bg-[#09090b] text-white">
+      <head>
+        <Script id="shell-theme-init" strategy="beforeInteractive">
+          {shellThemeInitScript}
+        </Script>
+      </head>
+      <body
+        className={`${geistSans.className} min-h-screen bg-[var(--shell-bg)] font-sans text-[var(--shell-text)]`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

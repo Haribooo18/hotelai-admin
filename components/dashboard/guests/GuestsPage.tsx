@@ -75,11 +75,7 @@ export function GuestsPage({ guests }: Props) {
     <div className="space-y-8">
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
-            HOTELAI ADMIN
-          </p>
-
-          <h1 className="mt-2 text-4xl font-bold">Гости</h1>
+          <h1 className="text-4xl font-bold">Гости</h1>
 
           <p className="mt-3 text-zinc-400">
             База гостей, история проживания и заметки.

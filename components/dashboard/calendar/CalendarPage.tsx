@@ -121,11 +121,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
-          HOTELAI ADMIN
-        </p>
-
-        <h1 className="mt-2 text-4xl font-bold">Календарь бронирований</h1>
+        <h1 className="text-4xl font-bold">Календарь бронирований</h1>
 
         <p className="mt-3 text-zinc-400">
           Таймлайн загрузки номеров. Перетаскивайте бронирования для переноса,

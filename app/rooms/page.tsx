@@ -11,11 +11,7 @@ export default async function RoomsPage() {
     <AppShell hotel={hotel}>
       <div className="mb-8 flex items-start justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.25em] text-zinc-500">
-            HOTELAI ADMIN
-          </p>
-
-          <h1 className="mt-2 text-4xl font-bold">
+          <h1 className="text-4xl font-bold">
             Управление номерами
           </h1>
 

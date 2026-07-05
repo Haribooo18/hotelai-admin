@@ -52,10 +52,7 @@ export function KnowledgePage({ articles, categories }: Props) {
     <div className="space-y-8">
       <div className="flex items-end justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
-            HOTELAI ADMIN
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold">База знаний</h1>
+          <h1 className="text-3xl font-semibold">База знаний</h1>
           <p className="mt-2 text-sm text-zinc-500">
             Статьи для AI-ресепшна · {publishedCount} опубликовано ·{" "}
             {draftCount} черновиков

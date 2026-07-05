@@ -99,11 +99,7 @@ export function AIInboxPage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
-            HOTELAI ADMIN
-          </p>
-
-          <h1 className="mt-2 flex items-center gap-3 text-4xl font-bold">
+          <h1 className="flex items-center gap-3 text-4xl font-bold">
             <Bot className="h-9 w-9 text-emerald-500" />
             AI Receptionist
           </h1>

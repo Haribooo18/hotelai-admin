@@ -7,7 +7,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --font-heading: var(--font-sans);
   --color-ring: var(--ring);
@@ -34,6 +34,7 @@
 }
 
 :root {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --background: oklch(0.09 0 0);
   --foreground: oklch(0.96 0 0);
 
@@ -75,4 +76,80 @@
   body {
     @apply bg-background text-foreground antialiased;
   }
+}
+
+/* ── Monavel admin shell themes ─────────────────────────────────────────── */
+
+html {
+  --shell-bg: oklch(0.12 0.005 260);
+  --shell-content: oklch(0.14 0.005 260);
+  --shell-sidebar: oklch(0.16 0.006 260);
+  --shell-surface: oklch(0.18 0.006 260);
+  --shell-topbar: oklch(0.14 0.005 260);
+  --shell-text: oklch(0.96 0 0);
+  --shell-muted: oklch(0.62 0.01 260);
+  --shell-border: oklch(1 0 0 / 8%);
+  --shell-nav-text: oklch(0.68 0.01 260);
+  --shell-nav-icon: oklch(0.58 0.01 260);
+  --shell-nav-hover-bg: oklch(1 0 0 / 6%);
+  --shell-nav-active-bg: oklch(1 0 0 / 9%);
+  --shell-nav-active-text: oklch(0.98 0 0);
+  --shell-shadow-sm: 0 1px 2px oklch(0 0 0 / 24%), 0 1px 3px oklch(0 0 0 / 12%);
+  --shell-shadow-md: 0 4px 12px oklch(0 0 0 / 20%), 0 2px 4px oklch(0 0 0 / 12%);
+  --shell-shadow-lg: 0 12px 32px oklch(0 0 0 / 28%), 0 4px 8px oklch(0 0 0 / 16%);
+}
+
+html[data-shell-theme="dark"],
+html:not([data-shell-theme]) {
+  --shell-bg: oklch(0.12 0.005 260);
+  --shell-content: oklch(0.14 0.005 260);
+  --shell-sidebar: oklch(0.16 0.006 260);
+  --shell-surface: oklch(0.18 0.006 260);
+  --shell-topbar: oklch(0.14 0.005 260);
+  --shell-text: oklch(0.96 0 0);
+  --shell-muted: oklch(0.62 0.01 260);
+  --shell-border: oklch(1 0 0 / 8%);
+  --shell-nav-text: oklch(0.68 0.01 260);
+  --shell-nav-icon: oklch(0.58 0.01 260);
+  --shell-nav-hover-bg: oklch(1 0 0 / 6%);
+  --shell-nav-active-bg: oklch(1 0 0 / 9%);
+  --shell-nav-active-text: oklch(0.98 0 0);
+}
+
+html[data-shell-theme="light"] {
+  --shell-bg: oklch(0.97 0.004 260);
+  --shell-content: oklch(0.995 0.002 260);
+  --shell-sidebar: oklch(0.99 0.002 260);
+  --shell-surface: oklch(0.985 0.003 260);
+  --shell-topbar: oklch(0.995 0.002 260);
+  --shell-text: oklch(0.22 0.02 260);
+  --shell-muted: oklch(0.52 0.02 260);
+  --shell-border: oklch(0 0 0 / 8%);
+  --shell-nav-text: oklch(0.45 0.02 260);
+  --shell-nav-icon: oklch(0.55 0.02 260);
+  --shell-nav-hover-bg: oklch(0 0 0 / 4%);
+  --shell-nav-active-bg: oklch(0.55 0.14 160 / 12%);
+  --shell-nav-active-text: oklch(0.28 0.06 160);
+  --shell-shadow-sm: 0 1px 2px oklch(0 0 0 / 4%), 0 1px 3px oklch(0 0 0 / 6%);
+  --shell-shadow-md: 0 4px 16px oklch(0 0 0 / 6%), 0 2px 4px oklch(0 0 0 / 4%);
+  --shell-shadow-lg: 0 12px 40px oklch(0 0 0 / 10%), 0 4px 8px oklch(0 0 0 / 6%);
+}
+
+html[data-shell-theme="gray"] {
+  --shell-bg: oklch(0.22 0.008 260);
+  --shell-content: oklch(0.24 0.008 260);
+  --shell-sidebar: oklch(0.27 0.01 260);
+  --shell-surface: oklch(0.30 0.01 260);
+  --shell-topbar: oklch(0.24 0.008 260);
+  --shell-text: oklch(0.94 0 0);
+  --shell-muted: oklch(0.68 0.01 260);
+  --shell-border: oklch(1 0 0 / 10%);
+  --shell-nav-text: oklch(0.72 0.01 260);
+  --shell-nav-icon: oklch(0.62 0.01 260);
+  --shell-nav-hover-bg: oklch(1 0 0 / 7%);
+  --shell-nav-active-bg: oklch(1 0 0 / 11%);
+  --shell-nav-active-text: oklch(0.98 0 0);
+  --shell-shadow-sm: 0 1px 2px oklch(0 0 0 / 18%), 0 1px 3px oklch(0 0 0 / 10%);
+  --shell-shadow-md: 0 4px 12px oklch(0 0 0 / 16%), 0 2px 4px oklch(0 0 0 / 10%);
+  --shell-shadow-lg: 0 12px 32px oklch(0 0 0 / 22%), 0 4px 8px oklch(0 0 0 / 14%);
 }

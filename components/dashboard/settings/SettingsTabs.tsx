@@ -43,10 +43,7 @@ export function SettingsTabs({
   return (
     <div className="space-y-8">
       <div>
-        <p className="text-sm uppercase tracking-[0.3em] text-zinc-500">
-          HOTELAI ADMIN
-        </p>
-        <h1 className="mt-2 text-3xl font-semibold">Настройки</h1>
+        <h1 className="text-3xl font-semibold">Настройки</h1>
         <p className="mt-2 text-sm text-zinc-500">
           Конфигурация AI-ресепшна, биллинг и диагностика
         </p>

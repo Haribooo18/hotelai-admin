@@ -99,11 +99,7 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
   return (
     <>
       <div className="mb-8">
-        <p className="text-sm uppercase tracking-[0.25em] text-zinc-500">
-          HOTELAI ADMIN
-        </p>
-
-        <h1 className="mt-2 text-4xl font-bold">
+        <h1 className="text-4xl font-bold">
           Заявки на бронирование
         </h1>
 

@@ -4,8 +4,19 @@ import { useTransition } from "react";
 import { LogOut } from "lucide-react";
 
 import { signOut } from "@/lib/services/auth.mutations";
+import { cn } from "@/lib/utils";
 
-export function SignOutButton() {
+type Props = {
+  className?: string;
+  label?: string;
+  showIcon?: boolean;
+};
+
+export function SignOutButton({
+  className,
+  label = "Выйти",
+  showIcon = true,
+}: Props) {
   const [pending, startTransition] = useTransition();
 
   return (
@@ -13,11 +24,14 @@ export function SignOutButton() {
       type="button"
       disabled={pending}
       onClick={() => startTransition(() => signOut())}
-      className="flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white disabled:opacity-50"
+      className={cn(
+        "flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white disabled:opacity-50",
+        className
+      )}
       aria-label="Выйти"
     >
-      <LogOut size={16} />
-      <span>{pending ? "Выход..." : "Выйти"}</span>
+      {showIcon ? <LogOut size={16} /> : null}
+      <span>{pending ? "Выход..." : label}</span>
     </button>
   );
 }
