@@ -1,4 +1,6 @@
 import type { Room } from "@/types/room";
+import type { DbRoomRow } from "@/types/database/generated";
+import { toRoom } from "@/lib/database/mappers";
 
 import {
   throwRepositoryError,
@@ -26,6 +28,31 @@ export type AvailableRoomSummary = {
 export class RoomsRepository {
   constructor(private readonly ctx: RepositoryContext) {}
 
+  private async resolveRoomTypeId(roomType: string): Promise<string | null> {
+    const name = roomType.trim();
+    if (!name) return null;
+
+    const { data: existing, error: lookupError } = await this.ctx.supabase
+      .from("room_types")
+      .select("id")
+      .eq("hotel_id", this.ctx.hotelId)
+      .eq("name", name)
+      .maybeSingle();
+
+    if (lookupError) throwRepositoryError(lookupError);
+    if (existing?.id) return existing.id as string;
+
+    const { data, error } = await this.ctx.supabase
+      .from("room_types")
+      .insert({ hotel_id: this.ctx.hotelId, name })
+      .select("id")
+      .single();
+
+    if (error) throwRepositoryError(error);
+
+    return data.id as string;
+  }
+
   async getAll(): Promise<Room[]> {
     const { data, error } = await this.ctx.supabase
       .from("rooms")
@@ -35,7 +62,7 @@ export class RoomsRepository {
 
     if (error) throwRepositoryError(error);
 
-    return (data ?? []) as Room[];
+    return ((data ?? []) as DbRoomRow[]).map(toRoom);
   }
 
   async getById(id: string): Promise<Room | null> {
@@ -48,22 +75,32 @@ export class RoomsRepository {
 
     if (error) throwRepositoryError(error);
 
-    return (data as Room | null) ?? null;
+    return data ? toRoom(data as DbRoomRow) : null;
   }
 
   async create(row: RoomInsertRow): Promise<void> {
+    const roomTypeId = await this.resolveRoomTypeId(row.room_type);
+
     const { error } = await this.ctx.supabase.from("rooms").insert({
       hotel_id: this.ctx.hotelId,
       ...row,
+      room_type_id: roomTypeId,
+      housekeeping_status: "clean",
+      maintenance_status: "operational",
     });
 
     if (error) throwRepositoryError(error);
   }
 
   async update(id: string, row: RoomUpdateRow): Promise<void> {
+    const roomTypeId = await this.resolveRoomTypeId(row.room_type);
+
     const { error } = await this.ctx.supabase
       .from("rooms")
-      .update(row)
+      .update({
+        ...row,
+        room_type_id: roomTypeId,
+      })
       .eq("id", id)
       .eq("hotel_id", this.ctx.hotelId);
 

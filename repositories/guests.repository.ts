@@ -1,5 +1,7 @@
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
+import type { DbBookingRow, DbGuestRow } from "@/types/database/generated";
+import { guestLegacyWriteFields, toBooking, toGuest } from "@/lib/database/mappers";
 
 import {
   throwRepositoryError,
@@ -48,7 +50,7 @@ export class GuestsRepository {
 
     if (error) throwRepositoryError(error);
 
-    return (data ?? []) as Guest[];
+    return ((data ?? []) as DbGuestRow[]).map(toGuest);
   }
 
   async getById(id: string): Promise<Guest | null> {
@@ -62,7 +64,7 @@ export class GuestsRepository {
 
     if (error) throwRepositoryError(error);
 
-    return (data as Guest | null) ?? null;
+    return data ? toGuest(data as DbGuestRow) : null;
   }
 
   async getByIds(ids: string[]): Promise<Guest[]> {
@@ -75,15 +77,22 @@ export class GuestsRepository {
 
     if (error) throwRepositoryError(error);
 
-    return (data ?? []) as Guest[];
+    return ((data ?? []) as DbGuestRow[]).map(toGuest);
   }
 
   async create(row: GuestInsertRow): Promise<void> {
-    const { error } = await this.ctx.supabase.from("guests").insert({
-      hotel_id: this.ctx.hotelId,
+    const legacy = guestLegacyWriteFields({
+      is_vip: row.is_vip,
       total_bookings: 0,
       total_spent: 0,
+    });
+
+    const { error } = await this.ctx.supabase.from("guests").insert({
+      hotel_id: this.ctx.hotelId,
       ...row,
+      ...legacy,
+      language: "ru",
+      marketing_opt_in: false,
     });
 
     if (error) throwRepositoryError(error);
@@ -92,7 +101,11 @@ export class GuestsRepository {
   async update(id: string, row: GuestUpdateRow): Promise<void> {
     const { error } = await this.ctx.supabase
       .from("guests")
-      .update(row)
+      .update({
+        ...row,
+        vip: row.is_vip,
+        is_vip: row.is_vip,
+      })
       .eq("id", id)
       .eq("hotel_id", this.ctx.hotelId);
 
@@ -122,7 +135,7 @@ export class GuestsRepository {
   async setVip(id: string, value: boolean): Promise<void> {
     const { error } = await this.ctx.supabase
       .from("guests")
-      .update({ is_vip: value })
+      .update({ is_vip: value, vip: value })
       .eq("id", id)
       .eq("hotel_id", this.ctx.hotelId);
 
@@ -130,9 +143,14 @@ export class GuestsRepository {
   }
 
   async updateMergedGuest(id: string, row: GuestMergeUpdateRow): Promise<void> {
+    const legacy = guestLegacyWriteFields(row);
+
     const { error } = await this.ctx.supabase
       .from("guests")
-      .update(row)
+      .update({
+        ...row,
+        ...legacy,
+      })
       .eq("id", id)
       .eq("hotel_id", this.ctx.hotelId);
 
@@ -140,24 +158,25 @@ export class GuestsRepository {
   }
 
   async getBookingsForGuest(guest: Guest): Promise<Booking[]> {
-    let query = this.ctx.supabase
-      .from("bookings")
-      .select("*")
-      .eq("hotel_id", this.ctx.hotelId);
+    const filters: string[] = [`guest_id.eq.${guest.id}`];
 
     if (guest.email && guest.email.trim() !== "") {
-      query = query.ilike("guest_email", guest.email.trim());
+      filters.push(`guest_email.ilike.${guest.email.trim()}`);
     } else {
-      query = query.ilike(
-        "guest_name",
-        `${guest.first_name} ${guest.last_name}`.trim()
+      filters.push(
+        `guest_name.ilike.${`${guest.first_name} ${guest.last_name}`.trim()}`
       );
     }
 
-    const { data, error } = await query.order("check_in", { ascending: false });
+    const { data, error } = await this.ctx.supabase
+      .from("bookings")
+      .select("*")
+      .eq("hotel_id", this.ctx.hotelId)
+      .or(filters.join(","))
+      .order("check_in", { ascending: false });
 
     if (error) throwRepositoryError(error);
 
-    return (data ?? []) as Booking[];
+    return ((data ?? []) as DbBookingRow[]).map(toBooking);
   }
 }
