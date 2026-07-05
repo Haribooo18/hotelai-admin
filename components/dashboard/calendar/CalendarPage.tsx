@@ -7,36 +7,66 @@ import { toast } from "sonner";
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
-import { rescheduleBooking } from "@/lib/services/bookings.mutations";
+import { rescheduleBooking, deleteBooking } from "@/lib/services/bookings.mutations";
 import {
   addDays,
   addMonths,
   buildDays,
-  computeOccupancy,
   formatRangeTitle,
   hasRoomConflict,
   type CalendarView,
 } from "@/lib/calendar";
 
-import { BookingEditDialog } from "@/components/dashboard/bookings";
+import {
+  BookingCreateDialog,
+  BookingDetailDrawer,
+  BookingEditDialog,
+} from "@/components/dashboard/bookings";
+import {
+  buildBookingCardModel,
+  type BookingCardModel,
+} from "@/components/dashboard/bookings/booking-ops-metrics";
+import { useBookingsGuests } from "@/components/dashboard/bookings/useBookingsGuests";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import {
+  AdminPageStack,
+  DashboardPageHeader,
+} from "@/components/dashboard/home/DashboardPrimitives";
+import { useI18n } from "@/lib/i18n";
 
+import { CalendarExecutiveKpis } from "./CalendarExecutiveKpis";
 import { CalendarToolbar } from "./CalendarToolbar";
 import { CalendarTimeline } from "./CalendarTimeline";
 import { CalendarAgenda } from "./CalendarAgenda";
 import { CalendarLegend } from "./CalendarLegend";
-import { AdminPageStack, DashboardPageHeader } from "@/components/dashboard/home/DashboardPrimitives";
-import { shellEmptyStateClass } from "@/lib/dashboard/design-system";
-import { useI18n } from "@/lib/i18n";
+import {
+  buildCalendarRoomModels,
+  computeCalendarOpsKpis,
+} from "./calendar-ops-metrics";
 
 type Props = {
   bookings: Booking[];
   rooms: Room[];
 };
 
+function matchesSearch(booking: Booking, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+
+  return (
+    booking.guest_name.toLowerCase().includes(q) ||
+    (booking.guest_email?.toLowerCase().includes(q) ?? false) ||
+    (booking.guest_phone?.includes(q) ?? false)
+  );
+}
+
 export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
   const { t } = useI18n();
   const router = useRouter();
   const [, startTransition] = useTransition();
+
+  const hotelId = initialBookings[0]?.hotel_id ?? rooms[0]?.hotel_id ?? null;
+  const { guests, loading: guestsLoading } = useBookingsGuests(hotelId);
 
   const [bookings, setBookings] = useState(initialBookings);
   const [syncedFrom, setSyncedFrom] = useState(initialBookings);
@@ -44,11 +74,20 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
   const [anchor, setAnchor] = useState(() => new Date());
   const [scrollToTodayTick, setScrollToTodayTick] = useState(1);
 
-  const [editOpen, setEditOpen] = useState(false);
-  const [selected, setSelected] = useState<Booking | null>(null);
+  const [search, setSearch] = useState("");
+  const [roomFilter, setRoomFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
-  // Reconcile with fresh server data after revalidation (render-time sync,
-  // the React-recommended alternative to a syncing effect).
+  const [createOpen, setCreateOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<BookingCardModel | null>(
+    null
+  );
+  const [selectedModel, setSelectedModel] = useState<BookingCardModel | null>(
+    null
+  );
+
   if (initialBookings !== syncedFrom) {
     setSyncedFrom(initialBookings);
     setBookings(initialBookings);
@@ -56,28 +95,84 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
 
   const days = useMemo(() => buildDays(view, anchor), [view, anchor]);
 
-  const occupancyPercent = useMemo(() => {
-    const occ = computeOccupancy(bookings, rooms.length, days);
-    if (occ.length === 0) return 0;
-    const avg = occ.reduce((sum, d) => sum + d.ratio, 0) / occ.length;
-    return Math.round(avg * 100);
-  }, [bookings, rooms.length, days]);
+  const kpis = useMemo(
+    () => computeCalendarOpsKpis(bookings, rooms),
+    [bookings, rooms]
+  );
+
+  const roomModels = useMemo(
+    () => buildCalendarRoomModels(rooms, bookings),
+    [rooms, bookings]
+  );
+
+  const filteredRooms = useMemo(() => {
+    if (!roomFilter) return rooms;
+    return rooms.filter((room) => room.id === roomFilter);
+  }, [rooms, roomFilter]);
+
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((booking) => {
+      if (statusFilter && booking.status !== statusFilter) return false;
+      if (!matchesSearch(booking, search)) return false;
+      if (roomFilter && booking.room_id !== roomFilter) return false;
+      return true;
+    });
+  }, [bookings, search, statusFilter, roomFilter]);
 
   function goPrevious() {
-    setAnchor((current) =>
-      view === "month" ? addMonths(current, -1) : addDays(current, -7)
-    );
+    setAnchor((current) => {
+      if (view === "day") return addDays(current, -1);
+      if (view === "week") return addDays(current, -7);
+      return addMonths(current, -1);
+    });
   }
 
   function goNext() {
-    setAnchor((current) =>
-      view === "month" ? addMonths(current, 1) : addDays(current, 7)
-    );
+    setAnchor((current) => {
+      if (view === "day") return addDays(current, 1);
+      if (view === "week") return addDays(current, 7);
+      return addMonths(current, 1);
+    });
   }
 
-  function handleOpen(booking: Booking) {
-    setSelected(booking);
+  function openDrawer(booking: Booking) {
+    const model = buildBookingCardModel(booking, rooms, guests);
+    setSelectedModel(model);
+    setDrawerOpen(true);
+  }
+
+  function handleEdit(booking: Booking) {
+    setSelectedModel(buildBookingCardModel(booking, rooms, guests));
+    setDrawerOpen(false);
     setEditOpen(true);
+  }
+
+  function handleDeleteRequest(booking: Booking) {
+    setDeleteTarget(buildBookingCardModel(booking, rooms, guests));
+    setDrawerOpen(false);
+  }
+
+  function handleDeleteConfirm() {
+    if (!deleteTarget) return;
+
+    const id = deleteTarget.booking.id;
+    const previous = bookings;
+    setBookings((list) => list.filter((booking) => booking.id !== id));
+    setDeleteTarget(null);
+
+    startTransition(async () => {
+      try {
+        await deleteBooking(id);
+        toast.success("Reservation deleted");
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+        setBookings(previous);
+        toast.error(
+          error instanceof Error ? error.message : "Failed to delete reservation"
+        );
+      }
+    });
   }
 
   function handleReschedule(
@@ -110,7 +205,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
           check_in: next.check_in,
           check_out: next.check_out,
         });
-        toast.success("Booking rescheduled");
+        toast.success("Reservation rescheduled");
         router.refresh();
       } catch (error) {
         console.error(error);
@@ -123,62 +218,95 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
   }
 
   return (
-    <AdminPageStack>
+    <AdminPageStack className="ds-page-enter">
       <DashboardPageHeader
         title={t("pages.calendar.title")}
         subtitle={t("pages.calendar.subtitle")}
       />
 
+      <CalendarExecutiveKpis kpis={kpis} loading={guestsLoading} />
+
       <CalendarToolbar
         title={formatRangeTitle(days, view)}
         view={view}
-        occupancyPercent={occupancyPercent}
+        search={search}
+        roomFilter={roomFilter}
+        statusFilter={statusFilter}
+        rooms={rooms}
+        onSearchChange={setSearch}
+        onRoomFilterChange={setRoomFilter}
+        onStatusFilterChange={setStatusFilter}
         onPrevious={goPrevious}
         onNext={goNext}
         onToday={() => {
           setAnchor(new Date());
-          setScrollToTodayTick((t) => t + 1);
+          setScrollToTodayTick((tick) => tick + 1);
         }}
         onViewChange={setView}
+        onCreateClick={() => setCreateOpen(true)}
       />
 
-      {rooms.length === 0 ? (
-        <div className={shellEmptyStateClass}>
-          No rooms. Add rooms to see the calendar.
-        </div>
-      ) : (
-        <>
-          {/* Desktop timeline */}
-          <div className="hidden md:block">
-            <CalendarTimeline
-              rooms={rooms}
-              bookings={bookings}
-              days={days}
-              scrollToTodayTick={scrollToTodayTick}
-              onReschedule={handleReschedule}
-              onOpen={handleOpen}
-            />
-          </div>
+      <div className="hidden md:block">
+        <CalendarTimeline
+          rooms={filteredRooms}
+          roomModels={roomModels}
+          bookings={filteredBookings}
+          guests={guests}
+          days={days}
+          loading={guestsLoading}
+          scrollToTodayTick={scrollToTodayTick}
+          onReschedule={handleReschedule}
+          onOpen={openDrawer}
+        />
+      </div>
 
-          {/* Mobile fallback */}
-          <div className="md:hidden">
-            <CalendarAgenda
-              rooms={rooms}
-              bookings={bookings}
-              days={days}
-              onOpen={handleOpen}
-            />
-          </div>
+      <div className="md:hidden">
+        <CalendarAgenda
+          rooms={filteredRooms}
+          bookings={filteredBookings}
+          guests={guests}
+          days={days}
+          onOpen={openDrawer}
+        />
+      </div>
 
-          <CalendarLegend />
-        </>
-      )}
+      <CalendarLegend />
+
+      <BookingDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        model={selectedModel}
+        onEdit={handleEdit}
+        onDelete={handleDeleteRequest}
+      />
 
       <BookingEditDialog
         open={editOpen}
         onOpenChange={setEditOpen}
-        booking={selected}
+        booking={selectedModel?.booking ?? null}
         rooms={rooms}
+      />
+
+      <BookingCreateDialog
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        rooms={rooms}
+      />
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title="Delete reservation"
+        description={
+          deleteTarget
+            ? `Delete reservation for ${deleteTarget.booking.guest_name}? This cannot be undone.`
+            : ""
+        }
+        confirmLabel="Delete"
+        destructive
+        onConfirm={handleDeleteConfirm}
       />
     </AdminPageStack>
   );

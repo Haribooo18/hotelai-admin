@@ -1,56 +1,92 @@
 "use client";
 
 import type { Booking } from "@/types/booking";
+import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
 import { placeBooking } from "@/lib/calendar";
+import { cn } from "@/lib/utils";
 
 import { BookingStatusBadge } from "@/components/dashboard/bookings/BookingStatusBadge";
+import { PaymentStatusBadge } from "@/components/dashboard/bookings/PaymentStatusBadge";
+import {
+  buildBookingCardModel,
+  formatBookingCurrency,
+} from "@/components/dashboard/bookings/booking-ops-metrics";
+import {
+  DashboardEmptyState,
+} from "@/components/dashboard/home/DashboardPrimitives";
+import { CalendarDays } from "lucide-react";
 
 type Props = {
   rooms: Room[];
   bookings: Booking[];
+  guests: Guest[];
   days: Date[];
   onOpen: (booking: Booking) => void;
 };
 
-export function CalendarAgenda({ rooms, bookings, days, onOpen }: Props) {
-  const roomName = new Map(rooms.map((r) => [r.id, r.room_type]));
+export function CalendarAgenda({
+  rooms,
+  bookings,
+  guests,
+  days,
+  onOpen,
+}: Props) {
+  const roomName = new Map(rooms.map((room) => [room.id, room.room_type]));
 
   const visible = bookings
-    .filter((b) => placeBooking(b, days))
+    .filter((booking) => placeBooking(booking, days))
     .sort((a, b) => a.check_in.localeCompare(b.check_in));
 
   if (visible.length === 0) {
     return (
-      <div className="rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] py-16 text-center text-[var(--shell-muted)]">
-        No bookings in the selected period
-      </div>
+      <DashboardEmptyState
+        title="No reservations in this period"
+        description="Adjust filters or navigate to another date range."
+        icon={<CalendarDays size={18} />}
+      />
     );
   }
 
   return (
-    <div className="space-y-3">
-      {visible.map((booking) => (
-        <button
-          key={booking.id}
-          type="button"
-          onClick={() => onOpen(booking)}
-          className="flex w-full items-center justify-between gap-4 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4 text-left transition hover:border-emerald-600"
-        >
-          <div>
-            <div className="font-medium">{booking.guest_name}</div>
-            <div className="mt-1 text-sm text-[var(--shell-muted)]">
-              {roomName.get(booking.room_id) ?? "—"} · {booking.check_in} →{" "}
-              {booking.check_out}
-            </div>
-          </div>
+    <div className="space-y-2">
+      {visible.map((booking) => {
+        const model = buildBookingCardModel(booking, rooms, guests);
+        const displayName = model.guest
+          ? `${model.guest.first_name} ${model.guest.last_name}`.trim()
+          : booking.guest_name;
 
-          <div className="flex flex-col items-end gap-1">
-            <BookingStatusBadge status={booking.status} />
-            <span className="text-sm font-medium">${booking.total_price}</span>
-          </div>
-        </button>
-      ))}
+        return (
+          <button
+            key={booking.id}
+            type="button"
+            onClick={() => onOpen(booking)}
+            className={cn(
+              "flex w-full items-center justify-between gap-4 rounded-[var(--ds-radius)] bg-[var(--shell-surface)] p-4 text-left shadow-[var(--shell-shadow-sm)] transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:shadow-[var(--shell-shadow-md)]"
+            )}
+          >
+            <div className="min-w-0">
+              <div className="truncate text-[14px] font-semibold text-[var(--shell-text)]">
+                {displayName}
+              </div>
+              <div className="mt-1 text-[12px] text-[var(--shell-muted)]">
+                {roomName.get(booking.room_id) ?? "—"} · {booking.check_in} →{" "}
+                {booking.check_out} · {model.nights}n
+              </div>
+            </div>
+
+            <div className="flex shrink-0 flex-col items-end gap-1.5">
+              <div className="flex items-center gap-1.5">
+                <BookingStatusBadge status={booking.status} />
+                <PaymentStatusBadge status={model.paymentStatus} />
+              </div>
+              <span className="text-[13px] font-semibold text-[var(--shell-text)]">
+                {formatBookingCurrency(Number(booking.total_price))}
+              </span>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

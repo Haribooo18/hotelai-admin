@@ -15,47 +15,50 @@ type Props = {
 
 export function CalendarDateHeader({ days, occupancy }: Props) {
   return (
-    <div className="sticky top-0 z-30 flex border-b border-[var(--shell-border)] bg-[var(--shell-surface-raised)]">
+    <div className="sticky top-0 z-30 flex border-b border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/92 backdrop-blur-xl">
       <div
-        className="sticky left-0 z-40 flex items-center border-r border-[var(--shell-border)] bg-[var(--shell-surface-raised)] px-4 text-sm font-semibold"
+        className="sticky left-0 z-40 flex items-center border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/95 px-4 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--shell-muted)] backdrop-blur-xl"
         style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
       >
-        Room
+        Rooms
       </div>
 
       {days.map((day, index) => {
         const occ = occupancy[index];
         const percent = Math.round((occ?.ratio ?? 0) * 100);
+        const today = isToday(day);
 
         return (
           <div
             key={index}
             className={cn(
-              "flex flex-col items-center justify-center gap-0.5 border-r border-[var(--shell-border)] py-2",
-              isWeekend(day) && "bg-[var(--shell-surface-raised)]/40",
-              isToday(day) && "bg-emerald-950/50"
+              "flex flex-col items-center justify-center gap-0.5 border-r border-[var(--shell-border)]/40 py-2.5",
+              isWeekend(day) && "bg-[var(--shell-surface-raised)]/30",
+              today && "bg-emerald-500/10"
             )}
             style={{ width: DAY_WIDTH, minWidth: DAY_WIDTH }}
           >
-            <span className="text-[10px] uppercase text-[var(--shell-muted)]">
+            <span className="text-[10px] uppercase tracking-wide text-[var(--shell-muted)]">
               {WEEKDAYS_SHORT_RU[day.getDay()]}
             </span>
 
             <span
               className={cn(
-                "text-sm font-medium",
-                isToday(day) && "text-emerald-400"
+                "flex h-7 w-7 items-center justify-center rounded-full text-[13px] font-semibold",
+                today
+                  ? "bg-emerald-500/20 text-emerald-400"
+                  : "text-[var(--shell-text)]"
               )}
             >
               {day.getDate()}
             </span>
 
             <div
-              className="mt-1 h-1 w-8 overflow-hidden rounded-full bg-[var(--shell-nav-hover-bg)]"
+              className="mt-1 h-1 w-7 overflow-hidden rounded-full bg-[var(--shell-nav-hover-bg)]"
               title={`Occupancy ${percent}%`}
             >
               <div
-                className="h-full bg-emerald-500"
+                className="h-full rounded-full bg-emerald-500/80 transition-[width] duration-[var(--ds-duration)] ease-[var(--ds-ease)]"
                 style={{ width: `${percent}%` }}
               />
             </div>

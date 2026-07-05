@@ -1,50 +1,50 @@
-import type { Room } from "@/types/room";
+import { Users } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { ROOM_COL_WIDTH } from "@/lib/calendar";
+import { getRoomStatusMeta } from "@/components/dashboard/rooms/room-ops-metrics";
+
+import type { CalendarRoomModel } from "./calendar-ops-metrics";
 
 type Props = {
-  room: Room;
-  occupiedDays: number;
-  totalDays: number;
-  isEmpty: boolean;
+  model: CalendarRoomModel;
 };
 
-export function CalendarRoomCell({
-  room,
-  occupiedDays,
-  totalDays,
-  isEmpty,
-}: Props) {
-  const ratio = totalDays > 0 ? occupiedDays / totalDays : 0;
-  const percent = Math.round(ratio * 100);
+export function CalendarRoomCell({ model }: Props) {
+  const { room, status, isAvailableToday } = model;
+  const statusMeta = getRoomStatusMeta(status);
 
   return (
     <div
-      className={cn(
-        "sticky left-0 z-20 flex flex-col justify-center gap-1.5 border-r border-[var(--shell-border)] bg-[var(--shell-surface)] px-4",
-        isEmpty && "bg-emerald-950/20"
-      )}
+      className="sticky left-0 z-20 flex flex-col justify-center gap-1.5 border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/95 px-3 backdrop-blur-xl"
       style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
     >
-      <div className="flex items-center justify-between gap-2">
-        <span className="truncate font-medium">{room.room_type}</span>
-        <span className="shrink-0 text-xs text-[var(--shell-muted)]">${room.price}</span>
+      <div className="flex items-start justify-between gap-2">
+        <span className="truncate text-[13px] font-semibold text-[var(--shell-text)]">
+          {room.room_type}
+        </span>
+        <span
+          className={cn(
+            "mt-1 h-2 w-2 shrink-0 rounded-full",
+            isAvailableToday ? "bg-emerald-400" : "bg-amber-400"
+          )}
+          title={isAvailableToday ? "Available today" : "Occupied or reserved"}
+        />
       </div>
 
-      <div className="flex items-center gap-2">
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--shell-surface-raised)]">
-          <div
-            className={cn(
-              "h-full",
-              isEmpty ? "bg-emerald-500/40" : "bg-emerald-500"
-            )}
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-        <span className="w-9 shrink-0 text-right text-[10px] text-[var(--shell-muted)]">
-          {isEmpty ? "Available" : `${percent}%`}
-        </span>
+      <div className="flex items-center gap-1.5 text-[11px] text-[var(--shell-muted)]">
+        <Users size={12} className="shrink-0" />
+        <span>{room.capacity} guests</span>
       </div>
+
+      <span
+        className={cn(
+          "inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-medium",
+          statusMeta.badgeClass
+        )}
+      >
+        {statusMeta.label}
+      </span>
     </div>
   );
 }

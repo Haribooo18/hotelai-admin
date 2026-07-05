@@ -1,4 +1,5 @@
 export { CalendarPage } from "./CalendarPage";
+export { CalendarExecutiveKpis } from "./CalendarExecutiveKpis";
 export { CalendarToolbar } from "./CalendarToolbar";
 export { CalendarTimeline } from "./CalendarTimeline";
 export { CalendarDateHeader } from "./CalendarDateHeader";

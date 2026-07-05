@@ -3,33 +3,40 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { Booking } from "@/types/booking";
+import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
 import { cn } from "@/lib/utils";
 import {
   DAY_WIDTH,
   ROOM_COL_WIDTH,
   ROW_HEIGHT,
-  addDays,
   computeOccupancy,
   isToday,
   isWeekend,
   placeBooking,
-  rangesOverlap,
-  toISODate,
 } from "@/lib/calendar";
+import { buildBookingCardModel } from "@/components/dashboard/bookings/booking-ops-metrics";
+import {
+  DashboardEmptyState,
+  DashboardSkeletonBlock,
+} from "@/components/dashboard/home/DashboardPrimitives";
+import { CalendarDays } from "lucide-react";
 
 import { CalendarDateHeader } from "./CalendarDateHeader";
 import { CalendarRoomCell } from "./CalendarRoomCell";
 import { CalendarBookingBar } from "./CalendarBookingBar";
+import type { CalendarRoomModel } from "./calendar-ops-metrics";
 
-const HEADER_HEIGHT = 60;
+const HEADER_HEIGHT = 68;
 const OVERSCAN = 4;
 
 type Props = {
   rooms: Room[];
+  roomModels: CalendarRoomModel[];
   bookings: Booking[];
+  guests: Guest[];
   days: Date[];
-  /** Increment to scroll the timeline horizontally to today's column. */
+  loading?: boolean;
   scrollToTodayTick?: number;
   onReschedule: (
     booking: Booking,
@@ -40,8 +47,11 @@ type Props = {
 
 export function CalendarTimeline({
   rooms,
+  roomModels,
   bookings,
+  guests,
   days,
+  loading,
   scrollToTodayTick = 0,
   onReschedule,
   onOpen,
@@ -49,6 +59,11 @@ export function CalendarTimeline({
   const scrollRef = useRef<HTMLDivElement>(null);
   const [scrollTop, setScrollTop] = useState(0);
   const [viewportHeight, setViewportHeight] = useState(600);
+
+  const roomModelById = useMemo(
+    () => new Map(roomModels.map((model) => [model.room.id, model])),
+    [roomModels]
+  );
 
   useEffect(() => {
     if (!scrollToTodayTick || !scrollRef.current) return;
@@ -93,7 +108,6 @@ export function CalendarTimeline({
     return map;
   }, [bookings]);
 
-  // Vertical row virtualization.
   const firstVisible = Math.max(
     0,
     Math.floor((scrollTop - HEADER_HEIGHT) / ROW_HEIGHT) - OVERSCAN
@@ -109,11 +123,32 @@ export function CalendarTimeline({
   const totalWidth = ROOM_COL_WIDTH + days.length * DAY_WIDTH;
   const gridWidth = days.length * DAY_WIDTH;
 
+  if (loading) {
+    return (
+      <div className="space-y-2 rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 p-4 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl">
+        <DashboardSkeletonBlock className="h-[68px] w-full" />
+        {Array.from({ length: 6 }).map((_, index) => (
+          <DashboardSkeletonBlock key={index} className="h-[72px] w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (rooms.length === 0) {
+    return (
+      <DashboardEmptyState
+        title="No rooms configured"
+        description="Add rooms to your property to see the operations calendar."
+        icon={<CalendarDays size={18} />}
+      />
+    );
+  }
+
   return (
     <div
       ref={scrollRef}
       onScroll={(e) => setScrollTop(e.currentTarget.scrollTop)}
-      className="relative max-h-[70vh] overflow-auto rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)]"
+      className="relative max-h-[calc(100vh-300px)] min-h-[420px] overflow-auto rounded-[var(--ds-radius)] bg-[var(--shell-surface)]/80 shadow-[var(--shell-shadow-sm)] backdrop-blur-xl"
     >
       <div style={{ width: totalWidth, minWidth: totalWidth }}>
         <CalendarDateHeader days={days} occupancy={occupancy} />
@@ -122,46 +157,31 @@ export function CalendarTimeline({
 
         {visibleRooms.map((room) => {
           const roomBookings = bookingsByRoom.get(room.id) ?? [];
-          const activeBookings = roomBookings.filter(
-            (b) => b.status !== "cancelled"
-          );
-
-          let occupiedDays = 0;
-          for (const day of days) {
-            const iso = toISODate(day);
-            const next = toISODate(addDays(day, 1));
-            if (
-              activeBookings.some((b) =>
-                rangesOverlap(iso, next, b.check_in, b.check_out)
-              )
-            ) {
-              occupiedDays += 1;
-            }
-          }
-
-          const isEmpty = !activeBookings.some((b) => placeBooking(b, days));
+          const roomModel = roomModelById.get(room.id);
 
           return (
             <div
               key={room.id}
-              className="relative flex border-b border-[var(--shell-border)]"
+              className="relative flex border-b border-[var(--shell-border)]/40"
               style={{ height: ROW_HEIGHT }}
             >
-              <CalendarRoomCell
-                room={room}
-                occupiedDays={occupiedDays}
-                totalDays={days.length}
-                isEmpty={isEmpty}
-              />
+              {roomModel ? (
+                <CalendarRoomCell model={roomModel} />
+              ) : (
+                <div
+                  className="sticky left-0 z-20 border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/95 px-3"
+                  style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
+                />
+              )}
 
               <div className="relative" style={{ width: gridWidth }}>
                 {days.map((day, index) => (
                   <div
                     key={index}
                     className={cn(
-                      "absolute inset-y-0 border-r border-[var(--shell-border)]",
-                      isWeekend(day) && "bg-[var(--shell-surface-raised)]/20",
-                      isToday(day) && "bg-emerald-950/20"
+                      "absolute inset-y-0 border-r border-[var(--shell-border)]/30",
+                      isWeekend(day) && "bg-[var(--shell-surface-raised)]/15",
+                      isToday(day) && "bg-emerald-500/[0.06]"
                     )}
                     style={{ left: index * DAY_WIDTH, width: DAY_WIDTH }}
                   />
@@ -171,10 +191,12 @@ export function CalendarTimeline({
                   const placement = placeBooking(booking, days);
                   if (!placement) return null;
 
+                  const model = buildBookingCardModel(booking, [room], guests);
+
                   return (
                     <CalendarBookingBar
                       key={booking.id}
-                      booking={booking}
+                      model={model}
                       placement={placement}
                       onReschedule={onReschedule}
                       onOpen={onOpen}

@@ -1,9 +1,9 @@
 import type { Booking } from "@/types/booking";
 
 // Layout constants shared across calendar components.
-export const DAY_WIDTH = 56;
+export const DAY_WIDTH = 52;
 export const ROOM_COL_WIDTH = 220;
-export const ROW_HEIGHT = 64;
+export const ROW_HEIGHT = 72;
 
 export const MONTHS_RU = [
   "January",
@@ -38,7 +38,7 @@ const MONTHS_RU_SHORT = [
 // getDay(): 0 = Sunday … 6 = Saturday
 export const WEEKDAYS_SHORT_RU = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-export type CalendarView = "month" | "week";
+export type CalendarView = "day" | "week" | "month";
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
@@ -101,6 +101,10 @@ export function isToday(date: Date): boolean {
 
 /** Ordered list of days for the current view. */
 export function buildDays(view: CalendarView, anchor: Date): Date[] {
+  if (view === "day") {
+    return [startOfDay(anchor)];
+  }
+
   if (view === "week") {
     const start = startOfWeek(anchor);
     return Array.from({ length: 7 }, (_, i) => addDays(start, i));
@@ -115,6 +119,10 @@ export function formatRangeTitle(days: Date[], view: CalendarView): string {
   if (days.length === 0) return "";
   const first = days[0];
   const last = days[days.length - 1];
+
+  if (view === "day") {
+    return `${first.getDate()} ${MONTHS_RU[first.getMonth()]} ${first.getFullYear()}`;
+  }
 
   if (view === "month") {
     return `${MONTHS_RU[first.getMonth()]} ${first.getFullYear()}`;

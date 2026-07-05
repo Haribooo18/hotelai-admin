@@ -12,11 +12,18 @@ import {
   toISODate,
   type BookingPlacement,
 } from "@/lib/calendar";
+import type { BookingCardModel } from "@/components/dashboard/bookings/booking-ops-metrics";
+import { formatBookingCurrency } from "@/components/dashboard/bookings/booking-ops-metrics";
+
+import {
+  BOOKING_STATUS_GRADIENT,
+  PAYMENT_DOT,
+} from "./calendar-ops-metrics";
 
 type DragMode = "move" | "resize-start" | "resize-end";
 
 type Props = {
-  booking: Booking;
+  model: BookingCardModel;
   placement: BookingPlacement;
   onReschedule: (
     booking: Booking,
@@ -26,12 +33,17 @@ type Props = {
 };
 
 export function CalendarBookingBar({
-  booking,
+  model,
   placement,
   onReschedule,
   onOpen,
 }: Props) {
+  const { booking, guest, roomLabel, nights, paymentStatus } = model;
   const meta = getBookingStatusMeta(booking.status);
+  const displayName = guest
+    ? `${guest.first_name} ${guest.last_name}`.trim()
+    : booking.guest_name;
+
   const [drag, setDrag] = useState<{ mode: DragMode; deltaDays: number } | null>(
     null
   );
@@ -118,28 +130,24 @@ export function CalendarBookingBar({
     }
   }
 
-  const nights = Math.max(
-    1,
-    Math.round(
-      (parseISODate(booking.check_out).getTime() -
-        parseISODate(booking.check_in).getTime()) /
-        (1000 * 60 * 60 * 24)
-    )
-  );
+  const gradient =
+    BOOKING_STATUS_GRADIENT[booking.status] ??
+    "bg-gradient-to-r from-emerald-600/95 to-emerald-500/90 text-white";
 
   return (
     <div
-      className="group absolute top-2 z-10 h-12"
+      className="group absolute top-2 z-10"
       style={{
         left,
         width,
+        height: "calc(100% - 16px)",
         touchAction: "none",
         zIndex: drag ? 30 : undefined,
       }}
     >
       <button
         type="button"
-        aria-label={`Booking ${booking.guest_name}, ${booking.check_in} — ${booking.check_out}. Arrow keys move, Shift+arrow keys resize, Enter for details.`}
+        aria-label={`Reservation ${displayName}, ${booking.check_in} — ${booking.check_out}. Arrow keys move, Shift+arrow keys resize, Enter for details.`}
         onPointerDown={(e) => beginDrag("move", e)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -148,22 +156,36 @@ export function CalendarBookingBar({
           if (!movedRef.current) onOpen(booking);
         }}
         className={cn(
-          "flex h-full w-full cursor-grab items-center overflow-hidden rounded-lg px-3 text-sm font-medium shadow transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:cursor-grabbing",
-          meta?.barClassName ?? "bg-emerald-600 text-white",
-          placement.clippedStart && "rounded-l-none",
-          placement.clippedEnd && "rounded-r-none"
+          "flex h-full w-full cursor-grab items-center overflow-hidden rounded-[var(--ds-radius-sm)] px-1 text-left transition-[transform,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 active:cursor-grabbing group-hover:-translate-y-0.5 group-hover:shadow-[var(--shell-shadow-md)]",
+          gradient,
+          placement.clippedStart && "rounded-l-[4px]",
+          placement.clippedEnd && "rounded-r-[4px]"
         )}
       >
-        <span className="truncate">{booking.guest_name}</span>
+        <div className="min-w-0 flex-1 px-2 py-1">
+          <p className="truncate text-[11px] font-semibold leading-tight">
+            {displayName}
+          </p>
+          <p className="mt-0.5 truncate text-[10px] leading-tight opacity-85">
+            {roomLabel} · {nights}n · {meta?.label ?? booking.status}
+          </p>
+        </div>
+
+        <span
+          className={cn(
+            "mr-2 h-2 w-2 shrink-0 rounded-full ring-2 ring-white/25",
+            PAYMENT_DOT[paymentStatus]
+          )}
+          title={`Payment: ${paymentStatus}`}
+        />
       </button>
 
-      {/* Resize handles */}
       <div
         role="presentation"
         onPointerDown={(e) => beginDrag("resize-start", e)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="absolute inset-y-0 left-0 w-2 cursor-ew-resize rounded-l-lg hover:bg-[var(--shell-nav-hover-bg)]"
+        className="absolute inset-y-0 left-0 w-2 cursor-ew-resize rounded-l-[var(--ds-radius-sm)] opacity-0 transition-opacity hover:opacity-100 hover:bg-white/10"
         style={{ touchAction: "none" }}
       />
       <div
@@ -171,20 +193,23 @@ export function CalendarBookingBar({
         onPointerDown={(e) => beginDrag("resize-end", e)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="absolute inset-y-0 right-0 w-2 cursor-ew-resize rounded-r-lg hover:bg-[var(--shell-nav-hover-bg)]"
+        className="absolute inset-y-0 right-0 w-2 cursor-ew-resize rounded-r-[var(--ds-radius-sm)] opacity-0 transition-opacity hover:opacity-100 hover:bg-white/10"
         style={{ touchAction: "none" }}
       />
 
-      {/* Hover / focus summary card */}
-      <div className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-56 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-3 text-left shadow-xl group-hover:block group-focus-within:block">
-        <p className="font-semibold text-white">{booking.guest_name}</p>
-        <p className="mt-1 text-xs text-[var(--shell-muted)]">
-          {booking.check_in} → {booking.check_out} · {nights} nights
+      <div className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-60 rounded-[var(--ds-radius)] border border-[var(--shell-border)]/60 bg-[var(--shell-glass)] p-3 text-left shadow-[var(--shell-shadow-md)] backdrop-blur-xl group-hover:block group-focus-within:block">
+        <p className="text-[13px] font-semibold text-[var(--shell-text)]">
+          {displayName}
         </p>
-        <div className="mt-2 flex items-center justify-between text-xs">
-          <span className="text-[var(--shell-muted)]">{meta?.label ?? booking.status}</span>
-          <span className="font-semibold text-white">
-            ${booking.total_price}
+        <p className="mt-1 text-[11px] text-[var(--shell-muted)]">
+          {roomLabel} · {booking.check_in} → {booking.check_out}
+        </p>
+        <div className="mt-2 flex items-center justify-between text-[11px]">
+          <span className="text-[var(--shell-muted)]">
+            {meta?.label ?? booking.status}
+          </span>
+          <span className="font-semibold text-[var(--shell-text)]">
+            {formatBookingCurrency(Number(booking.total_price))}
           </span>
         </div>
       </div>
