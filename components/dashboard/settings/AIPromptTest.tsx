@@ -20,7 +20,7 @@ type TestResult = {
 
 export function AIPromptTest() {
   const [pending, startTransition] = useTransition();
-  const [guestName, setGuestName] = useState("Тестовый гость");
+  const [guestName, setGuestName] = useState("Test guest");
   const [message, setMessage] = useState("");
   const [result, setResult] = useState<TestResult | null>(null);
 
@@ -35,7 +35,7 @@ export function AIPromptTest() {
         });
         setResult(res);
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : "Ошибка теста");
+        toast.error(err instanceof Error ? err.message : "Test failed");
       }
     });
   }
@@ -44,16 +44,16 @@ export function AIPromptTest() {
     <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
       <h3 className="flex items-center gap-2 font-semibold">
         <FlaskConical size={18} className="text-emerald-500" />
-        Тест промпта
+        Prompt test
       </h3>
       <p className="mt-1 text-sm text-zinc-500">
-        Проверка ответа AI без создания диалога
+        Test AI response without creating a conversation
       </p>
 
       <form onSubmit={handleTest} className="mt-4 space-y-4">
         <div className="space-y-2">
           <label htmlFor="test-guest" className="block text-sm text-zinc-400">
-            Имя гостя
+            Guest name
           </label>
           <Input
             id="test-guest"
@@ -64,20 +64,20 @@ export function AIPromptTest() {
 
         <div className="space-y-2">
           <label htmlFor="test-msg" className="block text-sm text-zinc-400">
-            Сообщение гостя
+            Guest message
           </label>
           <Textarea
             id="test-msg"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Во сколько заезд?"
+            placeholder="What time is check-in?"
             className="min-h-20"
             required
           />
         </div>
 
         <Button type="submit" disabled={pending || !message.trim()}>
-          {pending ? "Генерация…" : "Запустить тест"}
+          {pending ? "Generating…" : "Run test"}
         </Button>
       </form>
 
@@ -87,8 +87,8 @@ export function AIPromptTest() {
             {result.content}
           </p>
           <p className="text-xs text-zinc-500">
-            {result.model} · {result.usage.total_tokens} токенов · $
-            {result.costUsd.toFixed(6)} · инструментов: {result.toolRounds}
+            {result.model} · {result.usage.total_tokens} tokens · $
+            {result.costUsd.toFixed(6)} · tools: {result.toolRounds}
           </p>
         </div>
       )}

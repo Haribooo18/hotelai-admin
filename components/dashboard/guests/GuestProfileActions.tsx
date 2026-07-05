@@ -42,7 +42,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось обновить статус");
+        toast.error("Failed to update status");
       }
     });
   }
@@ -51,11 +51,11 @@ export function GuestProfileActions({ guest, candidates }: Props) {
     startTransition(async () => {
       try {
         await deleteGuest(guest.id);
-        toast.success("Гость удалён");
+        toast.success("Guest deleted");
         router.push("/guests");
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось удалить гостя");
+        toast.error("Failed to delete guest");
       }
     });
   }
@@ -70,7 +70,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => toggleFlag("vip")}
       >
         <Crown size={16} className="mr-1.5" />
-        {guest.is_vip ? "Снять VIP" : "VIP"}
+        {guest.is_vip ? "Remove VIP" : "VIP"}
       </Button>
 
       <Button
@@ -81,7 +81,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => toggleFlag("favorite")}
       >
         <Star size={16} className="mr-1.5" />
-        {guest.is_favorite ? "Из избранного" : "В избранное"}
+        {guest.is_favorite ? "Remove from favorites" : "Add to favorites"}
       </Button>
 
       <Button
@@ -91,7 +91,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => setMergeOpen(true)}
       >
         <GitMerge size={16} className="mr-1.5" />
-        Объединить
+        Merge
       </Button>
 
       <Button
@@ -100,7 +100,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => setEditOpen(true)}
       >
         <Pencil size={16} className="mr-1.5" />
-        Редактировать
+        Edit
       </Button>
 
       <Button
@@ -110,7 +110,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => setDeleteOpen(true)}
       >
         <Trash2 size={16} className="mr-1.5" />
-        Удалить
+        Delete
       </Button>
 
       <GuestEditDialog open={editOpen} onOpenChange={setEditOpen} guest={guest} />
@@ -125,9 +125,9 @@ export function GuestProfileActions({ guest, candidates }: Props) {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Удалить гостя?"
-        description={`Гость «${guest.first_name} ${guest.last_name}» будет перемещён в архив.`}
-        confirmLabel="Удалить"
+        title="Delete guest?"
+        description={`Guest "${guest.first_name} ${guest.last_name}" will be moved to the archive.`}
+        confirmLabel="Delete"
         destructive
         loading={pending}
         onConfirm={confirmDelete}

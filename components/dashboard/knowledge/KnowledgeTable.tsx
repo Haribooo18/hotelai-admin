@@ -41,11 +41,11 @@ export function KnowledgeTable({ articles }: Props) {
       try {
         await pinKnowledgeArticle(article.id, !article.is_pinned);
         toast.success(
-          article.is_pinned ? "Статья откреплена" : "Статья закреплена"
+          article.is_pinned ? "Article unpinned" : "Article pinned"
         );
         router.refresh();
       } catch {
-        toast.error("Не удалось изменить закрепление");
+        toast.error("Failed to change pin status");
       }
     });
   }
@@ -54,10 +54,10 @@ export function KnowledgeTable({ articles }: Props) {
     startTransition(async () => {
       try {
         const id = await duplicateKnowledgeArticle(article.id);
-        toast.success("Копия создана");
+        toast.success("Copy created");
         router.push(`/knowledge/${id}`);
       } catch {
-        toast.error("Не удалось дублировать статью");
+        toast.error("Failed to duplicate article");
       }
     });
   }
@@ -72,10 +72,10 @@ export function KnowledgeTable({ articles }: Props) {
           "@/lib/services/knowledge.mutations"
         );
         await deleteKnowledgeArticle(id);
-        toast.success("Статья удалена");
+        toast.success("Article deleted");
         router.refresh();
       } catch {
-        toast.error("Не удалось удалить статью");
+        toast.error("Failed to delete article");
       } finally {
         setDeleteTarget(null);
       }
@@ -84,7 +84,7 @@ export function KnowledgeTable({ articles }: Props) {
 
   const columns: DataTableColumn<KnowledgeArticle>[] = [
     {
-      header: "Заголовок",
+      header: "Title",
       cell: (a) => (
         <div className="min-w-0">
           <Link
@@ -100,24 +100,24 @@ export function KnowledgeTable({ articles }: Props) {
       ),
     },
     {
-      header: "Статус",
+      header: "Status",
       cell: (a) => <KnowledgeStatusBadge status={a.status} />,
     },
     {
-      header: "Язык",
+      header: "Language",
       cell: (a) => (
         <span className="text-xs uppercase text-zinc-400">{a.language}</span>
       ),
     },
     {
-      header: "Версия",
+      header: "Version",
       cell: (a) => <span className="text-zinc-400">v{a.version}</span>,
     },
     {
-      header: "Обновлено",
+      header: "Updated",
       cell: (a) => (
         <span className="text-xs text-zinc-500">
-          {new Date(a.updated_at).toLocaleDateString("ru-RU")}
+          {new Date(a.updated_at).toLocaleDateString("en-US")}
         </span>
       ),
     },
@@ -129,7 +129,7 @@ export function KnowledgeTable({ articles }: Props) {
           <button
             type="button"
             className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-amber-400"
-            aria-label={a.is_pinned ? "Открепить" : "Закрепить"}
+            aria-label={a.is_pinned ? "Unpin" : "Pin"}
             onClick={() => togglePin(a)}
             disabled={pending}
           >
@@ -138,14 +138,14 @@ export function KnowledgeTable({ articles }: Props) {
           <Link
             href={`/knowledge/${a.id}`}
             className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-            aria-label="Редактировать"
+            aria-label="Edit"
           >
             <Pencil size={14} />
           </Link>
           <button
             type="button"
             className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100"
-            aria-label="Дублировать"
+            aria-label="Duplicate"
             onClick={() => handleDuplicate(a)}
             disabled={pending}
           >
@@ -154,7 +154,7 @@ export function KnowledgeTable({ articles }: Props) {
           <button
             type="button"
             className="rounded p-1.5 text-zinc-400 hover:bg-zinc-800 hover:text-red-400"
-            aria-label="Удалить"
+            aria-label="Delete"
             onClick={() => setDeleteTarget(a)}
             disabled={pending}
           >
@@ -171,8 +171,8 @@ export function KnowledgeTable({ articles }: Props) {
         columns={columns}
         data={optimisticArticles}
         getRowId={(a) => a.id}
-        caption="Статьи базы знаний"
-        empty={<p className="text-center text-sm text-zinc-500">Статьи не найдены</p>}
+        caption="Knowledge base articles"
+        empty={<p className="text-center text-sm text-zinc-500">No articles found</p>}
       />
 
       <KnowledgeDeleteDialog

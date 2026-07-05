@@ -34,8 +34,8 @@ export function GuestFilters({
 
         <Input
           className="pl-10"
-          placeholder="Поиск по имени, email, телефону..."
-          aria-label="Поиск гостей"
+          placeholder="Search by name, email, phone..."
+          aria-label="Search guests"
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -44,19 +44,19 @@ export function GuestFilters({
       <Select
         value={flag}
         onChange={onFlagChange}
-        placeholder="Все гости"
-        aria-label="Фильтр по признаку"
+        placeholder="All guests"
+        aria-label="Filter by flag"
         options={[
-          { value: "vip", label: "Только VIP" },
-          { value: "favorite", label: "Только избранные" },
+          { value: "vip", label: "VIP only" },
+          { value: "favorite", label: "Favorites only" },
         ]}
       />
 
       <Select
         value={tag}
         onChange={onTagChange}
-        placeholder="Все теги"
-        aria-label="Фильтр по тегу"
+        placeholder="All tags"
+        aria-label="Filter by tag"
         options={tagOptions.map((t) => ({ value: t, label: t }))}
       />
     </div>

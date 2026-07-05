@@ -89,7 +89,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
         booking.id
       )
     ) {
-      toast.error("Пересечение с другим бронированием этого номера");
+      toast.error("Overlaps with another booking for this room");
       return;
     }
 
@@ -106,13 +106,13 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
           check_in: next.check_in,
           check_out: next.check_out,
         });
-        toast.success("Бронирование перенесено");
+        toast.success("Booking rescheduled");
         router.refresh();
       } catch (error) {
         console.error(error);
         setBookings(previous);
         toast.error(
-          error instanceof Error ? error.message : "Не удалось перенести"
+          error instanceof Error ? error.message : "Failed to reschedule"
         );
       }
     });
@@ -121,11 +121,11 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold">Календарь бронирований</h1>
+        <h1 className="text-4xl font-bold">Booking calendar</h1>
 
         <p className="mt-3 text-zinc-400">
-          Таймлайн загрузки номеров. Перетаскивайте бронирования для переноса,
-          тяните за края для изменения длительности.
+          Room occupancy timeline. Drag bookings to reschedule, drag edges to
+          change duration.
         </p>
       </div>
 
@@ -144,7 +144,7 @@ export function CalendarPage({ bookings: initialBookings, rooms }: Props) {
 
       {rooms.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
-          Нет номеров. Добавьте номера, чтобы увидеть календарь.
+          No rooms. Add rooms to see the calendar.
         </div>
       ) : (
         <>

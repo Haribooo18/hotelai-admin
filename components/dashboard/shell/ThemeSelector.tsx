@@ -4,9 +4,9 @@ import { cn } from "@/lib/utils";
 import type { ShellTheme } from "@/lib/dashboard/shell-theme";
 
 const THEMES: { id: ShellTheme; label: string }[] = [
-  { id: "light", label: "Светлая" },
-  { id: "gray", label: "Серая" },
-  { id: "dark", label: "Тёмная" },
+  { id: "light", label: "Light" },
+  { id: "gray", label: "Gray" },
+  { id: "dark", label: "Dark" },
 ];
 
 type Props = {
@@ -18,7 +18,7 @@ export function ThemeSelector({ value, onChange }: Props) {
   return (
     <div className="space-y-2">
       <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-        Тема
+        Theme
       </p>
 
       <div className="space-y-1">

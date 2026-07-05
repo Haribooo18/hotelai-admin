@@ -23,7 +23,7 @@ export function CalendarAgenda({ rooms, bookings, days, onOpen }: Props) {
   if (visible.length === 0) {
     return (
       <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
-        Нет бронирований в выбранном периоде
+        No bookings in the selected period
       </div>
     );
   }

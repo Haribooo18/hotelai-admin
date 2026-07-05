@@ -36,7 +36,7 @@ export function LoginForm({ redirectedFrom }: Props) {
 
       <div className="space-y-2">
         <label htmlFor="password" className="text-sm text-zinc-400">
-          Пароль
+          Password
         </label>
         <Input
           id="password"
@@ -53,7 +53,7 @@ export function LoginForm({ redirectedFrom }: Props) {
       )}
 
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Вход..." : "Войти"}
+        {pending ? "Signing in..." : "Sign in"}
       </Button>
     </form>
   );

@@ -7,12 +7,12 @@ type Props = {
 export function ConversationReplay({ actions }: Props) {
   if (actions.length === 0) {
     return (
-      <p className="text-sm text-zinc-500">Нет записей AI для этого диалога.</p>
+      <p className="text-sm text-zinc-500">No AI records for this conversation.</p>
     );
   }
 
   return (
-    <ol className="space-y-3" aria-label="История AI-действий">
+    <ol className="space-y-3" aria-label="AI action history">
       {actions.map((action) => (
         <li
           key={action.id}
@@ -37,9 +37,9 @@ export function ConversationReplay({ actions }: Props) {
           </div>
 
           <p className="mt-1 text-xs text-zinc-500">
-            {new Date(action.created_at).toLocaleString("ru-RU")}
+            {new Date(action.created_at).toLocaleString("en-US")}
             {action.model ? ` · ${action.model}` : ""}
-            {action.duration_ms ? ` · ${action.duration_ms} мс` : ""}
+            {action.duration_ms ? ` · ${action.duration_ms} ms` : ""}
             {action.cost_usd != null ? ` · $${Number(action.cost_usd).toFixed(6)}` : ""}
           </p>
 
@@ -51,7 +51,7 @@ export function ConversationReplay({ actions }: Props) {
             typeof action.token_usage === "object" &&
             "total_tokens" in action.token_usage && (
               <p className="mt-1 text-xs text-zinc-500">
-                Токены: {String((action.token_usage as { total_tokens: number }).total_tokens)}
+                Tokens: {String((action.token_usage as { total_tokens: number }).total_tokens)}
               </p>
             )}
         </li>

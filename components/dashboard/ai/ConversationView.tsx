@@ -84,13 +84,13 @@ export function ConversationView({
         <div
           className="flex min-w-0 flex-1 flex-col"
           role="log"
-          aria-label="Сообщения"
+          aria-label="Messages"
           aria-live="polite"
         >
           <div className="flex-1 space-y-4 overflow-y-auto p-5">
             {visibleMessages.length === 0 ? (
               <p className="text-center text-sm text-zinc-500">
-                Нет сообщений. Начните диалог.
+                No messages yet. Start the conversation.
               </p>
             ) : (
               visibleMessages.map((message) => (
@@ -129,7 +129,7 @@ export function ConversationView({
           {conversation.internal_notes && (
             <div className="mt-4 rounded-xl border border-amber-900/30 bg-amber-950/20 p-3">
               <p className="text-xs uppercase tracking-widest text-amber-500/80">
-                Внутренние заметки
+                Internal notes
               </p>
               <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">
                 {conversation.internal_notes}

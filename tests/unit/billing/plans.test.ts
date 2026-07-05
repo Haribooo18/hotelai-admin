@@ -20,9 +20,9 @@ describe("mapStripeSubscriptionStatus", () => {
 });
 
 describe("formatSubscriptionStatusLabel", () => {
-  it("returns Russian labels", () => {
-    expect(formatSubscriptionStatusLabel("active")).toBe("Активна");
-    expect(formatSubscriptionStatusLabel("none")).toBe("Нет подписки");
+  it("returns English labels", () => {
+    expect(formatSubscriptionStatusLabel("active")).toBe("Active");
+    expect(formatSubscriptionStatusLabel("none")).toBe("No subscription");
   });
 });
 

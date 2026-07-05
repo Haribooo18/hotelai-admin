@@ -55,7 +55,7 @@ describe("checkTelegramEnv", () => {
 
   it("is optional when unset", () => {
     expect(isTelegramConfigured()).toBe(false);
-    expect(checkTelegramEnv().message).toContain("опционально");
+    expect(checkTelegramEnv().message).toContain("optional");
   });
 
   it("is configured with token and webhook secret", () => {

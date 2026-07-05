@@ -6,7 +6,7 @@ type Props = {
 };
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleString("ru-RU", {
+  return new Date(iso).toLocaleString("en-US", {
     day: "numeric",
     month: "short",
     hour: "2-digit",
@@ -15,10 +15,10 @@ function formatTime(iso: string) {
 }
 
 const roleLabels: Record<string, string> = {
-  guest: "Гость",
-  staff: "Сотрудник",
+  guest: "Guest",
+  staff: "Staff",
   ai: "AI",
-  system: "Система",
+  system: "System",
 };
 
 export function MessageBubble({ message }: Props) {
@@ -44,7 +44,7 @@ export function MessageBubble({ message }: Props) {
       >
         <div className="mb-1 flex items-center gap-2 text-[10px] uppercase tracking-wider opacity-70">
           <span>{roleLabels[message.role] ?? message.role}</span>
-          {isInternal && <span>· внутренняя</span>}
+          {isInternal && <span>· internal</span>}
         </div>
 
         <p className="whitespace-pre-wrap break-words">{message.body}</p>

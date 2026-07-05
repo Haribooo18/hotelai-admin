@@ -4,19 +4,19 @@ export const BILLING_PLANS = {
   starter: {
     id: "starter" as const,
     name: "Starter",
-    description: "Базовый тариф для небольших отелей",
+    description: "Basic plan for small hotels",
     priceEnv: "STRIPE_PRICE_STARTER",
   },
   pro: {
     id: "pro" as const,
     name: "Pro",
-    description: "Расширенные возможности AI-ресепшна",
+    description: "Advanced AI receptionist capabilities",
     priceEnv: "STRIPE_PRICE_PRO",
   },
   enterprise: {
     id: "enterprise" as const,
     name: "Enterprise",
-    description: "Полный набор функций и приоритетная поддержка",
+    description: "Full feature set and priority support",
     priceEnv: "STRIPE_PRICE_ENTERPRISE",
   },
 } as const;
@@ -66,22 +66,22 @@ export function formatPlanLabel(plan: BillingPlan): string {
 export function formatSubscriptionStatusLabel(status: SubscriptionStatus): string {
   switch (status) {
     case "active":
-      return "Активна";
+      return "Active";
     case "trialing":
-      return "Пробный период";
+      return "Trial";
     case "past_due":
-      return "Просрочена оплата";
+      return "Past due";
     case "canceled":
-      return "Отменена";
+      return "Canceled";
     case "unpaid":
-      return "Не оплачена";
+      return "Unpaid";
     case "incomplete":
-      return "Ожидает оплаты";
+      return "Awaiting payment";
     case "incomplete_expired":
-      return "Истекла";
+      return "Expired";
     case "paused":
-      return "Приостановлена";
+      return "Paused";
     default:
-      return "Нет подписки";
+      return "No subscription";
   }
 }

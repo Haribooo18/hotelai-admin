@@ -20,7 +20,7 @@ export function CalendarDateHeader({ days, occupancy }: Props) {
         className="sticky left-0 z-40 flex items-center border-r border-zinc-800 bg-zinc-900 px-4 text-sm font-semibold"
         style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
       >
-        Номер
+        Room
       </div>
 
       {days.map((day, index) => {
@@ -52,7 +52,7 @@ export function CalendarDateHeader({ days, occupancy }: Props) {
 
             <div
               className="mt-1 h-1 w-8 overflow-hidden rounded-full bg-zinc-700"
-              title={`Загрузка ${percent}%`}
+              title={`Occupancy ${percent}%`}
             >
               <div
                 className="h-full bg-emerald-500"

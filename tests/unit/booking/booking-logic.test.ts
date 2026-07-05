@@ -52,7 +52,7 @@ describe("ensureRoomAvailable overlap logic", () => {
     );
     expect(conflict?.id).toBe("b1");
     expect(formatAvailabilityConflictError(conflict!)).toBe(
-      "Номер уже забронирован (2026-07-10 — 2026-07-15)"
+      "Room is already booked (2026-07-10 — 2026-07-15)"
     );
   });
 

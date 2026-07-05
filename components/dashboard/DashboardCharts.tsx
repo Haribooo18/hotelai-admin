@@ -12,13 +12,13 @@ import {
 } from "recharts";
 
 const bookings = [
-  { day: "Пн", leads: 6 },
-  { day: "Вт", leads: 9 },
-  { day: "Ср", leads: 12 },
-  { day: "Чт", leads: 8 },
-  { day: "Пт", leads: 15 },
-  { day: "Сб", leads: 19 },
-  { day: "Вс", leads: 14 },
+  { day: "Mon", leads: 6 },
+  { day: "Tue", leads: 9 },
+  { day: "Wed", leads: 12 },
+  { day: "Thu", leads: 8 },
+  { day: "Fri", leads: 15 },
+  { day: "Sat", leads: 19 },
+  { day: "Sun", leads: 14 },
 ];
 
 const rooms = [
@@ -33,7 +33,7 @@ export function DashboardCharts() {
     <div className="mb-8 grid gap-6 xl:grid-cols-2">
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
         <h2 className="mb-6 text-lg font-semibold">
-          Заявки за неделю
+          Requests this week
         </h2>
 
         <div className="h-72">
@@ -55,7 +55,7 @@ export function DashboardCharts() {
 
       <section className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
         <h2 className="mb-6 text-lg font-semibold">
-          Популярность номеров
+          Room popularity
         </h2>
 
         <div className="h-72">

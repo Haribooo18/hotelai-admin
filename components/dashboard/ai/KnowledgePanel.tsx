@@ -33,12 +33,12 @@ export function KnowledgePanel({ articles }: Props) {
   return (
     <aside
       className="hidden w-72 shrink-0 flex-col border-l border-zinc-800 bg-zinc-950 xl:flex"
-      aria-label="База знаний"
+      aria-label="Knowledge base"
     >
       <div className="border-b border-zinc-800 p-4">
-        <h3 className="font-semibold">База знаний</h3>
+        <h3 className="font-semibold">Knowledge base</h3>
         <p className="mt-1 text-xs text-zinc-500">
-          Статьи для AI-ресепшна
+          Articles for the AI receptionist
         </p>
 
         <div className="relative mt-3">
@@ -48,8 +48,8 @@ export function KnowledgePanel({ articles }: Props) {
           />
           <Input
             className="pl-9"
-            placeholder="Поиск статей…"
-            aria-label="Поиск статей"
+            placeholder="Search articles…"
+            aria-label="Search articles"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -59,9 +59,9 @@ export function KnowledgePanel({ articles }: Props) {
       <div className="flex-1 overflow-y-auto p-4">
         {articles.length === 0 ? (
           <p className="text-center text-sm text-zinc-500">
-            Нет опубликованных статей.{" "}
+            No published articles.{" "}
             <Link href="/knowledge" className="text-blue-400 hover:underline">
-              Добавить в базе знаний
+              Add in knowledge base
             </Link>
           </p>
         ) : (
@@ -70,7 +70,7 @@ export function KnowledgePanel({ articles }: Props) {
               <section>
                 <h4 className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-widest text-zinc-500">
                   <Pin size={12} />
-                  Закреплённые
+                  Pinned
                 </h4>
                 <ul className="space-y-2">
                   {pinned.map((article) => (
@@ -83,7 +83,7 @@ export function KnowledgePanel({ articles }: Props) {
             {recent.length > 0 && (
               <section>
                 <h4 className="mb-2 text-xs uppercase tracking-widest text-zinc-500">
-                  Недавние
+                  Recent
                 </h4>
                 <ul className="space-y-2">
                   {recent.map((article) => (
@@ -95,7 +95,7 @@ export function KnowledgePanel({ articles }: Props) {
 
             {filtered.length === 0 && (
               <p className="text-center text-sm text-zinc-500">
-                Статьи не найдены
+                No articles found
               </p>
             )}
           </div>

@@ -41,7 +41,7 @@ export function GuestTagsInput({ value, onChange, id }: Props) {
               {tag}
               <button
                 type="button"
-                aria-label={`Удалить тег ${tag}`}
+                aria-label={`Remove tag ${tag}`}
                 onClick={() => removeTag(tag)}
                 className="text-zinc-500 transition hover:text-white"
               >
@@ -55,8 +55,8 @@ export function GuestTagsInput({ value, onChange, id }: Props) {
       <Input
         id={id}
         value={draft}
-        placeholder="Добавьте тег и нажмите Enter"
-        aria-label="Добавить тег"
+        placeholder="Add a tag and press Enter"
+        aria-label="Add tag"
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === ",") {

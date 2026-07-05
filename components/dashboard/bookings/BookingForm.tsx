@@ -88,10 +88,10 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
       try {
         if (booking) {
           await updateBooking({ ...parsed.data, id: booking.id });
-          toast.success("Бронирование обновлено");
+          toast.success("Reservation updated");
         } else {
           await createBooking(parsed.data);
-          toast.success("Бронирование создано");
+          toast.success("Reservation created");
           resetForm();
         }
 
@@ -103,8 +103,8 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
           error instanceof Error
             ? error.message
             : booking
-            ? "Ошибка обновления"
-            : "Ошибка создания"
+            ? "Update failed"
+            : "Create failed"
         );
       }
     });
@@ -112,10 +112,10 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <Field label="Имя гостя" htmlFor="guest_name" error={errors.guest_name}>
+      <Field label="Guest name" htmlFor="guest_name" error={errors.guest_name}>
         <Input
           id="guest_name"
-          placeholder="Имя гостя"
+          placeholder="Guest name"
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
           aria-invalid={Boolean(errors.guest_name)}
@@ -135,22 +135,22 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
         />
       </Field>
 
-      <Field label="Телефон" htmlFor="guest_phone" error={errors.guest_phone}>
+      <Field label="Phone" htmlFor="guest_phone" error={errors.guest_phone}>
         <Input
           id="guest_phone"
-          placeholder="Телефон"
+          placeholder="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />
       </Field>
 
-      <Field label="Номер" htmlFor="room_id" error={errors.room_id}>
+      <Field label="Room" htmlFor="room_id" error={errors.room_id}>
         <Select
           id="room_id"
           value={roomId}
           onChange={setRoomId}
-          placeholder="Выберите номер"
-          aria-label="Номер"
+          placeholder="Select room"
+          aria-label="Room"
           aria-invalid={Boolean(errors.room_id)}
           aria-describedby={errors.room_id ? "room_id-error" : undefined}
           options={rooms.map((room) => ({
@@ -160,7 +160,7 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
         />
       </Field>
 
-      <Field label="Заезд" htmlFor="check_in" error={errors.check_in}>
+      <Field label="Check-in" htmlFor="check_in" error={errors.check_in}>
         <Input
           id="check_in"
           type="date"
@@ -171,7 +171,7 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
         />
       </Field>
 
-      <Field label="Выезд" htmlFor="check_out" error={errors.check_out}>
+      <Field label="Check-out" htmlFor="check_out" error={errors.check_out}>
         <Input
           id="check_out"
           type="date"
@@ -185,11 +185,11 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
       <Button type="submit" className="w-full" disabled={pending}>
         {pending
           ? booking
-            ? "Сохранение..."
-            : "Создание..."
+            ? "Saving..."
+            : "Creating..."
           : booking
-          ? "Сохранить изменения"
-          : "Создать бронирование"}
+          ? "Save changes"
+          : "Create reservation"}
       </Button>
     </form>
   );

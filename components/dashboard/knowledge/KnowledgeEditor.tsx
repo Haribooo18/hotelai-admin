@@ -141,7 +141,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
           await autosaveKnowledgeArticle(autosavePayload);
           setLastSavedSnapshot(snapshot);
         } catch {
-          toast.error("Ошибка автосохранения");
+          toast.error("Autosave failed");
         }
       });
     }, AUTOSAVE_MS);
@@ -179,10 +179,10 @@ export function KnowledgeEditor({ article: initial }: Props) {
           tags: parseList(tags),
           search_keywords: parseList(keywords),
         });
-        toast.success("Статья сохранена");
+        toast.success("Article saved");
         router.refresh();
       } catch {
-        toast.error("Не удалось сохранить");
+        toast.error("Failed to save");
       }
     });
   }
@@ -191,10 +191,10 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         await publishKnowledgeArticle(initial.id);
-        toast.success("Статья опубликована");
+        toast.success("Article published");
         router.refresh();
       } catch {
-        toast.error("Не удалось опубликовать");
+        toast.error("Failed to publish");
       }
     });
   }
@@ -203,10 +203,10 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         await unpublishKnowledgeArticle(initial.id);
-        toast.success("Статья снята с публикации");
+        toast.success("Article unpublished");
         router.refresh();
       } catch {
-        toast.error("Не удалось снять с публикации");
+        toast.error("Failed to unpublish");
       }
     });
   }
@@ -215,10 +215,10 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         await archiveKnowledgeArticle(initial.id);
-        toast.success("Статья архивирована");
+        toast.success("Article archived");
         router.push("/knowledge");
       } catch {
-        toast.error("Не удалось архивировать");
+        toast.error("Failed to archive");
       }
     });
   }
@@ -227,10 +227,10 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         const id = await duplicateKnowledgeArticle(initial.id);
-        toast.success("Копия создана");
+        toast.success("Copy created");
         router.push(`/knowledge/${id}`);
       } catch {
-        toast.error("Не удалось дублировать");
+        toast.error("Failed to duplicate");
       }
     });
   }
@@ -249,18 +249,18 @@ export function KnowledgeEditor({ article: initial }: Props) {
           <Link
             href="/knowledge"
             className="rounded-lg p-2 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
-            aria-label="Назад к списку"
+            aria-label="Back to list"
           >
             <ArrowLeft size={18} />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold">Редактор статьи</h1>
+              <h1 className="text-xl font-semibold">Article editor</h1>
               <KnowledgeStatusBadge status={initial.status} />
               <span className="text-xs text-zinc-500">v{initial.version}</span>
             </div>
             <p className="text-xs text-zinc-500">
-              {pending || isDirty ? "Сохранение…" : "Сохранено"} · {wordCount} слов
+              {pending || isDirty ? "Saving…" : "Saved"} · {wordCount} words
             </p>
           </div>
         </div>
@@ -268,26 +268,26 @@ export function KnowledgeEditor({ article: initial }: Props) {
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={handleDuplicate} disabled={pending}>
             <Copy size={14} className="mr-1" />
-            Дублировать
+            Duplicate
           </Button>
           {initial.status === "published" ? (
             <Button variant="outline" size="sm" onClick={handleUnpublish} disabled={pending}>
               <X size={14} className="mr-1" />
-              Снять
+              Unpublish
             </Button>
           ) : (
             <Button variant="outline" size="sm" onClick={handlePublish} disabled={pending}>
               <Upload size={14} className="mr-1" />
-              Опубликовать
+              Publish
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={handleArchive} disabled={pending}>
             <Archive size={14} className="mr-1" />
-            В архив
+            Archive
           </Button>
           <Button size="sm" onClick={handleSave} disabled={pending}>
             <Save size={14} className="mr-1" />
-            Сохранить
+            Save
           </Button>
         </div>
       </div>
@@ -296,7 +296,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
         <aside className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-950 p-4">
           <div className="space-y-2">
             <label htmlFor="kb-edit-title" className="block text-sm text-zinc-400">
-              Заголовок
+              Title
             </label>
             <Input
               id="kb-edit-title"
@@ -307,20 +307,20 @@ export function KnowledgeEditor({ article: initial }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="kb-edit-category" className="block text-sm text-zinc-400">
-              Категория
+              Category
             </label>
             <Select
               id="kb-edit-category"
               value={category}
               onChange={setCategory}
-              placeholder="Без категории"
+              placeholder="No category"
               options={allCategories.map((c) => ({ value: c, label: c }))}
             />
           </div>
 
           <div className="space-y-2">
             <label htmlFor="kb-edit-language" className="block text-sm text-zinc-400">
-              Язык
+              Language
             </label>
             <Select
               id="kb-edit-language"
@@ -335,7 +335,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="kb-edit-priority" className="block text-sm text-zinc-400">
-              Приоритет
+              Priority
             </label>
             <Select
               id="kb-edit-priority"
@@ -349,12 +349,12 @@ export function KnowledgeEditor({ article: initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <span className="block text-sm text-zinc-400">Теги</span>
+            <span className="block text-sm text-zinc-400">Tags</span>
             <div className="flex gap-2">
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Добавить тег"
+                placeholder="Add tag"
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
               />
               <Button type="button" variant="outline" size="sm" onClick={addTag}>
@@ -372,7 +372,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
                     type="button"
                     onClick={() => removeTag(tag)}
                     className="text-zinc-500 hover:text-zinc-200"
-                    aria-label={`Удалить тег ${tag}`}
+                    aria-label={`Remove tag ${tag}`}
                   >
                     <X size={10} />
                   </button>
@@ -383,15 +383,15 @@ export function KnowledgeEditor({ article: initial }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="kb-keywords" className="block text-sm text-zinc-400">
-              Ключевые слова (поиск)
+              Keywords (search)
             </label>
             <Input
               id="kb-keywords"
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
-              placeholder="заезд, checkout, wifi"
+              placeholder="check-in, checkout, wifi"
             />
-            <p className="text-xs text-zinc-500">Через запятую</p>
+            <p className="text-xs text-zinc-500">Comma-separated</p>
           </div>
         </aside>
 
@@ -421,7 +421,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
               onClick={() => setTab("preview")}
             >
               <Eye size={14} />
-              Предпросмотр
+              Preview
             </button>
           </div>
 
@@ -430,8 +430,8 @@ export function KnowledgeEditor({ article: initial }: Props) {
               className="min-h-[480px] font-mono text-sm"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Напишите статью в формате Markdown…"
-              aria-label="Содержание статьи"
+              placeholder="Write the article in Markdown…"
+              aria-label="Article content"
             />
           ) : (
             <KnowledgePreview content={content} title={title} />

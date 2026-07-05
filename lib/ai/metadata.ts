@@ -24,38 +24,38 @@ type PriorityMeta = {
 export const CONVERSATION_STATUSES: StatusMeta[] = [
   {
     value: "new",
-    label: "Новый",
+    label: "New",
     badgeClassName: "bg-blue-500/15 text-blue-400 border border-blue-500/30",
   },
   {
     value: "assigned",
-    label: "Назначен",
+    label: "Assigned",
     badgeClassName: "bg-violet-500/15 text-violet-400 border border-violet-500/30",
   },
   {
     value: "ai_answering",
-    label: "AI отвечает",
+    label: "AI responding",
     badgeClassName: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30",
   },
   {
     value: "waiting_guest",
-    label: "Ожидает гостя",
+    label: "Waiting for guest",
     badgeClassName: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
   },
   {
     value: "resolved",
-    label: "Решён",
+    label: "Resolved",
     badgeClassName: "bg-zinc-500/15 text-zinc-300 border border-zinc-500/30",
   },
   {
     value: "archived",
-    label: "Архив",
+    label: "Archived",
     badgeClassName: "bg-zinc-700/30 text-zinc-500 border border-zinc-600/30",
   },
 ];
 
 export const CONVERSATION_CHANNELS: ChannelMeta[] = [
-  { value: "website", label: "Сайт" },
+  { value: "website", label: "Website" },
   { value: "whatsapp", label: "WhatsApp" },
   { value: "telegram", label: "Telegram" },
   { value: "instagram", label: "Instagram" },
@@ -66,22 +66,22 @@ export const CONVERSATION_CHANNELS: ChannelMeta[] = [
 export const CONVERSATION_PRIORITIES: PriorityMeta[] = [
   {
     value: "low",
-    label: "Низкий",
+    label: "Low",
     badgeClassName: "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30",
   },
   {
     value: "normal",
-    label: "Обычный",
+    label: "Normal",
     badgeClassName: "bg-zinc-600/15 text-zinc-300 border border-zinc-600/30",
   },
   {
     value: "high",
-    label: "Высокий",
+    label: "High",
     badgeClassName: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
   },
   {
     value: "urgent",
-    label: "Срочный",
+    label: "Urgent",
     badgeClassName: "bg-red-500/15 text-red-400 border border-red-500/30",
   },
 ];

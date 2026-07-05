@@ -10,7 +10,7 @@ type Props = {
 export default function KnowledgeErrorRoute({ error, reset }: Props) {
   return (
     <KnowledgeError
-      message={error.message || "Не удалось загрузить базу знаний"}
+      message={error.message || "Failed to load knowledge base"}
       reset={reset}
     />
   );

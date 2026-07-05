@@ -9,36 +9,36 @@ type Props = {
 export function AIHealthPanel({ health }: Props) {
   const items = [
     {
-      label: "Провайдер",
-      value: health.configured ? health.provider : "не настроен",
+      label: "Provider",
+      value: health.configured ? health.provider : "not configured",
       ok: health.configured,
     },
     {
-      label: "AI включён",
-      value: health.enabled ? "да" : "нет",
+      label: "AI enabled",
+      value: health.enabled ? "yes" : "no",
       ok: health.enabled && health.configured,
     },
-    { label: "Модель", value: health.model, ok: true },
+    { label: "Model", value: health.model, ok: true },
     {
-      label: "Запросов (24ч)",
+      label: "Requests (24h)",
       value: String(health.recent_requests),
       ok: true,
     },
     {
-      label: "Ошибок (24ч)",
+      label: "Errors (24h)",
       value: String(health.recent_errors),
       ok: health.recent_errors === 0,
     },
     {
-      label: "Среднее время",
+      label: "Average duration",
       value:
         health.avg_duration_ms != null
-          ? `${health.avg_duration_ms} мс`
+          ? `${health.avg_duration_ms} ms`
           : "—",
       ok: true,
     },
     {
-      label: "Стоимость (24ч)",
+      label: "Cost (24h)",
       value: `$${health.total_cost_usd_24h.toFixed(4)}`,
       ok: true,
     },
@@ -46,9 +46,9 @@ export function AIHealthPanel({ health }: Props) {
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-5">
-      <h3 className="font-semibold">Диагностика AI</h3>
+      <h3 className="font-semibold">AI diagnostics</h3>
       <p className="mt-1 text-sm text-zinc-500">
-        Состояние интеграции за последние 24 часа
+        Integration status over the last 24 hours
       </p>
 
       <dl className="mt-4 grid gap-3 sm:grid-cols-2">

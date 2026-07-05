@@ -48,11 +48,11 @@ export function GuestProfileCard({ guest, actions }: Props) {
           {guest.email ?? "—"}
         </ContactItem>
 
-        <ContactItem icon={<Phone size={16} />} label="Телефон">
+        <ContactItem icon={<Phone size={16} />} label="Phone">
           {guest.phone ?? "—"}
         </ContactItem>
 
-        <ContactItem icon={<MapPin size={16} />} label="Локация">
+        <ContactItem icon={<MapPin size={16} />} label="Location">
           {location || "—"}
         </ContactItem>
       </dl>
@@ -60,7 +60,7 @@ export function GuestProfileCard({ guest, actions }: Props) {
       {guest.notes && (
         <div className="mt-6 rounded-xl border border-zinc-800 bg-zinc-900 p-4">
           <p className="text-xs uppercase tracking-widest text-zinc-500">
-            Заметки
+            Notes
           </p>
           <p className="mt-2 whitespace-pre-wrap text-sm text-zinc-300">
             {guest.notes}

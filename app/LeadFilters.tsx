@@ -24,35 +24,35 @@ export function LeadFilters({
         active={active === "all"}
         onClick={() => setActive("all")}
       >
-        Все ({counts.all})
+        All ({counts.all})
       </Filter>
 
       <Filter
         active={active === "new"}
         onClick={() => setActive("new")}
       >
-        Новые ({counts.new})
+        New ({counts.new})
       </Filter>
 
       <Filter
         active={active === "contacted"}
         onClick={() => setActive("contacted")}
       >
-        Связались ({counts.contacted})
+        Contacted ({counts.contacted})
       </Filter>
 
       <Filter
         active={active === "confirmed"}
         onClick={() => setActive("confirmed")}
       >
-        Подтверждены ({counts.confirmed})
+        Confirmed ({counts.confirmed})
       </Filter>
 
       <Filter
         active={active === "cancelled"}
         onClick={() => setActive("cancelled")}
       >
-        Отменены ({counts.cancelled})
+        Cancelled ({counts.cancelled})
       </Filter>
     </div>
   );

@@ -9,11 +9,11 @@ export function EmptyConversation() {
 
       <div>
         <h2 className="text-lg font-semibold text-zinc-300">
-          Выберите диалог
+          Select a conversation
         </h2>
         <p className="mt-2 max-w-sm text-sm text-zinc-500">
-          Выберите беседу из списка слева, чтобы просмотреть сообщения и
-          управлять обращением гостя.
+          Choose a conversation from the list on the left to view messages and
+          manage the guest inquiry.
         </p>
       </div>
     </div>

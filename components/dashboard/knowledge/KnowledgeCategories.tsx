@@ -16,7 +16,7 @@ export function KnowledgeCategories({
   if (categories.length === 0) return null;
 
   return (
-    <nav aria-label="Категории" className="flex flex-wrap gap-2">
+    <nav aria-label="Categories" className="flex flex-wrap gap-2">
       <button
         type="button"
         onClick={() => onSelect("")}
@@ -27,7 +27,7 @@ export function KnowledgeCategories({
             : "bg-zinc-900 text-zinc-400 hover:bg-zinc-800"
         )}
       >
-        Все
+        All
       </button>
       {categories.map((cat) => (
         <button

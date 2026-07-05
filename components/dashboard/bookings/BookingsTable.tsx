@@ -42,11 +42,11 @@ export function BookingsTable({ bookings, onEdit }: Props) {
 
       try {
         await deleteBooking(id);
-        toast.success("Бронирование удалено");
+        toast.success("Reservation deleted");
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось удалить бронирование");
+        toast.error("Failed to delete reservation");
       } finally {
         setTarget(null);
       }
@@ -55,7 +55,7 @@ export function BookingsTable({ bookings, onEdit }: Props) {
 
   const columns: DataTableColumn<Booking>[] = [
     {
-      header: "Гость",
+      header: "Guest",
       cell: (booking) => (
         <div className="flex items-center gap-3">
           <User size={18} />
@@ -69,7 +69,7 @@ export function BookingsTable({ bookings, onEdit }: Props) {
       ),
     },
     {
-      header: "Заезд",
+      header: "Check-in",
       cell: (booking) => (
         <div className="flex items-center gap-2">
           <CalendarDays size={16} />
@@ -78,27 +78,27 @@ export function BookingsTable({ bookings, onEdit }: Props) {
       ),
     },
     {
-      header: "Выезд",
+      header: "Check-out",
       cell: (booking) => booking.check_out,
     },
     {
-      header: "Статус",
+      header: "Status",
       cell: (booking) => <BookingStatusBadge status={booking.status} />,
     },
     {
-      header: "Стоимость",
+      header: "Total",
       cell: (booking) => `$${booking.total_price}`,
       cellClassName: "font-medium",
     },
     {
-      header: "Действия",
+      header: "Actions",
       align: "right",
       cell: (booking) => (
         <div className="flex justify-end gap-2">
           <Button
             variant="outline"
             size="icon"
-            aria-label={`Редактировать бронирование гостя ${booking.guest_name}`}
+            aria-label={`Edit reservation for ${booking.guest_name}`}
             onClick={() => onEdit?.(booking)}
           >
             <Pencil size={16} />
@@ -107,7 +107,7 @@ export function BookingsTable({ bookings, onEdit }: Props) {
           <Button
             variant="destructive"
             size="icon"
-            aria-label={`Удалить бронирование гостя ${booking.guest_name}`}
+            aria-label={`Delete reservation for ${booking.guest_name}`}
             onClick={() => setTarget(booking)}
           >
             <Trash2 size={16} />
@@ -123,10 +123,10 @@ export function BookingsTable({ bookings, onEdit }: Props) {
         columns={columns}
         data={optimisticBookings}
         getRowId={(booking) => booking.id}
-        caption="Список бронирований"
+        caption="Reservation list"
         empty={
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
-            Пока нет бронирований
+            No reservations yet
           </div>
         }
       />
@@ -136,13 +136,13 @@ export function BookingsTable({ bookings, onEdit }: Props) {
         onOpenChange={(open) => {
           if (!open) setTarget(null);
         }}
-        title="Удалить бронирование?"
+        title="Delete reservation?"
         description={
           target
-            ? `Бронирование гостя «${target.guest_name}» будет удалено безвозвратно.`
+            ? `The reservation for "${target.guest_name}" will be permanently deleted.`
             : undefined
         }
-        confirmLabel="Удалить"
+        confirmLabel="Delete"
         destructive
         loading={pending}
         onConfirm={confirmDelete}

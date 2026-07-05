@@ -14,20 +14,20 @@ type Props = {
 
 export function GuestStats({ stats }: Props) {
   const cards = [
-    { title: "Бронирований", value: stats.totalBookings, icon: Hotel },
-    { title: "Всего ночей", value: stats.totalNights, icon: Moon },
+    { title: "Bookings", value: stats.totalBookings, icon: Hotel },
+    { title: "Total nights", value: stats.totalNights, icon: Moon },
     {
-      title: "Общая выручка",
+      title: "Total revenue",
       value: `$${stats.totalRevenue.toFixed(0)}`,
       icon: DollarSign,
     },
     {
-      title: "Последний визит",
+      title: "Last visit",
       value: stats.lastStay ?? "—",
       icon: CalendarCheck,
     },
     {
-      title: "Ближайший заезд",
+      title: "Next check-in",
       value: stats.upcomingCheckIn ?? "—",
       icon: CalendarClock,
     },

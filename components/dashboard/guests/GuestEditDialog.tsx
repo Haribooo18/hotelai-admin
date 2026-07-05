@@ -24,7 +24,7 @@ export function GuestEditDialog({ open, onOpenChange, guest }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="sm:max-w-lg overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Редактировать гостя</SheetTitle>
+          <SheetTitle>Edit Guest</SheetTitle>
         </SheetHeader>
 
         <div className="mt-6 px-6 pb-6">

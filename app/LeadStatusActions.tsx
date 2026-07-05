@@ -27,7 +27,7 @@ export function LeadStatusActions({ leadId, currentStatus }: Props) {
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось обновить статус заявки");
+        toast.error("Failed to update request status");
       }
     });
   }
@@ -40,7 +40,7 @@ export function LeadStatusActions({ leadId, currentStatus }: Props) {
         onClick={() => handleUpdate("contacted")}
         className="px-3 py-1 text-xs"
       >
-        Связались
+        Contacted
       </Button>
 
       <Button
@@ -48,7 +48,7 @@ export function LeadStatusActions({ leadId, currentStatus }: Props) {
         onClick={() => handleUpdate("confirmed")}
         className="bg-emerald-700 px-3 py-1 text-xs text-white hover:bg-emerald-600"
       >
-        Подтвердить
+        Confirm
       </Button>
 
       <Button
@@ -57,7 +57,7 @@ export function LeadStatusActions({ leadId, currentStatus }: Props) {
         onClick={() => handleUpdate("cancelled")}
         className="px-3 py-1 text-xs"
       >
-        Отменить
+        Cancel
       </Button>
     </div>
   );

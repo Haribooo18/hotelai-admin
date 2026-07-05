@@ -42,7 +42,7 @@ export function CalendarRoomCell({
           />
         </div>
         <span className="w-9 shrink-0 text-right text-[10px] text-zinc-500">
-          {isEmpty ? "Свободно" : `${percent}%`}
+          {isEmpty ? "Available" : `${percent}%`}
         </span>
       </div>
     </div>

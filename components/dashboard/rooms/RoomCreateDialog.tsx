@@ -11,21 +11,49 @@ import {
 } from "@/components/ui/sheet";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { RoomForm } from "./RoomForm";
 import type { Room } from "@/types/room";
 
 type Props = {
   room?: Room;
+  template?: Pick<Room, "room_type" | "capacity" | "price">;
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  buttonClassName?: string;
 };
 
-export function RoomCreateDialog({ room, trigger }: Props) {
-  const [open, setOpen] = useState(false);
+export function RoomCreateDialog({
+  room,
+  template,
+  trigger,
+  open: controlledOpen,
+  onOpenChange,
+  buttonClassName,
+}: Props) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+
+  function setOpen(next: boolean) {
+    if (onOpenChange) onOpenChange(next);
+    else setInternalOpen(next);
+  }
+
+  const title = room
+    ? "Edit Room"
+    : template
+      ? "Duplicate Room"
+      : "Create Room";
 
   const defaultTrigger = (
-    <Button onClick={() => setOpen(true)}>
-      <Plus className="mr-2 h-4 w-4" />
-      {room ? "Редактировать" : "Добавить номер"}
+    <Button
+      type="button"
+      onClick={() => setOpen(true)}
+      className={cn(buttonClassName)}
+    >
+      <Plus className="h-4 w-4" />
+      {room ? "Edit" : "Add Room"}
     </Button>
   );
 
@@ -33,20 +61,19 @@ export function RoomCreateDialog({ room, trigger }: Props) {
     <Sheet open={open} onOpenChange={setOpen}>
       {trigger ? (
         <div onClick={() => setOpen(true)}>{trigger}</div>
-      ) : (
+      ) : controlledOpen === undefined ? (
         defaultTrigger
-      )}
+      ) : null}
 
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>
-            {room ? "Редактировать номер" : "Создать номер"}
-          </SheetTitle>
+          <SheetTitle>{title}</SheetTitle>
         </SheetHeader>
 
         <div className="mt-6">
           <RoomForm
             room={room}
+            template={template}
             onSuccess={() => setOpen(false)}
           />
         </div>

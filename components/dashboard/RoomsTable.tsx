@@ -38,11 +38,11 @@ export function RoomsTable({ rooms }: Props) {
 
       try {
         await deleteRoom(id);
-        toast.success("Номер успешно удалён");
+        toast.success("Room deleted successfully");
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось удалить номер");
+        toast.error("Failed to delete room");
       } finally {
         setTarget(null);
       }
@@ -51,7 +51,7 @@ export function RoomsTable({ rooms }: Props) {
 
   const columns: DataTableColumn<Room>[] = [
     {
-      header: "Тип номера",
+      header: "Room type",
       cell: (room) => (
         <div className="flex items-center gap-3">
           <BedDouble size={18} />
@@ -60,7 +60,7 @@ export function RoomsTable({ rooms }: Props) {
       ),
     },
     {
-      header: "Вместимость",
+      header: "Capacity",
       cell: (room) => (
         <div className="flex items-center gap-2">
           <Users size={16} />
@@ -69,11 +69,11 @@ export function RoomsTable({ rooms }: Props) {
       ),
     },
     {
-      header: "Цена",
+      header: "Price",
       cell: (room) => `$${Number(room.price).toFixed(0)}`,
     },
     {
-      header: "Действия",
+      header: "Actions",
       align: "right",
       cell: (room) => (
         <div className="flex justify-end gap-2">
@@ -82,7 +82,7 @@ export function RoomsTable({ rooms }: Props) {
             trigger={
               <button
                 type="button"
-                aria-label={`Редактировать номер ${room.room_type}`}
+                aria-label={`Edit room ${room.room_type}`}
                 className="rounded-lg border border-zinc-700 p-2 transition hover:bg-zinc-800"
               >
                 <Pencil size={16} />
@@ -92,7 +92,7 @@ export function RoomsTable({ rooms }: Props) {
 
           <button
             type="button"
-            aria-label={`Удалить номер ${room.room_type}`}
+            aria-label={`Delete room ${room.room_type}`}
             onClick={() => setTarget(room)}
             className="rounded-lg border border-red-900 p-2 text-red-400 transition hover:bg-red-950"
           >
@@ -109,10 +109,10 @@ export function RoomsTable({ rooms }: Props) {
         columns={columns}
         data={optimisticRooms}
         getRowId={(room) => room.id}
-        caption="Список номеров"
+        caption="Room list"
         empty={
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
-            Пока нет номеров. Добавьте первый номер.
+            No rooms yet. Add your first room.
           </div>
         }
       />
@@ -122,13 +122,13 @@ export function RoomsTable({ rooms }: Props) {
         onOpenChange={(open) => {
           if (!open) setTarget(null);
         }}
-        title="Удалить номер?"
+        title="Delete room?"
         description={
           target
-            ? `Номер «${target.room_type}» будет удалён безвозвратно.`
+            ? `Room "${target.room_type}" will be permanently deleted.`
             : undefined
         }
-        confirmLabel="Удалить"
+        confirmLabel="Delete"
         destructive
         loading={pending}
         onConfirm={confirmDelete}

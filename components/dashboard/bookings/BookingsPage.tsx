@@ -5,150 +5,111 @@ import { useMemo, useState } from "react";
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
+import { BookingCreateDialog } from "./BookingCreateDialog";
+import { BookingEditDialog } from "./BookingEditDialog";
+import { BookingsCards } from "./BookingsCards";
 import {
-  BookingCreateButton,
-  BookingCreateDialog,
-  BookingEditDialog,
   BookingsFilters,
-} from "@/components/dashboard/bookings";
-
+  type BookingsChipFilter,
+} from "./BookingsFilters";
 import { BookingsStats } from "./BookingsStats";
-import { BookingsTable } from "./BookingsTable";
 
 type Props = {
   bookings: Booking[];
   rooms: Room[];
 };
 
-export function BookingsPage({
-  bookings,
-  rooms,
-}: Props) {
+function isNewBooking(booking: Booking): boolean {
+  const created = new Date(booking.created_at);
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  return created >= weekAgo;
+}
+
+function isStayingOnDate(booking: Booking, date: string): boolean {
+  return booking.check_in <= date && booking.check_out > date;
+}
+
+export function BookingsPage({ bookings, rooms }: Props) {
   const [createOpen, setCreateOpen] = useState(false);
-
   const [editOpen, setEditOpen] = useState(false);
-
-  const [selectedBooking, setSelectedBooking] =
-    useState<Booking | null>(null);
-
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [search, setSearch] = useState("");
-
   const [status, setStatus] = useState("");
+  const [chipFilter, setChipFilter] = useState<BookingsChipFilter>("all");
+  const [dateFilter, setDateFilter] = useState("");
+
+  const today = new Date().toISOString().slice(0, 10);
 
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
+      const query = search.toLowerCase();
+
       const matchesSearch =
-        booking.guest_name
-          .toLowerCase()
-          .includes(search.toLowerCase()) ||
-        booking.guest_email
-          ?.toLowerCase()
-          .includes(search.toLowerCase()) ||
-        booking.guest_phone
-          ?.toLowerCase()
-          .includes(search.toLowerCase());
+        booking.guest_name.toLowerCase().includes(query) ||
+        booking.guest_email?.toLowerCase().includes(query) ||
+        booking.guest_phone?.toLowerCase().includes(query);
 
-      const matchesStatus =
-        status === "" ||
-        booking.status === status;
+      const matchesStatus = status === "" || booking.status === status;
 
-      return (
-        matchesSearch &&
-        matchesStatus
-      );
+      const matchesChip = (() => {
+        switch (chipFilter) {
+          case "new":
+            return isNewBooking(booking);
+          case "confirmed":
+            return booking.status === "confirmed";
+          case "check_in_today":
+            return booking.check_in === today;
+          case "check_out_today":
+            return booking.check_out === today;
+          default:
+            return true;
+        }
+      })();
+
+      const matchesDate =
+        dateFilter === "" || isStayingOnDate(booking, dateFilter);
+
+      return matchesSearch && matchesStatus && matchesChip && matchesDate;
     });
-  }, [bookings, search, status]);
+  }, [bookings, search, status, chipFilter, dateFilter, today]);
 
-  function handleEdit(
-    booking: Booking
-  ) {
+  function handleEdit(booking: Booking) {
     setSelectedBooking(booking);
-
     setEditOpen(true);
   }
 
   return (
     <div className="space-y-8">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-4xl font-bold">
-            Управление бронированиями
-          </h1>
-
-          <p className="mt-3 text-zinc-400">
-            Создавайте, редактируйте и управляйте бронированиями гостей.
-          </p>
-        </div>
-
-        <BookingCreateButton
-          onClick={() =>
-            setCreateOpen(true)
-          }
-        />
+      <div>
+        <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-[var(--shell-text)]">
+          Reservations
+        </h1>
+        <p className="mt-2 text-[15px] text-[var(--shell-muted)]">
+          Manage all reservations
+        </p>
       </div>
 
       <BookingsStats bookings={bookings} />
 
-      <div className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">
-              Доступные номера
-            </h2>
+      <BookingsFilters
+        search={search}
+        chipFilter={chipFilter}
+        dateFilter={dateFilter}
+        status={status}
+        onSearchChange={setSearch}
+        onChipFilterChange={setChipFilter}
+        onDateFilterChange={setDateFilter}
+        onStatusChange={setStatus}
+        onCreateClick={() => setCreateOpen(true)}
+      />
 
-            <p className="mt-1 text-sm text-zinc-500">
-              Всего номеров: {rooms.length}
-            </p>
-          </div>
-        </div>
-
-        {rooms.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-zinc-800 py-12 text-center text-zinc-500">
-            Нет доступных номеров
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {rooms.map((room) => (
-              <div
-                key={room.id}
-                className="rounded-xl border border-zinc-800 bg-zinc-900 p-5 transition hover:border-emerald-600"
-              >
-                <h3 className="text-lg font-semibold">
-                  {room.room_type}
-                </h3>
-
-                <p className="mt-2 text-zinc-400">
-                  ${room.price} / ночь
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-5">
-        <div>
-          <h2 className="text-xl font-semibold">
-            Бронирования
-          </h2>
-
-          <p className="mt-1 text-sm text-zinc-500">
-            Управление всеми бронированиями отеля
-          </p>
-        </div>
-
-        <BookingsFilters
-          search={search}
-          status={status}
-          onSearchChange={setSearch}
-          onStatusChange={setStatus}
-        />
-
-        <BookingsTable
-          bookings={filteredBookings}
-          onEdit={handleEdit}
-        />
-      </div>
+      <BookingsCards
+        bookings={filteredBookings}
+        rooms={rooms}
+        onEdit={handleEdit}
+      />
 
       <BookingCreateDialog
         open={createOpen}

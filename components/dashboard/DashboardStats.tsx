@@ -14,25 +14,25 @@ export function DashboardStats({ counts }: Props) {
   return (
     <section className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
       <StatCard
-        title="Всего заявок"
+        title="Total requests"
         value={counts.all}
         color="text-white"
       />
 
       <StatCard
-        title="Новые"
+        title="New"
         value={counts.new}
         color="text-blue-400"
       />
 
       <StatCard
-        title="Подтверждено"
+        title="Confirmed"
         value={counts.confirmed}
         color="text-emerald-400"
       />
 
       <StatCard
-        title="Отменено"
+        title="Cancelled"
         value={counts.cancelled}
         color="text-red-400"
       />

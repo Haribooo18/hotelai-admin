@@ -15,7 +15,7 @@ export default async function DashboardRoute() {
   try {
     leads = await getLeads(50);
   } catch (error) {
-    errorMessage = error instanceof Error ? error.message : "Неизвестная ошибка";
+    errorMessage = error instanceof Error ? error.message : "Unknown error";
   }
 
   return (
@@ -23,7 +23,7 @@ export default async function DashboardRoute() {
       {errorMessage ? (
         <div className="rounded-xl border border-red-800 bg-red-950/40 p-6">
           <h1 className="text-2xl font-bold text-red-400">
-            Ошибка подключения
+            Connection error
           </h1>
 
           <pre className="mt-4 rounded-lg bg-black/30 p-4 text-sm text-red-200">

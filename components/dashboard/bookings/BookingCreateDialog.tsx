@@ -1,8 +1,10 @@
 "use client";
 
 import { Plus } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -33,7 +35,7 @@ export function BookingCreateDialog({
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>
-            Новое бронирование
+            New reservation
           </SheetTitle>
         </SheetHeader>
 
@@ -50,15 +52,21 @@ export function BookingCreateDialog({
 
 type ButtonProps = {
   onClick: () => void;
+  className?: string;
+  label?: string;
+  icon?: LucideIcon;
 };
 
 export function BookingCreateButton({
   onClick,
+  className,
+  label = "Create reservation",
+  icon: Icon = Plus,
 }: ButtonProps) {
   return (
-    <Button onClick={onClick}>
-      <Plus className="mr-2 h-4 w-4" />
-      Создать бронирование
+    <Button type="button" onClick={onClick} className={cn(className)}>
+      <Icon className="h-4 w-4" />
+      {label}
     </Button>
   );
 }

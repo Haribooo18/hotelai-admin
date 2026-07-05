@@ -1,8 +1,8 @@
 import {
   CalendarCheck,
   CalendarClock,
-  DollarSign,
-  Hotel,
+  Sparkles,
+  Users,
 } from "lucide-react";
 
 import type { Booking } from "@/types/booking";
@@ -11,74 +11,73 @@ type Props = {
   bookings: Booking[];
 };
 
-export function BookingsStats({
-  bookings,
-}: Props) {
+function countNewBookings(bookings: Booking[]): number {
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+
+  return bookings.filter((booking) => {
+    const created = new Date(booking.created_at);
+    return created >= weekAgo;
+  }).length;
+}
+
+function countTodayBookings(bookings: Booking[]): number {
   const today = new Date().toISOString().slice(0, 10);
 
-  const todayArrivals = bookings.filter(
-    (b) => b.check_in === today
+  return bookings.filter(
+    (booking) => booking.check_in === today || booking.check_out === today
   ).length;
+}
 
-  const activeBookings = bookings.filter(
-    (b) =>
-      b.status === "confirmed" ||
-      b.status === "checked_in"
-  ).length;
-
-  const revenue = bookings.reduce(
-    (sum, booking) =>
-      sum + Number(booking.total_price),
-    0
-  );
+export function BookingsStats({ bookings }: Props) {
+  const today = new Date().toISOString().slice(0, 10);
 
   const cards = [
     {
-      title: "Бронирований",
+      title: "Total",
       value: bookings.length,
-      icon: Hotel,
+      icon: Users,
     },
     {
-      title: "Заезды сегодня",
-      value: todayArrivals,
+      title: "New",
+      value: countNewBookings(bookings),
+      icon: Sparkles,
+    },
+    {
+      title: "Today",
+      value: countTodayBookings(bookings),
       icon: CalendarClock,
+      hint: today,
     },
     {
-      title: "Активные",
-      value: activeBookings,
+      title: "Confirmed",
+      value: bookings.filter((b) => b.status === "confirmed").length,
       icon: CalendarCheck,
-    },
-    {
-      title: "Выручка",
-      value: `$${revenue.toFixed(0)}`,
-      icon: DollarSign,
     },
   ];
 
   return (
-    <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+    <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       {cards.map((card) => {
         const Icon = card.icon;
 
         return (
           <div
             key={card.title}
-            className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
+            className="rounded-[20px] bg-[var(--shell-surface)] p-5 shadow-[var(--shell-shadow-sm)] transition-all duration-[180ms] ease-out hover:-translate-y-0.5 hover:shadow-[var(--shell-shadow-md)]"
           >
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-zinc-500">
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[13px] font-medium text-[var(--shell-muted)]">
                 {card.title}
               </p>
-
-              <Icon
-                size={20}
-                className="text-emerald-500"
-              />
+              <div className="flex h-9 w-9 items-center justify-center rounded-[12px] bg-emerald-500/10 text-emerald-500">
+                <Icon size={18} />
+              </div>
             </div>
 
-            <div className="mt-5 text-3xl font-bold">
+            <p className="mt-4 text-[32px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
               {card.value}
-            </div>
+            </p>
           </div>
         );
       })}

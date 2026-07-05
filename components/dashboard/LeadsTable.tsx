@@ -43,26 +43,26 @@ export function LeadsTable({ leads }: Props) {
       <section className="overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-950 shadow-xl">
         <div className="border-b border-zinc-800 px-6 py-5">
           <h2 className="text-xl font-bold">
-            Последние заявки
+            Recent requests
           </h2>
 
           <p className="mt-1 text-sm text-zinc-500">
-            Всего заявок: {leads.length}
+            Total requests: {leads.length}
           </p>
         </div>
 
         <Table>
           <TableHeader>
             <TableRow className="border-zinc-800">
-              <TableHead>Гость</TableHead>
-              <TableHead>Контакт</TableHead>
-              <TableHead>Номер</TableHead>
-              <TableHead>Даты</TableHead>
-              <TableHead>Гостей</TableHead>
-              <TableHead>Статус</TableHead>
-              <TableHead>Комментарий</TableHead>
+              <TableHead>Guest</TableHead>
+              <TableHead>Contact</TableHead>
+              <TableHead>Room</TableHead>
+              <TableHead>Dates</TableHead>
+              <TableHead>Guests</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Comment</TableHead>
               <TableHead className="text-right">
-                Действия
+                Actions
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -84,7 +84,7 @@ export function LeadsTable({ leads }: Props) {
 
                     <div>
                       <div className="font-semibold">
-                        {lead.guest_name || "Без имени"}
+                        {lead.guest_name || "No name"}
                       </div>
 
                       <div className="text-xs text-zinc-500">
@@ -162,7 +162,7 @@ export function LeadsTable({ leads }: Props) {
                   colSpan={8}
                   className="py-16 text-center text-zinc-500"
                 >
-                  Заявок пока нет
+                  No requests yet
                 </TableCell>
               </TableRow>
             )}
@@ -190,28 +190,28 @@ function StatusBadge({
     case "confirmed":
       return (
         <Badge className="bg-emerald-600 hover:bg-emerald-600">
-          Подтверждена
+          Confirmed
         </Badge>
       );
 
     case "contacted":
       return (
         <Badge className="bg-amber-500 hover:bg-amber-500">
-          Связались
+          Contacted
         </Badge>
       );
 
     case "cancelled":
       return (
         <Badge variant="destructive">
-          Отменена
+          Cancelled
         </Badge>
       );
 
     default:
       return (
         <Badge variant="outline">
-          Новая
+          New
         </Badge>
       );
   }

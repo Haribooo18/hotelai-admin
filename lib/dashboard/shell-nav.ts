@@ -21,15 +21,15 @@ export type ShellNavItem = {
 
 /** Maps premium shell labels to existing routes (no new routes). */
 export const SHELL_NAV_ITEMS: ShellNavItem[] = [
-  { label: "Панель", href: "/dashboard", icon: LayoutDashboard, exact: true },
-  { label: "Бронирования", href: "/bookings", icon: CalendarDays },
-  { label: "Гости", href: "/guests", icon: Users },
-  { label: "Номера", href: "/rooms", icon: BedDouble },
-  { label: "Календарь", href: "/calendar", icon: Sparkles },
-  { label: "Доход", href: "/bookings", icon: TrendingUp },
-  { label: "Отчёты", href: "/knowledge", icon: FileBarChart },
-  { label: "Сообщения", href: "/ai", icon: MessageSquare },
-  { label: "Настройки", href: "/settings", icon: Settings },
+  { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, exact: true },
+  { label: "Reservations", href: "/bookings", icon: CalendarDays },
+  { label: "Guests", href: "/guests", icon: Users },
+  { label: "Rooms", href: "/rooms", icon: BedDouble },
+  { label: "Calendar", href: "/calendar", icon: Sparkles },
+  { label: "Revenue", href: "/rates", icon: TrendingUp },
+  { label: "Reports", href: "/knowledge", icon: FileBarChart },
+  { label: "Messages", href: "/ai", icon: MessageSquare },
+  { label: "Settings", href: "/settings", icon: Settings },
 ];
 
 export function isShellNavActive(
@@ -60,15 +60,15 @@ export function isShellNavActive(
 }
 
 const PAGE_TITLES: Record<string, string> = {
-  "/dashboard": "Панель",
-  "/bookings": "Бронирования",
-  "/guests": "Гости",
-  "/rooms": "Номера",
-  "/calendar": "Календарь",
-  "/rates": "Цены",
-  "/knowledge": "База знаний",
-  "/ai": "Сообщения",
-  "/settings": "Настройки",
+  "/dashboard": "Dashboard",
+  "/bookings": "Reservations",
+  "/guests": "Guests",
+  "/rooms": "Rooms",
+  "/calendar": "Calendar",
+  "/rates": "Revenue",
+  "/knowledge": "Knowledge Base",
+  "/ai": "Messages",
+  "/settings": "Settings",
 };
 
 export function resolveShellPageTitle(pathname: string): string {
@@ -76,5 +76,5 @@ export function resolveShellPageTitle(pathname: string): string {
     pathname === href || pathname.startsWith(`${href}/`)
   );
 
-  return match?.[1] ?? "Панель";
+  return match?.[1] ?? "Dashboard";
 }

@@ -14,7 +14,7 @@ export function LeadSearch({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Поиск по имени, телефону, email, номеру..."
+        placeholder="Search by name, phone, email, room..."
         className="
           h-12
           w-full

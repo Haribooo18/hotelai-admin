@@ -22,7 +22,7 @@ export function TopBar() {
             {title}
           </h1>
           <p className="mt-0.5 text-[13px] text-[var(--shell-muted)]">
-            С возвращением.
+            Welcome back.
           </p>
         </div>
 
@@ -30,7 +30,7 @@ export function TopBar() {
           <Input
             type="date"
             defaultValue={today}
-            aria-label="Выберите дату"
+            aria-label="Select date"
             className="hidden h-10 w-[156px] rounded-[12px] border-[var(--shell-border)] bg-[var(--shell-surface)] text-[13px] text-[var(--shell-text)] shadow-none transition-all duration-200 ease-out focus-visible:ring-emerald-500/30 sm:block"
           />
 
@@ -42,7 +42,7 @@ export function TopBar() {
             )}
           >
             <Plus size={16} />
-            Новое бронирование
+            New reservation
           </Link>
         </div>
       </div>

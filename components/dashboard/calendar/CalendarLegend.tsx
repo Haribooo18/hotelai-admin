@@ -18,7 +18,7 @@ export function CalendarLegend() {
 
       <div className="flex items-center gap-2">
         <span className="h-3 w-3 rounded-sm border border-emerald-500/40 bg-emerald-500/10" />
-        Свободный номер
+        Available room
       </div>
     </div>
   );

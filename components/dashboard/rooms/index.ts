@@ -1,2 +1,9 @@
 export { RoomCreateDialog } from "./RoomCreateDialog";
 export { RoomForm } from "./RoomForm";
+export { RoomsPage } from "./RoomsPage";
+export { RoomsCardsView } from "./RoomsCardsView";
+export { RoomCard } from "./RoomCard";
+export { RoomToolbar } from "./RoomToolbar";
+export { RoomKpiGrid } from "./RoomKpiGrid";
+export { RoomDetailDrawer } from "./RoomDetailDrawer";
+export { RoomStatusBadge } from "./RoomStatusBadge";

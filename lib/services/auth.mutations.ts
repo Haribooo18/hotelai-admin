@@ -17,7 +17,7 @@ export async function signIn(
   const redirectedFrom = String(formData.get("redirectedFrom") ?? "");
 
   if (!email || !password) {
-    return { error: "Введите email и пароль" };
+    return { error: "Enter email and password" };
   }
 
   const supabase = await createClient();
@@ -29,7 +29,7 @@ export async function signIn(
 
   if (error) {
     console.error("Sign in failed:", error.message);
-    return { error: "Неверный email или пароль" };
+    return { error: "Invalid email or password" };
   }
 
   const destination =

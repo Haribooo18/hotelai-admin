@@ -22,7 +22,7 @@ type Props = {
 
 function formatRenewalDate(value: string | null): string {
   if (!value) return "—";
-  return new Date(value).toLocaleDateString("ru-RU", {
+  return new Date(value).toLocaleDateString("en-US", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -49,13 +49,13 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
 
         const data = (await response.json()) as { url?: string; error?: string };
         if (!response.ok || !data.url) {
-          throw new Error(data.error ?? "Не удалось открыть оплату");
+          throw new Error(data.error ?? "Failed to open checkout");
         }
 
         window.location.href = data.url;
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Ошибка оформления подписки"
+          err instanceof Error ? err.message : "Subscription checkout error"
         );
         setCheckoutPlan(null);
       }
@@ -71,13 +71,13 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
 
         const data = (await response.json()) as { url?: string; error?: string };
         if (!response.ok || !data.url) {
-          throw new Error(data.error ?? "Не удалось открыть портал");
+          throw new Error(data.error ?? "Failed to open portal");
         }
 
         window.location.href = data.url;
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Ошибка открытия портала"
+          err instanceof Error ? err.message : "Failed to open portal"
         );
       }
     });
@@ -86,8 +86,8 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
   if (!stripeConfigured) {
     return (
       <div className="rounded-lg border border-amber-900/50 bg-amber-950/30 p-4 text-sm text-amber-200">
-        Stripe не настроен. Задайте <code>STRIPE_SECRET_KEY</code> и price IDs в
-        окружении.
+        Stripe is not configured. Set <code>STRIPE_SECRET_KEY</code> and price IDs in
+        the environment.
       </div>
     );
   }
@@ -97,9 +97,9 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
       <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-zinc-500">Текущий тариф</p>
+            <p className="text-sm text-zinc-500">Current plan</p>
             <p className="mt-1 text-xl font-semibold">
-              {subscription ? formatPlanLabel(subscription.plan) : "Не выбран"}
+              {subscription ? formatPlanLabel(subscription.plan) : "Not selected"}
             </p>
           </div>
           <Badge variant="secondary">
@@ -109,15 +109,15 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
 
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-zinc-500">Дата продления</dt>
+            <dt className="text-zinc-500">Renewal date</dt>
             <dd className="mt-1 text-zinc-200">
               {formatRenewalDate(subscription?.current_period_end ?? null)}
             </dd>
           </div>
           <div>
-            <dt className="text-zinc-500">Отмена в конце периода</dt>
+            <dt className="text-zinc-500">Cancel at period end</dt>
             <dd className="mt-1 text-zinc-200">
-              {subscription?.cancel_at_period_end ? "Да" : "Нет"}
+              {subscription?.cancel_at_period_end ? "Yes" : "No"}
             </dd>
           </div>
         </dl>
@@ -128,14 +128,14 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
             onClick={openPortal}
             disabled={pending}
           >
-            Управление подпиской
+            Manage subscription
           </Button>
         )}
       </div>
 
       {!hasActiveSubscription && (
         <div className="space-y-3">
-          <h3 className="text-sm font-medium text-zinc-300">Выберите тариф</h3>
+          <h3 className="text-sm font-medium text-zinc-300">Choose a plan</h3>
           <div className="grid gap-3 sm:grid-cols-3">
             {BILLING_PLAN_IDS.map((planId) => (
               <div
@@ -153,8 +153,8 @@ export function BillingPanel({ subscription, stripeConfigured }: Props) {
                   onClick={() => startCheckout(planId)}
                 >
                   {pending && checkoutPlan === planId
-                    ? "Переход к оплате..."
-                    : "Оформить"}
+                    ? "Redirecting to checkout..."
+                    : "Subscribe"}
                 </Button>
               </div>
             ))}

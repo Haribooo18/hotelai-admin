@@ -30,7 +30,7 @@ export function KnowledgeCreateButton({ onClick }: { onClick: () => void }) {
   return (
     <Button onClick={onClick}>
       <Plus size={16} className="mr-2" />
-      Новая статья
+      New article
     </Button>
   );
 }
@@ -45,7 +45,7 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!title.trim()) {
-      toast.error("Введите заголовок");
+      toast.error("Enter a title");
       return;
     }
 
@@ -63,14 +63,14 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
           tags: [],
           search_keywords: [],
         });
-        toast.success("Статья создана");
+        toast.success("Article created");
         onOpenChange(false);
         setTitle("");
         setCategory("");
         router.push(`/knowledge/${id}`);
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось создать статью");
+        toast.error("Failed to create article");
       }
     });
   }
@@ -79,19 +79,19 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="overflow-y-auto sm:max-w-lg">
         <SheetHeader>
-          <SheetTitle>Новая статья</SheetTitle>
+          <SheetTitle>New article</SheetTitle>
         </SheetHeader>
 
         <form className="mt-6 space-y-4 px-6 pb-6" onSubmit={handleSubmit}>
           <div className="space-y-2">
             <label htmlFor="kb-title" className="block text-sm text-zinc-400">
-              Заголовок
+              Title
             </label>
             <Input
               id="kb-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Например: Время заезда и выезда"
+              placeholder="e.g. Check-in and check-out times"
               required
             />
           </div>
@@ -101,13 +101,13 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
               htmlFor="kb-category"
               className="block text-sm text-zinc-400"
             >
-              Категория
+              Category
             </label>
             <Select
               id="kb-category"
               value={category}
               onChange={setCategory}
-              placeholder="Без категории"
+              placeholder="No category"
               options={DEFAULT_KNOWLEDGE_CATEGORIES.map((c) => ({
                 value: c,
                 label: c,
@@ -120,7 +120,7 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
               htmlFor="kb-language"
               className="block text-sm text-zinc-400"
             >
-              Язык
+              Language
             </label>
             <Select
               id="kb-language"
@@ -139,10 +139,10 @@ export function KnowledgeCreateDialog({ open, onOpenChange }: Props) {
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Отмена
+              Cancel
             </Button>
             <Button type="submit" disabled={pending}>
-              Создать
+              Create
             </Button>
           </div>
         </form>

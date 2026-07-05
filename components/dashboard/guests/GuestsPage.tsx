@@ -1,40 +1,78 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Crown, Star, Users } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 import type { Guest } from "@/types/guest";
 
-import { GuestCreateButton, GuestCreateDialog } from "./GuestCreateDialog";
+import {
+  deleteGuest,
+  setGuestFavorite,
+  setGuestVip,
+} from "@/lib/services/guests.mutations";
+
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+
+import { GuestCreateDialog } from "./GuestCreateDialog";
+import { GuestDetailDrawer } from "./GuestDetailDrawer";
 import { GuestEditDialog } from "./GuestEditDialog";
-import { GuestFilters } from "./GuestFilters";
-import { GuestsTable } from "./GuestsTable";
+import { GuestKpiGrid } from "./GuestKpiGrid";
+import { GuestToolbar } from "./GuestToolbar";
+import { GuestsCardsView } from "./GuestsCardsView";
+import {
+  buildGuestCardModels,
+  computeGuestCrmKpis,
+  sortGuestModels,
+  type GuestCardModel,
+  type GuestSortKey,
+  type GuestViewMode,
+} from "./guest-crm-metrics";
+import { useGuestsSupplement } from "./useGuestsSupplement";
 
 type Props = {
   guests: Guest[];
 };
 
 export function GuestsPage({ guests }: Props) {
+  const router = useRouter();
+  const [pending, startTransition] = useTransition();
+
   const [createOpen, setCreateOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
-  const [selected, setSelected] = useState<Guest | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
+  const [drawerModel, setDrawerModel] = useState<GuestCardModel | null>(null);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const [search, setSearch] = useState("");
   const [flag, setFlag] = useState("");
   const [tag, setTag] = useState("");
+  const [sortKey, setSortKey] = useState<GuestSortKey>("newest");
+  const [viewMode, setViewMode] = useState<GuestViewMode>("grid");
+
+  const hotelId = guests[0]?.hotel_id;
+  const { bookings, rooms, loading } = useGuestsSupplement(hotelId);
 
   const tagOptions = useMemo(() => {
     const set = new Set<string>();
     for (const guest of guests) {
-      for (const t of guest.tags ?? []) set.add(t);
+      for (const value of guest.tags ?? []) set.add(value);
     }
     return Array.from(set).sort();
   }, [guests]);
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+  const cardModels = useMemo(
+    () => buildGuestCardModels(guests, bookings, rooms),
+    [guests, bookings, rooms]
+  );
 
-    return guests.filter((guest) => {
+  const filteredModels = useMemo(() => {
+    const query = search.trim().toLowerCase();
+
+    const filtered = cardModels.filter(({ guest }) => {
       const haystack = [
         guest.first_name,
         guest.last_name,
@@ -46,7 +84,7 @@ export function GuestsPage({ guests }: Props) {
         .join(" ")
         .toLowerCase();
 
-      const matchesSearch = q === "" || haystack.includes(q);
+      const matchesSearch = query === "" || haystack.includes(query);
       const matchesFlag =
         flag === "" ||
         (flag === "vip" && guest.is_vip) ||
@@ -55,74 +93,144 @@ export function GuestsPage({ guests }: Props) {
 
       return matchesSearch && matchesFlag && matchesTag;
     });
-  }, [guests, search, flag, tag]);
+
+    return sortGuestModels(filtered, sortKey);
+  }, [cardModels, search, flag, tag, sortKey]);
+
+  const kpis = useMemo(
+    () => computeGuestCrmKpis(cardModels),
+    [cardModels]
+  );
+
+  const candidates = useMemo(
+    () =>
+      drawerModel
+        ? guests.filter((guest) => guest.id !== drawerModel.guest.id)
+        : guests,
+    [guests, drawerModel]
+  );
 
   function handleEdit(guest: Guest) {
-    setSelected(guest);
+    setSelectedGuest(guest);
     setEditOpen(true);
   }
 
-  const vipCount = guests.filter((g) => g.is_vip).length;
-  const favoriteCount = guests.filter((g) => g.is_favorite).length;
+  function handleOpenGuest(model: GuestCardModel) {
+    setDrawerModel(model);
+    setDrawerOpen(true);
+  }
 
-  const stats = [
-    { title: "Всего гостей", value: guests.length, icon: Users },
-    { title: "VIP", value: vipCount, icon: Crown },
-    { title: "Избранные", value: favoriteCount, icon: Star },
-  ];
+  function runBulkAction(
+    action: (id: string) => Promise<void>,
+    successMessage: string
+  ) {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+
+    startTransition(async () => {
+      try {
+        await Promise.all(ids.map((id) => action(id)));
+        toast.success(successMessage);
+        setSelectedIds(new Set());
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to perform bulk action");
+      }
+    });
+  }
+
+  function confirmBulkDelete() {
+    const ids = Array.from(selectedIds);
+
+    startTransition(async () => {
+      try {
+        await Promise.all(ids.map((id) => deleteGuest(id)));
+        toast.success("Selected guests deleted");
+        setSelectedIds(new Set());
+        setBulkDeleteOpen(false);
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to delete selected guests");
+      }
+    });
+  }
 
   return (
     <div className="space-y-8">
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-4xl font-bold">Гости</h1>
-
-          <p className="mt-3 text-zinc-400">
-            База гостей, история проживания и заметки.
-          </p>
-        </div>
-
-        <GuestCreateButton onClick={() => setCreateOpen(true)} />
+      <div>
+        <h1 className="text-[32px] font-semibold tracking-[-0.03em] text-[var(--shell-text)]">
+          Guests
+        </h1>
+        <p className="mt-2 text-[15px] text-[var(--shell-muted)]">
+          Manage guest database, stay history, and VIP statuses
+        </p>
       </div>
 
-      <div className="grid gap-5 md:grid-cols-3">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.title}
-              className="rounded-2xl border border-zinc-800 bg-zinc-950 p-6"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-zinc-500">{stat.title}</p>
-                <Icon size={20} className="text-emerald-500" />
-              </div>
-              <div className="mt-5 text-3xl font-bold">{stat.value}</div>
-            </div>
-          );
-        })}
-      </div>
+      <GuestKpiGrid kpis={kpis} loading={loading} />
 
-      <div className="space-y-5">
-        <GuestFilters
-          search={search}
-          flag={flag}
-          tag={tag}
-          tagOptions={tagOptions}
-          onSearchChange={setSearch}
-          onFlagChange={setFlag}
-          onTagChange={setTag}
-        />
+      <GuestToolbar
+        search={search}
+        flag={flag}
+        tag={tag}
+        tagOptions={tagOptions}
+        sortKey={sortKey}
+        viewMode={viewMode}
+        selectedCount={selectedIds.size}
+        onSearchChange={setSearch}
+        onFlagChange={setFlag}
+        onTagChange={setTag}
+        onSortChange={setSortKey}
+        onViewModeChange={setViewMode}
+        onCreateClick={() => setCreateOpen(true)}
+        onBulkDelete={() => setBulkDeleteOpen(true)}
+        onBulkVip={() =>
+          runBulkAction((id) => setGuestVip(id, true), "VIP status assigned")
+        }
+        onBulkFavorite={() =>
+          runBulkAction(
+            (id) => setGuestFavorite(id, true),
+            "Guests added to favorites"
+          )
+        }
+        onClearSelection={() => setSelectedIds(new Set())}
+      />
 
-        <GuestsTable guests={filtered} onEdit={handleEdit} />
-      </div>
+      <GuestsCardsView
+        models={filteredModels}
+        viewMode={viewMode}
+        loading={loading}
+        selectedIds={selectedIds}
+        onSelectedIdsChange={setSelectedIds}
+        onOpenGuest={handleOpenGuest}
+        onEditGuest={handleEdit}
+      />
+
+      <GuestDetailDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        model={drawerModel}
+        candidates={candidates}
+      />
 
       <GuestCreateDialog open={createOpen} onOpenChange={setCreateOpen} />
 
       <GuestEditDialog
         open={editOpen}
         onOpenChange={setEditOpen}
-        guest={selected}
+        guest={selectedGuest}
+      />
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title="Delete selected guests?"
+        description={`${selectedIds.size} guest(s) will be deleted. This performs a soft delete.`}
+        confirmLabel="Delete"
+        destructive
+        loading={pending}
+        onConfirm={confirmBulkDelete}
       />
     </div>
   );

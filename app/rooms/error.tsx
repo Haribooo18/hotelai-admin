@@ -20,13 +20,13 @@ export default function RoomsError({
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-8 text-center">
       <AlertTriangle className="h-10 w-10 text-red-400" />
 
-      <h2 className="text-xl font-semibold">Не удалось загрузить номера</h2>
+      <h2 className="text-xl font-semibold">Failed to load rooms</h2>
 
       <p className="max-w-md text-sm text-zinc-500">
-        Произошла ошибка при загрузке данных. Попробуйте обновить страницу.
+        An error occurred while loading data. Try refreshing the page.
       </p>
 
-      <Button onClick={reset}>Повторить</Button>
+      <Button onClick={reset}>Retry</Button>
     </div>
   );
 }

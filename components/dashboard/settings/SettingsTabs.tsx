@@ -25,8 +25,8 @@ type Props = {
 };
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "ai", label: "AI-ресепшн" },
-  { id: "billing", label: "Биллинг" },
+  { id: "ai", label: "AI Receptionist" },
+  { id: "billing", label: "Billing" },
 ];
 
 export function SettingsTabs({
@@ -43,9 +43,9 @@ export function SettingsTabs({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-semibold">Настройки</h1>
+        <h1 className="text-3xl font-semibold">Settings</h1>
         <p className="mt-2 text-sm text-zinc-500">
-          Конфигурация AI-ресепшна, биллинг и диагностика
+          AI receptionist configuration, billing, and diagnostics
         </p>
       </div>
 
@@ -70,7 +70,7 @@ export function SettingsTabs({
         <>
           <section className="grid gap-8 lg:grid-cols-2">
             <div className="rounded-xl border border-zinc-800 bg-zinc-950 p-6">
-              <h2 className="text-lg font-semibold">AI-ресепшн</h2>
+              <h2 className="text-lg font-semibold">AI Receptionist</h2>
               <div className="mt-4">
                 <AISettingsForm settings={settings} configured={configured} />
               </div>
@@ -84,7 +84,7 @@ export function SettingsTabs({
 
           {logs.length > 0 && (
             <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-6">
-              <h2 className="text-lg font-semibold">Журнал наблюдаемости</h2>
+              <h2 className="text-lg font-semibold">Observability log</h2>
               <ul className="mt-4 max-h-64 space-y-2 overflow-y-auto text-sm">
                 {logs.map((log) => (
                   <li
@@ -96,7 +96,7 @@ export function SettingsTabs({
                       {log.event}
                     </span>
                     <span className="shrink-0 text-xs text-zinc-500">
-                      {new Date(log.created_at).toLocaleString("ru-RU")}
+                      {new Date(log.created_at).toLocaleString("en-US")}
                     </span>
                   </li>
                 ))}
@@ -106,9 +106,9 @@ export function SettingsTabs({
         </>
       ) : (
         <section className="rounded-xl border border-zinc-800 bg-zinc-950 p-6">
-          <h2 className="text-lg font-semibold">Подписка</h2>
+          <h2 className="text-lg font-semibold">Subscription</h2>
           <p className="mt-1 text-sm text-zinc-500">
-            Тариф, статус и управление оплатой через Stripe
+            Plan, status, and payment management via Stripe
           </p>
           <div className="mt-4">
             <BillingPanel

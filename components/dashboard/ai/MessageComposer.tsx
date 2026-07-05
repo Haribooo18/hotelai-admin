@@ -43,7 +43,7 @@ export function MessageComposer({
 
     if (!res.ok || !res.body) {
       const err = await res.json().catch(() => ({}));
-      throw new Error((err as { error?: string }).error ?? "Ошибка AI");
+      throw new Error((err as { error?: string }).error ?? "AI error");
     }
 
     const reader = res.body.getReader();
@@ -78,7 +78,7 @@ export function MessageComposer({
             onStreamDelta?.(accumulated);
           }
           if (event.type === "error") {
-            throw new Error(event.message ?? "Ошибка AI");
+            throw new Error(event.message ?? "AI error");
           }
         } catch (e) {
           if (e instanceof SyntaxError) continue;
@@ -113,7 +113,7 @@ export function MessageComposer({
         } catch (err) {
           setBody(sentBody);
           toast.error(
-            err instanceof Error ? err.message : "Не удалось отправить"
+            err instanceof Error ? err.message : "Failed to send"
           );
         }
       });
@@ -127,7 +127,7 @@ export function MessageComposer({
     });
 
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Ошибка");
+      setError(parsed.error.issues[0]?.message ?? "Error");
       return;
     }
 
@@ -144,7 +144,7 @@ export function MessageComposer({
         console.error(err);
         setBody(sentBody);
         toast.error(
-          err instanceof Error ? err.message : "Не удалось отправить"
+          err instanceof Error ? err.message : "Failed to send"
         );
       }
     });
@@ -157,7 +157,7 @@ export function MessageComposer({
       noValidate
     >
       <label htmlFor="message-body" className="sr-only">
-        Сообщение
+        Message
       </label>
 
       <Textarea
@@ -166,10 +166,10 @@ export function MessageComposer({
         onChange={(e) => setBody(e.target.value)}
         placeholder={
           asGuest
-            ? "Сообщение от имени гостя (тест)…"
+            ? "Message as guest (test)…"
             : isInternal
-              ? "Внутренняя заметка (не видна гостю)…"
-              : "Сообщение гостю…"
+              ? "Internal note (not visible to guest)…"
+              : "Message to guest…"
         }
         aria-invalid={Boolean(error)}
         aria-describedby={error ? "message-error" : undefined}
@@ -201,7 +201,7 @@ export function MessageComposer({
               disabled={asGuest}
               className="h-4 w-4 rounded border-zinc-700 accent-emerald-600"
             />
-            Внутренняя заметка
+            Internal note
           </label>
 
           <label className="flex items-center gap-2 text-sm text-zinc-400">
@@ -215,13 +215,13 @@ export function MessageComposer({
               className="h-4 w-4 rounded border-zinc-700 accent-emerald-600"
             />
             <User size={14} />
-            Как гость
+            As guest
           </label>
         </div>
 
         <Button type="submit" disabled={pending || !body.trim()}>
           <Send className="mr-2 h-4 w-4" />
-          {pending ? "Отправка…" : "Отправить"}
+          {pending ? "Sending…" : "Send"}
         </Button>
       </div>
     </form>

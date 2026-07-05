@@ -46,7 +46,7 @@ export default async function GuestProfileRoute({ params }: Props) {
           className="inline-flex items-center gap-2 text-sm text-zinc-400 transition hover:text-white"
         >
           <ArrowLeft size={16} />
-          Назад к списку
+          Back to list
         </Link>
 
         <GuestProfileCard
@@ -60,9 +60,9 @@ export default async function GuestProfileRoute({ params }: Props) {
 
         <section className="space-y-5">
           <div>
-            <h2 className="text-xl font-semibold">История бронирований</h2>
+            <h2 className="text-xl font-semibold">Booking history</h2>
             <p className="mt-1 text-sm text-zinc-500">
-              Бронирования сопоставлены по email или имени гостя.
+              Reservations matched by guest email or name.
             </p>
           </div>
 

@@ -35,7 +35,7 @@ export function BookingEditDialog({
       <SheetContent className="sm:max-w-lg">
         <SheetHeader>
           <SheetTitle>
-            Редактировать бронирование
+            Edit reservation
           </SheetTitle>
         </SheetHeader>
 

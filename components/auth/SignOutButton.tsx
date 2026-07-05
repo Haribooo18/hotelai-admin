@@ -14,7 +14,7 @@ type Props = {
 
 export function SignOutButton({
   className,
-  label = "Выйти",
+  label = "Sign out",
   showIcon = true,
 }: Props) {
   const [pending, startTransition] = useTransition();
@@ -28,10 +28,10 @@ export function SignOutButton({
         "flex items-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm text-zinc-400 transition hover:bg-zinc-800 hover:text-white disabled:opacity-50",
         className
       )}
-      aria-label="Выйти"
+      aria-label="Sign out"
     >
       {showIcon ? <LogOut size={16} /> : null}
-      <span>{pending ? "Выход..." : label}</span>
+      <span>{pending ? "Signing out..." : label}</span>
     </button>
   );
 }

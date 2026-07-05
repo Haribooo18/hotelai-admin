@@ -26,7 +26,7 @@ export function GuestTags({ tags = [], isVip, isFavorite, className }: Props) {
       {isFavorite && (
         <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2 py-0.5 text-xs font-semibold text-emerald-400">
           <Star size={12} />
-          Избранный
+          Favorite
         </span>
       )}
 

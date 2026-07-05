@@ -76,7 +76,7 @@ export function AIInboxPage({
     });
 
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Ошибка");
+      toast.error(parsed.error.issues[0]?.message ?? "Error");
       return;
     }
 
@@ -85,12 +85,12 @@ export function AIInboxPage({
         const id = await createConversation(parsed.data);
         setCreateOpen(false);
         setGuestName("");
-        toast.success("Диалог создан");
+        toast.success("Conversation created");
         router.push(`/ai?conversation=${id}`);
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось создать диалог");
+        toast.error("Failed to create conversation");
       }
     });
   }
@@ -105,13 +105,13 @@ export function AIInboxPage({
           </h1>
 
           <p className="mt-3 text-zinc-400">
-            Входящие обращения гостей по всем каналам.
+            Incoming guest inquiries across all channels.
           </p>
         </div>
 
         <Button onClick={() => setCreateOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Новый диалог
+          New conversation
         </Button>
       </div>
 
@@ -144,7 +144,7 @@ export function AIInboxPage({
               className="flex items-center gap-2 border-b border-zinc-800 px-4 py-2 text-sm text-zinc-400 md:hidden"
             >
               <ArrowLeft size={16} />
-              Назад к списку
+              Back to list
             </button>
           )}
 
@@ -168,13 +168,13 @@ export function AIInboxPage({
       <Sheet open={createOpen} onOpenChange={setCreateOpen}>
         <SheetContent className="sm:max-w-md">
           <SheetHeader>
-            <SheetTitle>Новый диалог</SheetTitle>
+            <SheetTitle>New conversation</SheetTitle>
           </SheetHeader>
 
           <form onSubmit={handleCreate} className="mt-6 space-y-4 px-6 pb-6">
             <div className="space-y-1.5">
               <label htmlFor="guest_name" className="text-sm text-zinc-400">
-                Имя гостя
+                Guest name
               </label>
               <Input
                 id="guest_name"
@@ -186,19 +186,19 @@ export function AIInboxPage({
 
             <div className="space-y-1.5">
               <label htmlFor="channel" className="text-sm text-zinc-400">
-                Канал
+                Channel
               </label>
               <Select
                 id="channel"
                 value={channel}
                 onChange={setChannel}
-                aria-label="Канал"
+                aria-label="Channel"
                 options={CONVERSATION_CHANNEL_OPTIONS}
               />
             </div>
 
             <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Создание…" : "Создать"}
+              {pending ? "Creating…" : "Create"}
             </Button>
           </form>
         </SheetContent>

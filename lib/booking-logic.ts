@@ -47,5 +47,5 @@ export function findAvailabilityConflict(
 export function formatAvailabilityConflictError(
   conflict: AvailabilityBooking
 ): string {
-  return `Номер уже забронирован (${conflict.check_in} — ${conflict.check_out})`;
+  return `Room is already booked (${conflict.check_in} — ${conflict.check_out})`;
 }

@@ -50,9 +50,9 @@ export function checkSupabaseEnv(): EnvCheckResult {
     configured,
     message: configured
       ? serviceRole
-        ? "Supabase client и service role настроены"
-        : "Supabase client настроен; service role не задан (нужен для вебхуков)"
-      : "Задайте NEXT_PUBLIC_SUPABASE_URL и NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        ? "Supabase client and service role configured"
+        : "Supabase client configured; service role not set (required for webhooks)"
+      : "Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY",
     details: {
       url,
       anon_key: anon,
@@ -66,8 +66,8 @@ export function checkOpenAIEnv(): EnvCheckResult {
   return {
     configured,
     message: configured
-      ? "OPENAI_API_KEY задан"
-      : "OPENAI_API_KEY не задан — AI-ресепшн отключён",
+      ? "OPENAI_API_KEY is set"
+      : "OPENAI_API_KEY is not set — AI receptionist disabled",
   };
 }
 
@@ -84,12 +84,12 @@ export function checkStripeEnv(): EnvCheckResult {
   return {
     configured,
     message: configured
-      ? "Stripe полностью настроен"
+      ? "Stripe fully configured"
       : secret
         ? webhook
-          ? "Задайте STRIPE_PRICE_STARTER, STRIPE_PRICE_PRO и STRIPE_PRICE_ENTERPRISE"
-          : "Задайте STRIPE_WEBHOOK_SECRET"
-        : "Задайте STRIPE_SECRET_KEY",
+          ? "Set STRIPE_PRICE_STARTER, STRIPE_PRICE_PRO, and STRIPE_PRICE_ENTERPRISE"
+          : "Set STRIPE_WEBHOOK_SECRET"
+        : "Set STRIPE_SECRET_KEY",
     details: {
       secret_key: secret,
       webhook_secret: webhook,
@@ -113,10 +113,10 @@ export function checkTelegramEnv(): EnvCheckResult {
   return {
     configured,
     message: configured
-      ? "Telegram канал настроен"
+      ? "Telegram channel configured"
       : token || secret
-        ? "Задайте TELEGRAM_BOT_TOKEN и TELEGRAM_WEBHOOK_SECRET"
-        : "Telegram не настроен (опционально)",
+        ? "Set TELEGRAM_BOT_TOKEN and TELEGRAM_WEBHOOK_SECRET"
+        : "Telegram not configured (optional)",
     details: {
       bot_token: token,
       webhook_secret: secret,
@@ -134,10 +134,10 @@ export function checkWebsiteChatEnv(): EnvCheckResult {
   return {
     configured,
     message: configured
-      ? `Website Chat настроен (hotel: ${hotelId})`
+      ? `Website Chat configured (hotel: ${hotelId})`
       : serviceRole
-        ? "Задайте WEBSITE_CHAT_HOTEL_ID или DEFAULT_HOTEL_ID"
-        : "Задайте SUPABASE_SERVICE_ROLE_KEY для Website Chat",
+        ? "Set WEBSITE_CHAT_HOTEL_ID or DEFAULT_HOTEL_ID"
+        : "Set SUPABASE_SERVICE_ROLE_KEY for Website Chat",
     details: {
       service_role: serviceRole,
       hotel_id: hotelId,

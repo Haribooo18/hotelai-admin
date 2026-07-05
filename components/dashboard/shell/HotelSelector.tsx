@@ -28,7 +28,7 @@ export function HotelSelector({ hotels, activeHotelId, onSelect }: Props) {
   return (
     <div className="space-y-2">
       <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--shell-muted)]">
-        Подключённый отель
+        Connected hotel
       </p>
 
       <DropdownMenu>
@@ -40,7 +40,7 @@ export function HotelSelector({ hotels, activeHotelId, onSelect }: Props) {
         >
           <span className="min-w-0">
             <span className="block truncate text-[13px] font-medium text-[var(--shell-text)]">
-              {activeHotel?.name ?? "Отель"}
+              {activeHotel?.name ?? "Hotel"}
             </span>
           </span>
           <ChevronDown

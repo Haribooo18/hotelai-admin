@@ -46,7 +46,7 @@ export function QuickActions({
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось выполнить действие");
+        toast.error("Failed to perform action");
       }
     });
   }
@@ -64,7 +64,7 @@ export function QuickActions({
         if (!res.ok || !res.body) {
           const err = await res.json().catch(() => ({}));
           throw new Error(
-            (err as { error?: string }).error ?? "Ошибка AI"
+            (err as { error?: string }).error ?? "AI error"
           );
         }
 
@@ -86,7 +86,7 @@ export function QuickActions({
             try {
               const event = JSON.parse(payload) as { type: string; message?: string };
               if (event.type === "error") {
-                throw new Error(event.message ?? "Ошибка AI");
+                throw new Error(event.message ?? "AI error");
               }
             } catch (e) {
               if (e instanceof SyntaxError) continue;
@@ -96,11 +96,11 @@ export function QuickActions({
         }
 
         router.refresh();
-        toast.success("AI ответил");
+        toast.success("AI responded");
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error ? error.message : "Не удалось получить ответ AI"
+          error instanceof Error ? error.message : "Failed to get AI response"
         );
         router.refresh();
       }
@@ -111,7 +111,7 @@ export function QuickActions({
     <div
       className="flex flex-wrap gap-2"
       role="toolbar"
-      aria-label="Быстрые действия"
+      aria-label="Quick actions"
     >
       {aiEnabled && (
         <Button
@@ -121,7 +121,7 @@ export function QuickActions({
           onClick={handleAIRespond}
         >
           <Bot className="mr-1.5 h-4 w-4" />
-          AI ответить
+          AI reply
         </Button>
       )}
       <Button
@@ -135,12 +135,12 @@ export function QuickActions({
                 conversation_id: conversation.id,
                 user_id: currentUserId,
               }),
-            "Диалог назначен вам"
+            "Conversation assigned to you"
           )
         }
       >
         <UserCheck className="mr-1.5 h-4 w-4" />
-        Назначить мне
+        Assign to me
       </Button>
 
       <Button
@@ -154,12 +154,12 @@ export function QuickActions({
                 id: conversation.id,
                 status: "resolved",
               }),
-            "Диалог решён"
+            "Conversation resolved"
           )
         }
       >
         <CheckCircle className="mr-1.5 h-4 w-4" />
-        Решить
+        Resolve
       </Button>
 
       <Button
@@ -173,12 +173,12 @@ export function QuickActions({
                 id: conversation.id,
                 priority: "high",
               }),
-            "Приоритет повышен"
+            "Priority raised"
           )
         }
       >
         <Star className="mr-1.5 h-4 w-4" />
-        Высокий приоритет
+        High priority
       </Button>
 
       <Button
@@ -186,11 +186,11 @@ export function QuickActions({
         size="sm"
         disabled={pending}
         onClick={() =>
-          run(() => archiveConversation(conversation.id), "Диалог в архиве")
+          run(() => archiveConversation(conversation.id), "Conversation archived")
         }
       >
         <Archive className="mr-1.5 h-4 w-4" />
-        В архив
+        Archive
       </Button>
     </div>
   );

@@ -23,13 +23,13 @@ export function KnowledgeDeleteDialog({
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Удалить статью?"
+      title="Delete article?"
       description={
         article
-          ? `«${article.title}» будет перемещена в корзину. AI-ресепшн перестанет использовать эту статью.`
+          ? `"${article.title}" will be moved to trash. The AI receptionist will stop using this article.`
           : undefined
       }
-      confirmLabel="Удалить"
+      confirmLabel="Delete"
       onConfirm={onConfirm}
       loading={pending}
       destructive

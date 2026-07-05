@@ -16,9 +16,9 @@ import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
 const TOOL_CHOICE_OPTIONS = [
-  { value: "auto", label: "Авто" },
-  { value: "none", label: "Без инструментов" },
-  { value: "required", label: "Обязательно" },
+  { value: "auto", label: "Auto" },
+  { value: "none", label: "No tools" },
+  { value: "required", label: "Required" },
 ] as const;
 
 type Props = {
@@ -77,11 +77,11 @@ export function AISettingsForm({ settings, configured }: Props) {
           max_retries: Number(maxRetries),
           extra_instructions: extraInstructions,
         });
-        toast.success("Настройки AI сохранены");
+        toast.success("AI settings saved");
         router.refresh();
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Не удалось сохранить"
+          err instanceof Error ? err.message : "Failed to save"
         );
       }
     });
@@ -94,8 +94,8 @@ export function AISettingsForm({ settings, configured }: Props) {
           className="rounded-xl border border-amber-900/40 bg-amber-950/20 p-4 text-sm text-amber-200"
           role="alert"
         >
-          OPENAI_API_KEY не задан на сервере. AI будет недоступен до настройки
-          переменной окружения.
+          OPENAI_API_KEY is not set on the server. AI will be unavailable until the
+          environment variable is configured.
         </div>
       )}
 
@@ -107,13 +107,13 @@ export function AISettingsForm({ settings, configured }: Props) {
           disabled={!configured}
           className="h-4 w-4 rounded border-zinc-700 accent-emerald-600"
         />
-        Включить AI-ресепшн
+        Enable AI receptionist
       </label>
 
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-2">
           <label htmlFor="ai-model" className="block text-sm text-zinc-400">
-            Модель
+            Model
           </label>
           <Select
             id="ai-model"
@@ -125,7 +125,7 @@ export function AISettingsForm({ settings, configured }: Props) {
 
         <div className="space-y-2">
           <label htmlFor="ai-tokens" className="block text-sm text-zinc-400">
-            Макс. токенов ответа
+            Max output tokens
           </label>
           <Input
             id="ai-tokens"
@@ -167,7 +167,7 @@ export function AISettingsForm({ settings, configured }: Props) {
 
         <div className="space-y-2">
           <label htmlFor="ai-tool-choice" className="block text-sm text-zinc-400">
-            Выбор инструментов
+            Tool choice
           </label>
           <Select
             id="ai-tool-choice"
@@ -184,7 +184,7 @@ export function AISettingsForm({ settings, configured }: Props) {
 
         <div className="space-y-2">
           <label htmlFor="ai-lang" className="block text-sm text-zinc-400">
-            Язык системы
+            System language
           </label>
           <Input
             id="ai-lang"
@@ -196,7 +196,7 @@ export function AISettingsForm({ settings, configured }: Props) {
 
         <div className="space-y-2">
           <label htmlFor="ai-rate" className="block text-sm text-zinc-400">
-            Лимит запросов / мин
+            Rate limit / min
           </label>
           <Input
             id="ai-rate"
@@ -208,7 +208,7 @@ export function AISettingsForm({ settings, configured }: Props) {
 
         <div className="space-y-2">
           <label htmlFor="ai-timeout" className="block text-sm text-zinc-400">
-            Таймаут (мс)
+            Timeout (ms)
           </label>
           <Input
             id="ai-timeout"
@@ -220,7 +220,7 @@ export function AISettingsForm({ settings, configured }: Props) {
 
         <div className="space-y-2">
           <label htmlFor="ai-rounds" className="block text-sm text-zinc-400">
-            Макс. раундов инструментов
+            Max tool rounds
           </label>
           <Input
             id="ai-rounds"
@@ -232,7 +232,7 @@ export function AISettingsForm({ settings, configured }: Props) {
 
         <div className="space-y-2">
           <label htmlFor="ai-retries" className="block text-sm text-zinc-400">
-            Повторы при ошибке
+            Retries on error
           </label>
           <Input
             id="ai-retries"
@@ -245,19 +245,19 @@ export function AISettingsForm({ settings, configured }: Props) {
 
       <div className="space-y-2">
         <label htmlFor="ai-extra" className="block text-sm text-zinc-400">
-          Дополнительные инструкции
+          Additional instructions
         </label>
         <Textarea
           id="ai-extra"
           value={extraInstructions}
           onChange={(e) => setExtraInstructions(e.target.value)}
-          placeholder="Особые правила для вашего отеля…"
+          placeholder="Special rules for your hotel…"
           className="min-h-24"
         />
       </div>
 
       <Button type="submit" disabled={pending || !configured}>
-        {pending ? "Сохранение…" : "Сохранить настройки"}
+        {pending ? "Saving…" : "Save settings"}
       </Button>
     </form>
   );

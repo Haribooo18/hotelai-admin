@@ -40,16 +40,16 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="w-full overflow-y-auto sm:max-w-xl">
         <SheetHeader>
-          <SheetTitle>{lead.guest_name || "Без имени"}</SheetTitle>
+          <SheetTitle>{lead.guest_name || "No name"}</SheetTitle>
           <SheetDescription>
-            Детали заявки на бронирование
+            Booking request details
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
           <section className="rounded-xl border p-4">
             <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Статус
+              Status
             </h3>
 
             <LeadStatusActions
@@ -60,10 +60,10 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
 
           <section className="rounded-xl border p-4">
             <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Контакты
+              Contacts
             </h3>
 
-            <Info label="Телефон" value={lead.phone} />
+            <Info label="Phone" value={lead.phone} />
             <Info label="Email" value={lead.email} />
 
             <div className="mt-4 flex flex-wrap gap-2">
@@ -72,7 +72,7 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
                   href={`tel:${lead.phone}`}
                   className="rounded-xl border px-3 py-2 text-sm hover:bg-muted"
                 >
-                  Позвонить
+                  Call
                 </a>
               )}
 
@@ -100,33 +100,33 @@ export function LeadDrawer({ lead, open, onOpenChange }: Props) {
 
           <section className="rounded-xl border p-4">
             <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Бронирование
+              Reservation
             </h3>
 
-            <Info label="Тип номера" value={lead.room_type} />
-            <Info label="Заезд" value={lead.check_in} />
-            <Info label="Выезд" value={lead.check_out} />
-            <Info label="Гостей" value={lead.guests?.toString()} />
+            <Info label="Room type" value={lead.room_type} />
+            <Info label="Check-in" value={lead.check_in} />
+            <Info label="Check-out" value={lead.check_out} />
+            <Info label="Guests" value={lead.guests?.toString()} />
           </section>
 
           <section className="rounded-xl border p-4">
             <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Комментарий
+              Comment
             </h3>
 
             <p className="whitespace-pre-wrap text-sm">
-              {lead.comment || "Комментария нет."}
+              {lead.comment || "No comment."}
             </p>
           </section>
 
           <section className="rounded-xl border p-4">
             <h3 className="mb-4 text-sm font-medium text-muted-foreground">
-              Системная информация
+              System information
             </h3>
 
-            <Info label="ID заявки" value={lead.lead_id} />
-            <Info label="Создана" value={lead.created_at} />
-            <Info label="Статус" value={lead.status || "new"} />
+            <Info label="Request ID" value={lead.lead_id} />
+            <Info label="Created" value={lead.created_at} />
+            <Info label="Status" value={lead.status || "new"} />
           </section>
         </div>
       </SheetContent>

@@ -42,11 +42,11 @@ export function GuestsTable({ guests, onEdit }: Props) {
       removeOptimistic(id);
       try {
         await deleteGuest(id);
-        toast.success("Гость удалён");
+        toast.success("Guest deleted");
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось удалить гостя");
+        toast.error("Failed to delete guest");
       } finally {
         setTarget(null);
       }
@@ -60,14 +60,14 @@ export function GuestsTable({ guests, onEdit }: Props) {
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Не удалось обновить статус");
+        toast.error("Failed to update status");
       }
     });
   }
 
   const columns: DataTableColumn<Guest>[] = [
     {
-      header: "Гость",
+      header: "Guest",
       cell: (guest) => (
         <div className="flex items-center gap-3">
           <GuestAvatar
@@ -91,7 +91,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
       ),
     },
     {
-      header: "Контакты",
+      header: "Contacts",
       cell: (guest) => (
         <div className="text-sm">
           <div>{guest.phone ?? "—"}</div>
@@ -102,7 +102,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
       ),
     },
     {
-      header: "Признаки",
+      header: "Flags",
       cell: (guest) => (
         <GuestTags
           tags={guest.tags}
@@ -112,11 +112,11 @@ export function GuestsTable({ guests, onEdit }: Props) {
       ),
     },
     {
-      header: "Бронирований",
+      header: "Bookings",
       cell: (guest) => guest.total_bookings,
     },
     {
-      header: "Действия",
+      header: "Actions",
       align: "right",
       cell: (guest) => (
         <div className="flex justify-end gap-2">
@@ -124,8 +124,8 @@ export function GuestsTable({ guests, onEdit }: Props) {
             type="button"
             aria-label={
               guest.is_favorite
-                ? `Убрать ${guest.first_name} из избранного`
-                : `Добавить ${guest.first_name} в избранное`
+                ? `Remove ${guest.first_name} from favorites`
+                : `Add ${guest.first_name} to favorites`
             }
             aria-pressed={guest.is_favorite}
             onClick={() => toggleFavorite(guest)}
@@ -144,7 +144,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
 
           <button
             type="button"
-            aria-label={`Редактировать ${guest.first_name} ${guest.last_name}`}
+            aria-label={`Edit ${guest.first_name} ${guest.last_name}`}
             onClick={() => onEdit?.(guest)}
             className="rounded-lg border border-zinc-700 p-2 transition hover:bg-zinc-800"
           >
@@ -153,7 +153,7 @@ export function GuestsTable({ guests, onEdit }: Props) {
 
           <button
             type="button"
-            aria-label={`Удалить ${guest.first_name} ${guest.last_name}`}
+            aria-label={`Delete ${guest.first_name} ${guest.last_name}`}
             onClick={() => setTarget(guest)}
             className="rounded-lg border border-red-900 p-2 text-red-400 transition hover:bg-red-950"
           >
@@ -170,10 +170,10 @@ export function GuestsTable({ guests, onEdit }: Props) {
         columns={columns}
         data={optimisticGuests}
         getRowId={(guest) => guest.id}
-        caption="Список гостей"
+        caption="Guest list"
         empty={
           <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-16 text-center text-zinc-500">
-            Гости не найдены
+            No guests found
           </div>
         }
       />
@@ -183,13 +183,13 @@ export function GuestsTable({ guests, onEdit }: Props) {
         onOpenChange={(open) => {
           if (!open) setTarget(null);
         }}
-        title="Удалить гостя?"
+        title="Delete guest?"
         description={
           target
-            ? `Гость «${target.first_name} ${target.last_name}» будет перемещён в архив (мягкое удаление).`
+            ? `Guest "${target.first_name} ${target.last_name}" will be moved to the archive (soft delete).`
             : undefined
         }
-        confirmLabel="Удалить"
+        confirmLabel="Delete"
         destructive
         loading={pending}
         onConfirm={confirmDelete}

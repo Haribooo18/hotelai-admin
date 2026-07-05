@@ -33,7 +33,7 @@ export default async function LoginPage({ searchParams }: Props) {
           <h1 className="text-2xl font-bold">Monavel</h1>
 
           <p className="mt-2 text-sm text-zinc-500">
-            Войдите в панель управления отелем
+            Sign in to your hotel dashboard
           </p>
         </div>
 

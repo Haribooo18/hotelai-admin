@@ -139,7 +139,7 @@ export function CalendarBookingBar({
     >
       <button
         type="button"
-        aria-label={`Бронирование ${booking.guest_name}, ${booking.check_in} — ${booking.check_out}. Стрелки — перенос, Shift+стрелки — длительность, Enter — детали.`}
+        aria-label={`Booking ${booking.guest_name}, ${booking.check_in} — ${booking.check_out}. Arrow keys move, Shift+arrow keys resize, Enter for details.`}
         onPointerDown={(e) => beginDrag("move", e)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -179,7 +179,7 @@ export function CalendarBookingBar({
       <div className="pointer-events-none absolute bottom-full left-0 z-40 mb-2 hidden w-56 rounded-xl border border-zinc-700 bg-zinc-900 p-3 text-left shadow-xl group-hover:block group-focus-within:block">
         <p className="font-semibold text-white">{booking.guest_name}</p>
         <p className="mt-1 text-xs text-zinc-400">
-          {booking.check_in} → {booking.check_out} · {nights} ноч.
+          {booking.check_in} → {booking.check_out} · {nights} nights
         </p>
         <div className="mt-2 flex items-center justify-between text-xs">
           <span className="text-zinc-400">{meta?.label ?? booking.status}</span>

@@ -13,7 +13,7 @@ export function KnowledgePreview({ content, title }: Props) {
   return (
     <article
       className="prose prose-invert max-w-none rounded-lg border border-zinc-800 bg-zinc-950 p-6 text-sm leading-relaxed text-zinc-300"
-      aria-label={title ? `Предпросмотр: ${title}` : "Предпросмотр статьи"}
+      aria-label={title ? `Preview: ${title}` : "Article preview"}
     >
       {title && (
         <h2 className="mb-4 text-xl font-semibold text-zinc-100">{title}</h2>

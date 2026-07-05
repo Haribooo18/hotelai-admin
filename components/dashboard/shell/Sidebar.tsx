@@ -141,7 +141,7 @@ export function Sidebar({ hotel }: Pick<Props, "hotel">) {
     <>
       <button
         type="button"
-        aria-label="Открыть навигацию"
+        aria-label="Open navigation"
         onClick={() => setMobileOpen(true)}
         className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-[12px] border border-[var(--shell-border)] bg-[var(--shell-surface)] text-[var(--shell-text)] shadow-[var(--shell-shadow-sm)] transition-all duration-200 ease-out hover:bg-[var(--shell-nav-hover-bg)] lg:hidden"
       >
@@ -156,7 +156,7 @@ export function Sidebar({ hotel }: Pick<Props, "hotel">) {
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            aria-label="Закрыть навигацию"
+            aria-label="Close navigation"
             className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
             onClick={() => setMobileOpen(false)}
           />

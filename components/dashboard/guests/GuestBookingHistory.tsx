@@ -12,14 +12,14 @@ type Props = {
 
 export function GuestBookingHistory({ bookings }: Props) {
   const columns: DataTableColumn<Booking>[] = [
-    { header: "Заезд", cell: (b) => b.check_in },
-    { header: "Выезд", cell: (b) => b.check_out },
+    { header: "Check-in", cell: (b) => b.check_in },
+    { header: "Check-out", cell: (b) => b.check_out },
     {
-      header: "Статус",
+      header: "Status",
       cell: (b) => <BookingStatusBadge status={b.status} />,
     },
     {
-      header: "Стоимость",
+      header: "Total",
       align: "right",
       cell: (b) => `$${b.total_price}`,
       cellClassName: "font-medium",
@@ -31,10 +31,10 @@ export function GuestBookingHistory({ bookings }: Props) {
       columns={columns}
       data={bookings}
       getRowId={(b) => b.id}
-      caption="История бронирований гостя"
+      caption="Guest booking history"
       empty={
         <div className="rounded-2xl border border-zinc-800 bg-zinc-950 py-12 text-center text-zinc-500">
-          Нет истории бронирований
+          No booking history
         </div>
       }
     />

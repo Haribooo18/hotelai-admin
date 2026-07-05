@@ -31,20 +31,20 @@ export function CalendarToolbar({
         <Button
           variant="outline"
           size="icon"
-          aria-label="Предыдущий период"
+          aria-label="Previous period"
           onClick={onPrevious}
         >
           <ChevronLeft size={18} />
         </Button>
 
         <Button variant="outline" onClick={onToday}>
-          Сегодня
+          Today
         </Button>
 
         <Button
           variant="outline"
           size="icon"
-          aria-label="Следующий период"
+          aria-label="Next period"
           onClick={onNext}
         >
           <ChevronRight size={18} />
@@ -55,7 +55,7 @@ export function CalendarToolbar({
 
       <div className="flex items-center gap-4">
         <div className="hidden text-sm text-zinc-400 sm:block">
-          Средняя загрузка:{" "}
+          Average occupancy:{" "}
           <span className="font-semibold text-emerald-400">
             {occupancyPercent}%
           </span>
@@ -63,7 +63,7 @@ export function CalendarToolbar({
 
         <div
           role="tablist"
-          aria-label="Режим отображения"
+          aria-label="View mode"
           className="flex rounded-lg border border-zinc-800 bg-zinc-900 p-1"
         >
           {(["month", "week"] as CalendarView[]).map((mode) => (
@@ -80,7 +80,7 @@ export function CalendarToolbar({
                   : "text-zinc-400 hover:text-white"
               )}
             >
-              {mode === "month" ? "Месяц" : "Неделя"}
+              {mode === "month" ? "Month" : "Week"}
             </button>
           ))}
         </div>

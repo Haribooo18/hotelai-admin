@@ -44,8 +44,8 @@ export function KnowledgeFilters({
         className="w-[160px]"
         value={status}
         onChange={onStatusChange}
-        placeholder="Все статусы"
-        aria-label="Статус"
+        placeholder="All statuses"
+        aria-label="Status"
         options={KNOWLEDGE_STATUSES.map((s) => ({
           value: s,
           label: KNOWLEDGE_STATUS_LABELS[s],
@@ -56,8 +56,8 @@ export function KnowledgeFilters({
         className="w-[180px]"
         value={category}
         onChange={onCategoryChange}
-        placeholder="Все категории"
-        aria-label="Категория"
+        placeholder="All categories"
+        aria-label="Category"
         options={allCategories.map((c) => ({ value: c, label: c }))}
       />
 
@@ -65,8 +65,8 @@ export function KnowledgeFilters({
         className="w-[140px]"
         value={language}
         onChange={onLanguageChange}
-        placeholder="Все языки"
-        aria-label="Язык"
+        placeholder="All languages"
+        aria-label="Language"
         options={KNOWLEDGE_LANGUAGES.map((l) => ({
           value: l.code,
           label: l.label,
@@ -77,8 +77,8 @@ export function KnowledgeFilters({
         className="w-[150px]"
         value={priority}
         onChange={onPriorityChange}
-        placeholder="Все приоритеты"
-        aria-label="Приоритет"
+        placeholder="All priorities"
+        aria-label="Priority"
         options={KNOWLEDGE_PRIORITIES.map((p) => ({
           value: p,
           label: KNOWLEDGE_PRIORITY_LABELS[p],

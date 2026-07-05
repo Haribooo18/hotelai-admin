@@ -5,12 +5,22 @@ import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Lead } from "@/types/lead";
 
-import { DashboardStats } from "@/components/dashboard/DashboardStats";
-import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
-import { LeadsTable } from "@/components/dashboard/LeadsTable";
-
-import { LeadSearch } from "@/app/LeadSearch";
-import { LeadFilters } from "@/app/LeadFilters";
+import {
+  buildOccupancyTrend,
+  buildRevenueTrend,
+  buildTimeline,
+  computeDashboardMetrics,
+  DashboardHero,
+  DashboardKpiGrid,
+  DashboardLatestReservations,
+  DashboardLeadsPanel,
+  DashboardOccupancyTrend,
+  DashboardQuickActions,
+  DashboardRevenueTrend,
+  DashboardTimeline,
+  getLatestBookings,
+  useDashboardSupplement,
+} from "@/components/dashboard/home";
 
 type Props = {
   initialLeads: Lead[];
@@ -19,10 +29,10 @@ type Props = {
 
 export function DashboardPage({ initialLeads, hotelId }: Props) {
   const [leads, setLeads] = useState(initialLeads);
-
   const [search, setSearch] = useState("");
-
   const [status, setStatus] = useState("all");
+
+  const { bookings, rooms, loading } = useDashboardSupplement(hotelId);
 
   useEffect(() => {
     const supabase = createClient();
@@ -58,10 +68,10 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
   const counts = useMemo(
     () => ({
       all: leads.length,
-      new: leads.filter((l) => l.status === "new").length,
-      contacted: leads.filter((l) => l.status === "contacted").length,
-      confirmed: leads.filter((l) => l.status === "confirmed").length,
-      cancelled: leads.filter((l) => l.status === "cancelled").length,
+      new: leads.filter((lead) => lead.status === "new").length,
+      contacted: leads.filter((lead) => lead.status === "contacted").length,
+      confirmed: leads.filter((lead) => lead.status === "confirmed").length,
+      cancelled: leads.filter((lead) => lead.status === "cancelled").length,
     }),
     [leads]
   );
@@ -74,7 +84,7 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
     }
 
     if (search.trim()) {
-      const q = search.toLowerCase();
+      const query = search.toLowerCase();
 
       items = items.filter((lead) =>
         [
@@ -89,41 +99,66 @@ export function DashboardPage({ initialLeads, hotelId }: Props) {
           .filter(Boolean)
           .join(" ")
           .toLowerCase()
-          .includes(q)
+          .includes(query)
       );
     }
 
     return items;
   }, [leads, status, search]);
 
-  return (
-    <>
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold">
-          Заявки на бронирование
-        </h1>
+  const metrics = useMemo(
+    () => computeDashboardMetrics(bookings, rooms, leads),
+    [bookings, rooms, leads]
+  );
 
-        <p className="mt-2 text-zinc-500">
-          Управление входящими заявками отеля
-        </p>
+  const revenueTrend = useMemo(
+    () => buildRevenueTrend(bookings),
+    [bookings]
+  );
+
+  const occupancyTrend = useMemo(
+    () => buildOccupancyTrend(bookings, rooms.length),
+    [bookings, rooms.length]
+  );
+
+  const timeline = useMemo(
+    () => buildTimeline(bookings, leads),
+    [bookings, leads]
+  );
+
+  const latestBookings = useMemo(
+    () => getLatestBookings(bookings),
+    [bookings]
+  );
+
+  return (
+    <div className="space-y-8">
+      <DashboardHero metrics={metrics} loading={loading} />
+
+      <DashboardKpiGrid metrics={metrics} loading={loading} />
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)]">
+        <DashboardTimeline items={timeline} loading={loading} />
+        <DashboardQuickActions />
       </div>
 
-      <DashboardStats counts={counts} />
+      <div className="grid gap-6 xl:grid-cols-3">
+        <DashboardRevenueTrend data={revenueTrend} loading={loading} />
+        <DashboardOccupancyTrend data={occupancyTrend} loading={loading} />
+        <DashboardLatestReservations
+          bookings={latestBookings}
+          loading={loading}
+        />
+      </div>
 
-      <DashboardCharts />
-
-      <LeadSearch
-        value={search}
-        onChange={setSearch}
-      />
-
-      <LeadFilters
-        active={status}
-        setActive={setStatus}
+      <DashboardLeadsPanel
+        leads={visibleLeads}
+        search={search}
+        status={status}
         counts={counts}
+        onSearchChange={setSearch}
+        onStatusChange={setStatus}
       />
-
-      <LeadsTable leads={visibleLeads} />
-    </>
+    </div>
   );
 }

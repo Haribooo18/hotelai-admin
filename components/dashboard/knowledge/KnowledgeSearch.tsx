@@ -18,8 +18,8 @@ export function KnowledgeSearch({ value, onChange }: Props) {
       />
       <Input
         className="pl-9"
-        placeholder="Поиск по заголовку, тексту, тегам…"
-        aria-label="Поиск статей"
+        placeholder="Search by title, body, tags…"
+        aria-label="Search articles"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />

@@ -1,10 +1,10 @@
 import type { Lead } from "@/types/lead";
 
 const leadStatusLabels: Record<string, string> = {
-  new: "Новая",
-  contacted: "Связались",
-  confirmed: "Подтверждена",
-  cancelled: "Отменена",
+  new: "New",
+  contacted: "Contacted",
+  confirmed: "Confirmed",
+  cancelled: "Cancelled",
 };
 
 type Props = {
@@ -15,28 +15,28 @@ export function LeadCard({ lead }: Props) {
   if (!lead) {
     return (
       <div className="rounded-xl border border-dashed border-zinc-800 p-4 text-center text-sm text-zinc-500">
-        Нет связанной заявки
+        No linked inquiry
       </div>
     );
   }
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900 p-4">
-      <p className="text-xs uppercase tracking-widest text-zinc-500">Заявка</p>
+      <p className="text-xs uppercase tracking-widest text-zinc-500">Inquiry</p>
 
       <p className="mt-2 font-semibold">{lead.guest_name ?? "—"}</p>
 
       <dl className="mt-3 space-y-2 text-sm">
         {lead.room_type && (
           <div>
-            <dt className="text-zinc-500">Номер</dt>
+            <dt className="text-zinc-500">Room</dt>
             <dd>{lead.room_type}</dd>
           </div>
         )}
 
         {lead.check_in && lead.check_out && (
           <div>
-            <dt className="text-zinc-500">Даты</dt>
+            <dt className="text-zinc-500">Dates</dt>
             <dd>
               {lead.check_in} → {lead.check_out}
             </dd>
@@ -45,7 +45,7 @@ export function LeadCard({ lead }: Props) {
 
         {lead.guests != null && (
           <div>
-            <dt className="text-zinc-500">Гостей</dt>
+            <dt className="text-zinc-500">Guests</dt>
             <dd>{lead.guests}</dd>
           </div>
         )}

@@ -22,8 +22,8 @@ export function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = "Подтвердить",
-  cancelLabel = "Отмена",
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   destructive = false,
   loading = false,
   onConfirm,
@@ -59,7 +59,7 @@ export function ConfirmDialog({
               disabled={loading}
               onClick={onConfirm}
             >
-              {loading ? "Удаление..." : confirmLabel}
+              {loading ? "Deleting..." : confirmLabel}
             </Button>
           </div>
         </Dialog.Popup>

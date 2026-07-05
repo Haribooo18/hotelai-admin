@@ -10,9 +10,9 @@ export const KNOWLEDGE_STATUSES: KnowledgeArticleStatus[] = [
 ];
 
 export const KNOWLEDGE_STATUS_LABELS: Record<KnowledgeArticleStatus, string> = {
-  draft: "Черновик",
-  published: "Опубликовано",
-  archived: "В архиве",
+  draft: "Draft",
+  published: "Published",
+  archived: "Archived",
 };
 
 export const KNOWLEDGE_PRIORITIES: KnowledgeArticlePriority[] = [
@@ -25,13 +25,13 @@ export const KNOWLEDGE_PRIORITY_LABELS: Record<
   KnowledgeArticlePriority,
   string
 > = {
-  low: "Низкий",
-  normal: "Обычный",
-  high: "Высокий",
+  low: "Low",
+  normal: "Normal",
+  high: "High",
 };
 
 export const KNOWLEDGE_LANGUAGES = [
-  { code: "ru", label: "Русский" },
+  { code: "ru", label: "Russian" },
   { code: "en", label: "English" },
   { code: "de", label: "Deutsch" },
   { code: "fr", label: "Français" },
@@ -39,12 +39,12 @@ export const KNOWLEDGE_LANGUAGES = [
 ] as const;
 
 export const DEFAULT_KNOWLEDGE_CATEGORIES = [
-  "Общее",
-  "Заезд и выезд",
-  "Услуги",
-  "Питание",
-  "Трансфер",
-  "Правила",
+  "General",
+  "Check-in & Check-out",
+  "Services",
+  "Dining",
+  "Transfer",
+  "Policies",
   "FAQ",
 ] as const;
 

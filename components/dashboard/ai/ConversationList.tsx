@@ -32,13 +32,13 @@ function formatRelative(iso: string | null) {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) {
-    return date.toLocaleTimeString("ru-RU", {
+    return date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
     });
   }
-  if (diffDays === 1) return "Вчера";
-  return date.toLocaleDateString("ru-RU", { day: "numeric", month: "short" });
+  if (diffDays === 1) return "Yesterday";
+  return date.toLocaleDateString("en-US", { day: "numeric", month: "short" });
 }
 
 export function ConversationList({
@@ -85,8 +85,8 @@ export function ConversationList({
           />
           <Input
             className="pl-9"
-            placeholder="Поиск диалогов…"
-            aria-label="Поиск диалогов"
+            placeholder="Search conversations…"
+            aria-label="Search conversations"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -96,22 +96,22 @@ export function ConversationList({
           <Select
             value={status}
             onChange={setStatus}
-            placeholder="Все статусы"
-            aria-label="Фильтр по статусу"
+            placeholder="All statuses"
+            aria-label="Filter by status"
             options={CONVERSATION_STATUS_OPTIONS}
           />
           <Select
             value={channel}
             onChange={setChannel}
-            placeholder="Все каналы"
-            aria-label="Фильтр по каналу"
+            placeholder="All channels"
+            aria-label="Filter by channel"
             options={CONVERSATION_CHANNEL_OPTIONS}
           />
           <Select
             value={priority}
             onChange={setPriority}
-            placeholder="Все приоритеты"
-            aria-label="Фильтр по приоритету"
+            placeholder="All priorities"
+            aria-label="Filter by priority"
             options={CONVERSATION_PRIORITY_OPTIONS}
           />
         </div>
@@ -120,11 +120,11 @@ export function ConversationList({
       <div
         className="flex-1 overflow-y-auto"
         role="listbox"
-        aria-label="Список диалогов"
+        aria-label="Conversation list"
       >
         {filtered.length === 0 ? (
           <div className="p-8 text-center text-sm text-zinc-500">
-            Диалоги не найдены
+            No conversations found
           </div>
         ) : (
           filtered.map((conversation) => (
@@ -151,7 +151,7 @@ export function ConversationList({
                   {conversation.unread_count > 0 && (
                     <span
                       className="flex h-5 min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 text-[10px] font-bold text-white"
-                      aria-label={`${conversation.unread_count} непрочитанных`}
+                      aria-label={`${conversation.unread_count} unread`}
                     >
                       {conversation.unread_count}
                     </span>
@@ -163,7 +163,7 @@ export function ConversationList({
               </div>
 
               <p className="truncate text-sm text-zinc-500">
-                {conversation.last_message_preview ?? "Нет сообщений"}
+                {conversation.last_message_preview ?? "No messages"}
               </p>
 
               <div className="flex flex-wrap items-center gap-1.5">

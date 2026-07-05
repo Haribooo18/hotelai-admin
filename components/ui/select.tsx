@@ -24,7 +24,7 @@ export function Select({
   value,
   onChange,
   options,
-  placeholder = "Выберите...",
+  placeholder = "Select...",
   disabled = false,
   className = "",
   id,

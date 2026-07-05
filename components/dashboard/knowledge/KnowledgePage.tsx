@@ -52,10 +52,10 @@ export function KnowledgePage({ articles, categories }: Props) {
     <div className="space-y-8">
       <div className="flex items-end justify-between">
         <div>
-          <h1 className="text-3xl font-semibold">База знаний</h1>
+          <h1 className="text-3xl font-semibold">Knowledge base</h1>
           <p className="mt-2 text-sm text-zinc-500">
-            Статьи для AI-ресепшна · {publishedCount} опубликовано ·{" "}
-            {draftCount} черновиков
+            Articles for the AI receptionist · {publishedCount} published ·{" "}
+            {draftCount} drafts
           </p>
         </div>
         <KnowledgeCreateButton onClick={() => setCreateOpen(true)} />

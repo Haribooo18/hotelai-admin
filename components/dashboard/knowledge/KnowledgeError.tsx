@@ -10,7 +10,7 @@ type Props = {
 };
 
 export function KnowledgeError({
-  message = "Не удалось загрузить базу знаний",
+  message = "Failed to load knowledge base",
   reset,
 }: Props) {
   return (
@@ -22,7 +22,7 @@ export function KnowledgeError({
       <p className="text-sm text-red-300">{message}</p>
       {reset && (
         <Button variant="outline" className="mt-4" onClick={reset}>
-          Повторить
+          Retry
         </Button>
       )}
     </div>

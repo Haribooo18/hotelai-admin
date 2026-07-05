@@ -8,7 +8,7 @@ export function TypingIndicator({
   actor = "guest",
 }: Props) {
   const defaultLabel =
-    actor === "ai" ? "AI печатает" : "Гость печатает";
+    actor === "ai" ? "AI is typing" : "Guest is typing";
 
   return (
     <div

@@ -89,17 +89,17 @@ export function GuestForm({ guest, onSuccess }: Props) {
       try {
         if (guest) {
           await updateGuest({ ...parsed.data, id: guest.id });
-          toast.success("Гость обновлён");
+          toast.success("Guest updated");
         } else {
           await createGuest(parsed.data);
-          toast.success("Гость создан");
+          toast.success("Guest created");
         }
         router.refresh();
         onSuccess?.();
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error ? error.message : "Ошибка сохранения"
+          error instanceof Error ? error.message : "Failed to save"
         );
       }
     });
@@ -108,7 +108,7 @@ export function GuestForm({ guest, onSuccess }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Имя" htmlFor="first_name" error={errors.first_name}>
+        <Field label="First name" htmlFor="first_name" error={errors.first_name}>
           <Input
             id="first_name"
             value={firstName}
@@ -118,7 +118,7 @@ export function GuestForm({ guest, onSuccess }: Props) {
           />
         </Field>
 
-        <Field label="Фамилия" htmlFor="last_name" error={errors.last_name}>
+        <Field label="Last name" htmlFor="last_name" error={errors.last_name}>
           <Input
             id="last_name"
             value={lastName}
@@ -140,7 +140,7 @@ export function GuestForm({ guest, onSuccess }: Props) {
         />
       </Field>
 
-      <Field label="Телефон" htmlFor="phone">
+      <Field label="Phone" htmlFor="phone">
         <Input
           id="phone"
           value={phone}
@@ -149,7 +149,7 @@ export function GuestForm({ guest, onSuccess }: Props) {
       </Field>
 
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Страна" htmlFor="country">
+        <Field label="Country" htmlFor="country">
           <Input
             id="country"
             value={country}
@@ -157,7 +157,7 @@ export function GuestForm({ guest, onSuccess }: Props) {
           />
         </Field>
 
-        <Field label="Город" htmlFor="city">
+        <Field label="City" htmlFor="city">
           <Input
             id="city"
             value={city}
@@ -166,7 +166,7 @@ export function GuestForm({ guest, onSuccess }: Props) {
         </Field>
       </div>
 
-      <Field label="Ссылка на аватар" htmlFor="avatar_url">
+      <Field label="Avatar URL" htmlFor="avatar_url">
         <Input
           id="avatar_url"
           placeholder="https://…"
@@ -175,11 +175,11 @@ export function GuestForm({ guest, onSuccess }: Props) {
         />
       </Field>
 
-      <Field label="Теги" htmlFor="tags">
+      <Field label="Tags" htmlFor="tags">
         <GuestTagsInput id="tags" value={tags} onChange={setTags} />
       </Field>
 
-      <Field label="Заметки" htmlFor="notes">
+      <Field label="Notes" htmlFor="notes">
         <Textarea
           id="notes"
           value={notes}
@@ -197,7 +197,7 @@ export function GuestForm({ guest, onSuccess }: Props) {
 
         <Checkbox
           id="is_favorite"
-          label="Избранный"
+          label="Favorite"
           checked={isFavorite}
           onChange={setIsFavorite}
         />
@@ -205,10 +205,10 @@ export function GuestForm({ guest, onSuccess }: Props) {
 
       <Button type="submit" className="w-full" disabled={pending}>
         {pending
-          ? "Сохранение..."
+          ? "Saving..."
           : guest
-          ? "Сохранить изменения"
-          : "Создать гостя"}
+          ? "Save changes"
+          : "Create guest"}
       </Button>
     </form>
   );

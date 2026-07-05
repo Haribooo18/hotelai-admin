@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 
 type Props = {
   room?: Room;
+  template?: Pick<Room, "room_type" | "capacity" | "price">;
   onSuccess?: () => void;
 };
 
@@ -24,13 +25,19 @@ type FieldErrors = Partial<
   Record<"room_type" | "capacity" | "price", string>
 >;
 
-export function RoomForm({ room, onSuccess }: Props) {
+export function RoomForm({ room, template, onSuccess }: Props) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
-  const [roomType, setRoomType] = useState(room?.room_type ?? "");
-  const [capacity, setCapacity] = useState(String(room?.capacity ?? 2));
-  const [price, setPrice] = useState(String(room?.price ?? 100));
+  const [roomType, setRoomType] = useState(
+    room?.room_type ?? template?.room_type ?? ""
+  );
+  const [capacity, setCapacity] = useState(
+    String(room?.capacity ?? template?.capacity ?? 2)
+  );
+  const [price, setPrice] = useState(
+    String(room?.price ?? template?.price ?? 100)
+  );
   const [errors, setErrors] = useState<FieldErrors>({});
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -60,10 +67,10 @@ export function RoomForm({ room, onSuccess }: Props) {
       try {
         if (room) {
           await updateRoom({ ...parsed.data, id: room.id });
-          toast.success("Номер успешно обновлён");
+          toast.success("Room updated successfully");
         } else {
           await createRoom(parsed.data);
-          toast.success("Номер успешно создан");
+          toast.success("Room created successfully");
         }
 
         router.refresh();
@@ -71,7 +78,7 @@ export function RoomForm({ room, onSuccess }: Props) {
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error ? error.message : "Ошибка сохранения номера"
+          error instanceof Error ? error.message : "Failed to save room"
         );
       }
     });
@@ -79,10 +86,10 @@ export function RoomForm({ room, onSuccess }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <Field label="Тип номера" htmlFor="room_type" error={errors.room_type}>
+      <Field label="Room type" htmlFor="room_type" error={errors.room_type}>
         <Input
           id="room_type"
-          placeholder="Тип номера"
+          placeholder="Room type"
           value={roomType}
           onChange={(e) => setRoomType(e.target.value)}
           aria-invalid={Boolean(errors.room_type)}
@@ -90,12 +97,12 @@ export function RoomForm({ room, onSuccess }: Props) {
         />
       </Field>
 
-      <Field label="Вместимость" htmlFor="capacity" error={errors.capacity}>
+      <Field label="Capacity" htmlFor="capacity" error={errors.capacity}>
         <Input
           id="capacity"
           type="number"
           min={1}
-          placeholder="Вместимость"
+          placeholder="Capacity"
           value={capacity}
           onChange={(e) => setCapacity(e.target.value)}
           aria-invalid={Boolean(errors.capacity)}
@@ -103,12 +110,12 @@ export function RoomForm({ room, onSuccess }: Props) {
         />
       </Field>
 
-      <Field label="Цена за ночь" htmlFor="price" error={errors.price}>
+      <Field label="Price per night" htmlFor="price" error={errors.price}>
         <Input
           id="price"
           type="number"
           min={1}
-          placeholder="Цена"
+          placeholder="Price"
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           aria-invalid={Boolean(errors.price)}
@@ -118,10 +125,10 @@ export function RoomForm({ room, onSuccess }: Props) {
 
       <Button type="submit" className="w-full" disabled={pending}>
         {pending
-          ? "Сохранение..."
+          ? "Saving..."
           : room
-          ? "Сохранить изменения"
-          : "Создать номер"}
+          ? "Save changes"
+          : "Create room"}
       </Button>
     </form>
   );
