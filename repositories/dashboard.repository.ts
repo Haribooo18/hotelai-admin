@@ -43,15 +43,13 @@ export class DashboardRepository {
   }
 
   async getMetrics(
-    bookings: Booking[],
-    rooms: Room[],
-    leads: Lead[]
+    data: DashboardData | Promise<DashboardData>
   ): Promise<DashboardMetrics> {
-    return getDashboardMetrics(this.ctx, bookings, rooms, leads);
+    return getDashboardMetrics(this.ctx, data);
   }
 
   async getMetricsForCurrentHotel(): Promise<DashboardMetrics> {
-    const data = await this.load();
-    return this.getMetrics(data.bookings, data.rooms, data.leads);
+    const dataPromise = this.load();
+    return this.getMetrics(dataPromise);
   }
 }

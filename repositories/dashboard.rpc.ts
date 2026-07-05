@@ -36,27 +36,40 @@ function mapRpcRow(row: RpcDashboardMetricsRow, leads: Lead[]): DashboardMetrics
   };
 }
 
+type DashboardFallbackData = {
+  bookings: Booking[];
+  rooms: Room[];
+  leads: Lead[];
+};
+
+async function resolveFallbackData(
+  fallbackData: DashboardFallbackData | Promise<DashboardFallbackData>
+): Promise<DashboardFallbackData> {
+  return Promise.resolve(fallbackData);
+}
+
 export async function getDashboardMetrics(
   ctx: RepositoryContext,
-  bookings: Booking[],
-  rooms: Room[],
-  leads: Lead[]
+  fallbackData: DashboardFallbackData | Promise<DashboardFallbackData>
 ): Promise<DashboardMetrics> {
-  const { data, error } = await ctx.supabase.rpc("dashboard_metrics", {
+  const dataPromise = resolveFallbackData(fallbackData);
+  const rpcPromise = ctx.supabase.rpc("dashboard_metrics", {
     p_hotel_id: ctx.hotelId,
   });
 
-  if (error || data == null) {
-    return computeDashboardMetrics(bookings, rooms, leads);
+  const [data, rpcResult] = await Promise.all([dataPromise, rpcPromise]);
+
+  if (rpcResult.error || rpcResult.data == null) {
+    return computeDashboardMetrics(data.bookings, data.rooms, data.leads);
   }
 
-  const row = (Array.isArray(data) ? data[0] : data) as
+  const row = (Array.isArray(rpcResult.data) ? rpcResult.data[0] : rpcResult.data) as
     | RpcDashboardMetricsRow
     | undefined;
 
   if (!row) {
-    return computeDashboardMetrics(bookings, rooms, leads);
+    return computeDashboardMetrics(data.bookings, data.rooms, data.leads);
   }
 
-  return mapRpcRow(row, leads);
+  return mapRpcRow(row, data.leads);
 }

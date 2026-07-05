@@ -15,7 +15,6 @@ import {
   buildOccupancyTrend,
   buildRevenueTrend,
   buildTimeline,
-  computeDashboardMetrics,
   getAiConversationCount,
   getLatestBookings,
   getRecentGuests,
@@ -30,6 +29,7 @@ import {
   DashboardRoomStatus,
   DashboardTimeline,
 } from "@/components/dashboard/home";
+import type { DashboardMetrics } from "@/components/dashboard/home/dashboard-metrics";
 import {
   AdminPageStack,
   DashboardPageHeader,
@@ -58,6 +58,7 @@ type Props = {
   bookings: Booking[];
   rooms: Room[];
   guests: Guest[];
+  initialMetrics: DashboardMetrics;
   hotelId: string;
 };
 
@@ -66,6 +67,7 @@ export function DashboardPage({
   bookings,
   rooms,
   guests,
+  initialMetrics,
   hotelId,
 }: Props) {
   const { t } = useI18n();
@@ -76,8 +78,11 @@ export function DashboardPage({
   }, [hotelId]);
 
   const metrics = useMemo(
-    () => computeDashboardMetrics(bookings, rooms, leads),
-    [bookings, rooms, leads]
+    () => ({
+      ...initialMetrics,
+      openRequests: leads.filter((lead) => lead.status === "new").length,
+    }),
+    [initialMetrics, leads]
   );
 
   const aiConversations = useMemo(
