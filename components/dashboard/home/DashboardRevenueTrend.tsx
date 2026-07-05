@@ -10,14 +10,13 @@ import {
   YAxis,
 } from "recharts";
 
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Section } from "@/components/ui/primitives/Section";
+
 import type { TrendPoint } from "./dashboard-metrics";
 import { formatDashboardCurrency } from "./dashboard-metrics";
-import {
-  DashboardEmptyState,
-  DashboardPanelHeader,
-  DashboardSkeleton,
-  DashboardSurface,
-} from "./DashboardPrimitives";
 
 type Props = {
   data: TrendPoint[];
@@ -28,21 +27,25 @@ export function DashboardRevenueTrend({ data, loading }: Props) {
   const hasData = data.some((point) => point.value > 0);
 
   return (
-    <DashboardSurface glass className="p-[var(--ds-surface-padding)]">
-      <DashboardPanelHeader
+    <GlassSurface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
+      <Section
         title="Revenue trend"
         subtitle="Daily revenue over the last 7 days"
       />
 
       {loading ? (
-        <DashboardSkeleton className="h-52" />
+        <SkeletonGroup className="h-52" lines={["h-full w-full"]} />
       ) : !hasData ? (
-        <DashboardEmptyState
+        <EmptyState
           title="No revenue data"
           description="When reservations with check-ins from the last week appear, the chart will fill in automatically."
         />
       ) : (
-        <div className="h-52" role="img" aria-label="Revenue trend chart for the last 7 days">
+        <div
+          className="h-52 min-h-[208px]"
+          role="img"
+          aria-label="Revenue trend chart for the last 7 days"
+        >
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
               <defs>
@@ -97,6 +100,6 @@ export function DashboardRevenueTrend({ data, loading }: Props) {
           </ResponsiveContainer>
         </div>
       )}
-    </DashboardSurface>
+    </GlassSurface>
   );
 }

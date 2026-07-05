@@ -8,12 +8,10 @@ import {
   UserPlus,
 } from "lucide-react";
 
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Section } from "@/components/ui/primitives/Section";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
-
-import {
-  DashboardPanelHeader,
-  DashboardSurface,
-} from "./DashboardPrimitives";
 
 const ACTIONS = [
   {
@@ -56,11 +54,8 @@ const ACTIONS = [
 
 export function DashboardQuickActions() {
   return (
-    <DashboardSurface glass className="p-[var(--ds-surface-padding)]">
-      <DashboardPanelHeader
-        title="Quick actions"
-        subtitle="Jump to common workflows"
-      />
+    <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)]">
+      <Section title="Quick actions" subtitle="Jump to common workflows" />
 
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
         {ACTIONS.map((action) => {
@@ -71,18 +66,21 @@ export function DashboardQuickActions() {
               key={action.label}
               href={action.href}
               className={cn(
-                "inline-flex h-[var(--ds-input-height)] items-center gap-2.5 rounded-[var(--ds-radius-sm)] px-3 text-[13px] font-medium shadow-[var(--shell-shadow-sm)] transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px",
+                "inline-flex h-[var(--ds-input-height)] items-center gap-2.5 rounded-[var(--ds-radius-sm)] px-3 text-[13px] font-medium shadow-[var(--shell-shadow-sm)]",
+                motionPresets.transitionBase,
+                motionPresets.hover.surfaceLift,
+                "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]",
                 action.primary
                   ? "bg-emerald-600 text-white hover:bg-emerald-500 hover:shadow-[var(--shell-shadow-md)]"
                   : "bg-[var(--shell-surface-raised)] text-[var(--shell-text)] hover:bg-[var(--shell-nav-hover-bg)] hover:shadow-[var(--shell-shadow-md)]"
               )}
             >
-              <Icon size={15} />
+              <Icon size={15} aria-hidden />
               {action.label}
             </Link>
           );
         })}
       </div>
-    </DashboardSurface>
+    </GlassSurface>
   );
 }

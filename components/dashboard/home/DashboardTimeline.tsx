@@ -5,18 +5,19 @@ import {
   CalendarClock,
 } from "lucide-react";
 
-import type { TimelineItem } from "./dashboard-metrics";
-import {
-  DashboardEmptyState,
-  DashboardPanelHeader,
-  DashboardSkeleton,
-  DashboardSurface,
-} from "./DashboardPrimitives";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { Surface } from "@/components/ui/primitives/Surface";
+import { Section } from "@/components/ui/primitives/Section";
 import { cn } from "@/lib/utils";
+
+import type { TimelineItem } from "./dashboard-metrics";
+import { DashboardListItem, matchesDashboardSearch } from "./dashboard-ui";
 
 type Props = {
   items: TimelineItem[];
   loading: boolean;
+  searchQuery?: string;
 };
 
 const KIND_META = {
@@ -38,40 +39,45 @@ const KIND_META = {
   },
 } as const;
 
-export function DashboardTimeline({ items, loading }: Props) {
+export function DashboardTimeline({
+  items,
+  loading,
+  searchQuery = "",
+}: Props) {
+  const filteredItems = items.filter((item) =>
+    matchesDashboardSearch(searchQuery, [item.title, item.subtitle, item.time])
+  );
+
   return (
-    <DashboardSurface className="p-[var(--ds-surface-padding)]">
-      <DashboardPanelHeader
+    <Surface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
+      <Section
         title="Reservation timeline"
         subtitle="Today's check-ins, departures, and housekeeping"
       />
 
       {loading ? (
-        <DashboardSkeleton />
-      ) : items.length === 0 ? (
-        <DashboardEmptyState
+        <SkeletonGroup />
+      ) : filteredItems.length === 0 ? (
+        <EmptyState
           title="All quiet for today"
           description="When check-ins, check-outs, or new requests appear, they will show up in this feed."
           icon={<CalendarCheck size={18} />}
         />
       ) : (
-        <div className="space-y-2">
-          {items.map((item) => {
+        <div className="space-y-2" role="list" aria-label="Reservation timeline">
+          {filteredItems.map((item) => {
             const meta = KIND_META[item.kind];
             const Icon = meta.icon;
 
             return (
-              <div
-                key={item.id}
-                className="flex items-start gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3 transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-sm)]"
-              >
+              <DashboardListItem key={item.id} as="article" className="flex items-start gap-3">
                 <div
                   className={cn(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)]",
                     meta.color
                   )}
                 >
-                  <Icon size={15} />
+                  <Icon size={15} aria-hidden />
                 </div>
 
                 <div className="min-w-0 flex-1">
@@ -79,19 +85,19 @@ export function DashboardTimeline({ items, loading }: Props) {
                     <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
                       {item.title}
                     </p>
-                    <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
+                    <time className="shrink-0 text-[11px] text-[var(--shell-muted)]">
                       {item.time}
-                    </span>
+                    </time>
                   </div>
                   <p className="mt-0.5 text-[12px] text-[var(--shell-muted)]">
                     {item.subtitle}
                   </p>
                 </div>
-              </div>
+              </DashboardListItem>
             );
           })}
         </div>
       )}
-    </DashboardSurface>
+    </Surface>
   );
 }

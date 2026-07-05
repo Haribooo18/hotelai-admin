@@ -1,27 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Bot, MessageSquare } from "lucide-react";
+import { Bot, MessageSquare } from "lucide-react";
+
+import { Badge } from "@/components/ui/display/Badge";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { Section } from "@/components/ui/primitives/Section";
 
 import type { AiActivityItem } from "./dashboard-metrics";
 import {
-  DashboardEmptyState,
-  DashboardPanelHeader,
-  DashboardSkeleton,
-  DashboardSurface,
-} from "./DashboardPrimitives";
-import { cn } from "@/lib/utils";
+  DashboardCardAction,
+  DashboardListItem,
+  matchesDashboardSearch,
+} from "./dashboard-ui";
 
 type Props = {
   items: AiActivityItem[];
   loading: boolean;
+  searchQuery?: string;
 };
 
-const STATUS_STYLES: Record<string, string> = {
-  new: "bg-emerald-500/12 text-emerald-500",
-  contacted: "bg-sky-500/12 text-sky-400",
-  confirmed: "bg-violet-500/12 text-violet-400",
-  cancelled: "bg-red-500/12 text-red-400",
+const STATUS_VARIANT: Record<string, "success" | "default" | "warning" | "destructive"> = {
+  new: "success",
+  contacted: "default",
+  confirmed: "default",
+  cancelled: "destructive",
 };
 
 function formatRelativeTime(value: string): string {
@@ -41,68 +46,72 @@ function formatRelativeTime(value: string): string {
   }).format(date);
 }
 
-export function DashboardAiActivity({ items, loading }: Props) {
+export function DashboardAiActivity({
+  items,
+  loading,
+  searchQuery = "",
+}: Props) {
+  const filteredItems = items.filter((item) =>
+    matchesDashboardSearch(searchQuery, [
+      item.guestName,
+      item.preview,
+      item.status,
+      item.channel,
+    ])
+  );
+
   return (
-    <DashboardSurface glass className="p-[var(--ds-surface-padding)]">
-      <DashboardPanelHeader
+    <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)]">
+      <Section
         title="AI Receptionist"
         subtitle="Live guest conversations"
-        action={
-          <Link
-            href="/ai"
-            className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--shell-accent)] transition-opacity duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:opacity-80"
-          >
-            Inbox
-            <ArrowRight size={13} />
-          </Link>
-        }
+        action={<DashboardCardAction href="/ai" label="Inbox" />}
       />
 
       {loading ? (
-        <DashboardSkeleton />
-      ) : items.length === 0 ? (
-        <DashboardEmptyState
+        <SkeletonGroup />
+      ) : filteredItems.length === 0 ? (
+        <EmptyState
           title="No conversations yet"
           description="When guests message your AI receptionist, activity will appear here."
           icon={<Bot size={18} />}
         />
       ) : (
-        <div className="space-y-2">
-          {items.map((item) => (
-            <Link
-              key={item.id}
-              href="/ai"
-              className="group flex items-start gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 p-3 transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-sm)]"
-            >
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)]">
-                <MessageSquare size={15} />
-              </div>
-
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
-                    {item.guestName}
-                  </p>
-                  <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
-                    {formatRelativeTime(item.createdAt)}
-                  </span>
+        <div className="space-y-2" role="list" aria-label="AI conversations">
+          {filteredItems.map((item) => (
+            <Link key={item.id} href="/ai" className="block focus-visible:outline-none">
+              <DashboardListItem
+                as="article"
+                className="group flex items-start gap-3 focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"
+              >
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)]">
+                  <MessageSquare size={15} aria-hidden />
                 </div>
-                <p className="mt-1 line-clamp-1 text-[12px] text-[var(--shell-muted)]">
-                  {item.preview}
-                </p>
-                <span
-                  className={cn(
-                    "mt-2 inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.04em]",
-                    STATUS_STYLES[item.status] ?? STATUS_STYLES.new
-                  )}
-                >
-                  {item.status}
-                </span>
-              </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
+                      {item.guestName}
+                    </p>
+                    <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
+                      {formatRelativeTime(item.createdAt)}
+                    </span>
+                  </div>
+                  <p className="mt-1 line-clamp-1 text-[12px] text-[var(--shell-muted)]">
+                    {item.preview}
+                  </p>
+                  <Badge
+                    variant={STATUS_VARIANT[item.status] ?? "default"}
+                    className="mt-2 uppercase"
+                  >
+                    {item.status}
+                  </Badge>
+                </div>
+              </DashboardListItem>
             </Link>
           ))}
         </div>
       )}
-    </DashboardSurface>
+    </GlassSurface>
   );
 }

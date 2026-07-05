@@ -10,6 +10,10 @@ export { DashboardRevenueTrend } from "./DashboardRevenueTrend";
 export { DashboardOccupancyTrend } from "./DashboardOccupancyTrend";
 export { DashboardLatestReservations } from "./DashboardLatestReservations";
 export {
+  DashboardToolbar,
+  type DashboardToolbarFilter,
+} from "./DashboardToolbar";
+export {
   buildAiActivity,
   buildDashboardAlerts,
   buildOccupancyTrend,

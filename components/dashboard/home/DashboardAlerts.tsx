@@ -3,74 +3,82 @@
 import Link from "next/link";
 import { AlertTriangle, Bell, Info } from "lucide-react";
 
-import type { DashboardAlert } from "./dashboard-metrics";
-import {
-  DashboardEmptyState,
-  DashboardPanelHeader,
-  DashboardSkeleton,
-  DashboardSurface,
-} from "./DashboardPrimitives";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { StatusDot } from "@/components/ui/display/StatusDot";
+import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { Surface } from "@/components/ui/primitives/Surface";
+import { Section } from "@/components/ui/primitives/Section";
 import { cn } from "@/lib/utils";
+
+import type { DashboardAlert } from "./dashboard-metrics";
+import { DashboardListItem, matchesDashboardSearch } from "./dashboard-ui";
 
 type Props = {
   alerts: DashboardAlert[];
   loading: boolean;
+  searchQuery?: string;
 };
 
 const SEVERITY_META = {
   urgent: {
     icon: AlertTriangle,
     accent: "text-red-400 bg-red-500/10",
-    dot: "bg-red-400",
+    tone: "danger" as const,
   },
   warning: {
     icon: AlertTriangle,
     accent: "text-amber-400 bg-amber-500/10",
-    dot: "bg-amber-400",
+    tone: "warning" as const,
   },
   info: {
     icon: Info,
     accent: "text-sky-400 bg-sky-500/10",
-    dot: "bg-sky-400",
+    tone: "default" as const,
   },
 } as const;
 
-export function DashboardAlerts({ alerts, loading }: Props) {
+export function DashboardAlerts({
+  alerts,
+  loading,
+  searchQuery = "",
+}: Props) {
+  const filteredAlerts = alerts.filter((alert) =>
+    matchesDashboardSearch(searchQuery, [alert.title, alert.description])
+  );
+
   return (
-    <DashboardSurface className="p-[var(--ds-surface-padding)]">
-      <DashboardPanelHeader
+    <Surface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
+      <Section
         title="Important alerts"
         subtitle="Operational signals that need attention"
       />
 
       {loading ? (
-        <DashboardSkeleton />
-      ) : alerts.length === 0 ? (
-        <DashboardEmptyState
+        <SkeletonGroup />
+      ) : filteredAlerts.length === 0 ? (
+        <EmptyState
           title="All clear"
           description="No urgent items right now. Alerts will surface when action is needed."
           icon={<Bell size={18} />}
         />
       ) : (
-        <div className="space-y-2">
-          {alerts.map((alert) => {
+        <div className="space-y-2" role="list" aria-label="Important alerts">
+          {filteredAlerts.map((alert) => {
             const meta = SEVERITY_META[alert.severity];
             const Icon = meta.icon;
             const content = (
-              <div className="flex items-start gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3 transition-[transform,background-color,box-shadow] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-sm)]">
+              <DashboardListItem className="flex items-start gap-3">
                 <div
                   className={cn(
                     "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)]",
                     meta.accent
                   )}
                 >
-                  <Icon size={15} />
+                  <Icon size={15} aria-hidden />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span
-                      className={cn("h-1.5 w-1.5 shrink-0 rounded-full", meta.dot)}
-                    />
+                    <StatusDot tone={meta.tone} />
                     <p className="text-[13px] font-medium text-[var(--shell-text)]">
                       {alert.title}
                     </p>
@@ -79,11 +87,15 @@ export function DashboardAlerts({ alerts, loading }: Props) {
                     {alert.description}
                   </p>
                 </div>
-              </div>
+              </DashboardListItem>
             );
 
             return alert.href ? (
-              <Link key={alert.id} href={alert.href} className="block">
+              <Link
+                key={alert.id}
+                href={alert.href}
+                className="block focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"
+              >
                 {content}
               </Link>
             ) : (
@@ -92,6 +104,6 @@ export function DashboardAlerts({ alerts, loading }: Props) {
           })}
         </div>
       )}
-    </DashboardSurface>
+    </Surface>
   );
 }

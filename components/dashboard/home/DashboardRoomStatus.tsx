@@ -1,22 +1,22 @@
 "use client";
 
-import Link from "next/link";
-import { ArrowRight, BedDouble } from "lucide-react";
+import { BedDouble } from "lucide-react";
 
-import type { Booking } from "@/types/booking";
-import type { Room } from "@/types/room";
 import {
   buildRoomCardModels,
   computeRoomOpsKpis,
   getRoomStatusMeta,
 } from "@/components/dashboard/rooms/room-ops-metrics";
-import {
-  DashboardEmptyState,
-  DashboardPanelHeader,
-  DashboardSkeletonBlock,
-  DashboardSurface,
-} from "./DashboardPrimitives";
-import { cn } from "@/lib/utils";
+import { DataCard } from "@/components/ui/data/DataCard";
+import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { Progress } from "@/components/ui/display/Progress";
+import { Skeleton } from "@/components/ui/display/Skeleton";
+import { StatCard } from "@/components/ui/data/StatCard";
+
+import type { Booking } from "@/types/booking";
+import type { Room } from "@/types/room";
+
+import { DashboardCardAction } from "./dashboard-ui";
 
 type Props = {
   rooms: Room[];
@@ -37,28 +37,19 @@ export function DashboardRoomStatus({ rooms, bookings, loading }: Props) {
   const kpis = computeRoomOpsKpis(models);
 
   return (
-    <DashboardSurface className="p-[var(--ds-surface-padding)]">
-      <DashboardPanelHeader
-        title="Room status"
-        subtitle="Live operational overview"
-        action={
-          <Link
-            href="/rooms"
-            className="inline-flex items-center gap-1 text-[12px] font-medium text-[var(--shell-accent)] transition-opacity duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:opacity-80"
-          >
-            Rooms
-            <ArrowRight size={13} />
-          </Link>
-        }
-      />
-
+    <DataCard
+      interactive
+      title="Room status"
+      subtitle="Live operational overview"
+      action={<DashboardCardAction href="/rooms" label="Rooms" />}
+    >
       {loading ? (
         <div className="space-y-3">
-          <DashboardSkeletonBlock className="h-16" />
-          <DashboardSkeletonBlock className="h-28" />
+          <Skeleton className="h-16" />
+          <Skeleton className="h-28" />
         </div>
       ) : rooms.length === 0 ? (
-        <DashboardEmptyState
+        <EmptyState
           title="No rooms configured"
           description="Add rooms to track availability and housekeeping status."
           icon={<BedDouble size={18} />}
@@ -66,22 +57,16 @@ export function DashboardRoomStatus({ rooms, bookings, loading }: Props) {
       ) : (
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 p-3">
-              <p className="text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--shell-muted)]">
-                Occupancy
-              </p>
-              <p className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
-                {kpis.averageOccupancy}%
-              </p>
-            </div>
-            <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 p-3">
-              <p className="text-[11px] font-medium uppercase tracking-[0.05em] text-[var(--shell-muted)]">
-                Total rooms
-              </p>
-              <p className="mt-1 text-[22px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
-                {kpis.total}
-              </p>
-            </div>
+            <StatCard
+              label="Occupancy"
+              value={`${kpis.averageOccupancy}%`}
+              className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 p-3 shadow-none"
+            />
+            <StatCard
+              label="Total rooms"
+              value={String(kpis.total)}
+              className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 p-3 shadow-none"
+            />
           </div>
 
           <div className="space-y-2.5">
@@ -102,25 +87,13 @@ export function DashboardRoomStatus({ rooms, bookings, loading }: Props) {
                       {count}
                     </span>
                   </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-[var(--shell-nav-hover-bg)]">
-                    <div
-                      className={cn(
-                        "h-full rounded-full transition-[width] duration-[var(--ds-duration-slow)] ease-[var(--ds-ease)]",
-                        meta.badgeClass.includes("emerald") && "bg-emerald-500",
-                        meta.badgeClass.includes("blue") && "bg-blue-400",
-                        meta.badgeClass.includes("amber") && "bg-amber-400",
-                        meta.badgeClass.includes("red") && "bg-red-400",
-                        meta.badgeClass.includes("violet") && "bg-violet-400"
-                      )}
-                      style={{ width: `${percent}%` }}
-                    />
-                  </div>
+                  <Progress value={percent} aria-label={`${meta.label} rooms`} />
                 </div>
               );
             })}
           </div>
         </div>
       )}
-    </DashboardSurface>
+    </DataCard>
   );
 }
