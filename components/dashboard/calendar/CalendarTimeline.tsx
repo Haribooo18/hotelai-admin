@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState, type UIEvent } from "react";
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 import {
   DAY_WIDTH,
@@ -20,6 +21,7 @@ import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { CalendarDays } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 import { CalendarDateHeader } from "./CalendarDateHeader";
 import { CalendarRoomCell } from "./CalendarRoomCell";
@@ -57,6 +59,7 @@ export function CalendarTimeline({
   onReschedule,
   onOpen,
 }: Props) {
+  const { t } = useI18n();
   const scrollRef = useRef<HTMLDivElement>(null);
   const scrollTopRef = useRef(0);
   const scrollRafRef = useRef<number | null>(null);
@@ -140,6 +143,8 @@ export function CalendarTimeline({
   const totalWidth = ROOM_COL_WIDTH + days.length * DAY_WIDTH;
   const gridWidth = days.length * DAY_WIDTH;
 
+  const periodKey = days[0]?.toISOString() ?? "empty";
+
   if (loading) {
     return (
       <GlassSurface className="p-[var(--ds-surface-padding)]">
@@ -157,8 +162,8 @@ export function CalendarTimeline({
   if (rooms.length === 0) {
     return (
       <EmptyState
-        title="No rooms configured"
-        description="Add rooms to your property to see the operations calendar."
+        title={t("calendar.noRooms")}
+        description={t("calendar.noRoomsDesc")}
         icon={<CalendarDays size={18} />}
       />
     );
@@ -170,10 +175,14 @@ export function CalendarTimeline({
         ref={scrollRef}
         onScroll={handleScroll}
         role="region"
-        aria-label="Reservation calendar timeline"
+        aria-label={t("calendar.timelineAriaLabel")}
         className="relative max-h-[min(70svh,720px)] min-h-[420px] overflow-auto overscroll-contain"
       >
-        <div style={{ width: totalWidth, minWidth: totalWidth }}>
+        <div
+          key={periodKey}
+          className={motionPresets.calendarCrossfade}
+          style={{ width: totalWidth, minWidth: totalWidth }}
+        >
           <CalendarDateHeader days={days} occupancy={occupancy} />
 
           <div style={{ height: topSpacer }} />

@@ -18,6 +18,7 @@ import {
   formatBookingCurrency,
 } from "@/components/dashboard/bookings/booking-ops-metrics";
 import { CalendarDays } from "lucide-react";
+import { useI18n } from "@/lib/i18n";
 
 import { CalendarAgendaCard } from "./calendar-ui";
 
@@ -30,15 +31,19 @@ type Props = {
   onOpen: (booking: Booking) => void;
 };
 
-function getStayBadge(booking: Booking, today: string) {
+function getStayBadge(
+  booking: Booking,
+  today: string,
+  t: ReturnType<typeof useI18n>["t"]
+) {
   if (isActiveStay(booking, today)) {
-    return { label: "Current stay", variant: "default" as const };
+    return { label: t("calendar.currentStay"), variant: "default" as const };
   }
   if (booking.check_in === today) {
-    return { label: "Arrival", variant: "success" as const };
+    return { label: t("calendar.arrival"), variant: "success" as const };
   }
   if (booking.check_out === today) {
-    return { label: "Departure", variant: "warning" as const };
+    return { label: t("calendar.departure"), variant: "warning" as const };
   }
   return null;
 }
@@ -51,6 +56,7 @@ export function CalendarAgenda({
   selectedId = null,
   onOpen,
 }: Props) {
+  const { t } = useI18n();
   const today = todayIso();
 
   const roomName = useMemo(
@@ -74,16 +80,16 @@ export function CalendarAgenda({
   if (visible.length === 0) {
     return (
       <EmptyState
-        title="No reservations in this period"
-        description="Adjust filters or navigate to another date range."
+        title={t("calendar.agendaEmpty")}
+        description={t("calendar.agendaEmptyDesc")}
         icon={<CalendarDays size={18} />}
       />
     );
   }
 
   return (
-    <Section title="Agenda" subtitle="Reservations in the visible range">
-      <div className="space-y-2" role="list" aria-label="Calendar agenda">
+    <Section title={t("calendar.agenda")} subtitle={t("calendar.agendaSubtitle")}>
+      <div className="space-y-2" role="list" aria-label={t("calendar.agendaAriaLabel")}>
         {visible.map((booking) => {
           const model = modelsById.get(booking.id);
           if (!model) return null;
@@ -91,7 +97,7 @@ export function CalendarAgenda({
           const displayName = model.guest
             ? `${model.guest.first_name} ${model.guest.last_name}`.trim()
             : booking.guest_name;
-          const stayBadge = getStayBadge(booking, today);
+          const stayBadge = getStayBadge(booking, today, t);
 
           return (
             <CalendarAgendaCard

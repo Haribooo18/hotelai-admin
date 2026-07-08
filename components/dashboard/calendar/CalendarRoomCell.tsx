@@ -1,10 +1,13 @@
+"use client";
+
 import { Users } from "lucide-react";
 
-import { Badge } from "@/components/ui/display/Badge";
 import { StatusDot } from "@/components/ui/display/StatusDot";
 import { cn } from "@/lib/utils";
 import { ROOM_COL_WIDTH } from "@/lib/calendar";
-import { getRoomStatusMeta } from "@/components/dashboard/rooms/room-ops-metrics";
+import { formatTranslation, useI18n } from "@/lib/i18n";
+
+import { RoomStatusBadge } from "@/components/dashboard/rooms/RoomStatusBadge";
 
 import type { CalendarRoomModel } from "./calendar-ops-metrics";
 
@@ -13,8 +16,8 @@ type Props = {
 };
 
 export function CalendarRoomCell({ model }: Props) {
+  const { t } = useI18n();
   const { room, status, isAvailableToday } = model;
-  const statusMeta = getRoomStatusMeta(status);
 
   return (
     <div
@@ -30,12 +33,14 @@ export function CalendarRoomCell({ model }: Props) {
 
       <div className="flex items-center gap-1.5 text-[11px] text-[var(--shell-muted)]">
         <Users size={12} className="shrink-0" aria-hidden />
-        <span>{room.capacity} guests</span>
+        <span>
+          {formatTranslation(t("calendar.guestCapacity"), {
+            count: String(room.capacity),
+          })}
+        </span>
       </div>
 
-      <Badge variant="outline" className={cn("w-fit uppercase", statusMeta.badgeClass)}>
-        {statusMeta.label}
-      </Badge>
+      <RoomStatusBadge status={status} className={cn("w-fit uppercase")} />
     </div>
   );
 }

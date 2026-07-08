@@ -2,6 +2,9 @@ import type { Booking } from "@/types/booking";
 import type { Guest, GuestStats } from "@/types/guest";
 import type { Room } from "@/types/room";
 
+import { formatTranslation } from "@/lib/i18n";
+import type { TranslationPath } from "@/lib/i18n/translations";
+
 import {
   bookingBelongsToGuest,
   computeGuestStats,
@@ -201,12 +204,47 @@ export function formatGuestDateTime(value: string): string {
   }).format(new Date(value));
 }
 
+export type GuestTimelineItemKind =
+  | "profile_updated"
+  | "profile_created"
+  | "booking";
+
 export type GuestTimelineItem = {
   id: string;
-  title: string;
+  kind: GuestTimelineItemKind;
+  bookingStatus?: Booking["status"];
   subtitle: string;
   at: string;
 };
+
+export function translateGuestTimelineItem(
+  item: GuestTimelineItem,
+  t: (path: TranslationPath) => string
+): { title: string; subtitle: string } {
+  switch (item.kind) {
+    case "profile_updated":
+      return {
+        title: t("guests.timelineProfileUpdated"),
+        subtitle: t("guests.timelineProfileUpdatedDesc"),
+      };
+    case "profile_created":
+      return {
+        title: t("guests.timelineProfileCreated"),
+        subtitle: t("guests.timelineProfileCreatedDesc"),
+      };
+    case "booking": {
+      const status = item.bookingStatus ?? "confirmed";
+      return {
+        title: formatTranslation(t("guests.timelineBooking"), {
+          status: t(`statuses.booking.${status}` as "statuses.booking.confirmed"),
+        }),
+        subtitle: item.subtitle,
+      };
+    }
+    default:
+      return { title: item.id, subtitle: item.subtitle };
+  }
+}
 
 export function buildGuestTimeline(
   guest: Guest,
@@ -215,14 +253,14 @@ export function buildGuestTimeline(
   const items: GuestTimelineItem[] = [
     {
       id: `updated-${guest.id}`,
-      title: "Profile updated",
-      subtitle: "Changes to guest record",
+      kind: "profile_updated",
+      subtitle: guest.updated_at,
       at: guest.updated_at,
     },
     {
       id: `created-${guest.id}`,
-      title: "Profile created",
-      subtitle: "Guest added to CRM",
+      kind: "profile_created",
+      subtitle: guest.created_at,
       at: guest.created_at,
     },
   ];
@@ -230,7 +268,8 @@ export function buildGuestTimeline(
   bookings.forEach((booking) => {
     items.push({
       id: `booking-${booking.id}`,
-      title: `Booking · ${booking.status}`,
+      kind: "booking",
+      bookingStatus: booking.status,
       subtitle: `${booking.check_in} — ${booking.check_out}`,
       at: booking.created_at,
     });

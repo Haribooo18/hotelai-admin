@@ -1,10 +1,15 @@
+"use client";
+
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { Stack } from "@/components/ui/primitives/Stack";
+import { useI18n } from "@/lib/i18n";
 
 export function RevenueRouteLoading() {
+  const { t } = useI18n();
+
   return (
-    <Stack gap="md" aria-busy="true" aria-label="Loading revenue">
+    <Stack gap="md" aria-busy="true" aria-label={t("revenue.loading")}>
       <Skeleton className="h-8 w-56 rounded-[var(--ds-radius-sm)]" />
       <GlassSurface className="p-[var(--ds-surface-padding)]">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">

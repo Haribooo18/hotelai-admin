@@ -36,32 +36,28 @@ export const typographyScale = {
     weight: "var(--type-body-weight)",
     lineHeight: "var(--type-body-leading)",
     letterSpacing: "var(--type-body-tracking)",
-    className:
-      "text-[var(--type-body-size)] font-[var(--type-body-weight)] leading-[var(--type-body-leading)] tracking-[var(--type-body-tracking)] text-[var(--shell-text)]",
+    className: "ds-body",
   },
   caption: {
     size: "var(--type-caption-size)",
     weight: "var(--type-caption-weight)",
     lineHeight: "var(--type-caption-leading)",
     letterSpacing: "var(--type-caption-tracking)",
-    className:
-      "text-[var(--type-caption-size)] font-[var(--type-caption-weight)] leading-[var(--type-caption-leading)] tracking-[var(--type-caption-tracking)] text-[var(--shell-muted)]",
+    className: "ds-caption",
   },
   overline: {
     size: "var(--type-label-size)",
     weight: "var(--type-label-weight)",
     lineHeight: "var(--type-label-leading)",
     letterSpacing: "var(--type-label-tracking)",
-    className:
-      "text-[var(--type-label-size)] font-[var(--type-label-weight)] uppercase leading-[var(--type-label-leading)] tracking-[var(--type-label-tracking)] text-[var(--shell-muted)]",
+    className: "ds-overline",
   },
   kpi: {
     size: "var(--type-kpi-size)",
     weight: "var(--type-kpi-weight)",
     lineHeight: "var(--type-kpi-leading)",
     letterSpacing: "var(--type-kpi-tracking)",
-    className:
-      "text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] leading-[var(--type-kpi-leading)] tracking-[var(--type-kpi-tracking)] text-[var(--shell-text)]",
+    className: "ds-kpi",
   },
 } as const;
 
@@ -70,6 +66,25 @@ export type TypographyVariant = keyof typeof typographyScale;
 export function typographyClass(variant: TypographyVariant): string {
   return typographyScale[variant].className;
 }
+
+/** Semantic typography roles — map to the scale above (no new sizes). */
+export const typographyRoles = {
+  pageTitle: typographyScale.display.className,
+  sectionTitle: typographyScale.heading.className,
+  cardTitle: typographyScale.heading.className,
+  cardDescription: typographyScale.caption.className,
+  body: typographyScale.body.className,
+  caption: typographyScale.caption.className,
+  overline: typographyScale.overline.className,
+  kpiLabel: typographyScale.overline.className,
+  kpiValue: typographyScale.kpi.className,
+  tableHeader: "ds-table-header",
+  tableCell: typographyScale.body.className,
+  badge: "ds-badge-text",
+  button: "ds-button-text",
+  formLabel: "ds-form-label",
+  trend: "ds-caption font-medium",
+} as const;
 
 /** @deprecated Use typographyScale.heading — kept for dashboard compatibility */
 export const sectionTitleClass = typographyScale.heading.className;

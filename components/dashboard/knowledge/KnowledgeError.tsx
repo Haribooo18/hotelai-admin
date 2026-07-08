@@ -1,25 +1,27 @@
 "use client";
 
-import { Button } from "@/components/ui/core/Button";
 import { ErrorState } from "@/components/ui/feedback/ErrorState";
+import { Button } from "@/components/ui/core/Button";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   message?: string;
+  onRetry?: () => void;
   reset?: () => void;
 };
 
-export function KnowledgeError({
-  message = "Не удалось загрузить базу знаний",
-  reset,
-}: Props) {
+export function KnowledgeError({ message, onRetry, reset }: Props) {
+  const { t } = useI18n();
+  const retry = onRetry ?? reset;
+
   return (
     <ErrorState
-      title={message}
-      description="Проверьте подключение и попробуйте снова."
+      title={message ?? t("knowledge.loadError")}
+      description={t("knowledge.loadErrorDesc")}
       action={
-        reset ? (
-          <Button variant="outline" size="sm" onClick={reset}>
-            Повторить
+        retry ? (
+          <Button onClick={retry} variant="outline">
+            {t("common.retry")}
           </Button>
         ) : undefined
       }

@@ -5,6 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { DataCard } from "@/components/ui/data/DataCard";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { cardListGapClass } from "@/lib/dashboard/design-system";
 import { formatDateShort } from "@/lib/dashboard/format";
 
 import type { Booking } from "@/types/booking";
@@ -16,6 +17,7 @@ import {
   DashboardListItem,
   matchesDashboardSearch,
 } from "./dashboard-ui";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   bookings: Booking[];
@@ -28,6 +30,7 @@ export function DashboardRecentBookings({
   loading,
   searchQuery = "",
 }: Props) {
+  const { t } = useI18n();
   const filteredBookings = bookings.filter((booking) =>
     matchesDashboardSearch(searchQuery, [booking.guest_name, booking.status])
   );
@@ -35,20 +38,20 @@ export function DashboardRecentBookings({
   return (
     <DataCard
       interactive
-      title="Recent bookings"
-      subtitle="Upcoming check-ins and stays"
-      action={<DashboardCardAction href="/bookings" label="All" />}
+      title={t("dashboard.recentBookings")}
+      subtitle={t("dashboard.recentBookingsSubtitle")}
+      action={<DashboardCardAction href="/bookings" label={t("common.all")} />}
     >
       {loading ? (
         <SkeletonGroup />
       ) : filteredBookings.length === 0 ? (
         <EmptyState
-          title="No upcoming bookings"
-          description="Confirmed reservations will show here as they are scheduled."
+          title={t("dashboard.noUpcoming")}
+          description={t("dashboard.noUpcomingDesc")}
           icon={<CalendarDays size={18} />}
         />
       ) : (
-        <div className="space-y-2" role="list" aria-label="Recent bookings">
+        <div className={cardListGapClass} role="list" aria-label={t("dashboard.recentBookingsAria")}>
           {filteredBookings.map((booking) => (
             <DashboardListItem key={booking.id} as="article">
               <div className="flex items-start justify-between gap-3">

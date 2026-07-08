@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  Download,
-  Filter,
-  Plus,
-  RefreshCw,
-} from "lucide-react";
+import { useMemo } from "react";
+import { Filter, RefreshCw } from "lucide-react";
 
-import { Button } from "@/components/ui/core/Button";
-import { Input } from "@/components/ui/core/Input";
+import { ToolbarDateInput } from "@/components/ui/core/ToolbarDateInput";
 import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
@@ -16,13 +11,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/overlay/DropdownMenu";
-import { FilterBar } from "@/components/ui/data/FilterBar";
+import {
+  FilterChip,
+  ToolbarSecondaryButton,
+} from "@/components/ui/data/FilterBar";
+import { WorkspaceToolbar } from "@/components/dashboard/shared/WorkspaceToolbar";
 import {
   CONVERSATION_CHANNEL_OPTIONS,
   CONVERSATION_PRIORITY_OPTIONS,
   CONVERSATION_STATUS_OPTIONS,
 } from "@/lib/ai/metadata";
-import { toolbarControlClass } from "@/lib/dashboard/design-system";
+import {
+  toolbarControlClass,
+  toolbarFilterIconSize,
+} from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
 
 import type { AIInboxFilters } from "./ai-ops-metrics";
 
@@ -30,66 +33,111 @@ type Props = {
   filters: AIInboxFilters;
   refreshing: boolean;
   onFiltersChange: (filters: AIInboxFilters) => void;
-  onCreateClick: () => void;
   onRefresh: () => void;
 };
-
-const ASSIGNED_OPTIONS = [
-  { value: "", label: "All assignments" },
-  { value: "me", label: "Assigned to me" },
-  { value: "unassigned", label: "Unassigned" },
-] as const;
 
 export function AIInboxToolbar({
   filters,
   refreshing,
   onFiltersChange,
-  onCreateClick,
   onRefresh,
 }: Props) {
+  const { t } = useI18n();
+
+  const assignedOptions = useMemo(
+    () =>
+      [
+        { value: "", label: t("ai.allAssignments") },
+        { value: "me", label: t("ai.assignedToMe") },
+        { value: "unassigned", label: t("ai.unassigned") },
+      ] as const,
+    [t]
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: t("toolbar.allStatuses") },
+      ...CONVERSATION_STATUS_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(`ai.statuses.${option.value}`),
+      })),
+    ],
+    [t]
+  );
+
+  const channelOptions = useMemo(
+    () => [
+      { value: "", label: t("ai.allChannels") },
+      ...CONVERSATION_CHANNEL_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(`ai.channels.${option.value}`),
+      })),
+    ],
+    [t]
+  );
+
+  const priorityOptions = useMemo(
+    () => [
+      { value: "", label: t("ai.allPriorities") },
+      ...CONVERSATION_PRIORITY_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(`ai.priorities.${option.value}`),
+      })),
+    ],
+    [t]
+  );
+
+  const chipFilters = useMemo(
+    () => [
+      { value: "", label: t("common.all") },
+      { value: "new", label: t("ai.statuses.new") },
+      { value: "assigned", label: t("ai.statuses.assigned") },
+      { value: "resolved", label: t("ai.statuses.resolved") },
+    ],
+    [t]
+  );
+
   function patch(partial: Partial<AIInboxFilters>) {
     onFiltersChange({ ...filters, ...partial });
   }
 
   const activeStatus =
-    CONVERSATION_STATUS_OPTIONS.find((option) => option.value === filters.status)
-      ?.label ?? "All statuses";
+    statusOptions.find((option) => option.value === filters.status)?.label ??
+    t("toolbar.allStatuses");
   const activeChannel =
-    CONVERSATION_CHANNEL_OPTIONS.find((option) => option.value === filters.channel)
-      ?.label ?? "All channels";
+    channelOptions.find((option) => option.value === filters.channel)?.label ??
+    t("ai.allChannels");
   const activePriority =
-    CONVERSATION_PRIORITY_OPTIONS.find(
-      (option) => option.value === filters.priority
-    )?.label ?? "All priorities";
+    priorityOptions.find((option) => option.value === filters.priority)?.label ??
+    t("ai.allPriorities");
   const activeAssigned =
-    ASSIGNED_OPTIONS.find((option) => option.value === filters.assigned)?.label ??
-    "All assignments";
+    assignedOptions.find((option) => option.value === filters.assigned)?.label ??
+    t("ai.allAssignments");
 
   return (
-    <FilterBar
-      leading={
+    <WorkspaceToolbar
+      search={
         <SearchInput
-          containerClassName="flex-1 xl:max-w-md"
-          placeholder="Search conversations"
-          aria-label="Search conversations"
+          placeholder={t("ai.searchPlaceholder")}
+          aria-label={t("ai.searchAria")}
           value={filters.search}
           onChange={(event) => patch({ search: event.target.value })}
         />
       }
-      trailing={
+      primaryFilters={
         <>
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Channel filter">
-              <Filter size={15} aria-hidden />
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label={t("ai.channelFilter")}
+            >
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeChannel}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => patch({ channel: "" })}>
-                All channels
-              </DropdownMenuItem>
-              {CONVERSATION_CHANNEL_OPTIONS.map((option) => (
+              {channelOptions.map((option) => (
                 <DropdownMenuItem
-                  key={option.value}
+                  key={option.value || "all"}
                   onClick={() => patch({ channel: option.value })}
                 >
                   {option.label}
@@ -99,17 +147,17 @@ export function AIInboxToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Status filter">
-              <Filter size={15} aria-hidden />
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label={t("ai.statusFilter")}
+            >
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeStatus}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => patch({ status: "" })}>
-                All statuses
-              </DropdownMenuItem>
-              {CONVERSATION_STATUS_OPTIONS.map((option) => (
+              {statusOptions.map((option) => (
                 <DropdownMenuItem
-                  key={option.value}
+                  key={option.value || "all"}
                   onClick={() => patch({ status: option.value })}
                 >
                   {option.label}
@@ -119,12 +167,15 @@ export function AIInboxToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Assignment filter">
-              <Filter size={15} aria-hidden />
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label={t("ai.assignmentFilter")}
+            >
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeAssigned}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {ASSIGNED_OPTIONS.map((option) => (
+              {assignedOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
                   onClick={() => patch({ assigned: option.value })}
@@ -136,17 +187,17 @@ export function AIInboxToolbar({
           </DropdownMenu>
 
           <DropdownMenu>
-            <DropdownMenuTrigger className={toolbarControlClass} aria-label="Priority filter">
-              <Filter size={15} aria-hidden />
+            <DropdownMenuTrigger
+              className={toolbarControlClass}
+              aria-label={t("ai.priorityFilter")}
+            >
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activePriority}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => patch({ priority: "" })}>
-                All priorities
-              </DropdownMenuItem>
-              {CONVERSATION_PRIORITY_OPTIONS.map((option) => (
+              {priorityOptions.map((option) => (
                 <DropdownMenuItem
-                  key={option.value}
+                  key={option.value || "all"}
                   onClick={() => patch({ priority: option.value })}
                 >
                   {option.label}
@@ -155,47 +206,38 @@ export function AIInboxToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Input
-            type="date"
+          <ToolbarDateInput
             value={filters.date}
             onChange={(event) => patch({ date: event.target.value })}
-            aria-label="Filter by date"
-            className="h-[var(--ds-input-height)] w-[148px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+            aria-label={t("ai.dateFilter")}
           />
-
-          <Button
+        </>
+      }
+      actions={
+        <>
+          <ToolbarSecondaryButton
             type="button"
-            variant="outline"
-            size="sm"
             onClick={onRefresh}
             disabled={refreshing}
             loading={refreshing}
-            aria-label="Refresh inbox"
+            aria-label={t("ai.refreshAria")}
           >
-            <RefreshCw size={15} aria-hidden />
-            Refresh
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled
-            aria-label="Bulk actions"
-            title="Bulk actions coming soon"
-          >
-            <Download size={15} aria-hidden />
-            Bulk
-          </Button>
-
-          <Button
-            type="button"
-            onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
-          >
-            <Plus size={15} aria-hidden />
-            New conversation
-          </Button>
+            <RefreshCw size={toolbarFilterIconSize} aria-hidden />
+            {t("common.refresh")}
+          </ToolbarSecondaryButton>
+        </>
+      }
+      chips={
+        <>
+          {chipFilters.map((chip) => (
+            <FilterChip
+              key={chip.value || "all"}
+              active={filters.status === chip.value}
+              onClick={() => patch({ status: chip.value })}
+            >
+              {chip.label}
+            </FilterChip>
+          ))}
         </>
       }
     />

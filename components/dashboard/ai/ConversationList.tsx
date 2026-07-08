@@ -1,6 +1,7 @@
 "use client";
 
 import type { Conversation } from "@/types/conversation";
+import type { ConversationChannel } from "@/types/conversation";
 import { getConversationChannelMeta } from "@/lib/ai/metadata";
 
 import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
@@ -8,6 +9,8 @@ import { Badge } from "@/components/ui/display/Badge";
 import { Counter } from "@/components/ui/display/Counter";
 import { StatusDot } from "@/components/ui/display/StatusDot";
 import { Scrollable } from "@/components/ui/primitives/Scrollable";
+import { formatTranslation, useI18n } from "@/lib/i18n";
+import type { TranslationPath } from "@/lib/i18n/translations";
 import { cn } from "@/lib/utils";
 
 import { AIStatusBadge } from "./AIStatusBadge";
@@ -31,26 +34,40 @@ const PRIORITY_TONE: Record<string, "warning" | "danger" | "default"> = {
   urgent: "danger",
 };
 
+const CHANNEL_KEYS: Record<ConversationChannel, TranslationPath> = {
+  website: "ai.channels.website",
+  whatsapp: "ai.channels.whatsapp",
+  telegram: "ai.channels.telegram",
+  instagram: "ai.channels.instagram",
+  facebook_messenger: "ai.channels.facebook_messenger",
+  email: "ai.channels.email",
+};
+
 export function ConversationList({
   conversations,
   selectedId,
   onSelect,
 }: Props) {
+  const { locale, t } = useI18n();
+
   return (
     <aside
       className="flex h-full w-full flex-col border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/85 backdrop-blur-xl md:w-[320px] md:shrink-0 lg:w-[340px]"
-      aria-label="Conversation list"
+      aria-label={t("ai.conversationListAria")}
     >
       <Scrollable className="flex-1" role="listbox">
         {conversations.length === 0 ? (
           <div className="p-8 text-center text-[13px] text-[var(--shell-muted)]">
-            No conversations match your filters
+            {t("ai.noConversationsMatch")}
           </div>
         ) : (
           conversations.map((conversation) => {
-            const channelLabel =
-              getConversationChannelMeta(conversation.channel)?.label ??
-              conversation.channel;
+            const channelKey =
+              CHANNEL_KEYS[conversation.channel as ConversationChannel];
+            const channelLabel = channelKey
+              ? t(channelKey)
+              : getConversationChannelMeta(conversation.channel)?.label ??
+                conversation.channel;
             const human = isHumanHandled(conversation);
             const selected = selectedId === conversation.id;
 
@@ -91,13 +108,15 @@ export function ConversationList({
 
                       <div className="flex shrink-0 flex-col items-end gap-1">
                         <span className="text-[10px] text-[var(--shell-muted)]">
-                          {formatRelativeTime(conversation.last_message_at)}
+                          {formatRelativeTime(conversation.last_message_at, t, locale)}
                         </span>
                         {conversation.unread_count > 0 ? (
                           <Badge
                             variant="success"
                             className="h-5 min-w-5 animate-pulse justify-center px-1.5 text-[10px] font-bold"
-                            aria-label={`${conversation.unread_count} unread`}
+                            aria-label={formatTranslation(t("ai.unreadCount"), {
+                              count: String(conversation.unread_count),
+                            })}
                           >
                             <Counter value={conversation.unread_count} />
                           </Badge>
@@ -106,7 +125,7 @@ export function ConversationList({
                     </div>
 
                     <p className="mt-1.5 line-clamp-2 text-[12px] leading-snug text-[var(--shell-muted)]">
-                      {conversation.last_message_preview ?? "No messages yet"}
+                      {conversation.last_message_preview ?? t("ai.noMessagesYet")}
                     </p>
 
                     <div className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -118,7 +137,7 @@ export function ConversationList({
                             : "shadow-[0_0_12px_rgba(16,185,129,0.12)]"
                         )}
                       >
-                        {human ? "Human" : "AI"}
+                        {human ? t("ai.humanActor") : t("ai.aiActor")}
                       </Badge>
                       <AIStatusBadge status={conversation.status} />
                       <PriorityBadge priority={conversation.priority} />

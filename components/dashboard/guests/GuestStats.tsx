@@ -1,3 +1,5 @@
+"use client";
+
 import {
   CalendarCheck,
   CalendarClock,
@@ -7,27 +9,30 @@ import {
 } from "lucide-react";
 
 import type { GuestStats as GuestStatsType } from "@/types/guest";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   stats: GuestStatsType;
 };
 
 export function GuestStats({ stats }: Props) {
+  const { t } = useI18n();
+
   const cards = [
-    { title: "Bookings", value: stats.totalBookings, icon: Hotel },
-    { title: "Total nights", value: stats.totalNights, icon: Moon },
+    { title: t("guests.totalStays"), value: stats.totalBookings, icon: Hotel },
+    { title: t("guests.statsTotalNights"), value: stats.totalNights, icon: Moon },
     {
-      title: "Total revenue",
+      title: t("guests.statsTotalRevenue"),
       value: `$${stats.totalRevenue.toFixed(0)}`,
       icon: DollarSign,
     },
     {
-      title: "Last visit",
+      title: t("guests.statsLastVisit"),
       value: stats.lastStay ?? "—",
       icon: CalendarCheck,
     },
     {
-      title: "Next check-in",
+      title: t("guests.statsNextCheckIn"),
       value: stats.upcomingCheckIn ?? "—",
       icon: CalendarClock,
     },

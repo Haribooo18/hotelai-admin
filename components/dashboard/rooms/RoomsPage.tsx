@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
+import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { PageHeader } from "@/components/ui/layout/PageHeader";
+import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
 import { useI18n } from "@/lib/i18n";
 
 import { RoomCreateDialog } from "./RoomCreateDialog";
@@ -24,7 +26,6 @@ import {
   extractRoomTypeOptions,
   sortRoomModels,
   type RoomCardModel,
-  type RoomViewMode,
 } from "./room-ops-metrics";
 import type { RoomsToolbarFilters } from "./rooms-ui";
 
@@ -56,8 +57,13 @@ export function RoomsPage({ rooms, bookings }: Props) {
   const [duplicateTemplate, setDuplicateTemplate] = useState<Room | null>(null);
   const [drawerModel, setDrawerModel] = useState<RoomCardModel | null>(null);
 
+  const openCreate = useCallback(() => {
+    setDuplicateTemplate(null);
+    setCreateOpen(true);
+  }, []);
+  useCreateQueryParam(openCreate);
+
   const [filters, setFilters] = useState<RoomsToolbarFilters>(DEFAULT_FILTERS);
-  const [viewMode, setViewMode] = useState<RoomViewMode>("cards");
 
   const cardModels = useMemo(
     () => buildRoomCardModels(rooms, bookings),
@@ -134,33 +140,29 @@ export function RoomsPage({ rooms, bookings }: Props) {
   }
 
   return (
-    <Stack gap="md" className="ds-page-enter">
-      <PageHeader
-        title={t("pages.rooms.title")}
-        subtitle={t("pages.rooms.subtitle")}
-      />
-
-      <RoomsExecutiveKpis kpis={kpis} loading={refreshing} />
-
-      <RoomToolbar
-        filters={filters}
-        viewMode={viewMode}
-        floorOptions={floorOptions}
-        roomTypeOptions={roomTypeOptions}
-        refreshing={refreshing}
-        onFiltersChange={setFilters}
-        onViewModeChange={setViewMode}
-        onCreateClick={() => {
-          setDuplicateTemplate(null);
-          setCreateOpen(true);
-        }}
-        onRefresh={handleRefresh}
-      />
-
-      <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+    <>
+      <WorkspacePageLayout
+        header={
+          <PageHeader
+            title={t("pages.rooms.title")}
+            subtitle={t("pages.rooms.subtitle")}
+          />
+        }
+        kpis={<RoomsExecutiveKpis kpis={kpis} loading={refreshing} />}
+        toolbar={
+          <RoomToolbar
+            filters={filters}
+            floorOptions={floorOptions}
+            roomTypeOptions={roomTypeOptions}
+            refreshing={refreshing}
+            onFiltersChange={setFilters}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
+        <GlassSurface className={workspaceSurfaceClass}>
         <RoomsCardsView
           models={filteredModels}
-          viewMode={viewMode}
           loading={false}
           selectedId={selectedId}
           onOpenRoom={handleOpen}
@@ -175,6 +177,7 @@ export function RoomsPage({ rooms, bookings }: Props) {
         loading={false}
         onSelect={handleOpen}
       />
+      </WorkspacePageLayout>
 
       <RoomDetailDrawer
         open={drawerOpen}
@@ -200,6 +203,6 @@ export function RoomsPage({ rooms, bookings }: Props) {
         onOpenChange={setEditOpen}
         room={selectedRoom ?? undefined}
       />
-    </Stack>
+    </>
   );
 }

@@ -22,6 +22,7 @@ import {
 } from "@/lib/services/ai.mutations";
 import { Button } from "@/components/ui/core/Button";
 import { Inline } from "@/components/ui/primitives/Inline";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 import { streamAIConversation } from "./ai-stream-client";
 
@@ -38,6 +39,7 @@ export function QuickActions({
   onAIStreamStart,
   aiEnabled = false,
 }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -49,7 +51,12 @@ export function QuickActions({
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Failed to perform action");
+        toast.error(
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("ai.actionFailed")
+          )
+        );
       }
     });
   }
@@ -61,11 +68,14 @@ export function QuickActions({
       try {
         await streamAIConversation(conversation.id);
         router.refresh();
-        toast.success("AI responded");
+        toast.success(t("ai.aiResponded"));
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error ? error.message : "Failed to get AI response"
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("ai.aiResponseFailed")
+          )
         );
         router.refresh();
       }
@@ -77,7 +87,7 @@ export function QuickActions({
       ? [
           {
             key: "ai",
-            label: "AI reply",
+            label: t("ai.aiReply"),
             icon: Bot,
             onClick: handleAIRespond,
           },
@@ -85,7 +95,7 @@ export function QuickActions({
       : []),
     {
       key: "assign",
-      label: "Assign",
+      label: t("ai.assignLabel"),
       icon: UserCheck,
       onClick: () =>
         run(
@@ -94,12 +104,12 @@ export function QuickActions({
               conversation_id: conversation.id,
               user_id: currentUserId,
             }),
-          "Conversation assigned to you"
+          t("ai.conversationAssigned")
         ),
     },
     {
       key: "escalate",
-      label: "Escalate",
+      label: t("ai.escalate"),
       icon: ArrowUpRight,
       onClick: () =>
         run(async () => {
@@ -111,11 +121,11 @@ export function QuickActions({
             id: conversation.id,
             priority: "high",
           });
-        }, "Conversation escalated"),
+        }, t("ai.conversationEscalated")),
     },
     {
       key: "resolve",
-      label: "Resolve",
+      label: t("ai.resolveLabel"),
       icon: CheckCircle,
       onClick: () =>
         run(
@@ -124,13 +134,13 @@ export function QuickActions({
               id: conversation.id,
               status: "resolved",
             }),
-          "Conversation resolved"
+          t("ai.conversationResolved")
         ),
       disabled: conversation.status === "resolved",
     },
     {
       key: "priority",
-      label: "Priority",
+      label: t("ai.priorityLabel"),
       icon: Star,
       onClick: () =>
         run(
@@ -139,15 +149,15 @@ export function QuickActions({
               id: conversation.id,
               priority: "high",
             }),
-          "Priority raised"
+          t("ai.priorityRaised")
         ),
     },
     {
       key: "archive",
-      label: "Archive",
+      label: t("ai.archiveLabel"),
       icon: Archive,
       onClick: () =>
-        run(() => archiveConversation(conversation.id), "Conversation archived"),
+        run(() => archiveConversation(conversation.id), t("ai.conversationArchived")),
     },
   ].filter((action) => !("hidden" in action && action.hidden));
 
@@ -156,7 +166,7 @@ export function QuickActions({
       gap="sm"
       wrap
       role="toolbar"
-      aria-label="Quick actions"
+      aria-label={t("ai.quickActionsAria")}
     >
       {actions.map((action) => {
         const Icon = action.icon;

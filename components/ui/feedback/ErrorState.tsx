@@ -26,9 +26,9 @@ export function ErrorState({
       <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-[var(--ds-radius-sm)] bg-red-500/10 text-red-400">
         <AlertCircle size={20} aria-hidden />
       </div>
-      <p className="text-[14px] font-medium text-[var(--shell-text)]">{title}</p>
+      <p className="ds-section-title">{title}</p>
       {description ? (
-        <p className="mt-2 text-[13px] leading-relaxed text-[var(--shell-muted)]">
+        <p className="mt-2 ds-body leading-relaxed text-[var(--shell-muted)]">
           {description}
         </p>
       ) : null}

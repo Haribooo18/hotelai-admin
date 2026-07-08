@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Paperclip, Send, Sparkles, User } from "lucide-react";
+import { Send, Sparkles, User } from "lucide-react";
 import { toast } from "sonner";
 
 import type { Conversation } from "@/types/conversation";
@@ -18,7 +18,14 @@ import { FilterChip } from "@/components/ui/data/FilterBar";
 import { Spinner } from "@/components/ui/feedback/Spinner";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { Inline } from "@/components/ui/primitives/Inline";
+import {
+  formCheckboxLabelClass,
+  formCheckboxRowClass,
+  formErrorClass,
+  formRaisedControlClass,
+} from "@/lib/dashboard/design-system";
 import { motionPresets } from "@/lib/design/motion";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import { getSuggestedReplies } from "./ai-ops-metrics";
@@ -34,10 +41,10 @@ type Props = {
   onStreamEnd?: () => void;
 };
 
-const PROMPT_SHORTCUTS = [
-  "Share check-in time",
-  "Offer late checkout",
-  "Confirm reservation details",
+const PROMPT_SHORTCUT_KEYS = [
+  "ai.shareCheckIn",
+  "ai.offerLateCheckout",
+  "ai.confirmReservation",
 ] as const;
 
 export function MessageComposer({
@@ -49,6 +56,7 @@ export function MessageComposer({
   onStreamDelta,
   onStreamEnd,
 }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [body, setBody] = useState("");
@@ -93,7 +101,10 @@ export function MessageComposer({
         } catch (err) {
           setBody(sentBody);
           toast.error(
-            err instanceof Error ? err.message : "Failed to send"
+            localizeErrorWithT(
+              t,
+              err instanceof Error ? err.message : t("ai.sendFailed")
+            )
           );
         }
       });
@@ -107,7 +118,7 @@ export function MessageComposer({
     });
 
     if (!parsed.success) {
-      setError(parsed.error.issues[0]?.message ?? "Error");
+      setError(parsed.error.issues[0]?.message ?? t("errors.invalidData"));
       return;
     }
 
@@ -124,7 +135,10 @@ export function MessageComposer({
         console.error(err);
         setBody(sentBody);
         toast.error(
-          err instanceof Error ? err.message : "Failed to send"
+          localizeErrorWithT(
+            t,
+            err instanceof Error ? err.message : t("ai.sendFailed")
+          )
         );
       }
     });
@@ -146,9 +160,11 @@ export function MessageComposer({
             ))}
           </Inline>
           <Inline gap="sm" wrap>
-            {PROMPT_SHORTCUTS.map((shortcut) => (
+            {PROMPT_SHORTCUT_KEYS.map((key) => {
+              const shortcut = t(key);
+              return (
               <button
-                key={shortcut}
+                key={key}
                 type="button"
                 onClick={() => setBody(shortcut)}
                 className={cn(
@@ -160,12 +176,13 @@ export function MessageComposer({
                 <Sparkles size={11} aria-hidden />
                 {shortcut}
               </button>
-            ))}
+            );
+            })}
           </Inline>
         </Inline>
 
         <label htmlFor="message-body" className="sr-only">
-          Message
+          {t("ai.messageLabel")}
         </label>
 
         <Textarea
@@ -174,15 +191,15 @@ export function MessageComposer({
           onChange={(event) => setBody(event.target.value)}
           placeholder={
             asGuest
-              ? "Message as guest (test)…"
+              ? t("ai.messageAsGuest")
               : isInternal
-                ? "Internal note (not visible to guest)…"
-                : "Write a reply…"
+                ? t("ai.internalNote")
+                : t("ai.writeReply")
           }
           aria-invalid={Boolean(error)}
           aria-describedby={error ? "message-error" : undefined}
           disabled={disabled}
-          className="min-h-[88px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+          className={cn("min-h-[88px] text-[13px]", formRaisedControlClass)}
           onKeyDown={(event) => {
             if (event.key === "Enter" && !event.shiftKey) {
               event.preventDefault();
@@ -192,14 +209,14 @@ export function MessageComposer({
         />
 
         {error ? (
-          <p id="message-error" className="text-[12px] text-red-400">
+          <p id="message-error" className={formErrorClass}>
             {error}
           </p>
         ) : null}
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Inline gap="md" wrap>
-            <label className="inline-flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
+            <label className={cn(formCheckboxRowClass, formCheckboxLabelClass, "text-[12px] text-[var(--shell-muted)]")}>
               <Checkbox
                 checked={isInternal}
                 onCheckedChange={(checked) => {
@@ -209,10 +226,10 @@ export function MessageComposer({
                 }}
                 disabled={asGuest || disabled}
               />
-              Internal note
+              {t("ai.internalNoteLabel")}
             </label>
 
-            <label className="inline-flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
+            <label className={cn(formCheckboxRowClass, formCheckboxLabelClass, "text-[12px] text-[var(--shell-muted)]")}>
               <Checkbox
                 checked={asGuest}
                 onCheckedChange={(checked) => {
@@ -223,30 +240,18 @@ export function MessageComposer({
                 disabled={disabled}
               />
               <User size={13} aria-hidden />
-              As guest
+              {t("ai.asGuestLabel")}
             </label>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              disabled
-              aria-label="Attachments coming soon"
-              title="Attachments coming soon"
-            >
-              <Paperclip size={14} aria-hidden />
-              Attach
-            </Button>
           </Inline>
 
           <Button
             type="submit"
             disabled={disabled || !body.trim()}
             loading={pending}
-            className="gap-2 bg-emerald-600 hover:bg-emerald-500"
+            className="gap-2"
           >
-            {streaming ? <Spinner size={14} label="Streaming" /> : <Send size={14} aria-hidden />}
-            {pending ? "Sending…" : streaming ? "Streaming…" : "Send"}
+            {streaming ? <Spinner size={14} label={t("ai.streamingLabel")} /> : <Send size={14} aria-hidden />}
+            {pending ? t("common.sending") : streaming ? t("ai.streamingProgress") : t("common.send")}
           </Button>
         </div>
       </form>

@@ -5,6 +5,15 @@ import { Dialog as DrawerPrimitive } from "@base-ui/react/dialog";
 import { XIcon } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/core/Button";
+import {
+  drawerCloseButtonClass,
+  drawerFooterClass,
+  drawerFormContentClass,
+  drawerHeaderClass,
+  drawerSubtitleClass,
+  drawerTitleClass,
+  overlayBackdropClass,
+} from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 function Drawer(props: DrawerPrimitive.Root.Props) {
@@ -30,10 +39,7 @@ function DrawerOverlay({
   return (
     <DrawerPrimitive.Backdrop
       data-slot="drawer-overlay"
-      className={cn(
-        "fixed inset-0 z-50 bg-black/10 backdrop-blur-sm",
-        className
-      )}
+      className={cn(overlayBackdropClass, className)}
       {...props}
     />
   );
@@ -55,10 +61,7 @@ function DrawerContent({
       <DrawerPrimitive.Popup
         data-slot="drawer-content"
         data-side={side}
-        className={cn(
-          "fixed inset-y-0 right-0 z-50 flex w-full max-w-lg flex-col border-l border-[var(--shell-border)] bg-[var(--shell-surface-raised)] pb-[env(safe-area-inset-bottom)] shadow-[var(--shell-shadow-lg)]",
-          className
-        )}
+        className={cn(drawerFormContentClass, className)}
         {...props}
       >
         {children}
@@ -66,7 +69,7 @@ function DrawerContent({
           <DrawerClose
             className={cn(
               buttonVariants({ variant: "ghost", size: "icon-sm" }),
-              "absolute right-3 top-3 min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
+              drawerCloseButtonClass
             )}
           >
             <XIcon className="h-4 w-4" />
@@ -82,14 +85,14 @@ function DrawerHeader({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  return <div className={cn("p-6 pb-0 pr-14", className)} {...props} />;
+  return <div className={cn(drawerHeaderClass, className)} {...props} />;
 }
 
 function DrawerFooter({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  return <div className={cn("mt-auto p-6", className)} {...props} />;
+  return <div className={cn(drawerFooterClass, className)} {...props} />;
 }
 
 function DrawerTitle({
@@ -98,7 +101,7 @@ function DrawerTitle({
 }: DrawerPrimitive.Title.Props) {
   return (
     <DrawerPrimitive.Title
-      className={cn("text-xl font-semibold", className)}
+      className={cn(drawerTitleClass, className)}
       {...props}
     />
   );
@@ -110,7 +113,7 @@ function DrawerDescription({
 }: DrawerPrimitive.Description.Props) {
   return (
     <DrawerPrimitive.Description
-      className={cn("text-[var(--shell-muted)]", className)}
+      className={cn(drawerSubtitleClass, className)}
       {...props}
     />
   );

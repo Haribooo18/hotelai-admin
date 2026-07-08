@@ -1,15 +1,10 @@
 "use client";
 
-import {
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  RefreshCw,
-} from "lucide-react";
+import { useMemo } from "react";
+import { ChevronLeft, ChevronRight, Filter, RefreshCw } from "lucide-react";
 
-import { Button } from "@/components/ui/core/Button";
 import { IconButton } from "@/components/ui/core/IconButton";
-import { Input } from "@/components/ui/core/Input";
+import { ToolbarDateInput } from "@/components/ui/core/ToolbarDateInput";
 import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
@@ -17,19 +12,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/overlay/DropdownMenu";
-import { FilterBar } from "@/components/ui/data/FilterBar";
-import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
-import { BookingCreateButton } from "@/components/dashboard/bookings/BookingCreateDialog";
+import {
+  FilterChip,
+  ToolbarSecondaryButton,
+} from "@/components/ui/data/FilterBar";
+import { WorkspaceToolbar } from "@/components/dashboard/shared/WorkspaceToolbar";
 import { BOOKING_STATUS_OPTIONS } from "@/lib/booking-status";
-import { toolbarControlClass } from "@/lib/dashboard/design-system";
+import {
+  toolbarCalendarNavButtonClass,
+  toolbarControlClass,
+  toolbarFilterIconSize,
+  toolbarTitleClass,
+} from "@/lib/dashboard/design-system";
 import type { CalendarView } from "@/lib/calendar";
+import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import type { Room } from "@/types/room";
-
-const VIEW_MODES: { value: CalendarView; label: string }[] = [
-  { value: "day", label: "Day" },
-  { value: "week", label: "Week" },
-  { value: "month", label: "Month" },
-];
 
 type Props = {
   title: string;
@@ -46,11 +44,14 @@ type Props = {
   onAnchorDateChange: (value: string) => void;
   onPrevious: () => void;
   onNext: () => void;
-  onToday: () => void;
   onViewChange: (view: CalendarView) => void;
   onRefresh: () => void;
-  onCreateClick: () => void;
 };
+
+const compactNavButtonClass = cn(
+  toolbarCalendarNavButtonClass,
+  "size-9 min-h-0 min-w-9"
+);
 
 export function CalendarToolbar({
   title,
@@ -67,77 +68,89 @@ export function CalendarToolbar({
   onAnchorDateChange,
   onPrevious,
   onNext,
-  onToday,
   onViewChange,
   onRefresh,
-  onCreateClick,
 }: Props) {
+  const { t } = useI18n();
+
+  const viewModes = useMemo(
+    (): { value: CalendarView; label: string }[] => [
+      { value: "day", label: t("calendar.day") },
+      { value: "week", label: t("calendar.week") },
+      { value: "month", label: t("calendar.month") },
+    ],
+    [t]
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: t("toolbar.allStatuses") },
+      ...BOOKING_STATUS_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(`statuses.booking.${option.value}`),
+      })),
+    ],
+    [t]
+  );
+
   const activeRoomLabel =
-    rooms.find((room) => room.id === roomFilter)?.room_type ?? "All rooms";
+    rooms.find((room) => room.id === roomFilter)?.room_type ??
+    t("toolbar.allRooms");
   const activeStatusLabel =
-    BOOKING_STATUS_OPTIONS.find((option) => option.value === statusFilter)
-      ?.label ?? "All statuses";
+    statusOptions.find((option) => option.value === statusFilter)?.label ??
+    t("toolbar.allStatuses");
 
   return (
-    <FilterBar
-      leading={
-        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 xl:max-w-none">
-          <Input
-            type="date"
+    <WorkspaceToolbar
+      nowrap
+      searchGrow
+      search={
+        <SearchInput
+          placeholder={t("calendar.searchPlaceholder")}
+          aria-label={t("calendar.searchAria")}
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+        />
+      }
+      primaryFilters={
+        <>
+          <IconButton
+            aria-label={t("calendar.previousPeriod")}
+            onClick={onPrevious}
+            className={compactNavButtonClass}
+          >
+            <ChevronLeft size={toolbarFilterIconSize} className="text-white" />
+          </IconButton>
+
+          <ToolbarDateInput
             value={anchorDate}
             onChange={(event) => onAnchorDateChange(event.target.value)}
-            aria-label="Calendar date"
-            className="h-[var(--ds-input-height)] w-[148px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+            aria-label={t("calendar.calendarDate")}
           />
 
-          <div className="flex items-center gap-1">
-            <IconButton
-              aria-label="Previous period"
-              onClick={onPrevious}
-              className="border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
-            >
-              <ChevronLeft size={16} />
-            </IconButton>
+          <IconButton
+            aria-label={t("calendar.nextPeriod")}
+            onClick={onNext}
+            className={compactNavButtonClass}
+          >
+            <ChevronRight size={toolbarFilterIconSize} className="text-white" />
+          </IconButton>
 
-            <Button variant="outline" size="sm" onClick={onToday}>
-              Today
-            </Button>
-
-            <IconButton
-              aria-label="Next period"
-              onClick={onNext}
-              className="border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
-            >
-              <ChevronRight size={16} />
-            </IconButton>
-          </div>
-
-          <h2 className="min-w-0 truncate text-[14px] font-semibold capitalize text-[var(--shell-text)]">
+          <h2 className={cn(toolbarTitleClass, "max-w-[120px] shrink-0")}>
             {title}
           </h2>
-        </div>
-      }
-      trailing={
-        <>
-          <SearchInput
-            containerClassName="w-full sm:w-[220px] xl:w-[240px]"
-            placeholder="Search guest, email, or phone"
-            aria-label="Search reservations"
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-          />
 
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Room filter"
+              aria-label={t("calendar.roomFilter")}
             >
-              <Filter size={15} aria-hidden />
-              <span className="max-w-[96px] truncate">{activeRoomLabel}</span>
+              <Filter size={toolbarFilterIconSize} aria-hidden />
+              <span className="max-w-[88px] truncate">{activeRoomLabel}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onRoomFilterChange("")}>
-                All rooms
+                {t("toolbar.allRooms")}
               </DropdownMenuItem>
               {rooms.map((room) => (
                 <DropdownMenuItem
@@ -153,18 +166,15 @@ export function CalendarToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Status filter"
+              aria-label={t("calendar.statusFilter")}
             >
-              <Filter size={15} aria-hidden />
-              {activeStatusLabel}
+              <Filter size={toolbarFilterIconSize} aria-hidden />
+              <span className="max-w-[88px] truncate">{activeStatusLabel}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onStatusFilterChange("")}>
-                All statuses
-              </DropdownMenuItem>
-              {BOOKING_STATUS_OPTIONS.map((option) => (
+              {statusOptions.map((option) => (
                 <DropdownMenuItem
-                  key={option.value}
+                  key={option.value || "all"}
                   onClick={() => onStatusFilterChange(option.value)}
                 >
                   {option.label}
@@ -173,33 +183,26 @@ export function CalendarToolbar({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <SegmentedControl
-            value={view}
-            onChange={onViewChange}
-            options={VIEW_MODES.map((mode) => ({
-              value: mode.value,
-              label: mode.label,
-            }))}
-          />
+          {viewModes.map((mode) => (
+            <FilterChip
+              key={mode.value}
+              active={view === mode.value}
+              onClick={() => onViewChange(mode.value)}
+            >
+              {mode.label}
+            </FilterChip>
+          ))}
 
-          <Button
+          <ToolbarSecondaryButton
             type="button"
-            variant="outline"
-            size="sm"
             onClick={onRefresh}
             disabled={refreshing}
             loading={refreshing}
-            aria-label="Refresh calendar"
+            aria-label={t("calendar.refreshAria")}
           >
-            <RefreshCw size={15} aria-hidden />
-            Refresh
-          </Button>
-
-          <BookingCreateButton
-            onClick={onCreateClick}
-            label="Add reservation"
-            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
-          />
+            <RefreshCw size={toolbarFilterIconSize} aria-hidden />
+            {t("common.refresh")}
+          </ToolbarSecondaryButton>
         </>
       }
     />

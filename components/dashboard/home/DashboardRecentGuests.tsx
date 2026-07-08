@@ -16,6 +16,7 @@ import {
   DashboardListItem,
   matchesDashboardSearch,
 } from "./dashboard-ui";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 type Props = {
   guests: Guest[];
@@ -35,6 +36,7 @@ export function DashboardRecentGuests({
   loading,
   searchQuery = "",
 }: Props) {
+  const { t } = useI18n();
   const filteredGuests = guests.filter((guest) =>
     matchesDashboardSearch(searchQuery, [
       guest.first_name,
@@ -47,20 +49,20 @@ export function DashboardRecentGuests({
   return (
     <DataCard
       interactive
-      title="Recent guests"
-      subtitle="Newly added profiles"
-      action={<DashboardCardAction href="/guests" label="All" />}
+      title={t("dashboard.recentGuests")}
+      subtitle={t("dashboard.recentGuestsSubtitle")}
+      action={<DashboardCardAction href="/guests" label={t("common.all")} />}
     >
       {loading ? (
         <SkeletonGroup />
       ) : filteredGuests.length === 0 ? (
         <EmptyState
-          title="No guests yet"
-          description="Guest profiles will appear here as you add them."
+          title={t("dashboard.noGuestsYet")}
+          description={t("dashboard.noGuestsYetDesc")}
           icon={<Users size={18} />}
         />
       ) : (
-        <div className="space-y-2" role="list" aria-label="Recent guests">
+        <div className="space-y-2" role="list" aria-label={t("dashboard.recentGuestsAria")}>
           {filteredGuests.map((guest) => (
             <Link
               key={guest.id}
@@ -83,14 +85,16 @@ export function DashboardRecentGuests({
                       <Crown
                         size={12}
                         className="shrink-0 text-amber-400"
-                        aria-label="VIP"
+                        aria-label={t("dashboard.vipAria")}
                       />
                     ) : null}
                   </div>
                   <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
                     {guest.total_bookings} bookings ·{" "}
-                    {formatDashboardCurrency(guest.total_spent)} · Joined{" "}
-                    {formatJoined(guest.created_at)}
+                    {formatDashboardCurrency(guest.total_spent)} ·{" "}
+                    {formatTranslation(t("dashboard.joinedOn"), {
+                      date: formatJoined(guest.created_at),
+                    })}
                   </p>
                 </div>
               </DashboardListItem>

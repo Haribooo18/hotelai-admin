@@ -1,6 +1,9 @@
+"use client";
+
 import { Bot, UserRound } from "lucide-react";
 
 import { motionPresets } from "@/lib/design/motion";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -12,8 +15,9 @@ export function TypingIndicator({
   label,
   actor = "guest",
 }: Props) {
+  const { t } = useI18n();
   const defaultLabel =
-    actor === "ai" ? "AI is composing" : "Guest is typing";
+    actor === "ai" ? t("ai.composing") : t("ai.guestTyping");
 
   return (
     <div

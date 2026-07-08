@@ -9,12 +9,14 @@ import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
 
 import { deleteBooking } from "@/lib/services/bookings.mutations";
+import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { PageHeader } from "@/components/ui/layout/PageHeader";
-import { useI18n } from "@/lib/i18n";
+import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 import { BookingCreateDialog } from "./BookingCreateDialog";
 import { BookingDetailDrawer } from "./BookingDetailDrawer";
@@ -22,7 +24,6 @@ import { BookingEditDialog } from "./BookingEditDialog";
 import { BookingsCards } from "./BookingsCards";
 import { BookingsExecutiveKpis } from "./BookingsExecutiveKpis";
 import { BookingsOperations } from "./BookingsOperations";
-import { BookingsTable } from "./BookingsTable";
 import { BookingsToolbar } from "./BookingsToolbar";
 import {
   buildBookingCardModel,
@@ -31,7 +32,6 @@ import {
   deriveBookingSource,
   derivePaymentStatus,
   type BookingCardModel,
-  type BookingViewMode,
 } from "./booking-ops-metrics";
 import type { BookingsToolbarFilters } from "./bookings-ui";
 
@@ -96,6 +96,8 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
   );
 
   const [createOpen, setCreateOpen] = useState(false);
+  const openCreate = useCallback(() => setCreateOpen(true), []);
+  useCreateQueryParam(openCreate);
   const [editOpen, setEditOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<BookingCardModel | null>(
@@ -105,7 +107,6 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
     null
   );
   const [filters, setFilters] = useState<BookingsToolbarFilters>(DEFAULT_FILTERS);
-  const [viewMode, setViewMode] = useState<BookingViewMode>("cards");
 
   const today = new Date().toISOString().slice(0, 10);
 
@@ -215,57 +216,46 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
 
       try {
         await deleteBooking(id);
-        toast.success("Reservation deleted");
+        toast.success(t("bookings.deleted"));
         setDeleteTarget(null);
         setSelectedModel(null);
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Failed to delete reservation");
+        toast.error(t("bookings.deleteFailed"));
       }
     });
   }
 
   return (
-    <Stack gap="md" className="ds-page-enter">
-      <PageHeader
-        title={t("pages.reservations.title")}
-        subtitle={t("pages.reservations.subtitle")}
-      />
-
-      <BookingsExecutiveKpis kpis={kpis} loading={loading || refreshing} />
-
-      <BookingsToolbar
-        filters={filters}
-        viewMode={viewMode}
-        rooms={rooms}
-        refreshing={refreshing}
-        onFiltersChange={setFilters}
-        onViewModeChange={setViewMode}
-        onCreateClick={() => setCreateOpen(true)}
-        onRefresh={handleRefresh}
-      />
-
-      <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
-        {viewMode === "cards" ? (
-          <BookingsCards
-            models={cardModels}
-            loading={loading}
-            selectedId={selectedId}
-            onSelect={handleSelect}
-            onEdit={handleEdit}
-            onDelete={handleDeleteRequest}
+    <>
+      <WorkspacePageLayout
+        header={
+          <PageHeader
+            title={t("pages.reservations.title")}
+            subtitle={t("pages.reservations.subtitle")}
           />
-        ) : (
-          <BookingsTable
-            models={cardModels}
-            loading={loading}
-            selectedId={selectedId}
-            onSelect={handleSelect}
-            onEdit={handleEdit}
-            onDelete={handleDeleteRequest}
+        }
+        kpis={<BookingsExecutiveKpis kpis={kpis} loading={loading || refreshing} />}
+        toolbar={
+          <BookingsToolbar
+            filters={filters}
+            rooms={rooms}
+            refreshing={refreshing}
+            onFiltersChange={setFilters}
+            onRefresh={handleRefresh}
           />
-        )}
+        }
+      >
+        <GlassSurface className={workspaceSurfaceClass}>
+        <BookingsCards
+          models={cardModels}
+          loading={loading}
+          selectedId={selectedId}
+          onSelect={handleSelect}
+          onEdit={handleEdit}
+          onDelete={handleDeleteRequest}
+        />
       </GlassSurface>
 
       <BookingsOperations
@@ -276,6 +266,7 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
         loading={loading}
         onSelect={handleSelect}
       />
+      </WorkspacePageLayout>
 
       <BookingDetailDrawer
         open={drawerOpen}
@@ -311,17 +302,19 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="Delete reservation?"
+        title={t("bookings.deleteConfirm")}
         description={
           deleteTarget
-            ? `The reservation for "${deleteTarget.booking.guest_name}" will be permanently deleted.`
+            ? formatTranslation(t("bookings.deleteConfirmDesc"), {
+                name: deleteTarget.booking.guest_name,
+              })
             : undefined
         }
-        confirmLabel="Delete"
+        confirmLabel={t("common.delete")}
         destructive
         loading={pending}
         onConfirm={confirmDelete}
       />
-    </Stack>
+    </>
   );
 }

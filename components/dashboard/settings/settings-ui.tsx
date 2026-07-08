@@ -1,11 +1,39 @@
 import type { ComponentProps, ReactNode } from "react";
 
+import { WorkspaceDetailRow } from "@/components/dashboard/shared/WorkspaceDetailRow";
+import {
+  cardContentGapClass,
+  cardPaddingClass,
+} from "@/lib/dashboard/design-system";
 import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
+
+import { Panel } from "@/components/ui/primitives/Panel";
+import { Section } from "@/components/ui/primitives/Section";
 
 import type { SettingsSection } from "./settings-ops-metrics";
 
 export type SettingsNavSection = SettingsSection | "advanced";
+
+/** Vertical rhythm between settings sections — 24px */
+export const settingsSectionStackClass = "space-y-6";
+
+export function SettingsSectionPanel({
+  title,
+  subtitle,
+  children,
+}: {
+  title: string;
+  subtitle: string;
+  children: ReactNode;
+}) {
+  return (
+    <Panel variant="glass" className={cardPaddingClass}>
+      <Section title={title} subtitle={subtitle} />
+      <div className={cardContentGapClass}>{children}</div>
+    </Panel>
+  );
+}
 
 export function SettingsNavButton({
   selected = false,
@@ -20,7 +48,7 @@ export function SettingsNavButton({
     <button
       type="button"
       className={cn(
-        "flex w-full min-h-11 items-center gap-2.5 rounded-[var(--ds-radius-sm)] px-3 py-2.5 text-left text-[13px] font-medium",
+        "ds-body flex w-full min-h-11 items-center gap-2.5 rounded-[var(--ds-radius-sm)] px-3 py-2.5 text-left font-medium",
         motionPresets.transitionBase,
         "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]",
         selected
@@ -42,12 +70,7 @@ export function SettingsDetailRow({
   label: string;
   value: string;
 }) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-[12px]">
-      <dt className="text-[var(--shell-muted)]">{label}</dt>
-      <dd className="text-right font-medium text-[var(--shell-text)]">{value}</dd>
-    </div>
-  );
+  return <WorkspaceDetailRow label={label} value={value} />;
 }
 
 export function SettingsOpsListItem({

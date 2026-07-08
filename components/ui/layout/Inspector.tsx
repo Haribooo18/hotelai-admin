@@ -1,5 +1,6 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
 type InspectorProps = HTMLAttributes<HTMLElement> & {
@@ -20,6 +21,7 @@ export function Inspector({
     <aside
       className={cn(
         "flex min-h-0 flex-col overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]",
+        motionPresets.inspector,
         className
       )}
       {...props}

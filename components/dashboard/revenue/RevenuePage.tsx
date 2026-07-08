@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
 
+import { inspectorGridClass, workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { PageHeader } from "@/components/ui/layout/PageHeader";
+import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { useI18n } from "@/lib/i18n";
 
@@ -48,7 +49,7 @@ const RevenueAnalytics = dynamic(
     })),
   {
     loading: () => (
-      <GlassSurface className="p-[var(--ds-surface-padding)]">
+      <GlassSurface className={workspaceSurfaceClass}>
         <Skeleton className="min-h-[420px] rounded-[var(--ds-radius)]" />
       </GlassSurface>
     ),
@@ -197,37 +198,41 @@ export function RevenuePage({
   }
 
   return (
-    <Stack gap="md" className="ds-page-enter">
-      <PageHeader
-        title={t("pages.revenue.title")}
-        subtitle={t("pages.revenue.subtitle")}
-      />
-
-      <RevenueExecutiveKpis
-        kpis={kpis}
-        trend={trend}
-        forecast={forecast}
-        loading={refreshing}
-      />
-
-      <RevenueToolbar
-        range={range}
-        preset={preset}
-        compareEnabled={compareEnabled}
-        exporting={exporting}
-        refreshing={refreshing}
-        canExport={transactions.length > 0}
-        filters={filters}
-        rooms={rooms}
-        onRangeChange={setRange}
-        onPresetChange={setPreset}
-        onCompareChange={setCompareEnabled}
-        onExport={handleExport}
-        onRefresh={handleRefresh}
-        onFiltersChange={setFilters}
-      />
-
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+    <WorkspacePageLayout
+      header={
+        <PageHeader
+          title={t("pages.revenue.title")}
+          subtitle={t("pages.revenue.subtitle")}
+        />
+      }
+      kpis={
+        <RevenueExecutiveKpis
+          kpis={kpis}
+          trend={trend}
+          forecast={forecast}
+          loading={refreshing}
+        />
+      }
+      toolbar={
+        <RevenueToolbar
+          range={range}
+          preset={preset}
+          compareEnabled={compareEnabled}
+          exporting={exporting}
+          refreshing={refreshing}
+          canExport={transactions.length > 0}
+          filters={filters}
+          rooms={rooms}
+          onRangeChange={setRange}
+          onPresetChange={setPreset}
+          onCompareChange={setCompareEnabled}
+          onExport={handleExport}
+          onRefresh={handleRefresh}
+          onFiltersChange={setFilters}
+        />
+      }
+    >
+      <div className={inspectorGridClass}>
         <div className="space-y-4">
           <RevenueAnalytics
             trend={trend}
@@ -263,6 +268,6 @@ export function RevenuePage({
         trend={trend}
         loading={refreshing}
       />
-    </Stack>
+    </WorkspacePageLayout>
   );
 }

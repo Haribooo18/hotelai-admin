@@ -8,6 +8,7 @@ import { Metric } from "@/components/ui/display/Metric";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Section } from "@/components/ui/primitives/Section";
+import { useI18n } from "@/lib/i18n";
 
 import { GuestAvatar } from "./GuestAvatar";
 import { GuestTags } from "./GuestTags";
@@ -58,7 +59,7 @@ function GuestInsightList({
           <GuestOpsListItem
             key={model.guest.id}
             role="listitem"
-            aria-label={`Open guest ${fullName}`}
+            aria-label={fullName}
             onClick={() => onSelect?.(model)}
           >
             <div className="flex items-start gap-3">
@@ -97,6 +98,8 @@ export function GuestsCrmInsights({
   loading = false,
   onSelect,
 }: Props) {
+  const { t } = useI18n();
+
   const vipGuests = useMemo(
     () => models.filter((model) => model.guest.is_vip),
     [models]
@@ -164,10 +167,13 @@ export function GuestsCrmInsights({
 
   if (loading) {
     return (
-      <Section title="CRM insights" subtitle="Guest intelligence at a glance">
+      <Section
+        title={t("guests.crmInsightsTitle")}
+        subtitle={t("guests.crmInsightsSubtitle")}
+      >
         <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
           {Array.from({ length: 7 }).map((_, index) => (
-            <DataCard key={index} title="Loading">
+            <DataCard key={index} title={t("guests.crmLoading")}>
               <SkeletonGroup />
             </DataCard>
           ))}
@@ -178,71 +184,71 @@ export function GuestsCrmInsights({
 
   return (
     <Section
-      title="CRM insights"
-      subtitle="Guest intelligence, segments, and recent activity"
+      title={t("guests.crmInsightsTitle")}
+      subtitle={t("guests.crmInsightsSubtitle")}
     >
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         <DataCard
           interactive
-          title="VIP guests"
-          subtitle={`${vipGuests.length} high-value profiles`}
+          title={t("guests.crmVipTitle")}
+          subtitle={`${vipGuests.length}`}
         >
           <GuestInsightList
             models={vipGuests}
-            emptyTitle="No VIP guests"
-            emptyDescription="Mark guests as VIP to track them here."
+            emptyTitle={t("guests.crmVipTitle")}
+            emptyDescription={t("guests.crmVipEmptyDesc")}
             onSelect={onSelect}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Returning guests"
-          subtitle={`${returningGuests.length} repeat visitors`}
+          title={t("guests.crmReturningTitle")}
+          subtitle={`${returningGuests.length}`}
         >
           <GuestInsightList
             models={returningGuests}
-            emptyTitle="No returning guests"
-            emptyDescription="Guests with multiple stays will appear here."
+            emptyTitle={t("guests.crmReturningEmpty")}
+            emptyDescription={t("guests.crmReturningEmptyDesc")}
             onSelect={onSelect}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Top spenders"
-          subtitle="Highest lifetime revenue"
+          title={t("guests.crmTopSpendersTitle")}
+          subtitle={t("guests.crmTopSpendersSubtitle")}
         >
           <GuestInsightList
             models={topSpenders}
-            emptyTitle="No revenue data"
-            emptyDescription="Guest spending will appear as bookings are recorded."
+            emptyTitle={t("guests.crmNoRevenue")}
+            emptyDescription={t("guests.crmNoRevenueDesc")}
             onSelect={onSelect}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="New guests"
-          subtitle="Added in the last 7 days"
+          title={t("guests.crmNewGuestsTitle")}
+          subtitle={t("guests.crmNewGuestsSubtitle")}
         >
           <GuestInsightList
             models={newGuests}
-            emptyTitle="No new guests"
-            emptyDescription="Recently added profiles will appear here."
+            emptyTitle={t("guests.crmNoNewGuests")}
+            emptyDescription={t("guests.crmNoNewGuestsDesc")}
             onSelect={onSelect}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Recent activity"
-          subtitle="Latest profile updates"
+          title={t("guests.crmRecentActivityTitle")}
+          subtitle={t("guests.crmRecentActivitySubtitle")}
         >
           {recentActivity.length === 0 ? (
             <EmptyState
-              title="No recent activity"
-              description="Guest updates will appear here."
+              title={t("guests.crmNoActivity")}
+              description={t("guests.crmNoActivityDesc")}
               icon={<Users size={16} />}
             />
           ) : (
@@ -260,7 +266,7 @@ export function GuestsCrmInsights({
                       {fullName}
                     </p>
                     <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
-                      Updated {formatGuestDateTime(model.guest.updated_at)}
+                      {formatGuestDateTime(model.guest.updated_at)}
                     </p>
                   </div>
                 );
@@ -269,11 +275,15 @@ export function GuestsCrmInsights({
           )}
         </DataCard>
 
-        <DataCard interactive title="Countries" subtitle="Guest distribution">
+        <DataCard
+          interactive
+          title={t("guests.crmCountriesTitle")}
+          subtitle={t("guests.crmCountriesSubtitle")}
+        >
           {countries.length === 0 ? (
             <EmptyState
-              title="No country data"
-              description="Country information will appear on guest profiles."
+              title={t("guests.crmNoCountry")}
+              description={t("guests.crmNoCountryDesc")}
               icon={<Globe size={16} />}
             />
           ) : (
@@ -295,11 +305,15 @@ export function GuestsCrmInsights({
           )}
         </DataCard>
 
-        <DataCard interactive title="Languages" subtitle="Communication preferences">
+        <DataCard
+          interactive
+          title={t("guests.crmLanguagesTitle")}
+          subtitle={t("guests.crmLanguagesSubtitle")}
+        >
           {languages.length === 0 ? (
             <EmptyState
-              title="No language tags"
-              description="Add language tags to guest profiles to segment by language."
+              title={t("guests.crmNoLanguage")}
+              description={t("guests.crmNoLanguageDesc")}
               icon={<Languages size={16} />}
             />
           ) : (

@@ -3,13 +3,9 @@
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { cn } from "@/lib/utils";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { useI18n } from "@/lib/i18n";
 
 import { GuestForm } from "./GuestForm";
 
@@ -19,18 +15,16 @@ type Props = {
 };
 
 export function GuestCreateDialog({ open, onOpenChange }: Props) {
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-lg overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>New Guest</SheetTitle>
-        </SheetHeader>
+  const { t } = useI18n();
 
-        <div className="mt-6 px-6 pb-6">
-          <GuestForm onSuccess={() => onOpenChange(false)} />
-        </div>
-      </SheetContent>
-    </Sheet>
+  return (
+    <WorkspaceFormDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("guests.newGuest")}
+    >
+      <GuestForm onSuccess={() => onOpenChange(false)} />
+    </WorkspaceFormDrawer>
   );
 }
 
@@ -40,10 +34,12 @@ type ButtonProps = {
 };
 
 export function GuestCreateButton({ onClick, className }: ButtonProps) {
+  const { t } = useI18n();
+
   return (
     <Button type="button" onClick={onClick} className={cn(className)}>
       <Plus className="h-4 w-4" />
-      Add Guest
+      {t("guests.newGuest")}
     </Button>
   );
 }

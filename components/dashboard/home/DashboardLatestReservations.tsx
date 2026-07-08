@@ -1,3 +1,7 @@
+"use client";
+
+"use client";
+
 import { CalendarDays } from "lucide-react";
 
 import { DataCard } from "@/components/ui/data/DataCard";
@@ -14,6 +18,7 @@ import {
   DashboardListItem,
   matchesDashboardSearch,
 } from "./dashboard-ui";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   bookings: Booking[];
@@ -26,6 +31,7 @@ export function DashboardLatestReservations({
   loading,
   searchQuery = "",
 }: Props) {
+  const { t } = useI18n();
   const filteredBookings = bookings.filter((booking) =>
     matchesDashboardSearch(searchQuery, [booking.guest_name, booking.status])
   );
@@ -33,20 +39,20 @@ export function DashboardLatestReservations({
   return (
     <DataCard
       interactive
-      title="Latest reservations"
-      subtitle="Recently created entries"
-      action={<DashboardCardAction href="/bookings" label="All" />}
+      title={t("dashboard.latestReservations")}
+      subtitle={t("dashboard.latestReservationsSubtitle")}
+      action={<DashboardCardAction href="/bookings" label={t("common.all")} />}
     >
       {loading ? (
         <SkeletonGroup />
       ) : filteredBookings.length === 0 ? (
         <EmptyState
-          title="No reservations yet"
-          description="Create your first reservation to see it in this widget."
+          title={t("dashboard.noReservationsYet")}
+          description={t("dashboard.noReservationsYetDesc")}
           icon={<CalendarDays size={18} />}
         />
       ) : (
-        <div className="space-y-2" role="list" aria-label="Latest reservations">
+        <div className="space-y-2" role="list" aria-label={t("dashboard.latestReservationsAria")}>
           {filteredBookings.map((booking) => (
             <DashboardListItem key={booking.id} as="article">
               <div className="flex items-start justify-between gap-3">

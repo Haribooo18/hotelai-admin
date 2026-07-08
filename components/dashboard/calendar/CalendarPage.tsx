@@ -31,15 +31,14 @@ import {
 } from "@/components/dashboard/bookings/booking-ops-metrics";
 import type { Guest } from "@/types/guest";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { PageHeader } from "@/components/ui/layout/PageHeader";
-import { useI18n } from "@/lib/i18n";
+import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { formatTranslation, localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 import { CalendarExecutiveKpis } from "./CalendarExecutiveKpis";
 import { CalendarToolbar } from "./CalendarToolbar";
 import { CalendarTimeline } from "./CalendarTimeline";
 import { CalendarAgenda } from "./CalendarAgenda";
-import { CalendarInspector } from "./CalendarInspector";
 import { CalendarOperations } from "./CalendarOperations";
 import { CalendarLegend } from "./CalendarLegend";
 import {
@@ -78,7 +77,7 @@ export function CalendarPage({
   const [syncedFrom, setSyncedFrom] = useState(initialBookings);
   const [view, setView] = useState<CalendarView>("month");
   const [anchor, setAnchor] = useState(() => new Date());
-  const [scrollToTodayTick, setScrollToTodayTick] = useState(1);
+  const scrollToTodayTick = 1;
 
   const [search, setSearch] = useState("");
   const [roomFilter, setRoomFilter] = useState("");
@@ -212,13 +211,16 @@ export function CalendarPage({
     startTransition(async () => {
       try {
         await deleteBooking(id);
-        toast.success("Reservation deleted");
+        toast.success(t("calendar.deleted"));
         router.refresh();
       } catch (error) {
         console.error(error);
         setBookings(previous);
         toast.error(
-          error instanceof Error ? error.message : "Failed to delete reservation"
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("calendar.deleteFailed")
+          )
         );
       }
     });
@@ -237,7 +239,7 @@ export function CalendarPage({
         booking.id
       )
     ) {
-      toast.error("Overlaps with another booking for this room");
+      toast.error(t("calendar.overlapError"));
       return;
     }
 
@@ -254,71 +256,71 @@ export function CalendarPage({
           check_in: next.check_in,
           check_out: next.check_out,
         });
-        toast.success("Reservation rescheduled");
+        toast.success(t("calendar.rescheduled"));
         router.refresh();
       } catch (error) {
         console.error(error);
         setBookings(previous);
         toast.error(
-          error instanceof Error ? error.message : "Failed to reschedule"
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("calendar.rescheduleFailed")
+          )
         );
       }
     });
   }
 
   return (
-    <Stack gap="md" className="ds-page-enter">
-      <PageHeader
-        title={t("pages.calendar.title")}
-        subtitle={t("pages.calendar.subtitle")}
-      />
-
-      <CalendarExecutiveKpis kpis={kpis} loading={refreshing} />
-
-      <CalendarToolbar
-        title={formatRangeTitle(days, view)}
-        view={view}
-        anchorDate={anchorDate}
-        search={search}
-        roomFilter={roomFilter}
-        statusFilter={statusFilter}
-        rooms={rooms}
-        refreshing={refreshing}
-        onSearchChange={setSearch}
-        onRoomFilterChange={setRoomFilter}
-        onStatusFilterChange={setStatusFilter}
-        onAnchorDateChange={handleAnchorDateChange}
-        onPrevious={goPrevious}
-        onNext={goNext}
-        onToday={() => {
-          setAnchor(new Date());
-          setScrollToTodayTick((tick) => tick + 1);
-        }}
-        onViewChange={setView}
-        onRefresh={handleRefresh}
-        onCreateClick={() => setCreateOpen(true)}
-      />
-
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="hidden md:block">
-          <CalendarTimeline
-            rooms={filteredRooms}
-            roomModels={roomModels}
-            bookings={filteredBookings}
-            guests={guests}
-            days={days}
-            loading={false}
-            selectedId={selectedId}
-            scrollToTodayTick={scrollToTodayTick}
-            onReschedule={handleReschedule}
-            onOpen={(booking) => {
-              selectBooking(booking);
-              openDrawer(booking);
-            }}
+    <>
+      <WorkspacePageLayout
+        header={
+          <PageHeader
+            title={t("pages.calendar.title")}
+            subtitle={t("pages.calendar.subtitle")}
           />
-        </div>
-
+        }
+        kpis={<CalendarExecutiveKpis kpis={kpis} loading={refreshing} />}
+        toolbar={
+          <CalendarToolbar
+            title={formatRangeTitle(days, view)}
+            view={view}
+            anchorDate={anchorDate}
+            search={search}
+            roomFilter={roomFilter}
+            statusFilter={statusFilter}
+            rooms={rooms}
+            refreshing={refreshing}
+            onSearchChange={setSearch}
+            onRoomFilterChange={setRoomFilter}
+            onStatusFilterChange={setStatusFilter}
+            onAnchorDateChange={handleAnchorDateChange}
+            onPrevious={goPrevious}
+            onNext={goNext}
+            onViewChange={setView}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
         <div className="space-y-4">
+          <div className="hidden md:block">
+            <CalendarTimeline
+              rooms={filteredRooms}
+              roomModels={roomModels}
+              bookings={filteredBookings}
+              guests={guests}
+              days={days}
+              loading={false}
+              selectedId={selectedId}
+              scrollToTodayTick={scrollToTodayTick}
+              onReschedule={handleReschedule}
+              onOpen={(booking) => {
+                selectBooking(booking);
+                openDrawer(booking);
+              }}
+            />
+          </div>
+
           <div className="md:hidden">
             <CalendarAgenda
               rooms={filteredRooms}
@@ -332,29 +334,7 @@ export function CalendarPage({
               }}
             />
           </div>
-
-          <div className="hidden md:block">
-            <CalendarAgenda
-              rooms={filteredRooms}
-              bookings={filteredBookings}
-              guests={guests}
-              days={days}
-              selectedId={selectedId}
-              onOpen={(booking) => {
-                selectBooking(booking);
-                openDrawer(booking);
-              }}
-            />
-          </div>
-
-          <CalendarInspector
-            model={selectedModel}
-            onOpen={() => {
-              if (selectedModel) openDrawer(selectedModel.booking);
-            }}
-          />
         </div>
-      </div>
 
       <CalendarOperations
         bookings={bookings}
@@ -368,6 +348,7 @@ export function CalendarPage({
       />
 
       <CalendarLegend />
+      </WorkspacePageLayout>
 
       <BookingDetailDrawer
         open={drawerOpen}
@@ -395,16 +376,18 @@ export function CalendarPage({
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="Delete reservation"
+        title={t("calendar.deleteConfirm")}
         description={
           deleteTarget
-            ? `Delete reservation for ${deleteTarget.booking.guest_name}? This cannot be undone.`
+            ? formatTranslation(t("calendar.deleteConfirmDesc"), {
+                name: deleteTarget.booking.guest_name,
+              })
             : ""
         }
-        confirmLabel="Delete"
+        confirmLabel={t("common.delete")}
         destructive
         onConfirm={handleDeleteConfirm}
       />
-    </Stack>
+    </>
   );
 }

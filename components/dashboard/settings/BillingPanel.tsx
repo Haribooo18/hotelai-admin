@@ -3,8 +3,6 @@
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
-import type { AIHealthStatus } from "@/types/ai-settings";
-
 import {
   BILLING_PLAN_IDS,
   BILLING_PLANS,
@@ -13,16 +11,15 @@ import {
 } from "@/lib/billing/plans";
 import type { BillingPlan } from "@/types/subscription";
 import type { HotelSubscription } from "@/types/subscription";
+import { useI18n } from "@/lib/i18n";
 
 import { Button } from "@/components/ui/core/Button";
 import { Badge } from "@/components/ui/display/Badge";
-import { Metric } from "@/components/ui/display/Metric";
 import { DataCard } from "@/components/ui/data/DataCard";
 
 type Props = {
   subscription: HotelSubscription | null;
   stripeConfigured: boolean;
-  health?: AIHealthStatus;
 };
 
 function formatRenewalDate(value: string | null): string {
@@ -37,8 +34,8 @@ function formatRenewalDate(value: string | null): string {
 export function BillingPanel({
   subscription,
   stripeConfigured,
-  health,
 }: Props) {
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const [checkoutPlan, setCheckoutPlan] = useState<BillingPlan | null>(null);
 
@@ -58,13 +55,13 @@ export function BillingPanel({
 
         const data = (await response.json()) as { url?: string; error?: string };
         if (!response.ok || !data.url) {
-          throw new Error(data.error ?? "Failed to open checkout");
+          throw new Error(data.error ?? t("billing.checkoutError"));
         }
 
         window.location.href = data.url;
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Subscription checkout error"
+          err instanceof Error ? err.message : t("billing.checkoutError")
         );
         setCheckoutPlan(null);
       }
@@ -80,13 +77,13 @@ export function BillingPanel({
 
         const data = (await response.json()) as { url?: string; error?: string };
         if (!response.ok || !data.url) {
-          throw new Error(data.error ?? "Failed to open portal");
+          throw new Error(data.error ?? t("billing.portalError"));
         }
 
         window.location.href = data.url;
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Failed to open portal"
+          err instanceof Error ? err.message : t("billing.portalError")
         );
       }
     });
@@ -98,8 +95,7 @@ export function BillingPanel({
         className="rounded-[var(--ds-radius-sm)] border border-amber-900/50 bg-amber-950/30 p-4 text-sm text-amber-200"
         role="alert"
       >
-        Stripe is not configured. Set <code>STRIPE_SECRET_KEY</code> and price IDs
-        in the environment.
+        {t("billing.stripeNotConfigured")}
       </div>
     );
   }
@@ -107,12 +103,20 @@ export function BillingPanel({
   return (
     <div className="space-y-4">
       <div className="grid gap-4 lg:grid-cols-2">
-        <DataCard interactive title="Subscription" subtitle="Current plan and renewal">
+        <DataCard
+          interactive
+          title={t("billing.subscription")}
+          subtitle={t("billing.subscriptionSubtitle")}
+        >
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <p className="text-sm text-[var(--shell-muted)]">Current plan</p>
+              <p className="text-sm text-[var(--shell-muted)]">
+                {t("billing.currentPlan")}
+              </p>
               <p className="mt-1 text-xl font-semibold text-[var(--shell-text)]">
-                {subscription ? formatPlanLabel(subscription.plan) : "Not selected"}
+                {subscription
+                  ? formatPlanLabel(subscription.plan)
+                  : t("billing.notSelected")}
               </p>
             </div>
             <Badge variant="outline">
@@ -122,67 +126,51 @@ export function BillingPanel({
 
           <dl className="mt-4 grid gap-3 text-sm">
             <div>
-              <dt className="text-[var(--shell-muted)]">Renewal date</dt>
+              <dt className="text-[var(--shell-muted)]">{t("billing.renewalDate")}</dt>
               <dd className="mt-1 text-[var(--shell-text)]">
                 {formatRenewalDate(subscription?.current_period_end ?? null)}
               </dd>
             </div>
             <div>
-              <dt className="text-[var(--shell-muted)]">Cancel at period end</dt>
+              <dt className="text-[var(--shell-muted)]">
+                {t("billing.cancelAtPeriodEnd")}
+              </dt>
               <dd className="mt-1 text-[var(--shell-text)]">
-                {subscription?.cancel_at_period_end ? "Yes" : "No"}
+                {subscription?.cancel_at_period_end ? t("common.yes") : t("common.no")}
               </dd>
             </div>
           </dl>
 
           {hasActiveSubscription ? (
             <Button className="mt-4" onClick={openPortal} disabled={pending}>
-              Manage subscription
+              {t("billing.manageSubscription")}
             </Button>
           ) : null}
         </DataCard>
 
-        <DataCard interactive title="Usage" subtitle="AI consumption in the last 24 hours">
-          <dl className="grid gap-3 text-sm">
-            <div>
-              <dt className="text-[var(--shell-muted)]">Requests</dt>
-              <dd className="mt-1 text-[var(--shell-text)]">
-                <Metric value={health?.recent_requests ?? 0} />
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[var(--shell-muted)]">Estimated cost</dt>
-              <dd className="mt-1 text-[var(--shell-text)]">
-                ${(health?.total_cost_usd_24h ?? 0).toFixed(4)}
-              </dd>
-            </div>
-          </dl>
-        </DataCard>
-
-        <DataCard title="Invoices" subtitle="Billing documents">
+        <DataCard title={t("billing.invoices")} subtitle={t("billing.invoicesSubtitle")}>
           <p className="text-[13px] text-[var(--shell-muted)]">
-            Invoice history is available in the Stripe customer portal after an active
-            subscription is created.
+            {t("billing.invoicesHint")}
           </p>
         </DataCard>
 
-        <DataCard title="Payments" subtitle="Settlement status">
+        <DataCard title={t("billing.payments")} subtitle={t("billing.paymentsSubtitle")}>
           <p className="text-[13px] text-[var(--shell-muted)]">
             {hasActiveSubscription
-              ? "Payments are managed through Stripe."
-              : "No active payment method until a plan is selected."}
+              ? t("billing.paymentsActive")
+              : t("billing.paymentsInactive")}
           </p>
         </DataCard>
 
-        <DataCard title="Limits" subtitle="Plan constraints">
+        <DataCard title={t("billing.limits")} subtitle={t("billing.limitsSubtitle")}>
           <p className="text-[13px] text-[var(--shell-muted)]">
-            Usage limits depend on the selected Monavel plan and connected AI volume.
+            {t("billing.limitsHint")}
           </p>
         </DataCard>
       </div>
 
       {!hasActiveSubscription ? (
-        <DataCard title="Choose a plan" subtitle="Available subscriptions">
+        <DataCard title={t("billing.choosePlan")} subtitle={t("billing.choosePlanSubtitle")}>
           <div className="grid gap-3 sm:grid-cols-3">
             {BILLING_PLAN_IDS.map((planId) => (
               <div
@@ -202,8 +190,8 @@ export function BillingPanel({
                   onClick={() => startCheckout(planId)}
                 >
                   {pending && checkoutPlan === planId
-                    ? "Redirecting to checkout..."
-                    : "Subscribe"}
+                    ? t("billing.redirectingCheckout")
+                    : t("billing.subscribe")}
                 </Button>
               </div>
             ))}

@@ -36,6 +36,7 @@ import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { ConversationReplay } from "@/components/dashboard/settings/ConversationReplay";
 import { motionPresets } from "@/lib/design/motion";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import {
@@ -72,6 +73,7 @@ export function AIContextPanel({
   currentUserId,
   onRegenerate,
 }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -80,8 +82,8 @@ export function AIContextPanel({
       <aside className="hidden h-full w-80 shrink-0 flex-col border-l border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/80 backdrop-blur-xl xl:flex">
         <div className="flex flex-1 items-center justify-center p-6">
           <EmptyState
-            title="AI context"
-            description="Select a conversation to view guest profile, AI analysis, and knowledge sources."
+            title={t("ai.contextTitle")}
+            description={t("ai.contextSelectDesc")}
             icon={<Sparkles size={18} />}
           />
         </div>
@@ -104,7 +106,12 @@ export function AIContextPanel({
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Failed to perform action");
+        toast.error(
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("ai.actionFailed")
+          )
+        );
       }
     });
   }
@@ -112,14 +119,14 @@ export function AIContextPanel({
   return (
     <aside
       className="hidden h-full w-80 shrink-0 flex-col overflow-hidden border-l border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/80 backdrop-blur-xl xl:flex"
-      aria-label="Conversation context"
+      aria-label={t("ai.contextPanelAria")}
     >
       <Scrollable className="flex-1 p-3">
         <Stack gap="sm">
           <Panel variant="glass" className="p-3">
             <Section
-              title="Guest profile"
-              subtitle="Reservation and CRM context"
+              title={t("ai.guestProfile")}
+              subtitle={t("ai.guestProfileSubtitle")}
             />
 
             <div className="flex items-center gap-3">
@@ -137,9 +144,9 @@ export function AIContextPanel({
             </div>
 
             <dl className="mt-3 space-y-2 text-[12px]">
-              <ContextRow label="Current reservation" value={guest.currentReservation} />
-              <ContextRow label="Previous stays" value={String(guest.previousStays)} />
-              <ContextRow label="Lifetime revenue" value="$0" />
+              <ContextRow label={t("ai.currentReservation")} value={guest.currentReservation} />
+              <ContextRow label={t("ai.previousStays")} value={String(guest.previousStays)} />
+              <ContextRow label={t("guests.lifetimeRevenue")} value="$0" />
             </dl>
 
             {guest.tags.length > 0 ? (
@@ -155,7 +162,7 @@ export function AIContextPanel({
             {guest.preferences.length > 0 ? (
               <div className="mt-3 space-y-1">
                 <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-                  Preferences
+                  {t("ai.preferencesLabel")}
                 </p>
                 {guest.preferences.map((preference) => (
                   <p key={preference} className="text-[12px] text-[var(--shell-text)]">
@@ -167,33 +174,33 @@ export function AIContextPanel({
           </Panel>
 
           <Panel variant="glass" className="p-3">
-            <Section title="AI analysis" subtitle="Intent and routing signals" />
+            <Section title={t("ai.aiAnalysisTitle")} subtitle={t("ai.aiAnalysisSubtitle")} />
             <div className="space-y-2 text-[12px]">
-              <AnalysisRow label="Intent" value={analysis.intent} />
+              <AnalysisRow label={t("ai.intentLabel")} value={analysis.intent} />
               <AnalysisRow
-                label="Sentiment"
+                label={t("ai.sentimentLabel")}
                 value={analysis.sentiment}
                 valueClass={SENTIMENT_CLASS[analysis.sentiment]}
               />
-              <AnalysisRow label="Language" value={analysis.language} />
+              <AnalysisRow label={t("ai.languageLabel")} value={analysis.language} />
               <AnalysisRow
-                label="Confidence"
+                label={t("ai.confidenceLabel")}
                 value={`${Math.round(analysis.confidence * 100)}%`}
               />
               <p className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)]/40 px-2.5 py-2 text-[12px] text-[var(--shell-text)]">
-                <span className="font-medium">Next best action: </span>
+                <span className="font-medium">{t("ai.nextBestActionPrefix")}</span>
                 {analysis.nextBestAction}
               </p>
             </div>
           </Panel>
 
           <Panel variant="glass" className="p-3">
-            <Section title="Knowledge" subtitle="Relevant articles and sources" />
+            <Section title={t("ai.knowledgeTitle")} subtitle={t("ai.knowledgeSubtitle")} />
 
             {relevantArticles.length === 0 ? (
               <EmptyState
-                title="No matches"
-                description="No relevant articles found for this conversation."
+                title={t("ai.noMatches")}
+                description={t("ai.noMatchesDesc")}
               />
             ) : (
               <ul className="space-y-2">
@@ -220,7 +227,7 @@ export function AIContextPanel({
             {promptSources.length > 0 ? (
               <div className="mt-3">
                 <p className="mb-1.5 text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-                  Prompt sources
+                  {t("ai.promptSourcesLabel")}
                 </p>
                 <ul className="space-y-1">
                   {promptSources.map((source) => (
@@ -238,37 +245,37 @@ export function AIContextPanel({
 
             <div className="mt-3">
               <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-                Recent activity
+                {t("ai.recentActivityLabel")}
               </p>
               <ConversationReplay actions={aiActions} />
             </div>
           </Panel>
 
           <Panel variant="glass" className="p-3">
-            <Section title="AI actions" subtitle="Operational shortcuts" />
+            <Section title={t("ai.aiActionsTitle")} subtitle={t("ai.aiActionsSubtitle")} />
             <Stack gap="sm">
               {guest.phone ? (
                 <ActionButton
                   icon={<Phone size={14} aria-hidden />}
-                  label="Call guest"
+                  label={t("ai.callGuest")}
                   href={`tel:${guest.phone}`}
                 />
               ) : null}
               {guest.email ? (
                 <ActionButton
                   icon={<Mail size={14} aria-hidden />}
-                  label="Email guest"
+                  label={t("ai.emailGuest")}
                   href={`mailto:${guest.email}`}
                 />
               ) : null}
               <ActionButton
                 icon={<CalendarPlus size={14} aria-hidden />}
-                label="Create booking"
+                label={t("ai.createBooking")}
                 onClick={() => router.push("/bookings")}
               />
               <ActionButton
                 icon={<UserCheck size={14} aria-hidden />}
-                label="Assign human"
+                label={t("ai.assignHuman")}
                 disabled={pending}
                 onClick={() =>
                   run(
@@ -277,13 +284,13 @@ export function AIContextPanel({
                         conversation_id: conversation.id,
                         user_id: currentUserId,
                       }),
-                    "Conversation assigned"
+                    t("ai.conversationAssigned")
                   )
                 }
               />
               <ActionButton
                 icon={<XCircle size={14} aria-hidden />}
-                label="Close conversation"
+                label={t("ai.closeConversation")}
                 disabled={pending || conversation.status === "resolved"}
                 onClick={() =>
                   run(
@@ -292,14 +299,14 @@ export function AIContextPanel({
                         id: conversation.id,
                         status: "resolved",
                       }),
-                    "Conversation closed"
+                    t("ai.conversationClosed")
                   )
                 }
               />
               {onRegenerate ? (
                 <ActionButton
                   icon={<Bot size={14} aria-hidden />}
-                  label="Regenerate AI reply"
+                  label={t("ai.regenerateReply")}
                   disabled={pending}
                   onClick={onRegenerate}
                 />
@@ -310,7 +317,7 @@ export function AIContextPanel({
           {conversation.internal_notes ? (
             <GlassSurface className="border border-amber-500/20 p-3">
               <p className="text-[10px] font-medium uppercase tracking-[0.06em] text-amber-400">
-                Internal notes
+                {t("ai.internalNoteLabel")}
               </p>
               <p className="mt-2 whitespace-pre-wrap text-[12px] text-[var(--shell-text)]">
                 {conversation.internal_notes}

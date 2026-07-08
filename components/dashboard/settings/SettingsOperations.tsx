@@ -6,6 +6,7 @@ import { DataCard } from "@/components/ui/data/DataCard";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Section } from "@/components/ui/primitives/Section";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { motionPresets } from "@/lib/design/motion";
 
@@ -18,17 +19,24 @@ type Props = {
 };
 
 export function SettingsOperations({ snapshot, loading = false }: Props) {
+  const { t } = useI18n();
+
   const warnings = snapshot.diagnostics.filter((item) => !item.ok);
   const recommendations = snapshot.diagnostics
     .filter((item) => !item.ok)
-    .map((item) => `Review ${item.label.toLowerCase()}: ${item.value}`);
+    .map((item) =>
+      formatTranslation(t("settings.opsReviewItem"), {
+        label: item.label.toLowerCase(),
+        value: item.value,
+      })
+    );
 
   if (loading) {
     return (
-      <Section title="Operations" subtitle="Recent changes, warnings, and system health">
+      <Section title={t("settings.opsTitle")} subtitle={t("settings.opsSubtitle")}>
         <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
           {Array.from({ length: 4 }).map((_, index) => (
-            <DataCard key={index} title="Loading">
+            <DataCard key={index} title={t("settings.opsLoading")}>
               <SkeletonGroup />
             </DataCard>
           ))}
@@ -38,16 +46,17 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
   }
 
   return (
-    <Section
-      title="Operations"
-      subtitle="Recent changes, warnings, recommendations, and system health"
-    >
+    <Section title={t("settings.opsTitle")} subtitle={t("settings.opsSubtitle")}>
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-4">
-        <DataCard interactive title="Recent changes" subtitle="Latest settings activity">
+        <DataCard
+          interactive
+          title={t("settings.opsRecentChanges")}
+          subtitle={t("settings.opsRecentChangesSubtitle")}
+        >
           {snapshot.recentActivity.length === 0 ? (
             <EmptyState
-              title="No recent changes"
-              description="Configuration events will appear here."
+              title={t("settings.opsNoRecentChanges")}
+              description={t("settings.opsNoRecentChangesDesc")}
               icon={<History size={16} />}
             />
           ) : (
@@ -66,8 +75,7 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
                     {log.event}
                   </p>
                   <p className="text-[11px] text-[var(--shell-muted)]">
-                    [{log.level}] ·{" "}
-                    {new Date(log.created_at).toLocaleString("ru-RU")}
+                    [{log.level}] · {new Date(log.created_at).toLocaleString()}
                   </p>
                 </li>
               ))}
@@ -75,11 +83,15 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
           )}
         </DataCard>
 
-        <DataCard interactive title="Warnings" subtitle="Issues requiring attention">
+        <DataCard
+          interactive
+          title={t("settings.opsWarnings")}
+          subtitle={t("settings.opsWarningsSubtitle")}
+        >
           {warnings.length === 0 ? (
             <EmptyState
-              title="No warnings"
-              description="All diagnostics are within expected thresholds."
+              title={t("settings.opsNoWarnings")}
+              description={t("settings.opsNoWarningsDesc")}
               icon={<AlertTriangle size={16} />}
             />
           ) : (
@@ -97,11 +109,15 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
           )}
         </DataCard>
 
-        <DataCard interactive title="Recommendations" subtitle="Suggested next steps">
+        <DataCard
+          interactive
+          title={t("settings.opsRecommendations")}
+          subtitle={t("settings.opsRecommendationsSubtitle")}
+        >
           {recommendations.length === 0 ? (
             <EmptyState
-              title="No recommendations"
-              description="Your workspace configuration looks healthy."
+              title={t("settings.opsNoRecommendations")}
+              description={t("settings.opsNoRecommendationsDesc")}
               icon={<CheckCircle2 size={16} />}
             />
           ) : (
@@ -119,20 +135,25 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
           )}
         </DataCard>
 
-        <DataCard interactive title="System health" subtitle="Runtime environment">
+        <DataCard
+          interactive
+          title={t("settings.opsSystemHealth")}
+          subtitle={t("settings.opsSystemHealthSubtitle")}
+        >
           <dl className="grid gap-2">
-            <SettingsDetailRow label="Version" value={snapshot.version} />
-            <SettingsDetailRow label="Environment" value={snapshot.environment} />
+            <SettingsDetailRow label={t("settings.opsVersion")} value={snapshot.version} />
             <SettingsDetailRow
-              label="API status"
-              value={snapshot.apiOnline ? "Online" : "Offline"}
+              label={t("settings.opsEnvironment")}
+              value={snapshot.environment}
+            />
+            <SettingsDetailRow
+              label={t("settings.opsApiStatus")}
+              value={snapshot.apiOnline ? t("settings.opsOnline") : t("settings.opsOffline")}
             />
           </dl>
-          <div className="mt-4 flex items-center gap-2 text-[12px] text-[var(--shell-muted)]">
+          <div className="mt-4 flex items-center gap-2 text-[12px] text-emerald-400">
             <HeartPulse size={14} aria-hidden />
-            {snapshot.apiOnline
-              ? "Core services are reachable."
-              : "Configure provider credentials to restore service health."}
+            {snapshot.apiOnline ? t("settings.opsOnline") : t("settings.opsOffline")}
           </div>
         </DataCard>
       </div>

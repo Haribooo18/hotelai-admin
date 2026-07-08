@@ -1,15 +1,8 @@
 "use client";
 
-import {
-  Download,
-  Filter,
-  LayoutGrid,
-  List,
-  Plus,
-  RefreshCw,
-} from "lucide-react";
+import { useMemo } from "react";
+import { Filter, RefreshCw } from "lucide-react";
 
-import { Button } from "@/components/ui/core/Button";
 import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
@@ -17,115 +10,141 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/overlay/DropdownMenu";
-import { FilterBar } from "@/components/ui/data/FilterBar";
-import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
-import { toolbarControlClass } from "@/lib/dashboard/design-system";
+import {
+  FilterChip,
+  ToolbarSecondaryButton,
+} from "@/components/ui/data/FilterBar";
+import { WorkspaceToolbar } from "@/components/dashboard/shared/WorkspaceToolbar";
+import {
+  toolbarControlClass,
+  toolbarFilterIconSize,
+} from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import type {
   HousekeepingStatus,
   RoomOperationalStatus,
   RoomSortKey,
-  RoomViewMode,
 } from "./room-ops-metrics";
 import type { RoomsToolbarFilters } from "./rooms-ui";
 
-const SORT_OPTIONS: { value: RoomSortKey; label: string }[] = [
-  { value: "type_asc", label: "Type A–Z" },
-  { value: "type_desc", label: "Type Z–A" },
-  { value: "price_asc", label: "Price ascending" },
-  { value: "price_desc", label: "Price descending" },
-  { value: "capacity", label: "By capacity" },
-  { value: "status", label: "By status" },
-];
-
-const STATUS_OPTIONS: { value: RoomOperationalStatus | ""; label: string }[] = [
-  { value: "", label: "All statuses" },
-  { value: "available", label: "Available" },
-  { value: "occupied", label: "Occupied" },
-  { value: "cleaning", label: "Housekeeping" },
-  { value: "maintenance", label: "Maintenance" },
-  { value: "reserved", label: "Reserved" },
-];
-
-const HOUSEKEEPING_OPTIONS: { value: HousekeepingStatus | ""; label: string }[] =
-  [
-    { value: "", label: "All housekeeping" },
-    { value: "clean", label: "Clean" },
-    { value: "dirty", label: "Dirty" },
-    { value: "inspected", label: "Inspected" },
-  ];
-
-const MAINTENANCE_OPTIONS = [
-  { value: "", label: "All maintenance" },
-  { value: "open", label: "In maintenance" },
-  { value: "clear", label: "No issues" },
-] as const;
-
 type Props = {
   filters: RoomsToolbarFilters;
-  viewMode: RoomViewMode;
   floorOptions: string[];
   roomTypeOptions: string[];
   refreshing: boolean;
   onFiltersChange: (filters: RoomsToolbarFilters) => void;
-  onViewModeChange: (value: RoomViewMode) => void;
-  onCreateClick: () => void;
   onRefresh: () => void;
 };
 
 export function RoomToolbar({
   filters,
-  viewMode,
   floorOptions,
   roomTypeOptions,
   refreshing,
   onFiltersChange,
-  onViewModeChange,
-  onCreateClick,
   onRefresh,
 }: Props) {
+  const { t } = useI18n();
+
+  const sortOptions = useMemo(
+    (): { value: RoomSortKey; label: string }[] => [
+      { value: "type_asc", label: t("rooms.sortTypeAsc") },
+      { value: "type_desc", label: t("rooms.sortTypeDesc") },
+      { value: "price_asc", label: t("rooms.sortPriceAsc") },
+      { value: "price_desc", label: t("rooms.sortPriceDesc") },
+      { value: "capacity", label: t("rooms.sortCapacity") },
+      { value: "status", label: t("rooms.sortStatus") },
+    ],
+    [t]
+  );
+
+  const statusOptions = useMemo(
+    (): { value: RoomOperationalStatus | ""; label: string }[] => [
+      { value: "", label: t("toolbar.allStatuses") },
+      { value: "available", label: t("statuses.room.available") },
+      { value: "occupied", label: t("statuses.room.occupied") },
+      { value: "cleaning", label: t("statuses.room.cleaning") },
+      { value: "maintenance", label: t("statuses.room.maintenance") },
+      { value: "reserved", label: t("statuses.room.reserved") },
+    ],
+    [t]
+  );
+
+  const housekeepingOptions = useMemo(
+    (): { value: HousekeepingStatus | ""; label: string }[] => [
+      { value: "", label: t("toolbar.allHousekeeping") },
+      { value: "clean", label: t("statuses.housekeeping.clean") },
+      { value: "dirty", label: t("statuses.housekeeping.dirty") },
+      { value: "inspected", label: t("statuses.housekeeping.inspected") },
+    ],
+    [t]
+  );
+
+  const maintenanceOptions = useMemo(
+    () =>
+      [
+        { value: "", label: t("toolbar.allMaintenance") },
+        { value: "open", label: t("rooms.maintenanceOpen") },
+        { value: "clear", label: t("rooms.maintenanceClear") },
+      ] as const,
+    [t]
+  );
+
   function patch(partial: Partial<RoomsToolbarFilters>) {
     onFiltersChange({ ...filters, ...partial });
   }
 
   const activeSort =
-    SORT_OPTIONS.find((option) => option.value === filters.sort)?.label ?? "Sort";
+    sortOptions.find((option) => option.value === filters.sort)?.label ??
+    t("common.sort");
   const activeStatus =
-    STATUS_OPTIONS.find((option) => option.value === filters.status)?.label ??
-    "All statuses";
+    statusOptions.find((option) => option.value === filters.status)?.label ??
+    t("toolbar.allStatuses");
   const activeHousekeeping =
-    HOUSEKEEPING_OPTIONS.find((option) => option.value === filters.housekeeping)
-      ?.label ?? "All housekeeping";
+    housekeepingOptions.find((option) => option.value === filters.housekeeping)
+      ?.label ?? t("toolbar.allHousekeeping");
   const activeMaintenance =
-    MAINTENANCE_OPTIONS.find((option) => option.value === filters.maintenance)
-      ?.label ?? "All maintenance";
-  const activeRoomType = filters.roomType || "All types";
-  const activeFloor = filters.floor || "All floors";
+    maintenanceOptions.find((option) => option.value === filters.maintenance)
+      ?.label ?? t("toolbar.allMaintenance");
+  const activeRoomType = filters.roomType || t("toolbar.allTypes");
+  const activeFloor = filters.floor || t("toolbar.allFloors");
+
+  const statusChipOptions = useMemo(
+    (): { value: RoomOperationalStatus | ""; label: string }[] => [
+      { value: "", label: t("common.all") },
+      { value: "available", label: t("statuses.room.available") },
+      { value: "occupied", label: t("statuses.room.occupied") },
+      { value: "cleaning", label: t("statuses.room.cleaning") },
+      { value: "maintenance", label: t("statuses.room.maintenance") },
+      { value: "reserved", label: t("statuses.room.reserved") },
+    ],
+    [t]
+  );
 
   return (
-    <FilterBar
-      leading={
+    <WorkspaceToolbar
+      search={
         <SearchInput
-          containerClassName="flex-1 xl:max-w-md"
-          placeholder="Search room number or type"
-          aria-label="Search rooms"
+          placeholder={t("rooms.searchPlaceholder")}
+          aria-label={t("rooms.searchAria")}
           value={filters.search}
           onChange={(event) => patch({ search: event.target.value })}
         />
       }
-      trailing={
+      primaryFilters={
         <>
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Status filter"
+              aria-label={t("rooms.statusFilter")}
             >
-              <Filter size={15} aria-hidden />
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeStatus}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {STATUS_OPTIONS.map((option) => (
+              {statusOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
                   onClick={() => patch({ status: option.value })}
@@ -139,13 +158,13 @@ export function RoomToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Housekeeping filter"
+              aria-label={t("rooms.housekeepingFilter")}
             >
-              <Filter size={15} aria-hidden />
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeHousekeeping}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {HOUSEKEEPING_OPTIONS.map((option) => (
+              {housekeepingOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
                   onClick={() => patch({ housekeeping: option.value })}
@@ -159,13 +178,13 @@ export function RoomToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Maintenance filter"
+              aria-label={t("rooms.maintenanceFilter")}
             >
-              <Filter size={15} aria-hidden />
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeMaintenance}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {MAINTENANCE_OPTIONS.map((option) => (
+              {maintenanceOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.value || "all"}
                   onClick={() => patch({ maintenance: option.value })}
@@ -179,14 +198,14 @@ export function RoomToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Floor filter"
+              aria-label={t("rooms.floorFilter")}
             >
-              <Filter size={15} aria-hidden />
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               <span className="max-w-[96px] truncate">{activeFloor}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => patch({ floor: "" })}>
-                All floors
+                {t("toolbar.allFloors")}
               </DropdownMenuItem>
               {floorOptions.map((value) => (
                 <DropdownMenuItem
@@ -202,14 +221,14 @@ export function RoomToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Room type filter"
+              aria-label={t("rooms.roomTypeFilter")}
             >
-              <Filter size={15} aria-hidden />
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               <span className="max-w-[96px] truncate">{activeRoomType}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => patch({ roomType: "" })}>
-                All types
+                {t("toolbar.allTypes")}
               </DropdownMenuItem>
               {roomTypeOptions.map((value) => (
                 <DropdownMenuItem
@@ -225,12 +244,13 @@ export function RoomToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger
               className={toolbarControlClass}
-              aria-label="Sort rooms"
+              aria-label={t("rooms.sortAria")}
             >
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeSort}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {SORT_OPTIONS.map((option) => (
+              {sortOptions.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
                   onClick={() => patch({ sort: option.value })}
@@ -244,57 +264,33 @@ export function RoomToolbar({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-
-          <Button
+        </>
+      }
+      actions={
+        <>
+          <ToolbarSecondaryButton
             type="button"
-            variant="outline"
-            size="sm"
             onClick={onRefresh}
             disabled={refreshing}
             loading={refreshing}
-            aria-label="Refresh rooms"
+            aria-label={t("rooms.refreshAria")}
           >
-            <RefreshCw size={15} aria-hidden />
-            Refresh
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled
-            aria-label="Export rooms"
-            title="Export coming soon"
-          >
-            <Download size={15} aria-hidden />
-            Export
-          </Button>
-
-          <SegmentedControl
-            value={viewMode}
-            onChange={onViewModeChange}
-            options={[
-              {
-                value: "cards",
-                ariaLabel: "Card view",
-                label: <LayoutGrid size={15} aria-hidden />,
-              },
-              {
-                value: "table",
-                ariaLabel: "Table view",
-                label: <List size={15} aria-hidden />,
-              },
-            ]}
-          />
-
-          <Button
-            type="button"
-            onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
-          >
-            <Plus size={15} aria-hidden />
-            New room
-          </Button>
+            <RefreshCw size={toolbarFilterIconSize} aria-hidden />
+            {t("common.refresh")}
+          </ToolbarSecondaryButton>
+        </>
+      }
+      chips={
+        <>
+          {statusChipOptions.map((option) => (
+            <FilterChip
+              key={option.value || "all"}
+              active={filters.status === option.value}
+              onClick={() => patch({ status: option.value })}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
         </>
       }
     />

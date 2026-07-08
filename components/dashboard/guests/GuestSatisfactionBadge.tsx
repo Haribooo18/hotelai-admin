@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 import { Badge } from "@/components/ui/display/Badge";
 
@@ -6,25 +9,25 @@ import type { GuestSatisfaction } from "./guest-crm-metrics";
 
 const SATISFACTION_META: Record<
   GuestSatisfaction,
-  { label: string; variant: "success" | "default" | "warning" | "outline"; dots: number }
+  { key: "excellent" | "good" | "satisfactionNeutral" | "guestNew"; variant: "success" | "default" | "warning" | "outline"; dots: number }
 > = {
   excellent: {
-    label: "Excellent",
+    key: "excellent",
     variant: "success",
     dots: 5,
   },
   good: {
-    label: "Good",
+    key: "good",
     variant: "default",
     dots: 4,
   },
   neutral: {
-    label: "Neutral",
+    key: "satisfactionNeutral",
     variant: "warning",
     dots: 3,
   },
   new: {
-    label: "New",
+    key: "guestNew",
     variant: "outline",
     dots: 0,
   },
@@ -35,6 +38,7 @@ type Props = {
 };
 
 export function GuestSatisfactionBadge({ satisfaction }: Props) {
+  const { t } = useI18n();
   const meta = SATISFACTION_META[satisfaction];
 
   return (
@@ -50,7 +54,7 @@ export function GuestSatisfactionBadge({ satisfaction }: Props) {
           />
         ))}
       </span>
-      {meta.label}
+      {t(`guests.${meta.key}`)}
     </Badge>
   );
 }

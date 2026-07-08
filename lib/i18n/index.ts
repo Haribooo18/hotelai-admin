@@ -5,4 +5,11 @@ export {
   LOCALE_LABELS,
   type AdminLocale,
 } from "./locales";
-export { getTranslation, translations, type TranslationPath } from "./translations";
+export {
+  formatTranslation,
+  getTranslation,
+  translations,
+  type AdminTranslations,
+  type TranslationPath,
+} from "./translations";
+export { localizeError, localizeErrorWithT } from "./localize-error";

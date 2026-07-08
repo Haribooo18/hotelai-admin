@@ -65,7 +65,7 @@ export function AIDateSeparator({ label }: { label: string }) {
       aria-label={label}
     >
       <Divider className="flex-1 bg-[var(--shell-border)]/60" />
-      <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--shell-muted)]">
+      <span className="ds-overline">
         {label}
       </span>
       <Divider className="flex-1 bg-[var(--shell-border)]/60" />
@@ -103,7 +103,7 @@ export function AIToolBlock({
   );
 }
 
-export function AIThinkingBlock({ label = "AI is thinking…" }: { label?: string }) {
+export function AIThinkingBlock({ label }: { label: string }) {
   return (
     <div className="mt-2 rounded-[var(--ds-radius-sm)] border border-dashed border-emerald-500/25 bg-emerald-500/5 px-2.5 py-2 text-[11px] text-emerald-400">
       {label}

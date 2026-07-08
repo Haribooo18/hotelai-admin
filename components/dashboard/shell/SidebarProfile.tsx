@@ -2,14 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Building2,
-  ChevronUp,
-  Globe,
-  LogOut,
-  Palette,
-  User,
-} from "lucide-react";
+import { Building2, ChevronUp, LogOut, User } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -21,12 +14,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  ADMIN_LOCALES,
-  LOCALE_LABELS,
-  useI18n,
-  type AdminLocale,
-} from "@/lib/i18n";
+import { useI18n } from "@/lib/i18n";
 import { signOut } from "@/lib/services/auth.mutations";
 import { cn } from "@/lib/utils";
 
@@ -55,7 +43,7 @@ export function SidebarProfile({
   onSelectHotel,
 }: Props) {
   const router = useRouter();
-  const { locale, setLocale, t } = useI18n();
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
 
   function handleSignOut() {
@@ -130,36 +118,6 @@ export function SidebarProfile({
             ))}
           </DropdownMenuSubContent>
         </DropdownMenuSub>
-
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="rounded-[var(--ds-radius-sm)] px-2.5 py-2 text-[12px]">
-            <Globe size={14} />
-            {t("profile.language")}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface)] p-1 shadow-[var(--shell-shadow-md)]">
-            {ADMIN_LOCALES.map((code) => (
-              <DropdownMenuItem
-                key={code}
-                className={cn(
-                  "rounded-[var(--ds-radius-sm)] px-2.5 py-2 text-[12px]",
-                  locale === code &&
-                    "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
-                )}
-                onClick={() => setLocale(code as AdminLocale)}
-              >
-                {LOCALE_LABELS[code]}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-
-        <DropdownMenuItem
-          className="rounded-[var(--ds-radius-sm)] px-2.5 py-2 text-[12px]"
-          onClick={() => router.push("/settings?tab=appearance")}
-        >
-          <Palette size={14} />
-          {t("profile.appearance")}
-        </DropdownMenuItem>
 
         <DropdownMenuSeparator className="bg-[var(--shell-border)]" />
 

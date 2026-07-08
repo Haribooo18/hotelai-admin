@@ -14,19 +14,24 @@ import {
 
 import { Button } from "@/components/ui/core/Button";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/overlay/Drawer";
+  WorkspaceInspectorDrawer,
+  WorkspaceOverlayActions,
+} from "@/components/dashboard/shared/WorkspaceOverlay";
+import { DrawerTitle } from "@/components/ui/overlay/Drawer";
 import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Scrollable } from "@/components/ui/primitives/Scrollable";
 import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
 import { motionPresets } from "@/lib/design/motion";
+import {
+  cardPaddingClass,
+  drawerBadgeRowClass,
+  drawerSubtitleClass,
+  overlayDangerButtonClass,
+} from "@/lib/dashboard/design-system";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import { BookingSourceBadge } from "./BookingSourceBadge";
@@ -63,6 +68,7 @@ export function BookingDetailDrawer({
   onEdit,
   onDelete,
 }: Props) {
+  const { t } = useI18n();
   const timeline = useMemo(
     () => (model ? buildBookingStayTimeline(model.booking) : []),
     [model]
@@ -73,71 +79,123 @@ export function BookingDetailDrawer({
   const { booking, guest, roomLabel, nights, paymentStatus, source, internalNotes } =
     model;
 
+  function timelineLabel(kind: (typeof timeline)[number]["kind"]): string {
+    switch (kind) {
+      case "created":
+        return t("bookings.timelineCreated");
+      case "check_in":
+        return t("bookings.timelineCheckIn");
+      case "stay":
+        return t("bookings.timelineStay");
+      case "check_out":
+        return t("bookings.timelineCheckOut");
+      case "status":
+        return t("bookings.timelineStatus");
+      default:
+        return kind;
+    }
+  }
+
+  function timelineDetail(item: (typeof timeline)[number]): string {
+    switch (item.kind) {
+      case "created":
+        return formatTranslation(t("bookings.timelineRefDetail"), {
+          ref: booking.id.slice(0, 8),
+        });
+      case "stay":
+        return formatTranslation(t("bookings.timelineStayDetail"), {
+          nights,
+          guests: booking.adults + booking.children,
+        });
+      case "status":
+        return t(`statuses.booking.${booking.status}` as "statuses.booking.confirmed");
+      default:
+        return item.detail;
+    }
+  }
+
   const displayName = guest
     ? `${guest.first_name} ${guest.last_name}`.trim()
     : booking.guest_name;
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent
-        side="right"
-        className="w-full gap-0 overflow-hidden border-0 bg-[var(--shell-content)] p-0 sm:max-w-xl"
-      >
-        <DrawerHeader className="border-b border-[var(--shell-border)]/70 px-6 py-5">
-          <div className="flex items-start gap-4">
-            {guest ? (
-              <GuestAvatar
-                firstName={guest.first_name}
-                lastName={guest.last_name}
-                avatarUrl={guest.avatar_url}
-                size="md"
-              />
-            ) : (
-              <Avatar className="size-11">
-                <AvatarFallback className="text-[13px] font-semibold">
-                  {getGuestInitials(booking.guest_name)}
-                </AvatarFallback>
-              </Avatar>
-            )}
+    <WorkspaceInspectorDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      header={
+        <div className="flex items-start gap-4">
+          {guest ? (
+            <GuestAvatar
+              firstName={guest.first_name}
+              lastName={guest.last_name}
+              avatarUrl={guest.avatar_url}
+              size="md"
+            />
+          ) : (
+            <Avatar className="size-11">
+              <AvatarFallback className="text-[13px] font-semibold">
+                {getGuestInitials(booking.guest_name)}
+              </AvatarFallback>
+            </Avatar>
+          )}
 
-            <div className="min-w-0 flex-1">
-              <DrawerTitle className="text-left text-[18px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
-                {displayName}
-              </DrawerTitle>
-              <p className="mt-1 text-left text-[13px] text-[var(--shell-muted)]">
-                {roomLabel} · {nights} {nights === 1 ? "night" : "nights"}
-              </p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <BookingStatusBadge status={booking.status} />
-                <PaymentStatusBadge status={paymentStatus} />
-                <BookingSourceBadge source={source} />
-              </div>
+          <div className="min-w-0 flex-1">
+            <DrawerTitle>{displayName}</DrawerTitle>
+            <p className={drawerSubtitleClass}>
+              {roomLabel} · {nights}{" "}
+              {nights === 1 ? t("common.night") : t("common.nights")}
+            </p>
+            <div className={drawerBadgeRowClass}>
+              <BookingStatusBadge status={booking.status} />
+              <PaymentStatusBadge status={paymentStatus} />
+              <BookingSourceBadge source={source} />
             </div>
           </div>
-        </DrawerHeader>
-
-        <Scrollable className="flex-1 px-6 py-5">
+        </div>
+      }
+      footer={
+        <WorkspaceOverlayActions>
+          <Button
+            type="button"
+            className="gap-2"
+            onClick={() => onEdit(booking)}
+          >
+            <Pencil size={14} />
+            {t("bookings.editReservation")}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className={overlayDangerButtonClass}
+            onClick={() => onDelete(booking)}
+          >
+            <Trash2 size={14} />
+            {t("common.delete")}
+          </Button>
+        </WorkspaceOverlayActions>
+      }
+    >
           <Stack gap="md">
-            <Panel variant="surface" className="p-4">
+            <Panel variant="surface" className={cardPaddingClass}>
               <Section
-                title="Booking"
-                subtitle="Reservation reference and status"
+                title={t("bookings.drawerBooking")}
+                subtitle={t("bookings.drawerBookingSubtitle")}
               />
               <dl className="mt-3 grid gap-2 text-[12px]">
                 <div className="flex justify-between gap-3">
-                  <dt className="text-[var(--shell-muted)]">Reservation ID</dt>
+                  <dt className="text-[var(--shell-muted)]">{t("bookings.reservationId")}</dt>
                   <dd className="font-mono text-[var(--shell-text)]">
                     {booking.id.slice(0, 12)}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <dt className="text-[var(--shell-muted)]">Created</dt>
+                  <dt className="text-[var(--shell-muted)]">{t("knowledge.created")}</dt>
                   <dd className="text-[var(--shell-text)]">
                     {formatBookingDateTime(booking.created_at)}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <dt className="text-[var(--shell-muted)]">Updated</dt>
+                  <dt className="text-[var(--shell-muted)]">{t("knowledge.updated")}</dt>
                   <dd className="text-[var(--shell-text)]">
                     {formatBookingDateTime(booking.updated_at)}
                   </dd>
@@ -145,8 +203,8 @@ export function BookingDetailDrawer({
               </dl>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Guest" subtitle="Contact and profile details" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section title={t("bookings.drawerGuest")} subtitle={t("bookings.drawerGuestSubtitle")} />
               <div className="mt-3 space-y-2.5">
                 <div className="flex items-center gap-2 text-[13px] text-[var(--shell-text)]">
                   <UserRound size={14} className="text-[var(--shell-muted)]" />
@@ -167,8 +225,8 @@ export function BookingDetailDrawer({
               </div>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Stay" subtitle="Dates, room, and occupancy" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section title={t("bookings.drawerStay")} subtitle={t("bookings.drawerStaySubtitle")} />
               <div className="mt-3 space-y-2.5 text-[13px] text-[var(--shell-muted)]">
                 <div className="flex items-center gap-2">
                   <CalendarDays size={14} />
@@ -176,19 +234,20 @@ export function BookingDetailDrawer({
                 </div>
                 <p>{roomLabel}</p>
                 <p>
-                  {booking.adults} {booking.adults === 1 ? "adult" : "adults"} ·{" "}
+                  {booking.adults}{" "}
+                  {booking.adults === 1 ? t("bookings.adult") : t("bookings.adults")} ·{" "}
                   {booking.children}{" "}
-                  {booking.children === 1 ? "child" : "children"}
+                  {booking.children === 1 ? t("bookings.child") : t("bookings.children")}
                 </p>
               </div>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Payment" subtitle="Charges and settlement" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section title={t("bookings.drawerPayment")} subtitle={t("bookings.drawerPaymentSubtitle")} />
               <div className="mt-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
                   <CreditCard size={14} />
-                  Total amount
+                  {t("bookings.totalAmount")}
                 </div>
                 <p className="text-[16px] font-semibold text-[var(--shell-text)]">
                   {formatBookingCurrency(booking.total_price)}
@@ -198,33 +257,33 @@ export function BookingDetailDrawer({
                 <PaymentStatusBadge status={paymentStatus} />
                 <span className="text-[12px] text-[var(--shell-muted)]">
                   {paymentStatus === "paid"
-                    ? "Fully settled"
+                    ? t("bookings.paymentFullySettled")
                     : paymentStatus === "deposit"
-                      ? "Balance due at check-out"
+                      ? t("bookings.paymentBalanceDue")
                       : paymentStatus === "pending"
-                        ? "Awaiting payment"
-                        : "No charge"}
+                        ? t("bookings.paymentAwaiting")
+                        : t("bookings.paymentNoCharge")}
                 </span>
               </div>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Notes" subtitle="Team-only context" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section title={t("bookings.drawerNotes")} subtitle={t("bookings.drawerNotesSubtitle")} />
               {internalNotes ? (
                 <p className="mt-3 text-[13px] leading-relaxed text-[var(--shell-text)]">
                   {internalNotes}
                 </p>
               ) : (
                 <EmptyState
-                  title="No internal notes"
-                  description="Notes from the guest profile will appear here when available."
+                  title={t("bookings.noInternalNotes")}
+                  description={t("bookings.noInternalNotesDesc")}
                   icon={<FileText size={16} />}
                 />
               )}
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Timeline" subtitle="Reservation lifecycle" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section title={t("bookings.drawerTimeline")} subtitle={t("bookings.drawerTimelineSubtitle")} />
               <div className="mt-3 space-y-2">
                 {timeline.map((item) => (
                   <div
@@ -243,10 +302,10 @@ export function BookingDetailDrawer({
                       />
                       <div className="min-w-0 flex-1">
                         <p className="text-[13px] font-medium text-[var(--shell-text)]">
-                          {item.label}
+                          {timelineLabel(item.kind)}
                         </p>
                         <p className="mt-0.5 text-[12px] text-[var(--shell-muted)]">
-                          {item.detail}
+                          {timelineDetail(item)}
                         </p>
                       </div>
                       <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
@@ -257,30 +316,6 @@ export function BookingDetailDrawer({
               </div>
             </Panel>
           </Stack>
-        </Scrollable>
-
-        <div className="border-t border-[var(--shell-border)]/70 px-6 py-4">
-          <div className="flex flex-wrap gap-2">
-            <Button
-              type="button"
-              className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
-              onClick={() => onEdit(booking)}
-            >
-              <Pencil size={14} />
-              Edit reservation
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-[var(--ds-input-height)] gap-2 text-red-400 hover:bg-red-500/10"
-              onClick={() => onDelete(booking)}
-            >
-              <Trash2 size={14} />
-              Delete
-            </Button>
-          </div>
-        </div>
-      </DrawerContent>
-    </Drawer>
+    </WorkspaceInspectorDrawer>
   );
 }

@@ -13,6 +13,7 @@ import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { todayIso } from "@/lib/dashboard/date";
 import { rangesOverlap } from "@/lib/calendar";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 import { BookingStatusBadge } from "@/components/dashboard/bookings/BookingStatusBadge";
 import {
@@ -36,11 +37,13 @@ function BookingOpsList({
   emptyTitle,
   emptyDescription,
   onSelect,
+  openReservationAria,
 }: {
   items: Booking[];
   emptyTitle: string;
   emptyDescription: string;
   onSelect?: (booking: Booking) => void;
+  openReservationAria: (name: string) => string;
 }) {
   if (items.length === 0) {
     return (
@@ -58,7 +61,7 @@ function BookingOpsList({
         <CalendarOpsListItem
           key={booking.id}
           role="listitem"
-          aria-label={`Open reservation for ${booking.guest_name}`}
+          aria-label={openReservationAria(booking.guest_name)}
           onClick={() => onSelect?.(booking)}
         >
           <div className="flex items-start justify-between gap-3">
@@ -91,6 +94,7 @@ export function CalendarOperations({
   loading = false,
   onSelect,
 }: Props) {
+  const { t } = useI18n();
   const today = todayIso();
   const roomName = useMemo(
     () => new Map(rooms.map((room) => [room.id, room.room_type])),
@@ -156,12 +160,18 @@ export function CalendarOperations({
     return pairs;
   }, [bookings]);
 
+  const openReservationAria = (name: string) =>
+    formatTranslation(t("bookings.openReservation"), { name });
+
   if (loading) {
     return (
-      <Section title="Operations" subtitle="Daily planning and room flow">
+      <Section
+        title={t("calendar.operationsTitle")}
+        subtitle={t("calendar.operationsSubtitle")}
+      >
         <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <DataCard key={index} title="Loading">
+            <DataCard key={index} title={t("calendar.operationsLoading")}>
               <SkeletonGroup />
             </DataCard>
           ))}
@@ -171,43 +181,54 @@ export function CalendarOperations({
   }
 
   return (
-    <Section title="Operations" subtitle="Daily planning and room flow">
+    <Section
+      title={t("calendar.operationsTitle")}
+      subtitle={t("calendar.operationsSubtitle")}
+    >
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         <DataCard
           interactive
-          title="Today's arrivals"
-          subtitle={`${arrivalsToday.length} expected check-ins`}
+          title={t("calendar.opsArrivalsTitle")}
+          subtitle={formatTranslation(t("calendar.opsArrivalsSubtitle"), {
+            count: String(arrivalsToday.length),
+          })}
         >
           <BookingOpsList
             items={arrivalsToday}
-            emptyTitle="No arrivals today"
-            emptyDescription="Check-ins scheduled for today will appear here."
+            emptyTitle={t("calendar.opsArrivalsEmpty")}
+            emptyDescription={t("calendar.opsArrivalsEmptyDesc")}
             onSelect={onSelect}
+            openReservationAria={openReservationAria}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Today's departures"
-          subtitle={`${departuresToday.length} expected check-outs`}
+          title={t("calendar.opsDeparturesTitle")}
+          subtitle={formatTranslation(t("calendar.opsDeparturesSubtitle"), {
+            count: String(departuresToday.length),
+          })}
         >
           <BookingOpsList
             items={departuresToday}
-            emptyTitle="No departures today"
-            emptyDescription="Check-outs scheduled for today will appear here."
+            emptyTitle={t("calendar.opsDeparturesEmpty")}
+            emptyDescription={t("calendar.opsDeparturesEmptyDesc")}
             onSelect={onSelect}
+            openReservationAria={openReservationAria}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Occupied rooms"
-          subtitle={`${occupiedRooms.length} in-house`}
+          title={t("calendar.opsOccupiedTitle")}
+          subtitle={formatTranslation(t("rooms.opsOccupiedSubtitle"), {
+            count: String(occupiedRooms.length),
+          })}
         >
           {occupiedRooms.length === 0 ? (
             <EmptyState
-              title="No occupied rooms"
-              description="Active stays will appear here."
+              title={t("calendar.opsOccupiedEmpty")}
+              description={t("calendar.opsOccupiedEmptyDesc")}
               icon={<BedDouble size={16} />}
             />
           ) : (
@@ -228,13 +249,15 @@ export function CalendarOperations({
 
         <DataCard
           interactive
-          title="Available rooms"
-          subtitle={`${availableRooms.length} ready today`}
+          title={t("calendar.opsAvailableTitle")}
+          subtitle={formatTranslation(t("rooms.opsVacantSubtitle"), {
+            count: String(availableRooms.length),
+          })}
         >
           {availableRooms.length === 0 ? (
             <EmptyState
-              title="No available rooms"
-              description="Vacant inventory will appear here."
+              title={t("calendar.opsAvailableEmpty")}
+              description={t("calendar.opsAvailableEmptyDesc")}
               icon={<BedDouble size={16} />}
             />
           ) : (
@@ -255,26 +278,29 @@ export function CalendarOperations({
 
         <DataCard
           interactive
-          title="Upcoming stays"
-          subtitle="Future confirmed reservations"
+          title={t("calendar.opsUpcomingTitle")}
+          subtitle={t("calendar.opsUpcomingSubtitle")}
         >
           <BookingOpsList
             items={upcomingStays}
-            emptyTitle="No upcoming stays"
-            emptyDescription="Future reservations will appear here."
+            emptyTitle={t("calendar.opsUpcomingEmpty")}
+            emptyDescription={t("calendar.opsUpcomingEmptyDesc")}
             onSelect={onSelect}
+            openReservationAria={openReservationAria}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Conflicts"
-          subtitle={`${conflicts.length} overlapping bookings`}
+          title={t("calendar.opsConflictsTitle")}
+          subtitle={formatTranslation(t("calendar.opsConflictsSubtitle"), {
+            count: String(conflicts.length),
+          })}
         >
           {conflicts.length === 0 ? (
             <EmptyState
-              title="No conflicts detected"
-              description="Overlapping room assignments will appear here."
+              title={t("calendar.opsConflictsEmpty")}
+              description={t("calendar.opsConflictsEmptyDesc")}
               icon={<AlertTriangle size={16} />}
             />
           ) : (
@@ -287,16 +313,18 @@ export function CalendarOperations({
                   className="w-full rounded-[var(--ds-radius-sm)] border border-red-500/20 bg-red-500/5 px-3 py-2.5 text-left transition-[background-color] hover:bg-red-500/10 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"
                 >
                   <div className="flex items-center gap-2">
-                    <Badge variant="destructive">Conflict</Badge>
+                    <Badge variant="destructive">{t("calendar.conflictBadge")}</Badge>
                     <span className="text-[11px] text-[var(--shell-muted)]">
-                      {roomName.get(a.room_id) ?? "Room"}
+                      {roomName.get(a.room_id) ?? t("calendar.roomFallback")}
                     </span>
                   </div>
                   <p className="mt-2 text-[12px] text-[var(--shell-text)]">
                     {a.guest_name} · {a.check_in} — {a.check_out}
                   </p>
                   <p className="mt-1 text-[11px] text-[var(--shell-muted)]">
-                    overlaps {b.guest_name}
+                    {formatTranslation(t("calendar.conflictOverlaps"), {
+                      guest: b.guest_name,
+                    })}
                   </p>
                 </button>
               ))}

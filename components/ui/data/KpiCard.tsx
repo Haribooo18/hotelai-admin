@@ -1,14 +1,32 @@
 import type { LucideIcon } from "lucide-react";
+import type { ReactNode } from "react";
 
 import { Metric } from "@/components/ui/display/Metric";
+import { StatusDot } from "@/components/ui/display/StatusDot";
+import {
+  kpiCellBorderClass,
+  kpiCellClass,
+  kpiIconContainerClass,
+  kpiIconSize,
+  kpiMetricGapClass,
+  kpiSparklineGapClass,
+  kpiTrendGapClass,
+} from "@/lib/dashboard/design-system";
+import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
+
+export type KpiTone = "default" | "success" | "warning" | "muted";
 
 type KpiCardProps = {
   label: string;
   icon: LucideIcon;
   value: number;
   format: (value: number) => string;
+  tone?: KpiTone;
   bordered?: boolean;
+  pulse?: boolean;
+  trend?: ReactNode;
+  sparkline?: ReactNode;
   className?: string;
 };
 
@@ -17,28 +35,46 @@ export function KpiCard({
   icon: Icon,
   value,
   format,
+  tone = "default",
   bordered = false,
+  pulse = false,
+  trend,
+  sparkline,
   className,
 }: KpiCardProps) {
   return (
     <div
       className={cn(
-        "group px-3 py-2 transition-[transform,opacity] duration-[var(--ds-duration)] ease-[var(--ds-ease)] hover:-translate-y-px",
-        bordered && "xl:border-l xl:border-[var(--shell-border)]/60",
+        kpiCellClass,
+        motionPresets.transitionBase,
+        motionPresets.hover.surfaceLift,
+        bordered && kpiCellBorderClass,
         className
       )}
     >
-      <div className="flex items-center gap-2">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)] transition-transform duration-[var(--ds-duration)] ease-[var(--ds-ease)] group-hover:scale-[1.04]">
-          <Icon size={15} aria-hidden />
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <div className={kpiIconContainerClass}>
+            <Icon size={kpiIconSize} aria-hidden />
+          </div>
+          <p className="ds-overline">{label}</p>
         </div>
-        <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-          {label}
-        </p>
+        <StatusDot
+          tone={
+            tone === "warning"
+              ? "warning"
+              : tone === "success"
+                ? "success"
+                : "default"
+          }
+          pulse={pulse}
+        />
       </div>
-      <p className="mt-2.5 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] leading-[var(--type-kpi-leading)] tracking-[var(--type-kpi-tracking)] text-[var(--shell-text)]">
+      <p className={cn(kpiMetricGapClass, "ds-kpi")}>
         <Metric value={value} formatter={format} />
       </p>
+      {trend ? <div className={kpiTrendGapClass}>{trend}</div> : null}
+      {sparkline ? <div className={kpiSparklineGapClass}>{sparkline}</div> : null}
       <span className="sr-only" aria-live="polite">
         {format(value)}
       </span>

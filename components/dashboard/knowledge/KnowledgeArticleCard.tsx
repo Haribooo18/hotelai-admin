@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, type ReactNode } from "react";
+import { memo } from "react";
 import {
   Copy,
   Eye,
@@ -16,8 +16,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/overlay/DropdownMenu";
 import { Metric } from "@/components/ui/display/Metric";
-import { iconActionClass } from "@/lib/dashboard/design-system";
+import { CardMetricCell } from "@/components/ui/data/CardMetricCell";
+import {
+  cardBadgeRowClass,
+  cardDescriptionClass,
+  cardMetricGridClass,
+  iconActionClass,
+  workspaceCardCategoryClass,
+  workspaceCardTitleClass,
+} from "@/lib/dashboard/design-system";
 import { motionPresets } from "@/lib/design/motion";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import { AiReadyBadge } from "./AiReadyBadge";
@@ -47,6 +56,7 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
   onDuplicate,
   onDelete,
 }: Props) {
+  const { t } = useI18n();
   const { article, description, qualityScore, usageCount, aiReady, authorLabel } =
     model;
 
@@ -58,7 +68,9 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
     <KnowledgeWorkspaceCard
       selected={selected}
       role="listitem"
-      aria-label={`Статья ${article.title}`}
+      aria-label={formatTranslation(t("knowledge.articleCardAria"), {
+        title: article.title,
+      })}
       tabIndex={0}
       onClick={handleCardClick}
       onKeyDown={(event) => {
@@ -70,19 +82,19 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="line-clamp-2 text-[15px] font-semibold leading-snug tracking-[-0.02em] text-[var(--shell-text)]">
+          <p className={cn(workspaceCardTitleClass, "line-clamp-2 leading-snug")}>
             {article.title}
           </p>
           {article.category && (
-            <p className="mt-1 text-[11px] font-medium uppercase tracking-wide text-[var(--shell-accent)]">
-              {article.category}
-            </p>
+            <p className={workspaceCardCategoryClass}>{article.category}</p>
           )}
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger
-            aria-label={`Действия для статьи ${article.title}`}
+            aria-label={formatTranslation(t("knowledge.articleActionsFor"), {
+              title: article.title,
+            })}
             className={cn(
               iconActionClass,
               "shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
@@ -100,7 +112,7 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
               }}
             >
               <Eye size={14} className="mr-2" />
-              Открыть
+              {t("common.open")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(event) => {
@@ -109,7 +121,7 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
               }}
             >
               <Pencil size={14} className="mr-2" />
-              Редактировать
+              {t("common.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(event) => {
@@ -118,7 +130,7 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
               }}
             >
               <Copy size={14} className="mr-2" />
-              Дублировать
+              {t("common.duplicate")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(event) => {
@@ -128,52 +140,34 @@ export const KnowledgeArticleCard = memo(function KnowledgeArticleCard({
               className="text-red-400 focus:text-red-400"
             >
               <Trash2 size={14} className="mr-2" />
-              Удалить
+              {t("common.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      <p className="mt-3 line-clamp-2 text-[12px] leading-relaxed text-[var(--shell-muted)]">
+      <p className={cn(cardDescriptionClass, "line-clamp-2 text-[12px]")}>
         {description}
       </p>
 
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className={cardBadgeRowClass}>
         <AiReadyBadge ready={aiReady} />
         <KnowledgeStatusBadge status={article.status} />
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-2 text-[11px]">
-        <MetricCell label="Качество">
+      <div className={cardMetricGridClass}>
+        <CardMetricCell label={t("knowledge.quality")}>
           <Metric value={qualityScore} formatter={(value) => `${Math.round(value)}%`} />
-        </MetricCell>
-        <MetricCell label="Использование">
+        </CardMetricCell>
+        <CardMetricCell label={t("knowledge.usage")}>
           <Metric value={usageCount} />
-        </MetricCell>
-        <MetricCell label="Обновлено" value={formatKnowledgeDate(article.updated_at)} />
-        <MetricCell label="Автор" value={authorLabel} />
+        </CardMetricCell>
+        <CardMetricCell
+          label={t("knowledge.updated")}
+          value={formatKnowledgeDate(article.updated_at)}
+        />
+        <CardMetricCell label={t("knowledge.author")} value={authorLabel} />
       </div>
     </KnowledgeWorkspaceCard>
   );
 });
-
-function MetricCell({
-  label,
-  value,
-  children,
-}: {
-  label: string;
-  value?: string;
-  children?: ReactNode;
-}) {
-  return (
-    <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-2.5 py-2">
-      <p className="text-[10px] uppercase tracking-wide text-[var(--shell-muted)]">
-        {label}
-      </p>
-      <p className="mt-0.5 truncate text-[12px] font-medium text-[var(--shell-text)]">
-        {children ?? value}
-      </p>
-    </div>
-  );
-}

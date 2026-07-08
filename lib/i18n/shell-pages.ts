@@ -13,6 +13,7 @@ const PAGE_TITLE_KEYS: Record<string, PageTitleKey> = {
   "/rates": "revenue",
   "/knowledge": "reports",
   "/ai": "messages",
+  "/reception-ai": "receptionAi",
   "/settings": "settings",
 };
 

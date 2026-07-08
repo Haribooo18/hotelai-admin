@@ -4,14 +4,13 @@ import { BookOpen } from "lucide-react";
 
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Skeleton } from "@/components/ui/display/Skeleton";
+import { useI18n } from "@/lib/i18n";
 
 import { KnowledgeArticleCard } from "./KnowledgeArticleCard";
-import { KnowledgeArticlesTable } from "./KnowledgeArticlesTable";
-import type { KnowledgeArticleModel, KnowledgeViewMode } from "./knowledge-ops-metrics";
+import type { KnowledgeArticleModel } from "./knowledge-ops-metrics";
 
 type Props = {
   models: KnowledgeArticleModel[];
-  viewMode: KnowledgeViewMode;
   loading?: boolean;
   selectedId?: string | null;
   onSelect?: (model: KnowledgeArticleModel) => void;
@@ -23,7 +22,6 @@ type Props = {
 
 export function KnowledgeArticlesView({
   models,
-  viewMode,
   loading = false,
   selectedId = null,
   onSelect,
@@ -32,42 +30,28 @@ export function KnowledgeArticlesView({
   onDuplicate,
   onDelete,
 }: Props) {
+  const { t } = useI18n();
+
   if (loading) {
-    return viewMode === "grid" ? (
+    return (
       <div
         className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3"
         aria-busy="true"
-        aria-label="Загрузка статей"
+        aria-label={t("knowledge.loadingArticles")}
       >
         {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton key={index} className="h-52 rounded-[var(--ds-radius)]" />
         ))}
       </div>
-    ) : (
-      <Skeleton className="h-64 rounded-[var(--ds-radius)]" aria-busy="true" />
     );
   }
 
   if (models.length === 0) {
     return (
       <EmptyState
-        title="Статьи не найдены"
-        description="Измените фильтры или создайте первую статью для AI-ресепшена."
+        title={t("knowledge.notFound")}
+        description={t("knowledge.notFoundDesc")}
         icon={<BookOpen size={18} />}
-      />
-    );
-  }
-
-  if (viewMode === "list") {
-    return (
-      <KnowledgeArticlesTable
-        models={models}
-        selectedId={selectedId}
-        onSelect={onSelect}
-        onOpen={onOpen}
-        onEdit={onEdit}
-        onDuplicate={onDuplicate}
-        onDelete={onDelete}
       />
     );
   }
@@ -76,7 +60,7 @@ export function KnowledgeArticlesView({
     <div
       className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-3"
       role="list"
-      aria-label="Карточки статей"
+      aria-label={t("knowledge.articleCards")}
     >
       {models.map((model) => (
         <KnowledgeArticleCard

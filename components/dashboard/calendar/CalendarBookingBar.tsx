@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 
 import type { Booking } from "@/types/booking";
 import { cn } from "@/lib/utils";
-import { getBookingStatusMeta } from "@/lib/booking-status";
 import {
   DAY_WIDTH,
   addDays,
@@ -15,6 +14,8 @@ import {
 import type { BookingCardModel } from "@/components/dashboard/bookings/booking-ops-metrics";
 import { formatBookingCurrency } from "@/components/dashboard/bookings/booking-ops-metrics";
 import { motionPresets } from "@/lib/design/motion";
+import { formatTranslation, useI18n } from "@/lib/i18n";
+import type { TranslationPath } from "@/lib/i18n/translations";
 
 import {
   BOOKING_STATUS_GRADIENT,
@@ -41,8 +42,11 @@ export function CalendarBookingBar({
   onReschedule,
   onOpen,
 }: Props) {
+  const { t } = useI18n();
   const { booking, guest, roomLabel, nights, paymentStatus } = model;
-  const meta = getBookingStatusMeta(booking.status);
+  const statusLabel = t(
+    `statuses.booking.${booking.status}` as TranslationPath
+  );
   const displayName = guest
     ? `${guest.first_name} ${guest.last_name}`.trim()
     : booking.guest_name;
@@ -150,7 +154,11 @@ export function CalendarBookingBar({
     >
       <button
         type="button"
-        aria-label={`Reservation ${displayName}, ${booking.check_in} — ${booking.check_out}. Arrow keys move, Shift+arrow keys resize, Enter for details.`}
+        aria-label={formatTranslation(t("calendar.reservationBarAria"), {
+          guest: displayName,
+          checkIn: booking.check_in,
+          checkOut: booking.check_out,
+        })}
         onPointerDown={(e) => beginDrag("move", e)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -173,7 +181,7 @@ export function CalendarBookingBar({
             {displayName}
           </p>
           <p className="mt-0.5 truncate text-[10px] leading-tight opacity-85">
-            {roomLabel} · {nights}n · {meta?.label ?? booking.status}
+            {roomLabel} · {formatTranslation(t("calendar.nightsShort"), { count: String(nights) })} · {statusLabel}
           </p>
         </div>
 
@@ -182,7 +190,7 @@ export function CalendarBookingBar({
             "mr-2 h-2 w-2 shrink-0 rounded-full ring-2 ring-white/25",
             PAYMENT_DOT[paymentStatus]
           )}
-          title={`Payment: ${paymentStatus}`}
+          title={`${t("calendar.paymentTooltip")}: ${paymentStatus}`}
         />
       </button>
 
@@ -211,9 +219,7 @@ export function CalendarBookingBar({
           {roomLabel} · {booking.check_in} → {booking.check_out}
         </p>
         <div className="mt-2 flex items-center justify-between text-[11px]">
-          <span className="text-[var(--shell-muted)]">
-            {meta?.label ?? booking.status}
-          </span>
+          <span className="text-[var(--shell-muted)]">{statusLabel}</span>
           <span className="font-semibold text-[var(--shell-text)]">
             {formatBookingCurrency(Number(booking.total_price))}
           </span>

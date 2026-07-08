@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   BedDouble,
   CalendarClock,
@@ -9,13 +10,11 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { Metric } from "@/components/ui/display/Metric";
-import { StatusDot } from "@/components/ui/display/StatusDot";
-import { Skeleton } from "@/components/ui/display/Skeleton";
-import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { formatPercent } from "@/lib/dashboard/format";
-import { motionPresets } from "@/lib/design/motion";
-import { cn } from "@/lib/utils";
+import { KpiCard } from "@/components/ui/data/KpiCard";
+import { ExecutiveKpisPanel } from "@/components/dashboard/shared/ExecutiveKpisPanel";
+import { formatPercent, formatNightsCount } from "@/lib/dashboard/format";
+import { useI18n } from "@/lib/i18n";
+import type { TranslationPath } from "@/lib/i18n/translations";
 
 import {
   computeDisplayForecastTotal,
@@ -39,7 +38,7 @@ type Props = {
 
 type DisplayKpi = {
   key: string;
-  label: string;
+  labelKey: TranslationPath;
   icon: typeof DollarSign;
   tone: "default" | "success" | "warning";
   value: number;
@@ -50,14 +49,15 @@ type DisplayKpi = {
 function buildDisplayKpis(
   kpis: RevenueKpis,
   trend: RevenueTrendPoint[],
-  forecast: RevenueForecastPoint[]
+  forecast: RevenueForecastPoint[],
+  t: (path: TranslationPath) => string
 ): DisplayKpi[] {
   const periodRevenue = trend.reduce((sum, point) => sum + point.revenue, 0);
 
   return [
     {
       key: "revenue",
-      label: "Revenue",
+      labelKey: "revenue.periodRevenue",
       icon: DollarSign,
       tone: "success",
       value: periodRevenue,
@@ -66,7 +66,7 @@ function buildDisplayKpis(
     },
     {
       key: "adr",
-      label: "ADR",
+      labelKey: "revenue.kpiAdr",
       icon: DollarSign,
       tone: "default",
       value: kpis.adr,
@@ -75,7 +75,7 @@ function buildDisplayKpis(
     },
     {
       key: "revpar",
-      label: "RevPAR",
+      labelKey: "revenue.revpar",
       icon: BedDouble,
       tone: "success",
       value: kpis.revpar,
@@ -84,7 +84,7 @@ function buildDisplayKpis(
     },
     {
       key: "occupancy",
-      label: "Occupancy",
+      labelKey: "revenue.kpiOccupancy",
       icon: Percent,
       tone: "success",
       value: kpis.occupancy,
@@ -93,16 +93,16 @@ function buildDisplayKpis(
     },
     {
       key: "averageStay",
-      label: "Average stay",
+      labelKey: "revenue.kpiAverageStay",
       icon: CalendarClock,
       tone: "default",
       value: kpis.averageStay,
-      format: (value) => `${Math.round(value)}n`,
+      format: (value) => formatNightsCount(value, t),
       trendValues: [],
     },
     {
       key: "forecast",
-      label: "Forecast",
+      labelKey: "revenue.kpiForecast",
       icon: LineChart,
       tone: "warning",
       value: computeDisplayForecastTotal(forecast),
@@ -111,7 +111,7 @@ function buildDisplayKpis(
     },
     {
       key: "growth",
-      label: "Growth",
+      labelKey: "revenue.kpiGrowth",
       icon: TrendingUp,
       tone: "success",
       value: computeDisplayGrowth(trend),
@@ -127,75 +127,32 @@ export function RevenueExecutiveKpis({
   forecast,
   loading,
 }: Props) {
-  const items = buildDisplayKpis(kpis, trend, forecast);
-
-  if (loading) {
-    return (
-      <GlassSurface className="p-[var(--ds-surface-padding)]">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-          {Array.from({ length: 7 }).map((_, index) => (
-            <div key={index} className="space-y-2 px-2 py-1">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-7 w-16" />
-              <Skeleton className="h-6 w-full" />
-            </div>
-          ))}
-        </div>
-      </GlassSurface>
-    );
-  }
-
-  const borderClass = "xl:border-l xl:border-[var(--shell-border)]/60";
+  const { t } = useI18n();
+  const items = useMemo(
+    () => buildDisplayKpis(kpis, trend, forecast, t),
+    [kpis, trend, forecast, t]
+  );
 
   return (
-    <GlassSurface
-      interactive
-      className="overflow-hidden p-[var(--ds-surface-padding)]"
-      aria-label="Revenue executive KPIs"
+    <ExecutiveKpisPanel
+      ariaLabel={t("revenue.kpiAriaLabel")}
+      loading={loading}
+      count={7}
+      gridClassName="sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7"
+      skeletonVariant="sparkline"
     >
-      <div className="grid gap-1 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
-        {items.map((item, index) => {
-          const Icon = item.icon;
-
-          return (
-            <div
-              key={item.key}
-              className={cn(
-                "group px-3 py-3",
-                motionPresets.transitionBase,
-                motionPresets.hover.surfaceLift,
-                index > 0 && borderClass
-              )}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)] transition-transform duration-[var(--ds-duration)] ease-[var(--ds-ease)] group-hover:scale-[1.04]">
-                    <Icon size={15} aria-hidden />
-                  </div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-                    {item.label}
-                  </p>
-                </div>
-                <StatusDot
-                  tone={
-                    item.tone === "warning"
-                      ? "warning"
-                      : item.tone === "success"
-                        ? "success"
-                        : "default"
-                  }
-                />
-              </div>
-              <p className="mt-2.5 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] leading-[var(--type-kpi-leading)] tracking-[var(--type-kpi-tracking)] text-[var(--shell-text)]">
-                <Metric value={item.value} formatter={item.format} />
-              </p>
-              <div className="mt-2">
-                <MiniTrend values={item.trendValues} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </GlassSurface>
+      {items.map((item, index) => (
+        <KpiCard
+          key={item.key}
+          label={t(item.labelKey)}
+          icon={item.icon}
+          value={item.value}
+          format={item.format}
+          tone={item.tone}
+          bordered={index > 0}
+          sparkline={<MiniTrend values={item.trendValues} />}
+        />
+      ))}
+    </ExecutiveKpisPanel>
   );
 }

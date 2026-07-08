@@ -1,3 +1,6 @@
+"use client";
+
+import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   DAY_WIDTH,
@@ -14,13 +17,15 @@ type Props = {
 };
 
 export function CalendarDateHeader({ days, occupancy }: Props) {
+  const { t } = useI18n();
+
   return (
     <div className="sticky top-0 z-30 flex border-b border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/95 backdrop-blur-xl">
       <div
         className="sticky left-0 z-40 flex items-center border-r border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/98 px-4 text-[12px] font-semibold uppercase tracking-[0.06em] text-[var(--shell-muted)] backdrop-blur-xl"
         style={{ width: ROOM_COL_WIDTH, minWidth: ROOM_COL_WIDTH }}
       >
-        Rooms
+        {t("calendar.roomsHeader")}
       </div>
 
       {days.map((day, index) => {
@@ -63,9 +68,13 @@ export function CalendarDateHeader({ days, occupancy }: Props) {
 
             <div
               className="mt-1 h-1 w-7 overflow-hidden rounded-full bg-[var(--shell-nav-hover-bg)]"
-              title={`Occupancy ${percent}%`}
+              title={formatTranslation(t("calendar.occupancyPercentTitle"), {
+                percent: String(percent),
+              })}
               role="img"
-              aria-label={`Occupancy ${percent} percent`}
+              aria-label={formatTranslation(t("calendar.occupancyPercentAria"), {
+                percent: String(percent),
+              })}
             >
               <div
                 className="h-full rounded-full bg-emerald-500/80 transition-[width] duration-[var(--ds-duration)] ease-[var(--ds-ease)]"

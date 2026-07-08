@@ -19,6 +19,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { FormField } from "@/components/ui/core/FormField";
+import { ToolbarDateInput } from "@/components/ui/core/ToolbarDateInput";
+import { formStackClass, inputClass } from "@/lib/dashboard/design-system";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 type Props = {
   rooms: Room[];
@@ -34,6 +38,7 @@ type FieldErrors = Partial<
 >;
 
 export function BookingForm({ rooms, booking, onSuccess }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -88,10 +93,10 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
       try {
         if (booking) {
           await updateBooking({ ...parsed.data, id: booking.id });
-          toast.success("Reservation updated");
+          toast.success(t("bookings.updated"));
         } else {
           await createBooking(parsed.data);
-          toast.success("Reservation created");
+          toast.success(t("bookings.created"));
           resetForm();
         }
 
@@ -100,57 +105,60 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error
-            ? error.message
-            : booking
-            ? "Update failed"
-            : "Create failed"
+          localizeErrorWithT(
+            t,
+            error instanceof Error
+              ? error.message
+              : booking
+                ? t("bookings.updateFailed")
+                : t("bookings.createFailed")
+          )
         );
       }
     });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <Field label="Guest name" htmlFor="guest_name" error={errors.guest_name}>
+    <form onSubmit={handleSubmit} className={formStackClass} noValidate>
+      <FormField label={t("bookings.formGuestName")} htmlFor="guest_name" error={errors.guest_name}>
         <Input
           id="guest_name"
-          placeholder="Guest name"
+          placeholder={t("bookings.formGuestNamePlaceholder")}
           value={guestName}
           onChange={(e) => setGuestName(e.target.value)}
           aria-invalid={Boolean(errors.guest_name)}
           aria-describedby={errors.guest_name ? "guest_name-error" : undefined}
         />
-      </Field>
+      </FormField>
 
-      <Field label="Email" htmlFor="guest_email" error={errors.guest_email}>
+      <FormField label={t("bookings.formEmail")} htmlFor="guest_email" error={errors.guest_email}>
         <Input
           id="guest_email"
           type="email"
-          placeholder="Email"
+          placeholder={t("bookings.formEmailPlaceholder")}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           aria-invalid={Boolean(errors.guest_email)}
           aria-describedby={errors.guest_email ? "guest_email-error" : undefined}
         />
-      </Field>
+      </FormField>
 
-      <Field label="Phone" htmlFor="guest_phone" error={errors.guest_phone}>
+      <FormField label={t("bookings.formPhone")} htmlFor="guest_phone" error={errors.guest_phone}>
         <Input
           id="guest_phone"
-          placeholder="Phone"
+          placeholder={t("bookings.formPhonePlaceholder")}
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
         />
-      </Field>
+      </FormField>
 
-      <Field label="Room" htmlFor="room_id" error={errors.room_id}>
+      <FormField label={t("bookings.formRoom")} htmlFor="room_id" error={errors.room_id}>
         <Select
           id="room_id"
           value={roomId}
           onChange={setRoomId}
-          placeholder="Select room"
-          aria-label="Room"
+          placeholder={t("bookings.formSelectRoom")}
+          aria-label={t("bookings.formRoom")}
           aria-invalid={Boolean(errors.room_id)}
           aria-describedby={errors.room_id ? "room_id-error" : undefined}
           options={rooms.map((room) => ({
@@ -158,67 +166,41 @@ export function BookingForm({ rooms, booking, onSuccess }: Props) {
             label: `${room.room_type} — $${room.price}`,
           }))}
         />
-      </Field>
+      </FormField>
 
-      <Field label="Check-in" htmlFor="check_in" error={errors.check_in}>
-        <Input
+      <FormField label={t("bookings.formCheckIn")} htmlFor="check_in" error={errors.check_in}>
+        <ToolbarDateInput
           id="check_in"
-          type="date"
           value={checkIn}
           onChange={(e) => setCheckIn(e.target.value)}
           aria-invalid={Boolean(errors.check_in)}
           aria-describedby={errors.check_in ? "check_in-error" : undefined}
+          className={inputClass}
+          required
         />
-      </Field>
+      </FormField>
 
-      <Field label="Check-out" htmlFor="check_out" error={errors.check_out}>
-        <Input
+      <FormField label={t("bookings.formCheckOut")} htmlFor="check_out" error={errors.check_out}>
+        <ToolbarDateInput
           id="check_out"
-          type="date"
           value={checkOut}
           onChange={(e) => setCheckOut(e.target.value)}
           aria-invalid={Boolean(errors.check_out)}
           aria-describedby={errors.check_out ? "check_out-error" : undefined}
+          className={inputClass}
+          required
         />
-      </Field>
+      </FormField>
 
       <Button type="submit" className="w-full" disabled={pending}>
         {pending
           ? booking
-            ? "Saving..."
-            : "Creating..."
+            ? t("bookings.formSaving")
+            : t("bookings.formCreating")
           : booking
-          ? "Save changes"
-          : "Create reservation"}
+            ? t("bookings.formSaveChanges")
+            : t("bookings.formCreateReservation")}
       </Button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  htmlFor,
-  error,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm text-[var(--shell-muted)]">
-        {label}
-      </label>
-
-      {children}
-
-      {error && (
-        <p id={`${htmlFor}-error`} className="text-sm text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
   );
 }

@@ -2,7 +2,10 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import { focusRingClassName } from "@/lib/design/motion";
+import {
+  tablePaginationClass,
+  tablePaginationLabelClass,
+} from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 import { Button } from "@/components/ui/core/Button";
@@ -14,6 +17,7 @@ type PaginationProps = {
   className?: string;
   previousLabel?: string;
   nextLabel?: string;
+  ariaLabel?: string;
 };
 
 export function Pagination({
@@ -23,15 +27,13 @@ export function Pagination({
   className,
   previousLabel = "Previous",
   nextLabel = "Next",
+  ariaLabel = "Pagination",
 }: PaginationProps) {
   const canPrevious = page > 1;
   const canNext = page < pageCount;
 
   return (
-    <nav
-      aria-label="Pagination"
-      className={cn("flex items-center justify-between gap-3", className)}
-    >
+    <nav aria-label={ariaLabel} className={cn(tablePaginationClass, className)}>
       <Button
         variant="outline"
         size="sm"
@@ -42,7 +44,7 @@ export function Pagination({
         {previousLabel}
       </Button>
 
-      <span className="text-[13px] text-[var(--shell-muted)]">
+      <span className={tablePaginationLabelClass}>
         {page} / {Math.max(pageCount, 1)}
       </span>
 
@@ -58,5 +60,3 @@ export function Pagination({
     </nav>
   );
 }
-
-export { focusRingClassName };

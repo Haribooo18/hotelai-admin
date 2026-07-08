@@ -13,7 +13,7 @@ export function Input({
     <InputPrimitive
       type={type}
       data-slot="input"
-      className={cn(inputClass, "md:text-[13px]", className)}
+      className={cn(inputClass, className)}
       {...props}
     />
   );

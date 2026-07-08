@@ -1,40 +1,82 @@
-import type { HTMLAttributes, ReactNode } from "react";
+import type { ComponentProps, HTMLAttributes, ReactNode } from "react";
 
+import { Button } from "@/components/ui/core/Button";
+import { WorkspaceToolbar } from "@/components/dashboard/shared/WorkspaceToolbar";
 import {
   chipActiveClass,
   chipClass,
   chipIdleClass,
-  stickyToolbarClass,
+  toolbarPrimaryButtonClass,
+  toolbarSecondaryButtonClass,
+  toolbarShellClass,
 } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 type FilterBarProps = HTMLAttributes<HTMLDivElement> & {
-  leading?: ReactNode;
-  trailing?: ReactNode;
+  search?: ReactNode;
   filters?: ReactNode;
+  viewToggle?: ReactNode;
+  actions?: ReactNode;
+  chips?: ReactNode;
 };
 
+/** @deprecated Prefer WorkspaceToolbar */
 export function FilterBar({
-  leading,
-  trailing,
+  search,
   filters,
+  viewToggle,
+  actions,
+  chips,
   className,
-  children,
   ...props
 }: FilterBarProps) {
+  const primaryFilters =
+    filters || viewToggle ? (
+      <>
+        {filters}
+        {viewToggle}
+      </>
+    ) : undefined;
+
   return (
-    <div className={cn(stickyToolbarClass, className)} {...props}>
-      {leading || trailing ? (
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-          {leading ? <div className="min-w-0 flex-1">{leading}</div> : null}
-          {trailing ? (
-            <div className="flex flex-wrap items-center gap-2">{trailing}</div>
-          ) : null}
-        </div>
-      ) : null}
-      {children}
-      {filters ? <div className="flex flex-wrap gap-2">{filters}</div> : null}
-    </div>
+    <WorkspaceToolbar
+      className={className}
+      search={search}
+      primaryFilters={primaryFilters}
+      actions={actions}
+      chips={chips}
+      {...props}
+    />
+  );
+}
+
+export function ToolbarSecondaryButton({
+  className,
+  size = "sm",
+  variant = "outline",
+  ...props
+}: ComponentProps<typeof Button>) {
+  return (
+    <Button
+      variant={variant}
+      size={size}
+      className={cn(toolbarSecondaryButtonClass, className)}
+      {...props}
+    />
+  );
+}
+
+export function ToolbarPrimaryButton({
+  className,
+  size = "sm",
+  ...props
+}: ComponentProps<typeof Button>) {
+  return (
+    <Button
+      size={size}
+      className={cn(toolbarPrimaryButtonClass, className)}
+      {...props}
+    />
   );
 }
 
@@ -67,4 +109,4 @@ export function FilterChip({
   );
 }
 
-export { chipActiveClass, chipClass, chipIdleClass, stickyToolbarClass };
+export { chipActiveClass, chipClass, chipIdleClass, toolbarShellClass as stickyToolbarClass };

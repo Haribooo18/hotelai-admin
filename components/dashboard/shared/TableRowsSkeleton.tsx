@@ -1,4 +1,9 @@
 import { SkeletonRows } from "@/components/ui/display/Skeleton";
+import {
+  tableDefaultSkeletonRows,
+  tableSkeletonGapClass,
+  tableSkeletonRowClass,
+} from "@/lib/dashboard/design-system";
 
 type Props = {
   rows?: number;
@@ -6,8 +11,14 @@ type Props = {
 };
 
 export function TableRowsSkeleton({
-  rows = 6,
-  rowClassName = "h-14",
+  rows = tableDefaultSkeletonRows,
+  rowClassName = tableSkeletonRowClass,
 }: Props) {
-  return <SkeletonRows rows={rows} rowClassName={rowClassName} />;
+  return (
+    <SkeletonRows
+      rows={rows}
+      rowClassName={rowClassName}
+      className={tableSkeletonGapClass}
+    />
+  );
 }

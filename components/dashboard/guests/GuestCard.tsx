@@ -19,7 +19,12 @@ import {
 } from "@/components/ui/overlay/DropdownMenu";
 import { Button } from "@/components/ui/core/Button";
 import { activateOnKeyboard } from "@/lib/dashboard/a11y";
-import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
+import {
+  hoverRevealClass,
+  iconActionClass,
+  workspaceCardTitleClass,
+} from "@/lib/dashboard/design-system";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import { GuestAvatar } from "./GuestAvatar";
@@ -51,6 +56,7 @@ export const GuestCard = memo(function GuestCard({
   onDelete,
   onToggleFavorite,
 }: Props) {
+  const { t } = useI18n();
   const { guest, stats } = model;
   const fullName = `${guest.first_name} ${guest.last_name}`.trim();
   const language = getGuestLanguageLabel(guest);
@@ -65,7 +71,9 @@ export const GuestCard = memo(function GuestCard({
       selected={selected}
       role="button"
       tabIndex={0}
-      aria-label={`Open guest ${fullName}`}
+      aria-label={formatTranslation(t("bookings.openReservation"), {
+        name: fullName,
+      })}
       aria-pressed={selected}
       onClick={() => onOpen?.(model)}
       onKeyDown={(event) => activateOnKeyboard(event, () => onOpen?.(model))}
@@ -79,7 +87,7 @@ export const GuestCard = memo(function GuestCard({
             size="sm"
           />
           <div className="min-w-0">
-            <h3 className="truncate text-[14px] font-semibold tracking-[-0.01em] text-[var(--shell-text)]">
+            <h3 className={cn(workspaceCardTitleClass, "truncate")}>
               {fullName}
             </h3>
             <div className="mt-1.5">
@@ -94,7 +102,9 @@ export const GuestCard = memo(function GuestCard({
 
         <DropdownMenu>
           <DropdownMenuTrigger
-            aria-label={`Actions for ${fullName}`}
+            aria-label={formatTranslation(t("bookings.actionsFor"), {
+              name: fullName,
+            })}
             onClick={(event) => event.stopPropagation()}
             className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
           >
@@ -107,7 +117,7 @@ export const GuestCard = memo(function GuestCard({
                 onOpen?.(model);
               }}
             >
-              Open profile
+              {t("common.open")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(event) => {
@@ -117,7 +127,7 @@ export const GuestCard = memo(function GuestCard({
               className="gap-2"
             >
               <Pencil size={14} />
-              Edit
+              {t("common.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(event) => {
@@ -127,7 +137,9 @@ export const GuestCard = memo(function GuestCard({
               className="gap-2"
             >
               <Star size={14} />
-              {guest.is_favorite ? "Remove favorite" : "Add favorite"}
+              {guest.is_favorite
+                ? t("guests.removeFavorite")
+                : t("guests.addFavorite")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(event) => {
@@ -137,7 +149,7 @@ export const GuestCard = memo(function GuestCard({
               className="gap-2 text-red-400"
             >
               <Trash2 size={14} />
-              Delete
+              {t("common.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -153,13 +165,17 @@ export const GuestCard = memo(function GuestCard({
           <span className="truncate">{language ?? "—"}</span>
         </div>
         <div>
-          <p className="text-[11px] text-[var(--shell-muted)]">Lifetime revenue</p>
+          <p className="text-[11px] text-[var(--shell-muted)]">
+            {t("guests.lifetimeRevenue")}
+          </p>
           <p className="mt-0.5 text-[13px] font-semibold text-[var(--shell-text)]">
             {formatGuestCurrency(guest.total_spent)}
           </p>
         </div>
         <div>
-          <p className="text-[11px] text-[var(--shell-muted)]">Total stays</p>
+          <p className="text-[11px] text-[var(--shell-muted)]">
+            {t("guests.totalStays")}
+          </p>
           <p className="mt-0.5 text-[13px] font-semibold text-[var(--shell-text)]">
             {guest.total_bookings}
           </p>
@@ -168,11 +184,11 @@ export const GuestCard = memo(function GuestCard({
 
       <div className="mt-3 grid grid-cols-2 gap-2 border-t border-[var(--shell-border)]/50 pt-3 text-[11px]">
         <div>
-          <p className="text-[var(--shell-muted)]">Last stay</p>
+          <p className="text-[var(--shell-muted)]">{t("guests.statsLastVisit")}</p>
           <p className="mt-0.5 font-medium text-[var(--shell-text)]">{lastVisit}</p>
         </div>
         <div>
-          <p className="text-[var(--shell-muted)]">Next stay</p>
+          <p className="text-[var(--shell-muted)]">{t("guests.nextStay")}</p>
           <p className="mt-0.5 font-medium text-[var(--shell-text)]">
             {nextReservation}
           </p>
@@ -182,7 +198,8 @@ export const GuestCard = memo(function GuestCard({
       {model.activeBooking ? (
         <div className="mt-3 flex items-center gap-2 rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] px-3 py-2 text-[11px] text-[var(--shell-accent)]">
           <CalendarDays size={13} aria-hidden />
-          Currently staying · {model.roomLabel ?? "Room assigned"}
+          {t("guests.currentlyStaying")} ·{" "}
+          {model.roomLabel ?? t("guests.roomAssigned")}
         </div>
       ) : null}
 
@@ -197,7 +214,7 @@ export const GuestCard = memo(function GuestCard({
             onOpen?.(model);
           }}
         >
-          Profile
+          {t("guests.profile")}
         </Button>
         <Button
           type="button"
@@ -208,7 +225,7 @@ export const GuestCard = memo(function GuestCard({
             onEdit?.(model);
           }}
         >
-          Edit
+          {t("common.edit")}
         </Button>
       </div>
     </GuestWorkspaceCard>

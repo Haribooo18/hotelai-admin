@@ -1,5 +1,7 @@
 import type { ComponentProps, ReactNode } from "react";
 
+import { WorkspaceCard } from "@/components/dashboard/shared/WorkspaceCard";
+import { WorkspaceDetailRow } from "@/components/dashboard/shared/WorkspaceDetailRow";
 import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
@@ -20,25 +22,14 @@ export function RoomWorkspaceCard({
   className,
   children,
   ...props
-}: ComponentProps<"article"> & {
+}: ComponentProps<typeof WorkspaceCard> & {
   selected?: boolean;
   children: ReactNode;
 }) {
   return (
-    <article
-      className={cn(
-        "group rounded-[var(--ds-radius)] bg-[var(--shell-glass)] p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
-        motionPresets.transitionBase,
-        motionPresets.hover.surfaceLift,
-        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]",
-        selected &&
-          "ring-1 ring-[var(--shell-accent)]/30 shadow-[var(--shell-shadow-md)]",
-        className
-      )}
-      {...props}
-    >
+    <WorkspaceCard selected={selected} className={className} {...props}>
       {children}
-    </article>
+    </WorkspaceCard>
   );
 }
 
@@ -63,15 +54,6 @@ export function RoomOpsListItem({
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-[12px]">
-      <dt className="text-[var(--shell-muted)]">{label}</dt>
-      <dd className="text-right font-medium text-[var(--shell-text)]">{value}</dd>
-    </div>
-  );
-}
-
 export function RoomDetailRow({ label, value }: { label: string; value: string }) {
-  return <DetailRow label={label} value={value} />;
+  return <WorkspaceDetailRow label={label} value={value} />;
 }

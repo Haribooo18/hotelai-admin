@@ -10,12 +10,8 @@ import { mergeGuests } from "@/lib/services/guests.mutations";
 
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 type Props = {
   open: boolean;
@@ -30,78 +26,76 @@ export function MergeGuestsDialog({
   target,
   candidates,
 }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [sourceId, setSourceId] = useState("");
 
   function handleMerge() {
     if (!sourceId) {
-      toast.error("Select a guest to merge");
+      toast.error(t("guests.mergeSelectError"));
       return;
     }
 
     startTransition(async () => {
       try {
         await mergeGuests({ targetId: target.id, sourceId });
-        toast.success("Guests merged");
+        toast.success(t("guests.mergeSuccess"));
         onOpenChange(false);
         setSourceId("");
         router.refresh();
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error ? error.message : "Failed to merge"
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("guests.mergeFailed")
+          )
         );
       }
     });
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>Merge duplicates</SheetTitle>
-        </SheetHeader>
+    <WorkspaceFormDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("guests.mergeTitle")}
+    >
+      <div className="space-y-5">
+        <p className="text-sm text-[var(--shell-muted)]">
+          {target.first_name} {target.last_name}
+        </p>
 
-        <div className="mt-6 space-y-5 px-6 pb-6">
-          <p className="text-sm text-[var(--shell-muted)]">
-            The selected guest&apos;s data will be merged into{" "}
-            <span className="font-medium text-white">
-              {target.first_name} {target.last_name}
-            </span>
-            , and the duplicate will be archived.
-          </p>
+        <div className="space-y-1.5">
+          <label htmlFor="merge-source" className="block text-sm text-[var(--shell-muted)]">
+            {t("guests.mergeSelect")}
+          </label>
 
-          <div className="space-y-1.5">
-            <label htmlFor="merge-source" className="block text-sm text-[var(--shell-muted)]">
-              Duplicate guest
-            </label>
-
-            <Select
-              id="merge-source"
-              value={sourceId}
-              onChange={setSourceId}
-              placeholder="Select a guest"
-              aria-label="Duplicate guest"
-              options={candidates.map((g) => ({
-                value: g.id,
-                label: `${g.first_name} ${g.last_name}${
-                  g.email ? ` — ${g.email}` : ""
-                }`,
-              }))}
-            />
-          </div>
-
-          <Button
-            className="w-full"
-            variant="destructive"
-            disabled={pending || candidates.length === 0}
-            onClick={handleMerge}
-          >
-            {pending ? "Merging..." : "Merge"}
-          </Button>
+          <Select
+            id="merge-source"
+            value={sourceId}
+            onChange={setSourceId}
+            placeholder={t("guests.mergeSelect")}
+            aria-label={t("guests.mergeSelect")}
+            options={candidates.map((g) => ({
+              value: g.id,
+              label: `${g.first_name} ${g.last_name}${
+                g.email ? ` — ${g.email}` : ""
+              }`,
+            }))}
+          />
         </div>
-      </SheetContent>
-    </Sheet>
+
+        <Button
+          className="w-full"
+          variant="destructive"
+          disabled={pending || candidates.length === 0}
+          onClick={handleMerge}
+        >
+          {pending ? t("common.saving") : t("guests.mergeTitle")}
+        </Button>
+      </div>
+    </WorkspaceFormDrawer>
   );
 }

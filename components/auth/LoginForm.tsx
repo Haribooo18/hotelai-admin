@@ -6,6 +6,9 @@ import { signIn, type SignInState } from "@/lib/services/auth.mutations";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { FormError, FormField } from "@/components/ui/core/FormField";
+import { formStackClass } from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   redirectedFrom?: string;
@@ -14,16 +17,14 @@ type Props = {
 const initialState: SignInState = {};
 
 export function LoginForm({ redirectedFrom }: Props) {
+  const { t } = useI18n();
   const [state, formAction, pending] = useActionState(signIn, initialState);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className={formStackClass}>
       <input type="hidden" name="redirectedFrom" value={redirectedFrom ?? ""} />
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="text-sm text-[var(--shell-muted)]">
-          Email
-        </label>
+      <FormField label={t("login.email")} htmlFor="email">
         <Input
           id="email"
           name="email"
@@ -32,12 +33,9 @@ export function LoginForm({ redirectedFrom }: Props) {
           autoComplete="email"
           required
         />
-      </div>
+      </FormField>
 
-      <div className="space-y-2">
-        <label htmlFor="password" className="text-sm text-[var(--shell-muted)]">
-          Password
-        </label>
+      <FormField label={t("login.password")} htmlFor="password">
         <Input
           id="password"
           name="password"
@@ -46,14 +44,12 @@ export function LoginForm({ redirectedFrom }: Props) {
           autoComplete="current-password"
           required
         />
-      </div>
+      </FormField>
 
-      {state.error && (
-        <p className="text-sm text-red-400">{state.error}</p>
-      )}
+      {state.error ? <FormError>{state.error}</FormError> : null}
 
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? "Signing in..." : "Sign in"}
+        {pending ? t("login.signingIn") : t("login.signIn")}
       </Button>
     </form>
   );

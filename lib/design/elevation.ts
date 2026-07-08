@@ -26,7 +26,7 @@ export const elevationPresets = {
 
   glass: {
     className:
-      "rounded-[var(--ds-radius-sm)] bg-[var(--shell-glass)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
+      "rounded-[var(--ds-radius)] bg-[var(--shell-glass)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
   },
 } as const;
 

@@ -32,6 +32,7 @@ import {
   unpublishKnowledgeArticle,
   updateKnowledgeArticle,
 } from "@/lib/services/knowledge.mutations";
+import { formatTranslation, localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +81,7 @@ function buildAutosaveSnapshot(input: {
 }
 
 export function KnowledgeEditor({ article: initial }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [tab, setTab] = useState<EditorTab>("edit");
@@ -140,27 +142,31 @@ export function KnowledgeEditor({ article: initial }: Props) {
         try {
           await autosaveKnowledgeArticle(autosavePayload);
           setLastSavedSnapshot(snapshot);
-        } catch {
-          toast.error("Autosave failed");
+        } catch (error) {
+          toast.error(
+            error instanceof Error && error.message
+              ? localizeErrorWithT(t, error.message)
+              : t("knowledge.editorAutosaveFailed")
+          );
         }
       });
     }, AUTOSAVE_MS);
 
     return () => clearTimeout(timer);
-  }, [isDirty, snapshot, autosavePayload, startTransition]);
+  }, [isDirty, snapshot, autosavePayload, startTransition, t]);
 
   function addTag() {
-    const t = tagInput.trim();
-    if (!t) return;
+    const tagValue = tagInput.trim();
+    if (!tagValue) return;
     const current = parseList(tags);
-    if (!current.includes(t)) {
-      setTags([...current, t].join(", "));
+    if (!current.includes(tagValue)) {
+      setTags([...current, tagValue].join(", "));
     }
     setTagInput("");
   }
 
   function removeTag(tag: string) {
-    setTags(parseList(tags).filter((t) => t !== tag).join(", "));
+    setTags(parseList(tags).filter((item) => item !== tag).join(", "));
   }
 
   function handleSave() {
@@ -179,10 +185,14 @@ export function KnowledgeEditor({ article: initial }: Props) {
           tags: parseList(tags),
           search_keywords: parseList(keywords),
         });
-        toast.success("Article saved");
+        toast.success(t("knowledge.editorSaved"));
         router.refresh();
-      } catch {
-        toast.error("Failed to save");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("knowledge.editorSaveFailed")
+        );
       }
     });
   }
@@ -191,10 +201,14 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         await publishKnowledgeArticle(initial.id);
-        toast.success("Article published");
+        toast.success(t("knowledge.publishSuccess"));
         router.refresh();
-      } catch {
-        toast.error("Failed to publish");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("errors.statusChangeFailed")
+        );
       }
     });
   }
@@ -203,10 +217,14 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         await unpublishKnowledgeArticle(initial.id);
-        toast.success("Article unpublished");
+        toast.success(t("knowledge.unpublishSuccess"));
         router.refresh();
-      } catch {
-        toast.error("Failed to unpublish");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("errors.statusChangeFailed")
+        );
       }
     });
   }
@@ -215,10 +233,14 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         await archiveKnowledgeArticle(initial.id);
-        toast.success("Article archived");
+        toast.success(t("knowledge.editorArchiveSuccess"));
         router.push("/knowledge");
-      } catch {
-        toast.error("Failed to archive");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("errors.statusChangeFailed")
+        );
       }
     });
   }
@@ -227,10 +249,14 @@ export function KnowledgeEditor({ article: initial }: Props) {
     startTransition(async () => {
       try {
         const id = await duplicateKnowledgeArticle(initial.id);
-        toast.success("Copy created");
+        toast.success(t("knowledge.duplicateSuccess"));
         router.push(`/knowledge/${id}`);
-      } catch {
-        toast.error("Failed to duplicate");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("errors.duplicateFailed")
+        );
       }
     });
   }
@@ -242,6 +268,10 @@ export function KnowledgeEditor({ article: initial }: Props) {
     ])
   );
 
+  const saveStatusLabel = pending || isDirty
+    ? t("common.saving")
+    : t("knowledge.editorSavedStatus");
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -249,18 +279,19 @@ export function KnowledgeEditor({ article: initial }: Props) {
           <Link
             href="/knowledge"
             className="rounded-lg p-2 text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
-            aria-label="Back to list"
+            aria-label={t("knowledge.editorBackToList")}
           >
             <ArrowLeft size={18} />
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-semibold">Article editor</h1>
+              <h1 className="text-xl font-semibold">{t("knowledge.editorTitle")}</h1>
               <KnowledgeStatusBadge status={initial.status} />
               <span className="text-xs text-[var(--shell-muted)]">v{initial.version}</span>
             </div>
             <p className="text-xs text-[var(--shell-muted)]">
-              {pending || isDirty ? "Saving…" : "Saved"} · {wordCount} words
+              {saveStatusLabel} ·{" "}
+              {formatTranslation(t("knowledge.editorWordCount"), { count: wordCount })}
             </p>
           </div>
         </div>
@@ -268,26 +299,26 @@ export function KnowledgeEditor({ article: initial }: Props) {
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" size="sm" onClick={handleDuplicate} disabled={pending}>
             <Copy size={14} className="mr-1" />
-            Duplicate
+            {t("common.duplicate")}
           </Button>
           {initial.status === "published" ? (
             <Button variant="outline" size="sm" onClick={handleUnpublish} disabled={pending}>
               <X size={14} className="mr-1" />
-              Unpublish
+              {t("knowledge.unpublish")}
             </Button>
           ) : (
             <Button variant="outline" size="sm" onClick={handlePublish} disabled={pending}>
               <Upload size={14} className="mr-1" />
-              Publish
+              {t("knowledge.publish")}
             </Button>
           )}
           <Button variant="outline" size="sm" onClick={handleArchive} disabled={pending}>
             <Archive size={14} className="mr-1" />
-            Archive
+            {t("knowledge.editorArchive")}
           </Button>
           <Button size="sm" onClick={handleSave} disabled={pending}>
             <Save size={14} className="mr-1" />
-            Save
+            {t("common.save")}
           </Button>
         </div>
       </div>
@@ -296,7 +327,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
         <aside className="space-y-4 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface)] p-4">
           <div className="space-y-2">
             <label htmlFor="kb-edit-title" className="block text-sm text-[var(--shell-muted)]">
-              Title
+              {t("knowledge.title")}
             </label>
             <Input
               id="kb-edit-title"
@@ -307,20 +338,20 @@ export function KnowledgeEditor({ article: initial }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="kb-edit-category" className="block text-sm text-[var(--shell-muted)]">
-              Category
+              {t("knowledge.category")}
             </label>
             <Select
               id="kb-edit-category"
               value={category}
               onChange={setCategory}
-              placeholder="No category"
+              placeholder={t("common.noCategory")}
               options={allCategories.map((c) => ({ value: c, label: c }))}
             />
           </div>
 
           <div className="space-y-2">
             <label htmlFor="kb-edit-language" className="block text-sm text-[var(--shell-muted)]">
-              Language
+              {t("knowledge.editorLanguage")}
             </label>
             <Select
               id="kb-edit-language"
@@ -335,7 +366,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="kb-edit-priority" className="block text-sm text-[var(--shell-muted)]">
-              Priority
+              {t("knowledge.editorPriority")}
             </label>
             <Select
               id="kb-edit-priority"
@@ -349,12 +380,14 @@ export function KnowledgeEditor({ article: initial }: Props) {
           </div>
 
           <div className="space-y-2">
-            <span className="block text-sm text-[var(--shell-muted)]">Tags</span>
+            <span className="block text-sm text-[var(--shell-muted)]">
+              {t("knowledge.editorTags")}
+            </span>
             <div className="flex gap-2">
               <Input
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Add tag"
+                placeholder={t("knowledge.editorAddTag")}
                 onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
               />
               <Button type="button" variant="outline" size="sm" onClick={addTag}>
@@ -372,7 +405,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
                     type="button"
                     onClick={() => removeTag(tag)}
                     className="text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
-                    aria-label={`Remove tag ${tag}`}
+                    aria-label={formatTranslation(t("knowledge.editorRemoveTag"), { tag })}
                   >
                     <X size={10} />
                   </button>
@@ -383,15 +416,17 @@ export function KnowledgeEditor({ article: initial }: Props) {
 
           <div className="space-y-2">
             <label htmlFor="kb-keywords" className="block text-sm text-[var(--shell-muted)]">
-              Keywords (search)
+              {t("knowledge.editorKeywords")}
             </label>
             <Input
               id="kb-keywords"
               value={keywords}
               onChange={(e) => setKeywords(e.target.value)}
-              placeholder="check-in, checkout, wifi"
+              placeholder={t("knowledge.editorKeywordsPlaceholder")}
             />
-            <p className="text-xs text-[var(--shell-muted)]">Comma-separated</p>
+            <p className="text-xs text-[var(--shell-muted)]">
+              {t("knowledge.editorKeywordsHint")}
+            </p>
           </div>
         </aside>
 
@@ -408,7 +443,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
               onClick={() => setTab("edit")}
             >
               <FileText size={14} />
-              Markdown
+              {t("knowledge.previewSubtitle")}
             </button>
             <button
               type="button"
@@ -421,7 +456,7 @@ export function KnowledgeEditor({ article: initial }: Props) {
               onClick={() => setTab("preview")}
             >
               <Eye size={14} />
-              Preview
+              {t("knowledge.preview")}
             </button>
           </div>
 
@@ -430,8 +465,8 @@ export function KnowledgeEditor({ article: initial }: Props) {
               className="min-h-[480px] font-mono text-sm"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Write the article in Markdown…"
-              aria-label="Article content"
+              placeholder={t("knowledge.editorContentPlaceholder")}
+              aria-label={t("knowledge.editorContentAria")}
             />
           ) : (
             <KnowledgePreview content={content} title={title} />

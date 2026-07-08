@@ -1,9 +1,12 @@
 import type { AIAction } from "@/types/ai-action";
 import type { Conversation } from "@/types/conversation";
+import type { TranslationPath } from "@/lib/i18n/translations";
+import type { AdminLocale } from "@/lib/i18n/locales";
 import type { KnowledgeArticle } from "@/types/knowledge-article";
 import type { Lead } from "@/types/lead";
 import type { Message } from "@/types/message";
 
+import { formatAdminDateShort, formatAdminTime } from "@/lib/dashboard/format";
 import { todayIso } from "@/lib/dashboard/date";
 
 export type AIOpsKpis = {
@@ -47,7 +50,11 @@ function isActiveConversation(conversation: Conversation): boolean {
   return !["resolved", "archived"].includes(conversation.status);
 }
 
-export function formatRelativeTime(iso: string | null): string {
+export function formatRelativeTime(
+  iso: string | null,
+  t: (path: TranslationPath) => string,
+  locale: AdminLocale
+): string {
   if (!iso) return "";
 
   const date = new Date(iso);
@@ -56,18 +63,12 @@ export function formatRelativeTime(iso: string | null): string {
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
   if (diffDays === 0) {
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatAdminTime(iso, locale);
   }
 
-  if (diffDays === 1) return "Yesterday";
+  if (diffDays === 1) return t("ai.yesterday");
 
-  return date.toLocaleDateString("en-US", {
-    day: "numeric",
-    month: "short",
-  });
+  return formatAdminDateShort(date, locale);
 }
 
 export function computeAIOpsKpis(conversations: Conversation[]): AIOpsKpis {

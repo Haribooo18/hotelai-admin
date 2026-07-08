@@ -4,13 +4,14 @@ import type {
   HotelAISettings,
 } from "@/types/ai-settings";
 
+import type { AdminLocale } from "@/lib/i18n/locales";
+import { DEFAULT_ADMIN_LOCALE } from "@/lib/i18n/locales";
+import { getTranslation } from "@/lib/i18n/translations";
 import { minutesSince } from "@/lib/dashboard/date";
 
 export type SettingsSection =
-  | "general"
   | "ai"
   | "channels"
-  | "knowledge"
   | "billing"
   | "team"
   | "security"
@@ -43,7 +44,8 @@ export type SettingsOperationsSnapshot = {
 
 export function computeSettingsOpsKpis(
   settings: HotelAISettings,
-  health: AIHealthStatus
+  health: AIHealthStatus,
+  locale: AdminLocale = DEFAULT_ADMIN_LOCALE
 ): SettingsOpsKpis {
   const aiStatusPercent = !health.configured
     ? 0
@@ -51,7 +53,7 @@ export function computeSettingsOpsKpis(
       ? 100
       : 45;
 
-  const channels = buildChannelStatuses(settings, health);
+  const channels = buildChannelStatuses(settings, health, locale);
   const connectedChannels = channels.filter((channel) => channel.connected).length;
 
   let activeAutomations = 0;
@@ -83,7 +85,8 @@ export function computeSettingsOpsKpis(
 
 export function buildChannelStatuses(
   settings: HotelAISettings,
-  health: AIHealthStatus
+  health: AIHealthStatus,
+  locale: AdminLocale
 ): ChannelStatus[] {
   return [
     {
@@ -91,28 +94,28 @@ export function buildChannelStatuses(
       label: "Telegram",
       connected: health.configured && settings.enabled,
       description: health.configured
-        ? "Бот подключён через webhook"
-        : "Настройте TELEGRAM_BOT_TOKEN",
+        ? getTranslation(locale, "settings.channelsTelegramConnected")
+        : getTranslation(locale, "settings.channelsTelegramSetup"),
     },
     {
       id: "website",
       label: "Website",
       connected: health.configured,
       description: health.configured
-        ? "Виджет чата активен"
-        : "Требуется конфигурация OpenAI",
+        ? getTranslation(locale, "settings.channelsWebsiteActive")
+        : getTranslation(locale, "settings.channelsWebsiteOpenai"),
     },
     {
       id: "email",
       label: "Email",
       connected: false,
-      description: "Скоро — входящая почта для AI",
+      description: getTranslation(locale, "settings.channelsEmailSoon"),
     },
     {
       id: "whatsapp",
       label: "WhatsApp",
       connected: false,
-      description: "Скоро — Business API",
+      description: getTranslation(locale, "settings.channelsWhatsappSoon"),
     },
   ];
 }
@@ -120,31 +123,36 @@ export function buildChannelStatuses(
 export function buildSettingsOperationsSnapshot(
   health: AIHealthStatus,
   logs: AIObservabilityLog[],
-  configured: boolean
+  configured: boolean,
+  locale: AdminLocale
 ): SettingsOperationsSnapshot {
   return {
     recentActivity: logs.slice(0, 6),
     diagnostics: [
       {
-        label: "OpenAI",
-        value: configured ? "Настроен" : "Не настроен",
+        label: getTranslation(locale, "settings.diagOpenai"),
+        value: configured
+          ? getTranslation(locale, "settings.diagOpenaiConfigured")
+          : getTranslation(locale, "settings.diagOpenaiNotConfigured"),
         ok: configured,
       },
       {
-        label: "AI включён",
-        value: health.enabled ? "Да" : "Нет",
+        label: getTranslation(locale, "settings.diagAiEnabled"),
+        value: health.enabled
+          ? getTranslation(locale, "settings.diagYes")
+          : getTranslation(locale, "settings.diagNo"),
         ok: health.enabled && configured,
       },
       {
-        label: "Ошибки (24ч)",
+        label: getTranslation(locale, "settings.diagErrors24h"),
         value: String(health.recent_errors),
         ok: health.recent_errors === 0,
       },
       {
-        label: "Средняя задержка",
+        label: getTranslation(locale, "settings.diagAvgLatency"),
         value:
           health.avg_duration_ms != null
-            ? `${health.avg_duration_ms} мс`
+            ? `${health.avg_duration_ms} ms`
             : "—",
         ok: (health.avg_duration_ms ?? 0) < 5000,
       },
@@ -159,6 +167,5 @@ export function mapInitialTab(
   tab?: string
 ): SettingsSection {
   if (tab === "billing") return "billing";
-  if (tab === "appearance") return "general";
   return "ai";
 }

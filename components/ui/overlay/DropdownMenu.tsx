@@ -3,6 +3,8 @@
 import * as React from "react"
 import { Menu as MenuPrimitive } from "@base-ui/react/menu"
 
+import { dropdownContentClass, dropdownItemClass } from "@/lib/dashboard/design-system"
+import { motionPresets } from "@/lib/design/motion"
 import { cn } from "@/lib/utils"
 import { ChevronRightIcon, CheckIcon } from "lucide-react"
 
@@ -41,7 +43,7 @@ function DropdownMenuContent({
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
-          className={cn("z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] outline-none duration-[var(--ds-duration)] ease-[var(--ds-ease)] data-[side=bottom]:slide-in-from-top-1 data-[side=inline-end]:slide-in-from-left-1 data-[side=inline-start]:slide-in-from-right-1 data-[side=left]:slide-in-from-right-1 data-[side=right]:slide-in-from-left-1 data-[side=top]:slide-in-from-bottom-1 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+          className={cn("z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none data-open:animate-none data-closed:animate-none", motionPresets.dropdownEnter, dropdownContentClass, className )}
           {...props}
         />
       </MenuPrimitive.Positioner>
@@ -88,7 +90,8 @@ function DropdownMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "group/dropdown-menu-item relative flex min-h-11 cursor-default items-center gap-1.5 rounded-md px-2 py-2 text-sm outline-hidden select-none focus-visible:bg-accent focus-visible:text-accent-foreground focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)] not-data-[variant=destructive]:focus-visible:**:text-accent-foreground data-inset:pl-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus-visible:bg-destructive/10 data-[variant=destructive]:focus-visible:text-destructive dark:data-[variant=destructive]:focus-visible:bg-destructive/20 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive sm:min-h-0 sm:px-1.5 sm:py-1",
+        dropdownItemClass,
+        "data-[variant=destructive]:text-destructive data-[variant=destructive]:focus-visible:bg-destructive/10 data-[variant=destructive]:focus-visible:text-destructive dark:data-[variant=destructive]:focus-visible:bg-destructive/20 data-[variant=destructive]:*:[svg]:text-destructive",
         className
       )}
       {...props}

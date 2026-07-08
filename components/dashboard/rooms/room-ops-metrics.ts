@@ -10,6 +10,33 @@ import {
 } from "@/lib/dashboard/date";
 import { formatCurrency, formatDateShort } from "@/lib/dashboard/format";
 
+import { formatTranslation } from "@/lib/i18n";
+import type { TranslationPath } from "@/lib/i18n/translations";
+
+export type HousekeepingLabelKey =
+  | "hkOccupiedService"
+  | "hkPostCheckout"
+  | "hkPreArrival"
+  | "hkVacantReady";
+
+export function translateHousekeepingLabelKey(
+  t: (path: TranslationPath) => string,
+  key: HousekeepingLabelKey
+): string {
+  return t(`rooms.${key}`);
+}
+
+export function translateRoomFloor(
+  floorLabel: string,
+  t: (path: TranslationPath) => string
+): string {
+  const match = floorLabel.match(/^Floor (\d+)$/);
+  if (match?.[1]) {
+    return t("rooms.floorLabel").replace("{floor}", match[1]);
+  }
+  return floorLabel;
+}
+
 export type RoomOperationalStatus =
   | "available"
   | "occupied"
@@ -46,7 +73,7 @@ export type RoomCardModel = {
   currentGuest: string | null;
   activeBooking: Booking | null;
   upcomingBooking: Booking | null;
-  housekeepingLabel: string;
+  housekeepingLabelKey: HousekeepingLabelKey;
   cleaningProgress: number;
   roomCode: string;
   floorLabel: string;
@@ -194,7 +221,7 @@ function resolveRoomStatus(
   | "currentGuest"
   | "activeBooking"
   | "upcomingBooking"
-  | "housekeepingLabel"
+  | "housekeepingLabelKey"
   | "cleaningProgress"
 > {
   const roomBookings = bookings.filter((booking) => booking.room_id === room.id);
@@ -228,7 +255,7 @@ function resolveRoomStatus(
       currentGuest: activeBooking.guest_name,
       activeBooking,
       upcomingBooking,
-      housekeepingLabel: "Occupied — service after checkout",
+      housekeepingLabelKey: "hkOccupiedService",
       cleaningProgress: 0,
     };
   }
@@ -239,7 +266,7 @@ function resolveRoomStatus(
       currentGuest: null,
       activeBooking: checkoutToday,
       upcomingBooking,
-      housekeepingLabel: "Post-checkout cleaning",
+      housekeepingLabelKey: "hkPostCheckout",
       cleaningProgress: 45,
     };
   }
@@ -250,7 +277,7 @@ function resolveRoomStatus(
       currentGuest: upcomingBooking.guest_name,
       activeBooking: null,
       upcomingBooking,
-      housekeepingLabel: "Pre-arrival preparation",
+      housekeepingLabelKey: "hkPreArrival",
       cleaningProgress: 70,
     };
   }
@@ -260,7 +287,7 @@ function resolveRoomStatus(
     currentGuest: null,
     activeBooking: null,
     upcomingBooking,
-    housekeepingLabel: "Vacant ready",
+    housekeepingLabelKey: "hkVacantReady",
     cleaningProgress: 100,
   };
 }
@@ -448,9 +475,13 @@ export function extractRoomTypeOptions(rooms: Room[]): string[] {
   );
 }
 
+export type RoomTimelineItemKind = "booking" | "room_created";
+
 export type RoomTimelineItem = {
   id: string;
-  title: string;
+  kind: RoomTimelineItemKind;
+  guestName?: string;
+  bookingStatus?: string;
   subtitle: string;
   at: string;
 };
@@ -461,17 +492,44 @@ export function buildRoomTimeline(
 ): RoomTimelineItem[] {
   const items: RoomTimelineItem[] = bookings.map((booking) => ({
     id: booking.id,
-    title: `${booking.guest_name} · ${booking.status}`,
+    kind: "booking",
+    guestName: booking.guest_name,
+    bookingStatus: booking.status,
     subtitle: `${booking.check_in} — ${booking.check_out}`,
     at: booking.created_at,
   }));
 
   items.push({
     id: `room-${room.id}`,
-    title: "Room created",
+    kind: "room_created",
     subtitle: room.room_type,
     at: room.id,
   });
 
   return items.sort((a, b) => b.at.localeCompare(a.at));
+}
+
+export function translateRoomTimelineItem(
+  item: RoomTimelineItem,
+  t: (path: TranslationPath) => string
+): { title: string; subtitle: string } {
+  switch (item.kind) {
+    case "booking": {
+      const status = item.bookingStatus ?? "confirmed";
+      return {
+        title: formatTranslation(t("rooms.timelineBooking"), {
+          guest: item.guestName ?? "",
+          status: t(`statuses.booking.${status}` as "statuses.booking.confirmed"),
+        }),
+        subtitle: item.subtitle,
+      };
+    }
+    case "room_created":
+      return {
+        title: t("rooms.timelineRoomCreated"),
+        subtitle: item.subtitle,
+      };
+    default:
+      return { title: item.id, subtitle: item.subtitle };
+  }
 }

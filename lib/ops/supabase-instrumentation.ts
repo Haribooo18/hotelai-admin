@@ -29,10 +29,11 @@ function instrumentThenable(
           onRejected?: ((reason: unknown) => unknown) | null
         ) => {
           const start = Date.now();
+          const originalThen = object.then.bind(object);
 
-          return Promise.prototype.then.call(
-            object,
-            (result: { data?: unknown; error?: unknown }) => {
+          return originalThen(
+            (value: unknown) => {
+              const result = value as { data?: unknown; error?: unknown };
               const durationMs = Date.now() - start;
               const rows = Array.isArray(result?.data)
                 ? result.data.length
@@ -119,24 +120,22 @@ export function instrumentSupabaseClient(client: SupabaseClient): SupabaseClient
         return result;
       }
 
-      return Promise.prototype.then.call(
-        result,
-        (value: { data?: unknown; error?: unknown }) => {
-          opsMetrics.recordRpcLatency(fn, Date.now() - start);
-          opsMetrics.recordRepositoryQuery({
-            table: fn,
-            operation: "rpc",
-            durationMs: Date.now() - start,
-            rows: Array.isArray(value?.data)
-              ? value.data.length
-              : value?.data
-                ? 1
-                : 0,
-            error: Boolean(value?.error),
-          });
-          return value;
-        }
-      );
+      const originalThen = result.then.bind(result);
+      return originalThen((value: { data?: unknown; error?: unknown }) => {
+        opsMetrics.recordRpcLatency(fn, Date.now() - start);
+        opsMetrics.recordRepositoryQuery({
+          table: fn,
+          operation: "rpc",
+          durationMs: Date.now() - start,
+          rows: Array.isArray(value?.data)
+            ? value.data.length
+            : value?.data
+              ? 1
+              : 0,
+          error: Boolean(value?.error),
+        });
+        return value;
+      });
     },
   });
 }

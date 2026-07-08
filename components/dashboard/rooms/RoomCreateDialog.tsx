@@ -3,15 +3,10 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-
+import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 import { RoomForm } from "./RoomForm";
 import type { Room } from "@/types/room";
 
@@ -32,6 +27,7 @@ export function RoomCreateDialog({
   onOpenChange,
   buttonClassName,
 }: Props) {
+  const { t } = useI18n();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = controlledOpen ?? internalOpen;
 
@@ -41,10 +37,10 @@ export function RoomCreateDialog({
   }
 
   const title = room
-    ? "Edit Room"
+    ? t("rooms.editRoomTitle")
     : template
-      ? "Duplicate Room"
-      : "Create Room";
+      ? t("rooms.duplicateRoomTitle")
+      : t("rooms.createRoomTitle");
 
   const defaultTrigger = (
     <Button
@@ -53,31 +49,25 @@ export function RoomCreateDialog({
       className={cn(buttonClassName)}
     >
       <Plus className="h-4 w-4" />
-      {room ? "Edit" : "Add Room"}
+      {room ? t("common.edit") : t("rooms.addRoom")}
     </Button>
   );
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <>
       {trigger ? (
         <div onClick={() => setOpen(true)}>{trigger}</div>
       ) : controlledOpen === undefined ? (
         defaultTrigger
       ) : null}
 
-      <SheetContent className="sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-6">
-          <RoomForm
-            room={room}
-            template={template}
-            onSuccess={() => setOpen(false)}
-          />
-        </div>
-      </SheetContent>
-    </Sheet>
+      <WorkspaceFormDrawer open={open} onOpenChange={setOpen} title={title}>
+        <RoomForm
+          room={room}
+          template={template}
+          onSuccess={() => setOpen(false)}
+        />
+      </WorkspaceFormDrawer>
+    </>
   );
 }

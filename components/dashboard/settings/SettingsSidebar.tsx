@@ -4,7 +4,6 @@ import {
   Bot,
   CreditCard,
   Globe,
-  Palette,
   Plug,
   Settings2,
   Shield,
@@ -12,23 +11,23 @@ import {
 } from "lucide-react";
 
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { useI18n, type TranslationPath } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import { SettingsNavButton, type SettingsNavSection } from "./settings-ui";
 
 const NAV_ITEMS: Array<{
   id: SettingsNavSection;
-  label: string;
+  labelKey: TranslationPath;
   icon: typeof Bot;
 }> = [
-  { id: "ai", label: "AI", icon: Bot },
-  { id: "channels", label: "Channels", icon: Globe },
-  { id: "billing", label: "Billing", icon: CreditCard },
-  { id: "general", label: "Appearance", icon: Palette },
-  { id: "security", label: "Security", icon: Shield },
-  { id: "team", label: "Team", icon: Users },
-  { id: "integrations", label: "Integrations", icon: Plug },
-  { id: "advanced", label: "Advanced", icon: Settings2 },
+  { id: "ai", labelKey: "settings.navAi", icon: Bot },
+  { id: "channels", labelKey: "settings.navChannels", icon: Globe },
+  { id: "billing", labelKey: "settings.navBilling", icon: CreditCard },
+  { id: "security", labelKey: "settings.navSecurity", icon: Shield },
+  { id: "team", labelKey: "settings.navTeam", icon: Users },
+  { id: "integrations", labelKey: "settings.navIntegrations", icon: Plug },
+  { id: "advanced", labelKey: "settings.navAdvanced", icon: Settings2 },
 ];
 
 type Props = {
@@ -37,13 +36,15 @@ type Props = {
 };
 
 export function SettingsSidebar({ active, onChange }: Props) {
+  const { t } = useI18n();
+
   return (
     <GlassSurface
       className={cn(
-        "sticky top-[calc(var(--shell-header-height)+1rem)] p-2 shadow-[var(--shell-shadow-sm)]"
+        "sticky top-0 self-start p-2 shadow-[var(--shell-shadow-sm)]"
       )}
     >
-      <nav aria-label="Settings navigation">
+      <nav aria-label={t("a11y.settingsNav")}>
         <ul className="space-y-1" role="list">
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
@@ -65,7 +66,7 @@ export function SettingsSidebar({ active, onChange }: Props) {
                         : "text-[var(--shell-muted)]"
                     )}
                   />
-                  {item.label}
+                  {t(item.labelKey)}
                 </SettingsNavButton>
               </li>
             );

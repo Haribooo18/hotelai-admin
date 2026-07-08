@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
 import { Badge } from "@/components/ui/display/Badge";
 import { motionPresets } from "@/lib/design/motion";
+import { formatAdminTime } from "@/lib/dashboard/format";
+import { useI18n } from "@/lib/i18n";
+import type { TranslationPath } from "@/lib/i18n/translations";
 import { cn } from "@/lib/utils";
 import type { Message } from "@/types/message";
 
@@ -19,18 +22,15 @@ type Props = {
   grouped?: boolean;
 };
 
-function formatTime(iso: string) {
-  return new Date(iso).toLocaleString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function formatTime(iso: string, locale: ReturnType<typeof useI18n>["locale"]) {
+  return formatAdminTime(iso, locale);
 }
 
-const roleLabels: Record<string, string> = {
-  guest: "Guest",
-  staff: "Staff",
-  ai: "AI Assistant",
-  system: "System",
+const ROLE_KEYS: Record<string, TranslationPath> = {
+  guest: "ai.roleGuest",
+  staff: "ai.roleStaff",
+  ai: "ai.roleAi",
+  system: "ai.roleSystem",
 };
 
 function getToolMetadata(message: Message): { title: string; detail?: string } | null {
@@ -61,20 +61,22 @@ function isThinkingMessage(message: Message): boolean {
 }
 
 export function MessageBubble({ message, guestName, grouped = false }: Props) {
+  const { locale, t } = useI18n();
   const [copied, setCopied] = useState(false);
   const isOwn = message.role === "staff" || message.role === "ai";
   const isInternal = message.is_internal;
   const toolMeta = getToolMetadata(message);
   const thinking = isThinkingMessage(message);
+  const roleLabel = t(ROLE_KEYS[message.role] ?? "ai.roleSystem");
 
   async function handleCopy() {
     try {
       await navigator.clipboard.writeText(message.body);
       setCopied(true);
-      toast.success("Copied to clipboard");
+      toast.success(t("ai.copied"));
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      toast.error("Failed to copy");
+      toast.error(t("ai.copyFailed"));
     }
   }
 
@@ -107,10 +109,10 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
             {isOwn && message.role === "ai" ? (
               <Bot size={12} className="text-emerald-400" aria-hidden />
             ) : null}
-            <span>{roleLabels[message.role] ?? message.role}</span>
+            <span>{roleLabel}</span>
             {isInternal ? (
               <Badge variant="warning" className="normal-case">
-                internal
+                {t("ai.internalBadge")}
               </Badge>
             ) : null}
           </div>
@@ -137,7 +139,7 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
               "bg-[var(--shell-surface-raised)]/80 text-[var(--shell-muted)] text-[12px]"
           )}
         >
-          {thinking ? <AIThinkingBlock /> : null}
+          {thinking ? <AIThinkingBlock label={t("ai.thinking")} /> : null}
 
           <p className="whitespace-pre-wrap break-words">{message.body}</p>
 
@@ -160,7 +162,7 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
                   : "text-[var(--shell-muted)]"
               )}
             >
-              {formatTime(message.created_at)}
+              {formatTime(message.created_at, locale)}
             </time>
 
             <button
@@ -174,7 +176,7 @@ export function MessageBubble({ message, guestName, grouped = false }: Props) {
               )}
             >
               <Copy size={11} aria-hidden />
-              {copied ? "Copied" : "Copy"}
+              {copied ? t("ai.copiedShort") : t("ai.copyLabel")}
             </button>
           </div>
         </div>

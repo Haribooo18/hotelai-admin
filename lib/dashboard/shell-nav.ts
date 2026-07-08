@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BedDouble,
+  Bot,
   CalendarDays,
   FileBarChart,
   LayoutDashboard,
@@ -29,8 +30,17 @@ export const SHELL_NAV_ITEMS: ShellNavItem[] = [
   { labelKey: "nav.revenue", href: "/rates", icon: TrendingUp },
   { labelKey: "nav.reports", href: "/knowledge", icon: FileBarChart },
   { labelKey: "nav.messages", href: "/ai", icon: MessageSquare },
+  { labelKey: "nav.receptionAi", href: "/reception-ai", icon: Bot },
   { labelKey: "nav.settings", href: "/settings", icon: Settings },
 ];
+
+export const SHELL_PRIMARY_NAV_ITEMS = SHELL_NAV_ITEMS.filter(
+  (item) => item.labelKey !== "nav.settings"
+);
+
+export const SHELL_SETTINGS_NAV_ITEM = SHELL_NAV_ITEMS.find(
+  (item) => item.labelKey === "nav.settings"
+)!;
 
 export function isShellNavActive(
   pathname: string,

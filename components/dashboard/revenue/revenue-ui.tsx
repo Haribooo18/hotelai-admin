@@ -1,6 +1,8 @@
 import type { ComponentProps, ReactNode } from "react";
 
 import { todayIso } from "@/lib/dashboard/date";
+import { WorkspaceCard } from "@/components/dashboard/shared/WorkspaceCard";
+import { WorkspaceDetailRow } from "@/components/dashboard/shared/WorkspaceDetailRow";
 import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
@@ -153,19 +155,11 @@ export function RevenueWorkspaceCard({
   className,
   children,
   ...props
-}: ComponentProps<"article"> & { children: ReactNode }) {
+}: ComponentProps<typeof WorkspaceCard> & { children: ReactNode }) {
   return (
-    <article
-      className={cn(
-        "rounded-[var(--ds-radius)] bg-[var(--shell-glass)] p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
-        motionPresets.transitionBase,
-        motionPresets.hover.surfaceLift,
-        className
-      )}
-      {...props}
-    >
+    <WorkspaceCard interactive={false} className={className} {...props}>
       {children}
-    </article>
+    </WorkspaceCard>
   );
 }
 
@@ -197,10 +191,5 @@ export function RevenueDetailRow({
   label: string;
   value: string;
 }) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-[12px]">
-      <dt className="text-[var(--shell-muted)]">{label}</dt>
-      <dd className="text-right font-medium text-[var(--shell-text)]">{value}</dd>
-    </div>
-  );
+  return <WorkspaceDetailRow label={label} value={value} />;
 }

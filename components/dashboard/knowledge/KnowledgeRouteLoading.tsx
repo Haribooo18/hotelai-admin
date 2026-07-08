@@ -1,27 +1,20 @@
-import { Skeleton } from "@/components/ui/display/Skeleton";
-import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+"use client";
+
 import { Stack } from "@/components/ui/primitives/Stack";
+import { Skeleton } from "@/components/ui/display/Skeleton";
+import { useI18n } from "@/lib/i18n";
 
 export function KnowledgeRouteLoading() {
+  const { t } = useI18n();
+
   return (
-    <Stack gap="md" aria-busy="true" aria-label="Загрузка базы знаний">
-      <Skeleton className="h-8 w-56 rounded-[var(--ds-radius-sm)]" />
-      <GlassSurface className="p-[var(--ds-surface-padding)]">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-8">
-          {Array.from({ length: 8 }).map((_, index) => (
-            <div key={index} className="space-y-2 px-2 py-1">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-7 w-16" />
-            </div>
-          ))}
-        </div>
-      </GlassSurface>
-      <Skeleton className="h-14 rounded-[var(--ds-radius)]" />
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <Skeleton className="min-h-[420px] rounded-[var(--ds-radius)]" />
-        <Skeleton className="hidden min-h-[420px] rounded-[var(--ds-radius)] xl:block" />
+    <Stack gap="md" aria-busy="true" aria-label={t("knowledge.loading")}>
+      <Skeleton className="h-10 w-full max-w-xl" />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Skeleton key={index} className="h-40 w-full rounded-[var(--ds-radius)]" />
+        ))}
       </div>
-      <Skeleton className="h-48 rounded-[var(--ds-radius)]" />
     </Stack>
   );
 }

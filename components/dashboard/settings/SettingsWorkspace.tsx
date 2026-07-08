@@ -1,19 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useMemo, type ReactNode } from "react";
-import {
-  BookOpen,
-  Globe,
-  Lock,
-  Mail,
-  MessageCircle,
-  Send,
-} from "lucide-react";
+import { Globe, Lock, Mail, MessageCircle, Send } from "lucide-react";
 
 import type {
   AIHealthStatus,
-  AIObservabilityLog,
   HotelAISettings,
 } from "@/types/ai-settings";
 import type { HotelSubscription } from "@/types/subscription";
@@ -21,24 +12,24 @@ import type { HotelSubscription } from "@/types/subscription";
 import { Badge } from "@/components/ui/display/Badge";
 import { DataCard } from "@/components/ui/data/DataCard";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
+import { useI18n } from "@/lib/i18n";
+import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
-import { AIHealthPanel } from "./AIHealthPanel";
-import { AIPromptTest } from "./AIPromptTest";
 import { AISettingsForm } from "./AISettingsForm";
-import { AppearancePanel } from "./AppearancePanel";
 import { BillingPanel } from "./BillingPanel";
 import { buildChannelStatuses } from "./settings-ops-metrics";
-import type { SettingsNavSection } from "./settings-ui";
+import {
+  SettingsSectionPanel,
+  settingsSectionStackClass,
+  type SettingsNavSection,
+} from "./settings-ui";
 
 type Props = {
   section: SettingsNavSection;
   settings: HotelAISettings;
   health: AIHealthStatus;
-  logs: AIObservabilityLog[];
   configured: boolean;
   subscription: HotelSubscription | null;
   stripeConfigured: boolean;
@@ -55,83 +46,41 @@ export function SettingsWorkspace({
   section,
   settings,
   health,
-  logs,
   configured,
   subscription,
   stripeConfigured,
 }: Props) {
+  const { locale, t } = useI18n();
+
   const channels = useMemo(
-    () => buildChannelStatuses(settings, health),
-    [settings, health]
+    () => buildChannelStatuses(settings, health, locale),
+    [settings, health, locale]
   );
 
   return (
-    <GlassSurface className="min-h-[420px] overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
-      {renderSection()}
+    <GlassSurface className={workspaceSurfaceClass}>
+      <div className={settingsSectionStackClass}>{renderSection()}</div>
     </GlassSurface>
   );
 
   function renderSection() {
     switch (section) {
-      case "general":
-        return <AppearancePanel />;
       case "ai":
         return (
-          <div className="space-y-4">
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-              <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-                <Section
-                  title="AI configuration"
-                  subtitle="Prompt, model, temperature, language, and reliability"
-                />
-                <div className="mt-4">
-                  <AISettingsForm settings={settings} configured={configured} />
-                </div>
-              </Panel>
-
-              <div className="space-y-4">
-                <AIHealthPanel health={health} />
-                <AIPromptTest />
-              </div>
-            </div>
-
-            {logs.length > 0 ? (
-              <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-                <Section title="Observability log" subtitle="Recent AI events" />
-                <ul
-                  className="mt-4 max-h-64 space-y-2 overflow-y-auto text-[13px]"
-                  role="list"
-                >
-                  {logs.map((log) => (
-                    <li
-                      key={log.id}
-                      role="listitem"
-                      className="flex justify-between gap-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-3 py-2"
-                    >
-                      <span className="text-[var(--shell-text)]">
-                        <span className="text-[var(--shell-muted)]">
-                          [{log.level}]
-                        </span>{" "}
-                        {log.event}
-                      </span>
-                      <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
-                        {new Date(log.created_at).toLocaleString("ru-RU")}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </Panel>
-            ) : null}
-          </div>
+          <SettingsSectionPanel
+            title={t("settings.aiConfigTitle")}
+            subtitle={t("settings.aiConfigSubtitle")}
+          >
+            <AISettingsForm settings={settings} configured={configured} />
+          </SettingsSectionPanel>
         );
       case "channels":
         return (
-          <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-            <Section
-              title="Channels"
-              subtitle="Website, Telegram, and future channel connections"
-            />
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <SettingsSectionPanel
+            title={t("settings.channelsTitle")}
+            subtitle={t("settings.channelsSubtitle")}
+          >
+            <div className="grid gap-3 sm:grid-cols-2">
               {channels.map((channel) => {
                 const Icon =
                   CHANNEL_ICONS[channel.id as keyof typeof CHANNEL_ICONS] ??
@@ -149,7 +98,7 @@ export function SettingsWorkspace({
                     )}
                     action={
                       <Badge variant={channel.connected ? "success" : "outline"}>
-                        {channel.connected ? "Connected" : "Pending"}
+                        {channel.connected ? t("common.connected") : t("common.pending")}
                       </Badge>
                     }
                   >
@@ -158,11 +107,8 @@ export function SettingsWorkspace({
                         <Icon size={18} aria-hidden />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[12px] text-[var(--shell-muted)]">
-                          Health: {channel.connected ? "Healthy" : "Needs setup"}
-                        </p>
-                        <p className="mt-1 text-[12px] text-[var(--shell-text)]">
-                          Configuration managed in environment and AI settings.
+                        <p className="text-[12px] text-[var(--shell-text)]">
+                          {t("settings.channelsConfigHint")}
                         </p>
                       </div>
                     </div>
@@ -170,83 +116,52 @@ export function SettingsWorkspace({
                 );
               })}
             </div>
-          </Panel>
-        );
-      case "knowledge":
-        return (
-          <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-            <Section title="Knowledge base" subtitle="Articles for AI reception" />
-            <p className="mt-4 text-[13px] leading-relaxed text-[var(--shell-muted)]">
-              Manage articles, categories, and indexing in the dedicated knowledge
-              workspace.
-            </p>
-            <Link
-              href="/knowledge"
-              className="mt-4 inline-flex items-center gap-2 rounded-[var(--ds-radius-sm)] bg-emerald-600 px-4 py-2 text-[13px] font-medium text-white transition-[background-color] duration-[var(--ds-duration)] hover:bg-emerald-500"
-            >
-              <BookOpen size={15} aria-hidden />
-              Open knowledge workspace
-            </Link>
-          </Panel>
+          </SettingsSectionPanel>
         );
       case "billing":
         return (
-          <div className="space-y-4">
-            <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-              <Section
-                title="Billing"
-                subtitle="Subscription, usage, invoices, payments, plan, and limits"
-              />
-              <div className="mt-4">
-                <BillingPanel
-                  subscription={subscription}
-                  stripeConfigured={stripeConfigured}
-                  health={health}
-                />
-              </div>
-            </Panel>
-          </div>
+          <SettingsSectionPanel
+            title={t("settings.billingTitle")}
+            subtitle={t("settings.billingSubtitle")}
+          >
+            <BillingPanel
+              subscription={subscription}
+              stripeConfigured={stripeConfigured}
+            />
+          </SettingsSectionPanel>
         );
       case "team":
         return (
-          <PlaceholderPanel title="Team" subtitle="Members and roles" />
+          <PlaceholderPanel
+            title={t("settings.teamTitle")}
+            subtitle={t("settings.teamSubtitle")}
+            hint={t("settings.placeholderHint")}
+          />
         );
       case "security":
         return (
           <PlaceholderPanel
-            title="Security"
-            subtitle="Access control and audit"
+            title={t("settings.securityTitle")}
+            subtitle={t("settings.securitySubtitle")}
+            hint={t("settings.placeholderHint")}
             icon={<Lock size={18} />}
           />
         );
       case "integrations":
         return (
           <PlaceholderPanel
-            title="Integrations"
-            subtitle="External services and API connections"
+            title={t("settings.integrationsTitle")}
+            subtitle={t("settings.integrationsSubtitle")}
+            hint={t("settings.placeholderHint")}
           />
         );
       case "advanced":
         return (
-          <div className="space-y-4">
-            <PlaceholderPanel
-              title="Advanced"
-              subtitle="Developer and experimental controls"
-            />
-            <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-              <Section title="Knowledge workspace" subtitle="Linked module" />
-              <p className="mt-3 text-[13px] text-[var(--shell-muted)]">
-                Knowledge indexing quality affects AI answer accuracy.
-              </p>
-              <Link
-                href="/knowledge"
-                className="mt-4 inline-flex items-center gap-2 rounded-[var(--ds-radius-sm)] border border-[var(--shell-border)] px-4 py-2 text-[13px] font-medium text-[var(--shell-text)] transition-[background-color] duration-[var(--ds-duration)] hover:bg-[var(--shell-surface-raised)]"
-              >
-                <BookOpen size={15} aria-hidden />
-                Open knowledge
-              </Link>
-            </Panel>
-          </div>
+          <PlaceholderPanel
+            title={t("settings.advancedTitle")}
+            subtitle={t("settings.advancedSubtitle")}
+            hint={t("settings.placeholderHint")}
+          />
         );
       default:
         return null;
@@ -257,22 +172,20 @@ export function SettingsWorkspace({
 function PlaceholderPanel({
   title,
   subtitle,
+  hint,
   icon,
 }: {
   title: string;
   subtitle: string;
+  hint: string;
   icon?: ReactNode;
 }) {
   return (
-    <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-      <Section title={title} subtitle={subtitle} />
-      <div className="mt-4 flex items-center gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-4 py-6">
+    <SettingsSectionPanel title={title} subtitle={subtitle}>
+      <div className="flex items-center gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-3 py-4">
         {icon}
-        <p className="text-[13px] text-[var(--shell-muted)]">
-          This section is under development. Extended configuration will appear
-          here soon.
-        </p>
+        <p className="text-[13px] text-[var(--shell-muted)]">{hint}</p>
       </div>
-    </Panel>
+    </SettingsSectionPanel>
   );
 }

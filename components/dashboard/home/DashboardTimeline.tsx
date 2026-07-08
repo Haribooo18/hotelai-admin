@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Bell,
   Brush,
@@ -9,6 +11,7 @@ import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { Surface } from "@/components/ui/primitives/Surface";
 import { Section } from "@/components/ui/primitives/Section";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import type { TimelineItem } from "./dashboard-metrics";
@@ -44,6 +47,7 @@ export function DashboardTimeline({
   loading,
   searchQuery = "",
 }: Props) {
+  const { t } = useI18n();
   const filteredItems = items.filter((item) =>
     matchesDashboardSearch(searchQuery, [item.title, item.subtitle, item.time])
   );
@@ -51,20 +55,24 @@ export function DashboardTimeline({
   return (
     <Surface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
       <Section
-        title="Reservation timeline"
-        subtitle="Today's check-ins, departures, and housekeeping"
+        title={t("dashboard.timelineTitle")}
+        subtitle={t("dashboard.timelineSubtitle")}
       />
 
       {loading ? (
         <SkeletonGroup />
       ) : filteredItems.length === 0 ? (
         <EmptyState
-          title="All quiet for today"
-          description="When check-ins, check-outs, or new requests appear, they will show up in this feed."
+          title={t("dashboard.timelineAllQuiet")}
+          description={t("dashboard.timelineAllQuietDesc")}
           icon={<CalendarCheck size={18} />}
         />
       ) : (
-        <div className="space-y-2" role="list" aria-label="Reservation timeline">
+        <div
+          className="space-y-2"
+          role="list"
+          aria-label={t("dashboard.timelineAriaLabel")}
+        >
           {filteredItems.map((item) => {
             const meta = KIND_META[item.kind];
             const Icon = meta.icon;

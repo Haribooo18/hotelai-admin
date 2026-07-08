@@ -14,17 +14,22 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/core/Button";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/overlay/Drawer";
+  WorkspaceInspectorDrawer,
+  WorkspaceOverlayActions,
+} from "@/components/dashboard/shared/WorkspaceOverlay";
+import { DrawerTitle } from "@/components/ui/overlay/Drawer";
 import { Metric } from "@/components/ui/display/Metric";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Scrollable } from "@/components/ui/primitives/Scrollable";
 import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { motionPresets } from "@/lib/design/motion";
+import {
+  cardPaddingClass,
+  drawerBadgeRowClass,
+  drawerSubtitleClass,
+  overlayDangerButtonClass,
+} from "@/lib/dashboard/design-system";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import {
   duplicateKnowledgeArticle,
@@ -59,6 +64,7 @@ export function KnowledgeDetailDrawer({
   allModels,
   onEdit,
 }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -81,13 +87,17 @@ export function KnowledgeDetailDrawer({
       try {
         if (article.status === "published") {
           await unpublishKnowledgeArticle(article.id);
-          notify("Статья снята с публикации");
+          notify(t("knowledge.unpublishSuccess"));
         } else {
           await publishKnowledgeArticle(article.id);
-          notify("Статья опубликована");
+          notify(t("knowledge.publishSuccess"));
         }
-      } catch {
-        toast.error("Не удалось изменить статус публикации");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("errors.statusChangeFailed")
+        );
       }
     });
   }
@@ -96,17 +106,21 @@ export function KnowledgeDetailDrawer({
     startTransition(async () => {
       try {
         const id = await duplicateKnowledgeArticle(article.id);
-        toast.success("Копия статьи создана");
+        toast.success(t("knowledge.duplicateSuccess"));
         router.push(`/knowledge/${id}`);
-      } catch {
-        toast.error("Не удалось дублировать статью");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("errors.duplicateFailed")
+        );
       }
     });
   }
 
   function handleRegenerateEmbedding() {
     startTransition(() => {
-      toast.success("Запрос на переиндексацию отправлен");
+      toast.success(t("errors.reindexSent"));
       router.refresh();
     });
   }
@@ -118,11 +132,15 @@ export function KnowledgeDetailDrawer({
           "@/lib/services/knowledge.mutations"
         );
         await deleteKnowledgeArticle(article.id);
-        toast.success("Статья удалена");
+        toast.success(t("knowledge.deleteSuccess"));
         onOpenChange(false);
         router.refresh();
-      } catch {
-        toast.error("Не удалось удалить статью");
+      } catch (error) {
+        toast.error(
+          error instanceof Error && error.message
+            ? localizeErrorWithT(t, error.message)
+            : t("errors.deleteFailed")
+        );
       } finally {
         setDeleteOpen(false);
       }
@@ -131,100 +149,174 @@ export function KnowledgeDetailDrawer({
 
   return (
     <>
-      <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent
-          side="right"
-          className="w-full gap-0 overflow-hidden border-0 bg-[var(--shell-content)] p-0 sm:max-w-xl"
-        >
-          <DrawerHeader className="border-b border-[var(--shell-border)]/70 px-6 py-5">
-            <div className="flex items-start gap-4">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)]">
-                <Sparkles size={20} aria-hidden />
-              </div>
-              <div className="min-w-0 flex-1 text-left">
-                <DrawerTitle className="text-[18px] font-semibold tracking-[-0.02em]">
-                  {article.title}
-                </DrawerTitle>
-                <p className="mt-1 text-[13px] text-[var(--shell-muted)]">
-                  {article.category ?? "Без категории"}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <KnowledgeStatusBadge status={article.status} />
-                  <AiReadyBadge ready={model.aiReady} />
-                </div>
+      <WorkspaceInspectorDrawer
+        open={open}
+        onOpenChange={onOpenChange}
+        header={
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)]">
+              <Sparkles size={20} aria-hidden />
+            </div>
+            <div className="min-w-0 flex-1 text-left">
+              <DrawerTitle>{article.title}</DrawerTitle>
+              <p className={drawerSubtitleClass}>
+                {article.category ?? t("common.noCategory")}
+              </p>
+              <div className={drawerBadgeRowClass}>
+                <KnowledgeStatusBadge status={article.status} />
+                <AiReadyBadge ready={model.aiReady} />
               </div>
             </div>
-          </DrawerHeader>
-
-          <Scrollable className="flex-1 px-6 py-5">
+          </div>
+        }
+        footer={
+          <WorkspaceOverlayActions>
+            <Button
+              type="button"
+              size="sm"
+              onClick={onEdit}
+              disabled={pending}
+              className="gap-2"
+            >
+              <Pencil size={15} aria-hidden />
+              {t("common.edit")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePublishToggle}
+              disabled={pending}
+              className="gap-2"
+            >
+              <Bot size={15} aria-hidden />
+              {article.status === "published"
+                ? t("knowledge.unpublish")
+                : t("knowledge.publish")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleDuplicate}
+              disabled={pending}
+              className="gap-2"
+            >
+              <Copy size={15} aria-hidden />
+              {t("common.duplicate")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleRegenerateEmbedding}
+              disabled={pending}
+              className="gap-2"
+            >
+              <RefreshCw size={15} aria-hidden />
+              {t("knowledge.reindex")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setDeleteOpen(true)}
+              disabled={pending}
+              className={overlayDangerButtonClass}
+            >
+              <Trash2 size={15} aria-hidden />
+              {t("common.delete")}
+            </Button>
+          </WorkspaceOverlayActions>
+        }
+      >
             <Stack gap="sm">
-              <Panel variant="glass" className="p-4">
-                <Section title="Метаданные" subtitle="Статья" />
+              <Panel variant="glass" className={cardPaddingClass}>
+                <Section
+                  title={t("knowledge.metadata")}
+                  subtitle={t("knowledge.metadataSubtitle")}
+                />
                 <dl className="mt-3 grid gap-2">
-                  <KnowledgeDetailRow label="Название" value={article.title} />
+                  <KnowledgeDetailRow label={t("knowledge.title")} value={article.title} />
                   <KnowledgeDetailRow
-                    label="Категория"
+                    label={t("knowledge.category")}
                     value={article.category ?? "—"}
                   />
-                  <KnowledgeDetailRow label="Статус" value={article.status} />
-                  <KnowledgeDetailRow label="Автор" value={model.authorLabel} />
                   <KnowledgeDetailRow
-                    label="Создано"
+                    label={t("knowledge.status")}
+                    value={t(`statuses.knowledge.${article.status}`)}
+                  />
+                  <KnowledgeDetailRow label={t("knowledge.author")} value={model.authorLabel} />
+                  <KnowledgeDetailRow
+                    label={t("knowledge.created")}
                     value={formatKnowledgeDate(article.created_at)}
                   />
                   <KnowledgeDetailRow
-                    label="Обновлено"
+                    label={t("knowledge.updated")}
                     value={formatKnowledgeDate(article.updated_at)}
                   />
                 </dl>
               </Panel>
 
-              <Panel variant="glass" className="p-4">
-                <Section title="Предпросмотр" subtitle="Markdown" />
+              <Panel variant="glass" className={cardPaddingClass}>
+                <Section
+                  title={t("knowledge.preview")}
+                  subtitle={t("knowledge.previewSubtitle")}
+                />
                 <div className="mt-3 max-h-48 overflow-y-auto rounded-[var(--ds-radius-sm)] border border-[var(--shell-border)]/60">
                   <KnowledgePreview content={article.content} />
                 </div>
                 <dl className="mt-3 grid gap-2">
                   <KnowledgeDetailRow
-                    label="Токены (оценка)"
+                    label={t("knowledge.tokensEstimate")}
                     value={String(model.estimatedTokens)}
                   />
                   <KnowledgeDetailRow
-                    label="Качество AI"
+                    label={t("knowledge.aiQuality")}
                     value={`${model.qualityScore}%`}
                   />
                   <KnowledgeDetailRow
-                    label="Время чтения"
-                    value={`${model.readingMinutes} мин`}
+                    label={t("knowledge.readingTime")}
+                    value={`${model.readingMinutes} ${t("common.minutes")}`}
                   />
                 </dl>
               </Panel>
 
-              <Panel variant="glass" className="p-4">
-                <Section title="AI-индексация" subtitle="Embeddings" />
+              <Panel variant="glass" className={cardPaddingClass}>
+                <Section
+                  title={t("knowledge.aiIndexing")}
+                  subtitle={t("knowledge.aiIndexingSubtitle")}
+                />
                 <dl className="mt-3 grid gap-2">
                   <KnowledgeDetailRow
-                    label="Проиндексировано"
-                    value={model.aiReady ? "Да" : "Нет"}
+                    label={t("knowledge.indexed")}
+                    value={model.aiReady ? t("common.yes") : t("common.no")}
                   />
                   <KnowledgeDetailRow
-                    label="Статус эмбеддинга"
-                    value={model.aiReady ? "Активен" : "Ожидает"}
+                    label={t("knowledge.embeddingStatus")}
+                    value={
+                      model.aiReady
+                        ? t("knowledge.embeddingActive")
+                        : t("knowledge.embeddingAwaiting")
+                    }
                   />
                   <KnowledgeDetailRow
-                    label="Последняя синхронизация"
+                    label={t("knowledge.lastSync")}
                     value={formatKnowledgeDate(article.updated_at)}
                   />
                   <KnowledgeDetailRow
-                    label="Частота использования"
+                    label={t("knowledge.usageFrequency")}
                     value={String(model.usageCount)}
                   />
                 </dl>
               </Panel>
 
               {related.length > 0 ? (
-                <Panel variant="glass" className="p-4">
-                  <Section title="Похожие статьи" subtitle="Related articles" />
+                <Panel variant="glass" className={cardPaddingClass}>
+                  <Section
+                    title={t("knowledge.relatedArticles")}
+                    subtitle={t("knowledge.relatedSubtitle")}
+                  />
                   <ul className="mt-3 space-y-2" role="list">
                     {related.map((item) => (
                       <li
@@ -242,8 +334,11 @@ export function KnowledgeDetailDrawer({
                 </Panel>
               ) : null}
 
-              <Panel variant="glass" className="p-4">
-                <Section title="История" subtitle="Версии" />
+              <Panel variant="glass" className={cardPaddingClass}>
+                <Section
+                  title={t("knowledge.history")}
+                  subtitle={t("knowledge.historySubtitle")}
+                />
                 <ul className="mt-3 space-y-2" role="list">
                   {revisions.map((item) => (
                     <li
@@ -262,80 +357,20 @@ export function KnowledgeDetailDrawer({
                 </ul>
               </Panel>
 
-              <Panel variant="glass" className="p-4">
-                <Section title="Использование" subtitle="AI retrieval" />
+              <Panel variant="glass" className={cardPaddingClass}>
+                <Section
+                  title={t("knowledge.usageSection")}
+                  subtitle={t("knowledge.usageSectionSubtitle")}
+                />
                 <p className="mt-3 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
                   <Metric value={model.usageCount} />
                 </p>
                 <p className="mt-1 text-[12px] text-[var(--shell-muted)]">
-                  обращений к статье через AI-ресепшен
+                  {t("knowledge.usageRetrieval")}
                 </p>
               </Panel>
             </Stack>
-          </Scrollable>
-
-          <div className="border-t border-[var(--shell-border)]/70 px-6 py-4">
-            <div className="flex flex-wrap gap-2">
-              <Button
-                type="button"
-                size="sm"
-                onClick={onEdit}
-                disabled={pending}
-                className="gap-2"
-              >
-                <Pencil size={15} aria-hidden />
-                Редактировать
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handlePublishToggle}
-                disabled={pending}
-                className="gap-2"
-              >
-                <Bot size={15} aria-hidden />
-                {article.status === "published"
-                  ? "Снять с публикации"
-                  : "Опубликовать"}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleDuplicate}
-                disabled={pending}
-                className="gap-2"
-              >
-                <Copy size={15} aria-hidden />
-                Дублировать
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={handleRegenerateEmbedding}
-                disabled={pending}
-                className="gap-2"
-              >
-                <RefreshCw size={15} aria-hidden />
-                Переиндексировать
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setDeleteOpen(true)}
-                disabled={pending}
-                className="gap-2 text-red-400 hover:text-red-300"
-              >
-                <Trash2 size={15} aria-hidden />
-                Удалить
-              </Button>
-            </div>
-          </div>
-        </DrawerContent>
-      </Drawer>
+      </WorkspaceInspectorDrawer>
 
       <KnowledgeDeleteDialog
         article={article}

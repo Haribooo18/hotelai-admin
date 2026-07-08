@@ -2,7 +2,7 @@
 
 import * as React from "react";
 
-import { inputClass } from "@/lib/dashboard/design-system";
+import { selectClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 type Option = {
@@ -44,7 +44,7 @@ export function Select({
       aria-invalid={ariaInvalid}
       aria-describedby={ariaDescribedby}
       onChange={(e) => onChange(e.target.value)}
-      className={cn(inputClass, "md:text-[13px]", className)}
+      className={cn(selectClass, className)}
     >
       <option value="">{placeholder}</option>
 
@@ -91,11 +91,7 @@ export function MultiSelect({
         );
         onChange(selected);
       }}
-      className={cn(
-        inputClass,
-        "min-h-24 py-2 md:text-[13px]",
-        className
-      )}
+      className={cn(selectClass, "min-h-24 py-2", className)}
     >
       {options.length === 0 ? (
         <option disabled value="">

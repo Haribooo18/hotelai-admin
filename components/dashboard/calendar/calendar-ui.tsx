@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 
+import { WorkspaceDetailRow } from "@/components/dashboard/shared/WorkspaceDetailRow";
 import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
@@ -59,10 +60,5 @@ export function CalendarDetailRow({
   label: string;
   value: string;
 }) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-[12px]">
-      <dt className="text-[var(--shell-muted)]">{label}</dt>
-      <dd className="text-right font-medium text-[var(--shell-text)]">{value}</dd>
-    </div>
-  );
+  return <WorkspaceDetailRow label={label} value={value} />;
 }

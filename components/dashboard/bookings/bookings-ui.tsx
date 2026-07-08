@@ -1,5 +1,6 @@
 import type { ComponentProps, ReactNode } from "react";
 
+import { WorkspaceCard } from "@/components/dashboard/shared/WorkspaceCard";
 import { Divider } from "@/components/ui/primitives/Divider";
 import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
@@ -33,25 +34,14 @@ export function BookingWorkspaceCard({
   className,
   children,
   ...props
-}: ComponentProps<"article"> & {
+}: ComponentProps<typeof WorkspaceCard> & {
   selected?: boolean;
   children: ReactNode;
 }) {
   return (
-    <article
-      className={cn(
-        "group cursor-pointer rounded-[var(--ds-radius)] bg-[var(--shell-glass)] p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)] backdrop-blur-xl",
-        motionPresets.transitionBase,
-        motionPresets.hover.surfaceLift,
-        "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]",
-        selected &&
-          "ring-1 ring-[var(--shell-accent)]/30 shadow-[var(--shell-shadow-md)]",
-        className
-      )}
-      {...props}
-    >
+    <WorkspaceCard selected={selected} className={className} {...props}>
       {children}
-    </article>
+    </WorkspaceCard>
   );
 }
 
@@ -84,9 +74,7 @@ export function BookingTimelineSeparator({ label }: { label: string }) {
       aria-label={label}
     >
       <Divider className="flex-1 bg-[var(--shell-border)]/60" />
-      <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[var(--shell-muted)]">
-        {label}
-      </span>
+      <span className="ds-overline">{label}</span>
       <Divider className="flex-1 bg-[var(--shell-border)]/60" />
     </div>
   );

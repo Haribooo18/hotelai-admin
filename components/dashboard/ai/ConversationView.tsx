@@ -11,6 +11,8 @@ import { markConversationRead } from "@/lib/services/ai.mutations";
 import { Button } from "@/components/ui/core/Button";
 import { Scrollable } from "@/components/ui/primitives/Scrollable";
 import { Surface } from "@/components/ui/primitives/Surface";
+import { formatAdminWeekdayDate } from "@/lib/dashboard/format";
+import { useI18n } from "@/lib/i18n";
 
 import { ConversationHeader } from "./ConversationHeader";
 import { MessageBubble } from "./MessageBubble";
@@ -28,21 +30,21 @@ type Props = {
   showBack?: boolean;
 };
 
-function dayLabel(iso: string): string {
+function dayLabel(
+  iso: string,
+  t: ReturnType<typeof useI18n>["t"],
+  locale: ReturnType<typeof useI18n>["locale"]
+): string {
   const date = new Date(iso);
   const today = new Date();
   const yesterday = new Date();
   yesterday.setDate(today.getDate() - 1);
 
   const dateKey = date.toDateString();
-  if (dateKey === today.toDateString()) return "Today";
-  if (dateKey === yesterday.toDateString()) return "Yesterday";
+  if (dateKey === today.toDateString()) return t("calendar.today");
+  if (dateKey === yesterday.toDateString()) return t("ai.yesterday");
 
-  return date.toLocaleDateString("en-US", {
-    weekday: "long",
-    day: "numeric",
-    month: "short",
-  });
+  return formatAdminWeekdayDate(date, locale);
 }
 
 export function ConversationView({
@@ -53,6 +55,7 @@ export function ConversationView({
   onBack,
   showBack = false,
 }: Props) {
+  const { locale, t } = useI18n();
   const router = useRouter();
   const bottomRef = useRef<HTMLDivElement>(null);
   const [, startTransition] = useTransition();
@@ -87,7 +90,7 @@ export function ConversationView({
     const groups: Array<{ day: string; messages: Message[] }> = [];
 
     for (const message of visibleMessages) {
-      const day = dayLabel(message.created_at);
+      const day = dayLabel(message.created_at, t, locale);
       const last = groups[groups.length - 1];
       if (!last || last.day !== day) {
         groups.push({ day, messages: [message] });
@@ -97,7 +100,7 @@ export function ConversationView({
     }
 
     return groups;
-  }, [visibleMessages]);
+  }, [visibleMessages, t, locale]);
 
   return (
     <Surface
@@ -114,7 +117,7 @@ export function ConversationView({
             className="min-h-11 justify-start gap-2 px-2 text-[var(--shell-muted)]"
           >
             <ArrowLeft size={16} aria-hidden />
-            Back to inbox
+            {t("ai.backToInbox")}
           </Button>
         </div>
       ) : null}
@@ -136,14 +139,14 @@ export function ConversationView({
       <div
         className="flex min-h-0 flex-1 flex-col"
         role="log"
-        aria-label="Messages"
+        aria-label={t("ai.messagesAria")}
         aria-live="polite"
       >
         <Scrollable className="flex-1 px-4 py-4">
           <div className="space-y-4">
             {visibleMessages.length === 0 ? (
               <p className="py-12 text-center text-[13px] text-[var(--shell-muted)]">
-                No messages yet. Start the conversation below.
+                {t("ai.noMessagesStart")}
               </p>
             ) : (
               timeline.map((group) => (

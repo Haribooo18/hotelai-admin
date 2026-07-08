@@ -1,13 +1,11 @@
 "use client";
 
-import { Settings } from "lucide-react";
-
 import { Badge } from "@/components/ui/display/Badge";
 import { Metric } from "@/components/ui/display/Metric";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Section } from "@/components/ui/primitives/Section";
 import { formatPercent } from "@/lib/dashboard/format";
+import { useI18n, type TranslationPath } from "@/lib/i18n";
 
 import {
   buildChannelStatuses,
@@ -36,16 +34,14 @@ type Props = {
   configured: boolean;
 };
 
-const SECTION_LABELS: Record<SettingsNavSection, string> = {
-  general: "Appearance",
-  ai: "AI",
-  channels: "Channels",
-  knowledge: "Knowledge",
-  billing: "Billing",
-  team: "Team",
-  security: "Security",
-  integrations: "Integrations",
-  advanced: "Advanced",
+const SECTION_LABEL_KEYS: Record<SettingsNavSection, TranslationPath> = {
+  ai: "settings.navAi",
+  channels: "settings.navChannels",
+  billing: "settings.navBilling",
+  team: "settings.navTeam",
+  security: "settings.navSecurity",
+  integrations: "settings.navIntegrations",
+  advanced: "settings.navAdvanced",
 };
 
 export function SettingsInspector({
@@ -56,51 +52,54 @@ export function SettingsInspector({
   subscription,
   configured,
 }: Props) {
-  const kpis = computeSettingsOpsKpis(settings, health);
-  const channels = buildChannelStatuses(settings, health);
+  const { locale, t } = useI18n();
+  const kpis = computeSettingsOpsKpis(settings, health, locale);
+  const channels = buildChannelStatuses(settings, health, locale);
   const connectedChannels = channels.filter((channel) => channel.connected).length;
   const warnings = snapshot.diagnostics.filter((item) => !item.ok);
 
   return (
     <Panel variant="glass" className="h-full p-[var(--ds-surface-padding)]">
       <Section
-        title="Inspector"
-        subtitle={SECTION_LABELS[section]}
+        title={t("settings.inspectorTitle")}
+        subtitle={t(SECTION_LABEL_KEYS[section])}
       />
 
       <div className="mt-4 flex flex-wrap gap-2">
         <Badge variant={configured ? "success" : "warning"}>
-          {configured ? "API configured" : "API missing"}
+          {configured
+            ? t("settings.inspectorApiConfigured")
+            : t("settings.inspectorApiMissing")}
         </Badge>
         <Badge variant={health.enabled ? "success" : "outline"}>
-          {health.enabled ? "AI enabled" : "AI disabled"}
+          {health.enabled
+            ? t("settings.inspectorAiEnabled")
+            : t("settings.inspectorAiDisabled")}
         </Badge>
       </div>
 
       <dl className="mt-4 grid gap-2">
         <SettingsDetailRow
-          label="AI status"
+          label={t("settings.inspectorAiStatus")}
           value={formatPercent(kpis.aiStatusPercent)}
         />
         <SettingsDetailRow
-          label="Connected channels"
+          label={t("settings.inspectorConnectedChannels")}
           value={String(connectedChannels)}
         />
         <SettingsDetailRow
-          label="Requests (24h)"
+          label={t("settings.inspectorRequests24h")}
           value={String(health.recent_requests)}
         />
         <SettingsDetailRow
-          label="Environment"
+          label={t("settings.inspectorEnvironment")}
           value={snapshot.environment}
         />
       </dl>
 
       {section === "ai" ? (
         <div className="mt-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 px-3 py-3">
-          <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-            Token usage (24h)
-          </p>
+          <p className="ds-overline">{t("settings.inspectorTokenUsage24h")}</p>
           <p className="mt-2 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
             <Metric
               value={health.total_cost_usd_24h}
@@ -108,7 +107,7 @@ export function SettingsInspector({
             />
           </p>
           <p className="mt-1 text-[12px] text-[var(--shell-muted)]">
-            Model: {health.model}
+            {t("settings.inspectorModel")}: {health.model}
           </p>
         </div>
       ) : null}
@@ -116,13 +115,15 @@ export function SettingsInspector({
       {section === "billing" ? (
         <dl className="mt-4 grid gap-2">
           <SettingsDetailRow
-            label="Plan"
+            label={t("settings.inspectorPlan")}
             value={
-              subscription ? formatPlanLabel(subscription.plan) : "Not selected"
+              subscription
+                ? formatPlanLabel(subscription.plan)
+                : t("settings.inspectorNotSelected")
             }
           />
           <SettingsDetailRow
-            label="Status"
+            label={t("settings.inspectorStatus")}
             value={formatSubscriptionStatusLabel(subscription?.status ?? "none")}
           />
         </dl>
@@ -138,7 +139,7 @@ export function SettingsInspector({
             >
               <span className="text-[var(--shell-text)]">{channel.label}</span>
               <Badge variant={channel.connected ? "success" : "outline"}>
-                {channel.connected ? "Connected" : "Pending"}
+                {channel.connected ? t("common.connected") : t("common.pending")}
               </Badge>
             </li>
           ))}
@@ -147,23 +148,19 @@ export function SettingsInspector({
 
       {warnings.length > 0 ? (
         <div className="mt-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-            Warnings
-          </p>
+          <p className="ds-overline">{t("settings.inspectorWarnings")}</p>
           <ul className="mt-2 space-y-1.5 text-[12px] text-amber-400">
             {warnings.map((item) => (
-              <li key={item.label}>{item.label}: {item.value}</li>
+              <li key={item.label}>
+                {item.label}: {item.value}
+              </li>
             ))}
           </ul>
         </div>
       ) : (
-        <div className="mt-4">
-          <EmptyState
-            title="No active warnings"
-            description="System checks are passing for the current configuration."
-            icon={<Settings size={16} />}
-          />
-        </div>
+        <p className="mt-4 text-[12px] text-[var(--shell-muted)]">
+          {t("settings.inspectorAllChecksPassing")}
+        </p>
       )}
     </Panel>
   );

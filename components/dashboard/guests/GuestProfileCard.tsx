@@ -1,7 +1,10 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Mail, MapPin, Phone } from "lucide-react";
 
 import type { Guest } from "@/types/guest";
+import { useI18n } from "@/lib/i18n";
 
 import { GuestAvatar } from "./GuestAvatar";
 import { GuestTags } from "./GuestTags";
@@ -12,6 +15,7 @@ type Props = {
 };
 
 export function GuestProfileCard({ guest, actions }: Props) {
+  const { t } = useI18n();
   const location = [guest.city, guest.country].filter(Boolean).join(", ");
 
   return (
@@ -44,15 +48,15 @@ export function GuestProfileCard({ guest, actions }: Props) {
       </div>
 
       <dl className="mt-6 grid gap-4 sm:grid-cols-3">
-        <ContactItem icon={<Mail size={16} />} label="Email">
+        <ContactItem icon={<Mail size={16} />} label={t("login.email")}>
           {guest.email ?? "—"}
         </ContactItem>
 
-        <ContactItem icon={<Phone size={16} />} label="Phone">
+        <ContactItem icon={<Phone size={16} />} label={t("bookings.formPhone")}>
           {guest.phone ?? "—"}
         </ContactItem>
 
-        <ContactItem icon={<MapPin size={16} />} label="Location">
+        <ContactItem icon={<MapPin size={16} />} label={t("guests.location")}>
           {location || "—"}
         </ContactItem>
       </dl>
@@ -60,7 +64,7 @@ export function GuestProfileCard({ guest, actions }: Props) {
       {guest.notes && (
         <div className="mt-6 rounded-[var(--ds-radius)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4">
           <p className="text-xs uppercase tracking-widest text-[var(--shell-muted)]">
-            Notes
+            {t("guests.noNotes")}
           </p>
           <p className="mt-2 whitespace-pre-wrap text-sm text-[var(--shell-text)]">
             {guest.notes}

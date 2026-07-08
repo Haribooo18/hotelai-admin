@@ -2,13 +2,16 @@
 
 import { Download, LineChart } from "lucide-react";
 
+import { motionPresets } from "@/lib/design/motion";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/core/Button";
 import { Badge } from "@/components/ui/display/Badge";
 import { Metric } from "@/components/ui/display/Metric";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Section } from "@/components/ui/primitives/Section";
-import { formatPercent } from "@/lib/dashboard/format";
+import { formatPercent, formatNightsCount } from "@/lib/dashboard/format";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 import {
   computeDisplayForecastTotal,
@@ -44,15 +47,17 @@ export function RevenueInspector({
   exporting,
   onExport,
 }: Props) {
+  const { t } = useI18n();
   const forecastTotal = computeDisplayForecastTotal(forecast);
   const growth = computeDisplayGrowth(trend);
   const periodRevenue = trend.reduce((sum, point) => sum + point.revenue, 0);
+  const growthLabel = `${growth >= 0 ? "+" : ""}${growth}%`;
 
   return (
-    <Panel variant="glass" className="h-full p-[var(--ds-surface-padding)]">
+    <Panel variant="glass" className={cn("h-full p-[var(--ds-surface-padding)]", motionPresets.inspector)}>
       <Section
-        title="Inspector"
-        subtitle="Revenue summary and RPC snapshot"
+        title={t("revenue.inspectorTitle")}
+        subtitle={t("revenue.inspectorSubtitle")}
         action={
           <Button
             type="button"
@@ -64,63 +69,63 @@ export function RevenueInspector({
             className="gap-1.5"
           >
             <Download size={14} aria-hidden />
-            Export
+            {t("common.export")}
           </Button>
         }
       />
 
       <div className="mt-4 flex flex-wrap gap-2">
         <Badge variant={useServerSnapshot ? "success" : "outline"}>
-          {useServerSnapshot ? "RPC snapshot" : "Client analytics"}
+          {useServerSnapshot
+            ? t("revenue.rpcSnapshot")
+            : t("revenue.clientAnalytics")}
         </Badge>
-        <Badge variant="outline">{range.from} — {range.to}</Badge>
+        <Badge variant="outline">
+          {range.from} — {range.to}
+        </Badge>
       </div>
 
       <dl className="mt-4 grid gap-2">
         <RevenueDetailRow
-          label="Period revenue"
+          label={t("revenue.periodRevenue")}
           value={formatRevenueCurrency(periodRevenue)}
         />
         <RevenueDetailRow
-          label="ADR"
+          label={t("revenue.kpiAdr")}
           value={formatRevenueCurrency(kpis.adr)}
         />
         <RevenueDetailRow
-          label="RevPAR"
+          label={t("revenue.revpar")}
           value={formatRevenueCurrency(kpis.revpar)}
         />
         <RevenueDetailRow
-          label="Occupancy"
+          label={t("revenue.kpiOccupancy")}
           value={formatPercent(kpis.occupancy)}
         />
         <RevenueDetailRow
-          label="Average stay"
-          value={`${Math.round(kpis.averageStay)}n`}
+          label={t("revenue.kpiAverageStay")}
+          value={formatNightsCount(kpis.averageStay, t)}
         />
         <RevenueDetailRow
-          label="Cancellation rate"
+          label={t("revenue.cancellationRate")}
           value={formatPercent(kpis.cancellationRate)}
         />
       </dl>
 
       <div className="mt-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 px-3 py-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-          7-day forecast total
-        </p>
+        <p className="ds-overline">{t("revenue.forecastSevenDayTotal")}</p>
         <p className="mt-2 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
           <Metric value={forecastTotal} formatter={formatRevenueCurrency} />
         </p>
       </div>
 
       <div className="mt-4">
-        <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-          Forecast details
-        </p>
+        <p className="ds-overline">{t("revenue.forecastDetailsTitle")}</p>
         {forecast.length === 0 ? (
           <div className="mt-3">
             <EmptyState
-              title="No forecast"
-              description="Forecast appears once enough trend data is available."
+              title={t("revenue.noForecast")}
+              description={t("revenue.noForecastDesc")}
               icon={<LineChart size={16} />}
             />
           </div>
@@ -143,8 +148,7 @@ export function RevenueInspector({
       </div>
 
       <p className="mt-4 text-[11px] text-[var(--shell-muted)]">
-        Period growth: {growth >= 0 ? "+" : ""}
-        {growth}% versus prior half of selected range
+        {formatTranslation(t("revenue.periodGrowthHint"), { growth: growthLabel })}
       </p>
     </Panel>
   );

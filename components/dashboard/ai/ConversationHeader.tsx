@@ -1,8 +1,11 @@
+"use client";
+
 import type { Conversation } from "@/types/conversation";
 
 import { Badge } from "@/components/ui/display/Badge";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { Inline } from "@/components/ui/primitives/Inline";
+import { useI18n } from "@/lib/i18n";
 
 import { AIStatusBadge } from "./AIStatusBadge";
 import { ChannelIcon } from "./ChannelIcon";
@@ -14,6 +17,7 @@ type Props = {
 };
 
 export function ConversationHeader({ conversation }: Props) {
+  const { t } = useI18n();
   const human = isHumanHandled(conversation);
 
   return (
@@ -33,7 +37,7 @@ export function ConversationHeader({ conversation }: Props) {
                     : undefined
                 }
               >
-                {human ? "Human" : "AI"}
+                {human ? t("ai.humanActor") : t("ai.aiActor")}
               </Badge>
               <AIStatusBadge status={conversation.status} />
               <PriorityBadge priority={conversation.priority} />

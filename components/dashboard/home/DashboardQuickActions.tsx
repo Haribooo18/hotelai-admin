@@ -1,3 +1,6 @@
+"use client";
+
+import { useMemo } from "react";
 import Link from "next/link";
 import {
   BedDouble,
@@ -10,60 +13,71 @@ import {
 
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { Section } from "@/components/ui/primitives/Section";
+import { cardPaddingClass } from "@/lib/dashboard/design-system";
 import { motionPresets } from "@/lib/design/motion";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
-const ACTIONS = [
-  {
-    label: "New reservation",
-    href: "/bookings",
-    icon: Plus,
-    primary: true,
-  },
-  {
-    label: "New guest",
-    href: "/guests",
-    icon: UserPlus,
-    primary: false,
-  },
-  {
-    label: "Add room",
-    href: "/rooms",
-    icon: BedDouble,
-    primary: false,
-  },
-  {
-    label: "Calendar",
-    href: "/calendar",
-    icon: CalendarDays,
-    primary: false,
-  },
-  {
-    label: "AI inbox",
-    href: "/ai",
-    icon: MessageSquare,
-    primary: false,
-  },
-  {
-    label: "AI settings",
-    href: "/settings",
-    icon: Bot,
-    primary: false,
-  },
-] as const;
-
 export function DashboardQuickActions() {
+  const { t } = useI18n();
+
+  const actions = useMemo(
+    () =>
+      [
+        {
+          label: t("dashboard.newReservation"),
+          href: "/bookings",
+          icon: Plus,
+          primary: true,
+        },
+        {
+          label: t("dashboard.newGuest"),
+          href: "/guests",
+          icon: UserPlus,
+          primary: false,
+        },
+        {
+          label: t("dashboard.addRoom"),
+          href: "/rooms",
+          icon: BedDouble,
+          primary: false,
+        },
+        {
+          label: t("dashboard.calendar"),
+          href: "/calendar",
+          icon: CalendarDays,
+          primary: false,
+        },
+        {
+          label: t("dashboard.aiInbox"),
+          href: "/ai",
+          icon: MessageSquare,
+          primary: false,
+        },
+        {
+          label: t("dashboard.aiSettings"),
+          href: "/settings",
+          icon: Bot,
+          primary: false,
+        },
+      ] as const,
+    [t]
+  );
+
   return (
-    <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)]">
-      <Section title="Quick actions" subtitle="Jump to common workflows" />
+    <GlassSurface className={cn("overflow-hidden", cardPaddingClass)}>
+      <Section
+        title={t("dashboard.quickActionsTitle")}
+        subtitle={t("dashboard.quickActionsSubtitle")}
+      />
 
       <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-1">
-        {ACTIONS.map((action) => {
+        {actions.map((action) => {
           const Icon = action.icon;
 
           return (
             <Link
-              key={action.label}
+              key={action.href}
               href={action.href}
               className={cn(
                 "inline-flex h-[var(--ds-input-height)] items-center gap-2.5 rounded-[var(--ds-radius-sm)] px-3 text-[13px] font-medium shadow-[var(--shell-shadow-sm)]",

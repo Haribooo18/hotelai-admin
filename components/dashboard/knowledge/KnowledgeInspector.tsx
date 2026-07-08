@@ -7,6 +7,16 @@ import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Metric } from "@/components/ui/display/Metric";
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Section } from "@/components/ui/primitives/Section";
+import {
+  cardBadgeRowClass,
+  cardContentGapClass,
+  cardMetricCellClass,
+  inspectorPanelClass,
+  kpiMetricGapClass,
+  workspaceCardTitleClass,
+} from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 import { AiReadyBadge } from "./AiReadyBadge";
 import { KnowledgeStatusBadge } from "./KnowledgeStatusBadge";
@@ -22,13 +32,18 @@ type Props = {
 };
 
 export function KnowledgeInspector({ model, onOpen }: Props) {
+  const { t } = useI18n();
+
   if (!model) {
     return (
-      <Panel variant="glass" className="h-full p-[var(--ds-surface-padding)]">
-        <Section title="Инспектор" subtitle="Детали выбранной статьи" />
+      <Panel variant="glass" className={cn("h-full", inspectorPanelClass)}>
+        <Section
+          title={t("knowledge.inspectorTitle")}
+          subtitle={t("knowledge.inspectorSubtitle")}
+        />
         <EmptyState
-          title="Статья не выбрана"
-          description="Выберите статью в списке или на карточке, чтобы просмотреть метаданные и AI-индексацию."
+          title={t("knowledge.noArticleSelected")}
+          description={t("knowledge.noArticleSelectedDesc")}
           icon={<BookOpen size={18} />}
         />
       </Panel>
@@ -38,10 +53,10 @@ export function KnowledgeInspector({ model, onOpen }: Props) {
   const { article, qualityScore, usageCount, aiReady, authorLabel } = model;
 
   return (
-    <Panel variant="glass" className="h-full p-[var(--ds-surface-padding)]">
+    <Panel variant="glass" className={cn("h-full", inspectorPanelClass)}>
       <Section
-        title="Инспектор"
-        subtitle={article.category ?? "Без категории"}
+        title={t("knowledge.inspectorTitle")}
+        subtitle={article.category ?? t("common.noCategory")}
         action={
           <Button
             type="button"
@@ -51,40 +66,36 @@ export function KnowledgeInspector({ model, onOpen }: Props) {
             className="gap-1.5"
           >
             <ExternalLink size={14} />
-            Открыть
+            {t("common.open")}
           </Button>
         }
       />
 
-      <div className="mt-4 min-w-0">
-        <p className="line-clamp-2 text-[14px] font-semibold text-[var(--shell-text)]">
+      <div className={cn(cardContentGapClass, "min-w-0")}>
+        <p className={cn(workspaceCardTitleClass, "line-clamp-2")}>
           {article.title}
         </p>
-        <p className="mt-1 line-clamp-2 text-[12px] text-[var(--shell-muted)]">
-          {model.description}
-        </p>
+        <p className={cn("mt-1 line-clamp-2 ds-caption")}>{model.description}</p>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className={cardBadgeRowClass}>
         <KnowledgeStatusBadge status={article.status} />
         <AiReadyBadge ready={aiReady} />
       </div>
 
-      <dl className="mt-4 grid gap-2">
-        <KnowledgeDetailRow label="Качество" value={`${qualityScore}%`} />
-        <KnowledgeDetailRow label="Использование" value={String(usageCount)} />
+      <dl className={cn(cardContentGapClass, "grid gap-2")}>
+        <KnowledgeDetailRow label={t("knowledge.quality")} value={`${qualityScore}%`} />
+        <KnowledgeDetailRow label={t("knowledge.usage")} value={String(usageCount)} />
         <KnowledgeDetailRow
-          label="Обновлено"
+          label={t("knowledge.updated")}
           value={formatKnowledgeDate(article.updated_at)}
         />
-        <KnowledgeDetailRow label="Автор" value={authorLabel} />
+        <KnowledgeDetailRow label={t("knowledge.author")} value={authorLabel} />
       </dl>
 
-      <div className="mt-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 px-3 py-3">
-        <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-          AI readiness
-        </p>
-        <p className="mt-2 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
+      <div className={cn(cardContentGapClass, cardMetricCellClass)}>
+        <p className="ds-overline">{t("knowledge.aiReadiness")}</p>
+        <p className={cn(kpiMetricGapClass, "ds-kpi")}>
           <Metric value={qualityScore} formatter={(value) => `${Math.round(value)}%`} />
         </p>
       </div>

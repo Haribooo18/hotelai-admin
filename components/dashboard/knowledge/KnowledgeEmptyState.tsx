@@ -1,28 +1,18 @@
-import { BookOpen } from "lucide-react";
+"use client";
 
-import { Button } from "@/components/ui/core/Button";
+import { FileText } from "lucide-react";
+
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
-import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { useI18n } from "@/lib/i18n";
 
-type Props = {
-  onCreate?: () => void;
-};
+export function KnowledgeEmptyState() {
+  const { t } = useI18n();
 
-export function KnowledgeEmptyState({ onCreate }: Props) {
   return (
-    <GlassSurface className="p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
-      <EmptyState
-        title="База знаний пуста"
-        description="Создайте статьи с ответами на частые вопросы — AI-ресепшен будет использовать их при общении с гостями."
-        icon={<BookOpen size={20} />}
-        action={
-          onCreate ? (
-            <Button size="sm" onClick={onCreate}>
-              Создать статью
-            </Button>
-          ) : undefined
-        }
-      />
-    </GlassSurface>
+    <EmptyState
+      icon={<FileText size={18} />}
+      title={t("knowledge.emptyTitle")}
+      description={t("knowledge.emptyDesc")}
+    />
   );
 }

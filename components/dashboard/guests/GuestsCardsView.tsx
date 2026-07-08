@@ -5,14 +5,13 @@ import { Users } from "lucide-react";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { useI18n } from "@/lib/i18n";
 
 import { GuestCard } from "./GuestCard";
-import { GuestsTable } from "./GuestsTable";
-import type { GuestCardModel, GuestViewMode } from "./guest-crm-metrics";
+import type { GuestCardModel } from "./guest-crm-metrics";
 
 type Props = {
   models: GuestCardModel[];
-  viewMode: GuestViewMode;
   loading?: boolean;
   selectedId?: string | null;
   onOpenGuest: (model: GuestCardModel) => void;
@@ -23,7 +22,6 @@ type Props = {
 
 export function GuestsCardsView({
   models,
-  viewMode,
   loading = false,
   selectedId = null,
   onOpenGuest,
@@ -31,18 +29,16 @@ export function GuestsCardsView({
   onDeleteGuest,
   onToggleFavorite,
 }: Props) {
+  const { t } = useI18n();
+
   if (loading) {
     return (
       <GlassSurface className="p-[var(--ds-surface-padding)]">
-        {viewMode === "cards" ? (
-          <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton key={index} className="h-56 rounded-[var(--ds-radius)]" />
-            ))}
-          </div>
-        ) : (
-          <Skeleton className="h-64 rounded-[var(--ds-radius)]" />
-        )}
+        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <Skeleton key={index} className="h-56 rounded-[var(--ds-radius)]" />
+          ))}
+        </div>
       </GlassSurface>
     );
   }
@@ -50,22 +46,9 @@ export function GuestsCardsView({
   if (models.length === 0) {
     return (
       <EmptyState
-        title="No guests found"
-        description="Adjust filters or add a new guest to the CRM."
+        title={t("guests.noResults")}
+        description={t("guests.noResultsDesc")}
         icon={<Users size={18} />}
-      />
-    );
-  }
-
-  if (viewMode === "table") {
-    return (
-      <GuestsTable
-        models={models}
-        selectedId={selectedId}
-        onOpenGuest={onOpenGuest}
-        onEditGuest={onEditGuest}
-        onDeleteGuest={onDeleteGuest}
-        onToggleFavorite={onToggleFavorite}
       />
     );
   }
@@ -74,17 +57,17 @@ export function GuestsCardsView({
     <div
       className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3"
       role="list"
-      aria-label="Guest cards"
+      aria-label={t("guests.cardsAriaLabel")}
     >
       {models.map((model) => (
         <GuestCard
           key={model.guest.id}
           model={model}
           selected={selectedId === model.guest.id}
-          onOpen={onOpenGuest}
-          onEdit={onEditGuest}
-          onDelete={onDeleteGuest}
-          onToggleFavorite={onToggleFavorite}
+          onOpen={() => onOpenGuest(model)}
+          onEdit={() => onEditGuest(model)}
+          onDelete={() => onDeleteGuest(model)}
+          onToggleFavorite={() => onToggleFavorite(model)}
         />
       ))}
     </div>

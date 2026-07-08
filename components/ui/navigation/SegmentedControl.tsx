@@ -2,7 +2,10 @@
 
 import type { ReactNode } from "react";
 
-import { viewToggleButtonClass } from "@/lib/dashboard/design-system";
+import {
+  toolbarSegmentButtonClass,
+  toolbarSegmentTrackClass,
+} from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 type SegmentedOption<T extends string> = {
@@ -25,12 +28,7 @@ export function SegmentedControl<T extends string>({
   className,
 }: SegmentedControlProps<T>) {
   return (
-    <div
-      className={cn(
-        "flex rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 shadow-[var(--shell-shadow-sm)]",
-        className
-      )}
-    >
+    <div className={cn(toolbarSegmentTrackClass, className)}>
       {options.map((option) => {
         const selected = value === option.value;
 
@@ -42,10 +40,10 @@ export function SegmentedControl<T extends string>({
             aria-pressed={selected}
             onClick={() => onChange(option.value)}
             className={cn(
-              viewToggleButtonClass,
+              toolbarSegmentButtonClass,
               selected
                 ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-accent)]"
-                : "text-[var(--shell-muted)] hover:text-[var(--shell-text)]"
+                : "text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
             )}
           >
             {option.label}

@@ -1,28 +1,36 @@
-import { cn } from "@/lib/utils";
+"use client";
 
 import { Badge } from "@/components/ui/display/Badge";
+import { statusBadgeClass } from "@/lib/dashboard/design-system";
+import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
+import type { TranslationPath } from "@/lib/i18n/translations";
 
 import type { BookingPaymentStatus } from "./booking-ops-metrics";
 
 const PAYMENT_META: Record<
   BookingPaymentStatus,
-  { label: string; variant: "success" | "default" | "warning" | "destructive"; className?: string }
+  {
+    key: TranslationPath;
+    variant: "success" | "default" | "warning" | "destructive";
+    className?: string;
+  }
 > = {
   paid: {
-    label: "Paid",
+    key: "statuses.payment.paid",
     variant: "success",
   },
   deposit: {
-    label: "Deposit paid",
+    key: "statuses.payment.deposit",
     variant: "default",
     className: "bg-sky-500/12 text-sky-400 border-sky-500/20",
   },
   pending: {
-    label: "Pending",
+    key: "statuses.payment.pending",
     variant: "warning",
   },
   void: {
-    label: "Void",
+    key: "statuses.payment.void",
     variant: "destructive",
   },
 };
@@ -33,14 +41,15 @@ type Props = {
 };
 
 export function PaymentStatusBadge({ status, className }: Props) {
+  const { t } = useI18n();
   const meta = PAYMENT_META[status];
 
   return (
     <Badge
       variant={meta.variant}
-      className={cn("uppercase", meta.className, className)}
+      className={cn(statusBadgeClass, meta.className, className)}
     >
-      {meta.label}
+      {t(meta.key)}
     </Badge>
   );
 }

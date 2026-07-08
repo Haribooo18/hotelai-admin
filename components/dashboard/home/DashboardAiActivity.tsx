@@ -15,6 +15,8 @@ import {
   DashboardListItem,
   matchesDashboardSearch,
 } from "./dashboard-ui";
+import { formatAdminDateShort } from "@/lib/dashboard/format";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 type Props = {
   items: AiActivityItem[];
@@ -29,21 +31,30 @@ const STATUS_VARIANT: Record<string, "success" | "default" | "warning" | "destru
   cancelled: "destructive",
 };
 
-function formatRelativeTime(value: string): string {
+function formatRelativeTime(
+  value: string,
+  t: ReturnType<typeof useI18n>["t"],
+  locale: ReturnType<typeof useI18n>["locale"]
+): string {
   const date = new Date(value);
   const diffMs = Date.now() - date.getTime();
   const diffMinutes = Math.floor(diffMs / 60_000);
 
-  if (diffMinutes < 1) return "Just now";
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
+  if (diffMinutes < 1) return t("dashboard.justNow");
+  if (diffMinutes < 60) {
+    return formatTranslation(t("dashboard.relativeMinutesAgo"), {
+      count: String(diffMinutes),
+    });
+  }
 
   const diffHours = Math.floor(diffMinutes / 60);
-  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffHours < 24) {
+    return formatTranslation(t("dashboard.relativeHoursAgo"), {
+      count: String(diffHours),
+    });
+  }
 
-  return new Intl.DateTimeFormat("en-US", {
-    day: "numeric",
-    month: "short",
-  }).format(date);
+  return formatAdminDateShort(date, locale);
 }
 
 export function DashboardAiActivity({
@@ -51,6 +62,7 @@ export function DashboardAiActivity({
   loading,
   searchQuery = "",
 }: Props) {
+  const { locale, t } = useI18n();
   const filteredItems = items.filter((item) =>
     matchesDashboardSearch(searchQuery, [
       item.guestName,
@@ -63,21 +75,21 @@ export function DashboardAiActivity({
   return (
     <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)]">
       <Section
-        title="AI Receptionist"
-        subtitle="Live guest conversations"
-        action={<DashboardCardAction href="/ai" label="Inbox" />}
+        title={t("pages.messages.title")}
+        subtitle={t("dashboard.aiActivitySubtitle")}
+        action={<DashboardCardAction href="/ai" label={t("dashboard.aiInbox")} />}
       />
 
       {loading ? (
         <SkeletonGroup />
       ) : filteredItems.length === 0 ? (
         <EmptyState
-          title="No conversations yet"
-          description="When guests message your AI receptionist, activity will appear here."
+          title={t("dashboard.noConversationsYet")}
+          description={t("dashboard.noConversationsDesc")}
           icon={<Bot size={18} />}
         />
       ) : (
-        <div className="space-y-2" role="list" aria-label="AI conversations">
+        <div className="space-y-2" role="list" aria-label={t("dashboard.aiConversationsAria")}>
           {filteredItems.map((item) => (
             <Link key={item.id} href="/ai" className="block focus-visible:outline-none">
               <DashboardListItem
@@ -94,7 +106,7 @@ export function DashboardAiActivity({
                       {item.guestName}
                     </p>
                     <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
-                      {formatRelativeTime(item.createdAt)}
+                      {formatRelativeTime(item.createdAt, t, locale)}
                     </span>
                   </div>
                   <p className="mt-1 line-clamp-1 text-[12px] text-[var(--shell-muted)]">

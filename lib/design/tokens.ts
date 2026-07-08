@@ -114,24 +114,34 @@ export const zIndex = {
 export const motion = {
   duration: {
     fast: "120ms",
-    base: "160ms",
-    slow: "180ms",
-    slower: "640ms",
+    short: "150ms",
+    base: "180ms",
+    long: "220ms",
+    modal: "220ms",
+    press: "80ms",
+    toastIn: "80ms",
+    toastOut: "200ms",
+    skeleton: "200ms",
   },
   durationVar: {
-    fast: "120ms",
+    fast: "var(--ds-duration-fast)",
+    short: "var(--ds-duration-short)",
     base: "var(--ds-duration)",
-    slow: "var(--ds-duration-slow)",
+    long: "var(--ds-duration-long)",
+    modal: "var(--ds-duration-modal)",
+    press: "var(--ds-duration-press)",
+    toastIn: "var(--ds-duration-toast-in)",
+    toastOut: "var(--ds-duration-toast-out)",
+    skeleton: "var(--ds-duration-skeleton)",
     slower: "640ms",
   },
   easing: {
-    default: "cubic-bezier(0.16, 1, 0.3, 1)",
-    linear: "linear",
-    inOut: "cubic-bezier(0.4, 0, 0.2, 1)",
+    default: "cubic-bezier(0.22, 1, 0.36, 1)",
   },
   easingVar: {
     default: "var(--ds-ease)",
   },
+  revealGap: "var(--ds-motion-reveal-gap)",
 } as const;
 
 export const breakpoints = {

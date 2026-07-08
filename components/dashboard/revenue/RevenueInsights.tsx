@@ -7,6 +7,7 @@ import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { motionPresets } from "@/lib/design/motion";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import type { RevenueInsight } from "./revenue-metrics";
@@ -17,10 +18,15 @@ type Props = {
 };
 
 export function RevenueInsights({ insights, loading = false }: Props) {
+  const { t } = useI18n();
+
   if (loading) {
     return (
-      <Section title="Insights" subtitle="Automated observations from booking data">
-        <DataCard title="Loading insights">
+      <Section
+        title={t("revenue.insightsTitle")}
+        subtitle={t("revenue.insightsSubtitle")}
+      >
+        <DataCard title={t("revenue.insightsLoading")}>
           <SkeletonGroup />
         </DataCard>
       </Section>
@@ -28,15 +34,18 @@ export function RevenueInsights({ insights, loading = false }: Props) {
   }
 
   return (
-    <Section title="Insights" subtitle="Automated observations from booking data">
+    <Section
+      title={t("revenue.insightsTitle")}
+      subtitle={t("revenue.insightsSubtitle")}
+    >
       <DataCard
         interactive
         className={cn(motionPresets.transitionBase, motionPresets.hover.surfaceLift)}
       >
         {insights.length === 0 ? (
           <EmptyState
-            title="Insights unavailable"
-            description="Insights generate once enough booking data is available."
+            title={t("revenue.insightsUnavailable")}
+            description={t("revenue.insightsUnavailableDesc")}
             icon={<Lightbulb size={18} />}
           />
         ) : (

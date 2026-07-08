@@ -19,7 +19,9 @@ import { DataCard } from "@/components/ui/data/DataCard";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { motionPresets } from "@/lib/design/motion";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import {
@@ -54,16 +56,22 @@ function ChartCard({
   loading,
   empty,
   emptyTitle,
+  emptyDescription,
   heightClass,
   children,
+  noDataTitle,
+  noDataDescription,
 }: {
   title: string;
   subtitle?: string;
   loading?: boolean;
   empty?: boolean;
   emptyTitle?: string;
+  emptyDescription?: string;
   heightClass: string;
   children: ReactNode;
+  noDataTitle: string;
+  noDataDescription: string;
 }) {
   return (
     <DataCard
@@ -76,8 +84,8 @@ function ChartCard({
         <SkeletonGroup className={heightClass} lines={["h-full w-full"]} />
       ) : empty ? (
         <EmptyState
-          title={emptyTitle ?? "No data"}
-          description="Data appears after bookings in the selected period."
+          title={emptyTitle ?? noDataTitle}
+          description={emptyDescription ?? noDataDescription}
         />
       ) : (
         <div
@@ -101,6 +109,9 @@ export function RevenueAnalytics({
   compareEnabled,
   loading = false,
 }: Props) {
+  const { t } = useI18n();
+  const noDataTitle = t("revenue.noData");
+  const noDataDescription = t("revenue.noDataDesc");
   const mergedTrend = trend.map((point, index) => ({
     ...point,
     compareRevenue: compareTrend[index]?.revenue ?? 0,
@@ -112,15 +123,18 @@ export function RevenueAnalytics({
   const hasRevpar = trend.some((point) => point.revpar > 0);
 
   return (
-    <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+    <GlassSurface className={workspaceSurfaceClass}>
       <div className="grid gap-4 xl:grid-cols-12">
         <div className="space-y-4 xl:col-span-7">
           <ChartCard
-            title="Revenue trend"
-            subtitle="Daily gross revenue"
+            title={t("revenue.revenueTrend")}
+            subtitle={t("revenue.dailyGrossRevenue")}
             loading={loading}
             empty={!hasRevenue}
-            emptyTitle="No revenue trend"
+            emptyTitle={t("revenue.noTrend")}
+            emptyDescription={t("revenue.noDataDesc")}
+            noDataTitle={noDataTitle}
+            noDataDescription={noDataDescription}
             heightClass="h-64 min-h-[256px]"
           >
             <ResponsiveContainer width="100%" height="100%">
@@ -164,7 +178,9 @@ export function RevenueAnalytics({
                   contentStyle={TOOLTIP_STYLE}
                   formatter={(value, name) => [
                     formatRevenueCurrency(Number(value)),
-                    name === "compareRevenue" ? "Previous period" : "Revenue",
+                    name === "compareRevenue"
+                      ? t("revenue.previousPeriod")
+                      : t("revenue.periodRevenue"),
                   ]}
                 />
                 <Area
@@ -191,11 +207,14 @@ export function RevenueAnalytics({
 
           <div className="grid gap-4 md:grid-cols-2">
             <ChartCard
-              title="ADR trend"
-              subtitle="Average daily rate"
+              title={t("revenue.adrTrend")}
+              subtitle={t("revenue.adrSubtitle")}
               loading={loading}
               empty={!hasAdr}
-              heightClass="h-48 min-h-[192px]"
+              emptyDescription={t("revenue.noDataDesc")}
+              noDataTitle={noDataTitle}
+            noDataDescription={noDataDescription}
+            heightClass="h-48 min-h-[192px]"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trend}>
@@ -220,7 +239,7 @@ export function RevenueAnalytics({
                     contentStyle={TOOLTIP_STYLE}
                     formatter={(value) => [
                       formatRevenueCurrency(Number(value)),
-                      "ADR",
+                      t("revenue.kpiAdr"),
                     ]}
                   />
                   <Line
@@ -235,11 +254,14 @@ export function RevenueAnalytics({
             </ChartCard>
 
             <ChartCard
-              title="RevPAR trend"
-              subtitle="Revenue per available room"
+              title={t("revenue.revpar")}
+              subtitle={t("revenue.revparSubtitle")}
               loading={loading}
               empty={!hasRevpar}
-              heightClass="h-48 min-h-[192px]"
+              emptyDescription={t("revenue.noDataDesc")}
+              noDataTitle={noDataTitle}
+            noDataDescription={noDataDescription}
+            heightClass="h-48 min-h-[192px]"
             >
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trend}>
@@ -264,7 +286,7 @@ export function RevenueAnalytics({
                     contentStyle={TOOLTIP_STYLE}
                     formatter={(value) => [
                       formatRevenueCurrency(Number(value)),
-                      "RevPAR",
+                      t("revenue.revpar"),
                     ]}
                   />
                   <Line
@@ -282,10 +304,13 @@ export function RevenueAnalytics({
 
         <div className="space-y-4 xl:col-span-5">
           <ChartCard
-            title="Room type revenue"
-            subtitle="Revenue by room type"
+            title={t("revenue.roomTypeRevenue")}
+            subtitle={t("revenue.roomTypeRevenueSubtitle")}
             loading={loading}
             empty={byRoomType.length === 0}
+            emptyDescription={t("revenue.noDataDesc")}
+            noDataTitle={noDataTitle}
+            noDataDescription={noDataDescription}
             heightClass="h-44 min-h-[176px]"
           >
             <ResponsiveContainer width="100%" height="100%">
@@ -317,7 +342,7 @@ export function RevenueAnalytics({
                   contentStyle={TOOLTIP_STYLE}
                   formatter={(value) => [
                     formatRevenueCurrency(Number(value)),
-                    "Revenue",
+                    t("revenue.periodRevenue"),
                   ]}
                 />
                 <Bar
@@ -331,10 +356,13 @@ export function RevenueAnalytics({
           </ChartCard>
 
           <ChartCard
-            title="Revenue sources"
-            subtitle="Channel mix"
+            title={t("revenue.revenueSources")}
+            subtitle={t("revenue.revenueSourcesSubtitle")}
             loading={loading}
             empty={bySource.length === 0}
+            emptyDescription={t("revenue.noDataDesc")}
+            noDataTitle={noDataTitle}
+            noDataDescription={noDataDescription}
             heightClass="h-44 min-h-[176px]"
           >
             <ResponsiveContainer width="100%" height="100%">
@@ -360,7 +388,7 @@ export function RevenueAnalytics({
                   contentStyle={TOOLTIP_STYLE}
                   formatter={(value) => [
                     formatRevenueCurrency(Number(value)),
-                    "Revenue",
+                    t("revenue.periodRevenue"),
                   ]}
                 />
                 <Bar
@@ -374,10 +402,13 @@ export function RevenueAnalytics({
           </ChartCard>
 
           <ChartCard
-            title="Occupancy trend"
-            subtitle="Daily occupancy rate"
+            title={t("revenue.occupancyTrend")}
+            subtitle={t("revenue.occupancyTrendSubtitle")}
             loading={loading}
             empty={!hasOccupancy}
+            emptyDescription={t("revenue.noDataDesc")}
+            noDataTitle={noDataTitle}
+            noDataDescription={noDataDescription}
             heightClass="h-40 min-h-[160px]"
           >
             <ResponsiveContainer width="100%" height="100%">
@@ -408,7 +439,7 @@ export function RevenueAnalytics({
                 />
                 <Tooltip
                   contentStyle={TOOLTIP_STYLE}
-                  formatter={(value) => [`${value}%`, "Occupancy"]}
+                  formatter={(value) => [`${value}%`, t("revenue.chartOccupancyLabel")]}
                 />
                 <Area
                   type="monotone"
@@ -423,10 +454,13 @@ export function RevenueAnalytics({
           </ChartCard>
 
           <ChartCard
-            title="Forecast"
-            subtitle="7-day projection from recent average"
+            title={t("revenue.forecastChartTitle")}
+            subtitle={t("revenue.forecastSubtitle")}
             loading={loading}
             empty={forecast.length === 0}
+            emptyDescription={t("revenue.noForecastDesc")}
+            noDataTitle={noDataTitle}
+            noDataDescription={noDataDescription}
             heightClass="h-40 min-h-[160px]"
           >
             <ResponsiveContainer width="100%" height="100%">
@@ -452,7 +486,7 @@ export function RevenueAnalytics({
                   contentStyle={TOOLTIP_STYLE}
                   formatter={(value) => [
                     formatRevenueCurrency(Number(value)),
-                    "Projected",
+                    t("revenue.projectedLabel"),
                   ]}
                 />
                 <Line

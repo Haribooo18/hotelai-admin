@@ -4,6 +4,16 @@ import * as React from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 
 import { Button, buttonVariants } from "@/components/ui/core/Button";
+import {
+  modalConfirmContentClass,
+  modalContentClass,
+  modalDescriptionClass,
+  modalFooterClass,
+  modalHeaderClass,
+  modalTitleClass,
+  overlayBackdropClass,
+} from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 function Dialog(props: DialogPrimitive.Root.Props) {
@@ -29,10 +39,7 @@ function DialogOverlay({
   return (
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
-      className={cn(
-        "ds-dialog-backdrop fixed inset-0 z-50 bg-black/50 backdrop-blur-[3px]",
-        className
-      )}
+      className={cn(overlayBackdropClass, className)}
       {...props}
     />
   );
@@ -48,11 +55,7 @@ function DialogContent({
       <DialogOverlay />
       <DialogPrimitive.Popup
         data-slot="dialog-content"
-        className={cn(
-          "ds-dialog-content fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
-          "rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none",
-          className
-        )}
+        className={cn(modalContentClass, className)}
         {...props}
       >
         {children}
@@ -65,22 +68,14 @@ function DialogHeader({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  return <div className={cn("space-y-1.5", className)} {...props} />;
+  return <div className={cn(modalHeaderClass, className)} {...props} />;
 }
 
 function DialogFooter({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  return (
-    <div
-      className={cn(
-        "mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end",
-        className
-      )}
-      {...props}
-    />
-  );
+  return <div className={cn(modalFooterClass, className)} {...props} />;
 }
 
 function DialogTitle({
@@ -89,7 +84,7 @@ function DialogTitle({
 }: DialogPrimitive.Title.Props) {
   return (
     <DialogPrimitive.Title
-      className={cn("ds-section-title text-[15px]", className)}
+      className={cn(modalTitleClass, className)}
       {...props}
     />
   );
@@ -101,7 +96,7 @@ function DialogDescription({
 }: DialogPrimitive.Description.Props) {
   return (
     <DialogPrimitive.Description
-      className={cn("text-[13px] leading-relaxed text-[var(--shell-muted)]", className)}
+      className={cn(modalDescriptionClass, className)}
       {...props}
     />
   );
@@ -124,25 +119,22 @@ function ConfirmDialog({
   onOpenChange,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   destructive = false,
   loading = false,
   onConfirm,
 }: ConfirmDialogProps) {
+  const { t } = useI18n();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogPortal>
         <DialogOverlay />
-        <DialogPrimitive.Popup
-          className={cn(
-            "ds-dialog-content fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2",
-            "rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none"
-          )}
-        >
+        <DialogPrimitive.Popup className={modalConfirmContentClass}>
           <DialogTitle>{title}</DialogTitle>
           {description ? (
-            <DialogDescription className="mt-2">{description}</DialogDescription>
+            <DialogDescription>{description}</DialogDescription>
           ) : null}
           <DialogFooter>
             <DialogClose
@@ -152,7 +144,7 @@ function ConfirmDialog({
               )}
               disabled={loading}
             >
-              {cancelLabel}
+              {cancelLabel ?? t("common.cancel")}
             </DialogClose>
             <Button
               variant={destructive ? "destructive" : "default"}
@@ -160,7 +152,7 @@ function ConfirmDialog({
               loading={loading}
               onClick={onConfirm}
             >
-              {confirmLabel}
+              {confirmLabel ?? t("common.confirm")}
             </Button>
           </DialogFooter>
         </DialogPrimitive.Popup>

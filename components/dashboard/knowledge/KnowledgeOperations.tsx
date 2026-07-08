@@ -9,6 +9,7 @@ import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { formatPercent } from "@/lib/dashboard/format";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 import type {
   KnowledgeArticleModel,
@@ -28,6 +29,7 @@ function ArticleOpsList({
   emptyTitle,
   emptyDescription,
   onSelect,
+  openArticleAria,
 }: {
   items: Array<{
     model: KnowledgeArticleModel;
@@ -36,6 +38,7 @@ function ArticleOpsList({
   emptyTitle: string;
   emptyDescription: string;
   onSelect?: (model: KnowledgeArticleModel) => void;
+  openArticleAria: (title: string) => string;
 }) {
   if (items.length === 0) {
     return (
@@ -53,7 +56,7 @@ function ArticleOpsList({
         <KnowledgeOpsListItem
           key={model.article.id}
           role="listitem"
-          aria-label={`Открыть статью ${model.article.title}`}
+          aria-label={openArticleAria(model.article.title)}
           onClick={() => onSelect?.(model)}
         >
           <div className="flex items-start justify-between gap-3">
@@ -73,6 +76,14 @@ function ArticleOpsList({
 }
 
 export function KnowledgeOperations({ snapshot, loading = false, onSelect }: Props) {
+  const { t } = useI18n();
+
+  const openArticleAria = useMemo(
+    () => (title: string) =>
+      formatTranslation(t("knowledge.openArticleAria"), { title }),
+    [t]
+  );
+
   const indexedPercent = useMemo(() => {
     const total = snapshot.indexedCount + snapshot.pendingIndexCount;
     return total > 0 ? Math.round((snapshot.indexedCount / total) * 100) : 0;
@@ -80,10 +91,13 @@ export function KnowledgeOperations({ snapshot, loading = false, onSelect }: Pro
 
   if (loading) {
     return (
-      <Section title="Операции" subtitle="Активность базы знаний и индексация AI">
+      <Section
+        title={t("knowledge.operationsTitle")}
+        subtitle={t("knowledge.operationsSubtitle")}
+      >
         <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <DataCard key={index} title="Загрузка">
+            <DataCard key={index} title={t("common.loading")}>
               <SkeletonGroup />
             </DataCard>
           ))}
@@ -94,75 +108,79 @@ export function KnowledgeOperations({ snapshot, loading = false, onSelect }: Pro
 
   return (
     <Section
-      title="Операции"
-      subtitle="Активность базы знаний и индексация AI"
+      title={t("knowledge.operationsTitle")}
+      subtitle={t("knowledge.operationsSubtitle")}
     >
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        <DataCard
-          interactive
-          title="Недавно обновлённые"
-          subtitle="Recently updated"
-        >
+        <DataCard interactive title={t("knowledge.recentlyUpdated")}>
           <ArticleOpsList
             items={snapshot.recentlyUpdated.map((model) => ({
               model,
               secondary: formatKnowledgeDate(model.article.updated_at),
             }))}
-            emptyTitle="Нет недавних обновлений"
-            emptyDescription="Обновлённые статьи появятся здесь."
+            emptyTitle={t("knowledge.noRecentUpdates")}
+            emptyDescription={t("knowledge.noRecentUpdatesDesc")}
             onSelect={onSelect}
+            openArticleAria={openArticleAria}
           />
         </DataCard>
 
-        <DataCard
-          interactive
-          title="Чаще всего используются AI"
-          subtitle="Most used"
-        >
+        <DataCard interactive title={t("knowledge.topUsage")}>
           <ArticleOpsList
             items={snapshot.mostUsed.map((model) => ({
               model,
-              secondary: `${model.usageCount} обращений`,
+              secondary: formatTranslation(t("knowledge.usageCount"), {
+                count: model.usageCount,
+              }),
             }))}
-            emptyTitle="Нет данных об использовании"
-            emptyDescription="Статьи с AI-обращениями появятся здесь."
+            emptyTitle={t("knowledge.noUsageData")}
+            emptyDescription={t("knowledge.noUsageDataDesc")}
             onSelect={onSelect}
-          />
-        </DataCard>
-
-        <DataCard interactive title="Низкое качество" subtitle="Low quality">
-          <ArticleOpsList
-            items={snapshot.lowQuality.map((model) => ({
-              model,
-              secondary: `Качество ${model.qualityScore}%`,
-            }))}
-            emptyTitle="Все статьи в норме"
-            emptyDescription="Статьи с низким качеством появятся здесь."
-            onSelect={onSelect}
-          />
-        </DataCard>
-
-        <DataCard interactive title="Очередь черновиков" subtitle="Draft queue">
-          <ArticleOpsList
-            items={snapshot.draftQueue.map((model) => ({
-              model,
-              secondary: model.article.category ?? "Без категории",
-            }))}
-            emptyTitle="Черновиков нет"
-            emptyDescription="Неопубликованные статьи появятся здесь."
-            onSelect={onSelect}
+            openArticleAria={openArticleAria}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Распределение по категориям"
-          subtitle="Category distribution"
+          title={t("knowledge.lowQuality")}
+          subtitle={t("knowledge.lowQualitySubtitle")}
         >
+          <ArticleOpsList
+            items={snapshot.lowQuality.map((model) => ({
+              model,
+              secondary: formatTranslation(t("knowledge.qualityScore"), {
+                score: model.qualityScore,
+              }),
+            }))}
+            emptyTitle={t("knowledge.allArticlesOk")}
+            emptyDescription={t("knowledge.lowQualityDesc")}
+            onSelect={onSelect}
+            openArticleAria={openArticleAria}
+          />
+        </DataCard>
+
+        <DataCard
+          interactive
+          title={t("knowledge.draftQueue")}
+          subtitle={t("knowledge.draftQueueSubtitle")}
+        >
+          <ArticleOpsList
+            items={snapshot.draftQueue.map((model) => ({
+              model,
+              secondary: model.article.category ?? t("common.noCategory"),
+            }))}
+            emptyTitle={t("knowledge.noDrafts")}
+            emptyDescription={t("knowledge.noDraftsDesc")}
+            onSelect={onSelect}
+            openArticleAria={openArticleAria}
+          />
+        </DataCard>
+
+        <DataCard interactive title={t("knowledge.categoryDistribution")}>
           {snapshot.categoryDistribution.length === 0 ? (
             <EmptyState
-              title="Категории не заданы"
-              description="Добавьте категории к статьям для аналитики."
+              title={t("knowledge.noCategories")}
+              description={t("knowledge.noCategoriesDesc")}
               icon={<BookOpen size={16} />}
             />
           ) : (
@@ -170,13 +188,19 @@ export function KnowledgeOperations({ snapshot, loading = false, onSelect }: Pro
           )}
         </DataCard>
 
-        <DataCard interactive title="Статус индексации AI" subtitle="AI coverage">
+        <DataCard
+          interactive
+          title={t("knowledge.aiIndexStatus")}
+          subtitle={t("knowledge.aiIndexSubtitle")}
+        >
           <div className="space-y-3">
             <div className="flex items-end justify-between">
               <p className="text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
                 <Metric value={indexedPercent} formatter={formatPercent} />
               </p>
-              <p className="text-[11px] text-[var(--shell-muted)]">покрытие индекса</p>
+              <p className="text-[11px] text-[var(--shell-muted)]">
+                {t("knowledge.indexCoverage")}
+              </p>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-[var(--shell-surface-raised)]">
               <div
@@ -186,13 +210,17 @@ export function KnowledgeOperations({ snapshot, loading = false, onSelect }: Pro
             </div>
             <dl className="grid gap-2 text-[12px]">
               <div className="flex justify-between gap-2">
-                <span className="text-[var(--shell-muted)]">Проиндексировано</span>
+                <span className="text-[var(--shell-muted)]">
+                  {t("knowledge.indexed")}
+                </span>
                 <span className="font-medium text-[var(--shell-text)]">
                   <Metric value={snapshot.indexedCount} />
                 </span>
               </div>
               <div className="flex justify-between gap-2">
-                <span className="text-[var(--shell-muted)]">Ожидает</span>
+                <span className="text-[var(--shell-muted)]">
+                  {t("knowledge.awaiting")}
+                </span>
                 <span className="font-medium text-[var(--shell-text)]">
                   <Metric value={snapshot.pendingIndexCount} />
                 </span>

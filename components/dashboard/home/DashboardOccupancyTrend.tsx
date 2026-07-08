@@ -16,6 +16,7 @@ import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { Section } from "@/components/ui/primitives/Section";
 
 import type { TrendPoint } from "./dashboard-metrics";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   data: TrendPoint[];
@@ -23,27 +24,28 @@ type Props = {
 };
 
 export function DashboardOccupancyTrend({ data, loading }: Props) {
+  const { t } = useI18n();
   const hasData = data.some((point) => point.value > 0);
 
   return (
     <GlassSurface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
       <Section
-        title="Occupancy trend"
-        subtitle="Occupancy percentage over 7 days"
+        title={t("dashboard.occupancyTrend")}
+        subtitle={t("dashboard.occupancyTrendSubtitle")}
       />
 
       {loading ? (
         <SkeletonGroup className="h-52" lines={["h-full w-full"]} />
       ) : !hasData ? (
         <EmptyState
-          title="No occupancy data"
-          description="Add rooms and reservations to track daily hotel occupancy."
+          title={t("dashboard.noOccupancyData")}
+          description={t("dashboard.noOccupancyDataDesc")}
         />
       ) : (
         <div
           className="h-52 min-h-[208px]"
           role="img"
-          aria-label="Occupancy trend chart for the last 7 days"
+          aria-label={t("dashboard.occupancyTrendAria")}
         >
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
@@ -76,7 +78,7 @@ export function DashboardOccupancyTrend({ data, loading }: Props) {
                   color: "var(--shell-text)",
                   fontSize: 12,
                 }}
-                formatter={(value) => [`${value}%`, "Occupancy"]}
+                formatter={(value) => [`${value}%`, t("dashboard.occupancy")]}
               />
               <Bar
                 dataKey="value"

@@ -9,19 +9,18 @@ import type { AIModelId } from "@/lib/ai/models";
 
 import { AI_MODELS, AI_MODEL_IDS } from "@/lib/ai/models";
 import { updateHotelAISettings } from "@/lib/services/ai-settings.mutations";
-import { shellFormLabelClass } from "@/lib/dashboard/design-system";
+import { formStackClass } from "@/lib/dashboard/design-system";
+import { ADMIN_LOCALES, LOCALE_LABELS, useI18n } from "@/lib/i18n";
 
 import { Button } from "@/components/ui/core/Button";
 import { Input } from "@/components/ui/core/Input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  FormCheckboxField,
+  FormField,
+} from "@/components/ui/core/FormField";
 import { Section } from "@/components/ui/primitives/Section";
-
-const TOOL_CHOICE_OPTIONS = [
-  { value: "auto", label: "Авто" },
-  { value: "none", label: "Без инструментов" },
-  { value: "required", label: "Обязательно" },
-] as const;
 
 type Props = {
   settings: HotelAISettings;
@@ -30,6 +29,7 @@ type Props = {
 
 export function AISettingsForm({ settings, configured }: Props) {
   const router = useRouter();
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
 
   const [enabled, setEnabled] = useState(settings.enabled);
@@ -55,9 +55,20 @@ export function AISettingsForm({ settings, configured }: Props) {
     settings.extra_instructions ?? ""
   );
 
+  const toolChoiceOptions = [
+    { value: "auto", label: t("settings.aiFormToolChoiceAuto") },
+    { value: "none", label: t("settings.aiFormToolChoiceNone") },
+    { value: "required", label: t("settings.aiFormToolChoiceRequired") },
+  ] as const;
+
   const modelOptions = AI_MODEL_IDS.map((id) => ({
     value: id,
     label: AI_MODELS[id].label,
+  }));
+
+  const languageOptions = ADMIN_LOCALES.map((code) => ({
+    value: code,
+    label: LOCALE_LABELS[code],
   }));
 
   function handleSave(e: React.FormEvent) {
@@ -79,68 +90,61 @@ export function AISettingsForm({ settings, configured }: Props) {
           max_retries: Number(maxRetries),
           extra_instructions: extraInstructions,
         });
-        toast.success("Настройки AI сохранены");
+        toast.success(t("settings.aiFormSaveSuccess"));
         router.refresh();
       } catch (err) {
         toast.error(
-          err instanceof Error ? err.message : "Не удалось сохранить"
+          err instanceof Error ? err.message : t("settings.aiFormSaveError")
         );
       }
     });
   }
 
   return (
-    <form onSubmit={handleSave} className="space-y-6">
+    <form onSubmit={handleSave} className={formStackClass}>
       {!configured && (
         <div
           className="rounded-[var(--ds-radius-sm)] border border-amber-900/40 bg-amber-950/20 p-4 text-sm text-amber-200"
           role="alert"
         >
-          OPENAI_API_KEY не задан на сервере. AI будет недоступен, пока переменная
-          окружения не настроена.
+          {t("settings.aiFormOpenaiKeyMissing")}
         </div>
       )}
 
-      <label className="flex items-center gap-3 text-sm text-[var(--shell-text)]">
-        <input
-          type="checkbox"
-          checked={enabled}
-          onChange={(e) => setEnabled(e.target.checked)}
-          disabled={!configured}
-          className="h-4 w-4 rounded border-[var(--shell-border)] accent-emerald-600"
-        />
-        Включить AI-ресепшен
-      </label>
+      <FormCheckboxField
+        id="ai-enabled"
+        label={t("settings.aiFormEnableAi")}
+        checked={enabled}
+        onCheckedChange={setEnabled}
+        disabled={!configured}
+      />
 
       <section className="space-y-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
         <Section
-          title="Prompt and personality"
-          subtitle="Additional instructions for AI"
+          title={t("settings.aiFormPromptTitle")}
+          subtitle={t("settings.aiFormPromptSubtitle")}
         />
-        <div className="space-y-1.5">
-          <label htmlFor="ai-extra" className={shellFormLabelClass}>
-            Личность и правила отеля
-          </label>
+        <FormField
+          label={t("settings.aiFormPersonalityLabel")}
+          htmlFor="ai-extra"
+        >
           <Textarea
             id="ai-extra"
             value={extraInstructions}
             onChange={(e) => setExtraInstructions(e.target.value)}
-            placeholder="Особые правила для вашего отеля…"
+            placeholder={t("settings.aiFormPersonalityPlaceholder")}
             className="min-h-28"
           />
-        </div>
+        </FormField>
       </section>
 
       <section className="space-y-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
         <Section
-          title="Temperature and language"
-          subtitle="Response behavior and localization"
+          title={t("settings.aiFormTempLangTitle")}
+          subtitle={t("settings.aiFormTempLangSubtitle")}
         />
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1.5">
-            <label htmlFor="ai-temp" className={shellFormLabelClass}>
-              Температура
-            </label>
+          <FormField label={t("settings.aiFormTemperature")} htmlFor="ai-temp">
             <Input
               id="ai-temp"
               type="number"
@@ -150,53 +154,41 @@ export function AISettingsForm({ settings, configured }: Props) {
               value={temperature}
               onChange={(e) => setTemperature(e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-lang" className={shellFormLabelClass}>
-              Язык системы
-            </label>
-            <Input
+          </FormField>
+          <FormField label={t("settings.aiFormSystemLanguage")} htmlFor="ai-lang">
+            <Select
               id="ai-lang"
               value={systemLanguage}
-              onChange={(e) => setSystemLanguage(e.target.value)}
-              placeholder="ru"
+              onChange={setSystemLanguage}
+              options={languageOptions}
             />
-          </div>
+          </FormField>
         </div>
       </section>
 
       <section className="space-y-4 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-4">
         <Section
-          title="Model and reliability"
-          subtitle="Advanced runtime parameters"
+          title={t("settings.aiFormModelTitle")}
+          subtitle={t("settings.aiFormModelSubtitle")}
         />
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="space-y-1.5">
-            <label htmlFor="ai-model" className={shellFormLabelClass}>
-              Модель
-            </label>
+          <FormField label={t("settings.aiFormModel")} htmlFor="ai-model">
             <Select
               id="ai-model"
               value={model}
               onChange={setModel}
               options={modelOptions}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-tokens" className={shellFormLabelClass}>
-              Макс. токенов ответа
-            </label>
+          </FormField>
+          <FormField label={t("settings.aiFormMaxTokens")} htmlFor="ai-tokens">
             <Input
               id="ai-tokens"
               type="number"
               value={maxOutputTokens}
               onChange={(e) => setMaxOutputTokens(e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-top-p" className={shellFormLabelClass}>
-              Top P
-            </label>
+          </FormField>
+          <FormField label={t("settings.aiFormTopP")} htmlFor="ai-top-p">
             <Input
               id="ai-top-p"
               type="number"
@@ -206,76 +198,61 @@ export function AISettingsForm({ settings, configured }: Props) {
               value={topP}
               onChange={(e) => setTopP(e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-tool-choice" className={shellFormLabelClass}>
-              Выбор инструментов
-            </label>
+          </FormField>
+          <FormField label={t("settings.aiFormToolChoice")} htmlFor="ai-tool-choice">
             <Select
               id="ai-tool-choice"
               value={toolChoice}
               onChange={(value) =>
                 setToolChoice(value as HotelAISettings["tool_choice"])
               }
-              options={TOOL_CHOICE_OPTIONS.map((o) => ({
-                value: o.value,
-                label: o.label,
+              options={toolChoiceOptions.map((option) => ({
+                value: option.value,
+                label: option.label,
               }))}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-rate" className={shellFormLabelClass}>
-              Лимит запросов / мин
-            </label>
+          </FormField>
+          <FormField label={t("settings.aiFormRateLimit")} htmlFor="ai-rate">
             <Input
               id="ai-rate"
               type="number"
               value={rateLimit}
               onChange={(e) => setRateLimit(e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-timeout" className={shellFormLabelClass}>
-              Таймаут (мс)
-            </label>
+          </FormField>
+          <FormField label={t("settings.aiFormTimeout")} htmlFor="ai-timeout">
             <Input
               id="ai-timeout"
               type="number"
               value={timeoutMs}
               onChange={(e) => setTimeoutMs(e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-rounds" className={shellFormLabelClass}>
-              Макс. раундов инструментов
-            </label>
+          </FormField>
+          <FormField label={t("settings.aiFormMaxToolRounds")} htmlFor="ai-rounds">
             <Input
               id="ai-rounds"
               type="number"
               value={maxToolRounds}
               onChange={(e) => setMaxToolRounds(e.target.value)}
             />
-          </div>
-          <div className="space-y-1.5">
-            <label htmlFor="ai-retries" className={shellFormLabelClass}>
-              Повторы при ошибке
-            </label>
+          </FormField>
+          <FormField label={t("settings.aiFormRetries")} htmlFor="ai-retries">
             <Input
               id="ai-retries"
               type="number"
               value={maxRetries}
               onChange={(e) => setMaxRetries(e.target.value)}
             />
-          </div>
+          </FormField>
         </div>
       </section>
 
       <Button
         type="submit"
         disabled={pending || !configured}
-        className="rounded-[var(--ds-radius-sm)] bg-emerald-600 hover:bg-emerald-500"
+        className="rounded-[var(--ds-radius-sm)]"
       >
-        {pending ? "Сохранение…" : "Сохранить настройки"}
+        {pending ? t("settings.aiFormSaving") : t("settings.aiFormSave")}
       </Button>
     </form>
   );

@@ -9,11 +9,14 @@ import {
   roomCreateSchema,
   roomUpdateSchema,
 } from "@/lib/validations/room";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 import type { Room } from "@/types/room";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { FormField } from "@/components/ui/core/FormField";
+import { formStackClass } from "@/lib/dashboard/design-system";
 
 type Props = {
   room?: Room;
@@ -26,6 +29,7 @@ type FieldErrors = Partial<
 >;
 
 export function RoomForm({ room, template, onSuccess }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
 
@@ -67,10 +71,10 @@ export function RoomForm({ room, template, onSuccess }: Props) {
       try {
         if (room) {
           await updateRoom({ ...parsed.data, id: room.id });
-          toast.success("Room updated successfully");
+          toast.success(t("rooms.updated"));
         } else {
           await createRoom(parsed.data);
-          toast.success("Room created successfully");
+          toast.success(t("rooms.created"));
         }
 
         router.refresh();
@@ -78,86 +82,73 @@ export function RoomForm({ room, template, onSuccess }: Props) {
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error ? error.message : "Failed to save room"
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("rooms.saveFailed")
+          )
         );
       }
     });
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5" noValidate>
-      <Field label="Room type" htmlFor="room_type" error={errors.room_type}>
+    <form onSubmit={handleSubmit} className={formStackClass} noValidate>
+      <FormField
+        label={t("rooms.formRoomType")}
+        htmlFor="room_type"
+        error={errors.room_type}
+      >
         <Input
           id="room_type"
-          placeholder="Room type"
+          placeholder={t("rooms.formRoomTypePlaceholder")}
           value={roomType}
           onChange={(e) => setRoomType(e.target.value)}
           aria-invalid={Boolean(errors.room_type)}
           aria-describedby={errors.room_type ? "room_type-error" : undefined}
         />
-      </Field>
+      </FormField>
 
-      <Field label="Capacity" htmlFor="capacity" error={errors.capacity}>
+      <FormField
+        label={t("rooms.formCapacity")}
+        htmlFor="capacity"
+        error={errors.capacity}
+      >
         <Input
           id="capacity"
           type="number"
           min={1}
-          placeholder="Capacity"
+          placeholder={t("rooms.formCapacityPlaceholder")}
           value={capacity}
           onChange={(e) => setCapacity(e.target.value)}
           aria-invalid={Boolean(errors.capacity)}
           aria-describedby={errors.capacity ? "capacity-error" : undefined}
         />
-      </Field>
+      </FormField>
 
-      <Field label="Price per night" htmlFor="price" error={errors.price}>
+      <FormField
+        label={t("rooms.formPricePerNight")}
+        htmlFor="price"
+        error={errors.price}
+      >
         <Input
           id="price"
           type="number"
           min={1}
-          placeholder="Price"
+          placeholder={t("rooms.formPricePlaceholder")}
           value={price}
           onChange={(e) => setPrice(e.target.value)}
           aria-invalid={Boolean(errors.price)}
           aria-describedby={errors.price ? "price-error" : undefined}
         />
-      </Field>
+      </FormField>
 
       <Button type="submit" className="w-full" disabled={pending}>
         {pending
-          ? "Saving..."
+          ? t("common.saving")
           : room
-          ? "Save changes"
-          : "Create room"}
+            ? t("rooms.formSaveChanges")
+            : t("rooms.formCreateRoom")}
       </Button>
     </form>
-  );
-}
-
-function Field({
-  label,
-  htmlFor,
-  error,
-  children,
-}: {
-  label: string;
-  htmlFor: string;
-  error?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="space-y-1.5">
-      <label htmlFor={htmlFor} className="block text-sm text-[var(--shell-muted)]">
-        {label}
-      </label>
-
-      {children}
-
-      {error && (
-        <p id={`${htmlFor}-error`} className="text-sm text-red-400">
-          {error}
-        </p>
-      )}
-    </div>
   );
 }

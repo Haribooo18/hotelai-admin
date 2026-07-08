@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   value: string[];
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export function GuestTagsInput({ value, onChange, id }: Props) {
+  const { t } = useI18n();
   const [draft, setDraft] = useState("");
 
   function addTag(raw: string) {
@@ -26,7 +28,7 @@ export function GuestTagsInput({ value, onChange, id }: Props) {
   }
 
   function removeTag(tag: string) {
-    onChange(value.filter((t) => t !== tag));
+    onChange(value.filter((item) => item !== tag));
   }
 
   return (
@@ -41,7 +43,7 @@ export function GuestTagsInput({ value, onChange, id }: Props) {
               {tag}
               <button
                 type="button"
-                aria-label={`Remove tag ${tag}`}
+                aria-label={tag}
                 onClick={() => removeTag(tag)}
                 className="text-[var(--shell-muted)] transition hover:text-[var(--shell-text)]"
               >
@@ -55,8 +57,8 @@ export function GuestTagsInput({ value, onChange, id }: Props) {
       <Input
         id={id}
         value={draft}
-        placeholder="Add a tag and press Enter"
-        aria-label="Add tag"
+        placeholder={t("guests.addTagPlaceholder")}
+        aria-label={t("guests.addTagAria")}
         onChange={(e) => setDraft(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === ",") {

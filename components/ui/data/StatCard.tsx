@@ -1,6 +1,13 @@
 import type { ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 
+import {
+  cardPaddingClass,
+  cardRadiusClass,
+  kpiIconContainerClass,
+  kpiIconSize,
+  kpiMetricGapClass,
+} from "@/lib/dashboard/design-system";
 import { surfaceStaticClass } from "@/lib/design/elevation";
 import { cn } from "@/lib/utils";
 
@@ -20,23 +27,17 @@ export function StatCard({
   className,
 }: StatCardProps) {
   return (
-    <div className={cn(surfaceStaticClass, "p-[var(--ds-surface-padding)]", className)}>
+    <div className={cn(surfaceStaticClass, cardRadiusClass, cardPaddingClass, className)}>
       <div className="flex items-center gap-2">
         {Icon ? (
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)]">
-            <Icon size={15} aria-hidden />
+          <div className={kpiIconContainerClass}>
+            <Icon size={kpiIconSize} aria-hidden />
           </div>
         ) : null}
-        <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-          {label}
-        </p>
+        <p className="ds-overline">{label}</p>
       </div>
-      <p className="mt-2.5 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] leading-[var(--type-kpi-leading)] tracking-[var(--type-kpi-tracking)] text-[var(--shell-text)]">
-        {value}
-      </p>
-      {hint ? (
-        <p className="mt-1 text-[12px] text-[var(--shell-muted)]">{hint}</p>
-      ) : null}
+      <p className={cn(kpiMetricGapClass, "ds-kpi")}>{value}</p>
+      {hint ? <p className="mt-1 ds-caption">{hint}</p> : null}
     </div>
   );
 }

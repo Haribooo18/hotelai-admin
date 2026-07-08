@@ -9,12 +9,14 @@ import type { Guest } from "@/types/guest";
 import type { Room } from "@/types/room";
 
 import { deleteGuest, setGuestFavorite } from "@/lib/services/guests.mutations";
+import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { PageHeader } from "@/components/ui/layout/PageHeader";
-import { useI18n } from "@/lib/i18n";
+import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 import { GuestCreateDialog } from "./GuestCreateDialog";
 import { GuestDetailDrawer } from "./GuestDetailDrawer";
@@ -29,7 +31,6 @@ import {
   extractCountryOptions,
   sortGuestModels,
   type GuestCardModel,
-  type GuestViewMode,
 } from "./guest-crm-metrics";
 import {
   extractLanguageOptions,
@@ -65,6 +66,8 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
   );
 
   const [createOpen, setCreateOpen] = useState(false);
+  const openCreate = useCallback(() => setCreateOpen(true), []);
+  useCreateQueryParam(openCreate);
   const [editOpen, setEditOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<GuestCardModel | null>(null);
@@ -73,7 +76,6 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
   const [drawerModel, setDrawerModel] = useState<GuestCardModel | null>(null);
 
   const [filters, setFilters] = useState<GuestsToolbarFilters>(DEFAULT_FILTERS);
-  const [viewMode, setViewMode] = useState<GuestViewMode>("cards");
 
   const tagOptions = useMemo(() => {
     const set = new Set<string>();
@@ -193,13 +195,13 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
 
       try {
         await deleteGuest(id);
-        toast.success("Guest deleted");
+        toast.success(t("guests.deleted"));
         setDeleteTarget(null);
         setDrawerModel(null);
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Failed to delete guest");
+        toast.error(t("guests.deleteFailed"));
       }
     });
   }
@@ -212,39 +214,38 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
           router.refresh();
         } catch (error) {
           console.error(error);
-          toast.error("Failed to update status");
+          toast.error(t("errors.updateFailed"));
         }
       });
     },
-    [router, startTransition]
+    [router, startTransition, t]
   );
 
   return (
-    <Stack gap="md" className="ds-page-enter">
-      <PageHeader
-        title={t("pages.guests.title")}
-        subtitle={t("pages.guests.subtitle")}
-      />
-
-      <GuestsExecutiveKpis kpis={kpis} loading={refreshing} />
-
-      <GuestToolbar
-        filters={filters}
-        viewMode={viewMode}
-        tagOptions={tagOptions}
-        countryOptions={countryOptions}
-        languageOptions={languageOptions}
-        refreshing={refreshing}
-        onFiltersChange={setFilters}
-        onViewModeChange={setViewMode}
-        onCreateClick={() => setCreateOpen(true)}
-        onRefresh={handleRefresh}
-      />
-
-      <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+    <>
+      <WorkspacePageLayout
+        header={
+          <PageHeader
+            title={t("pages.guests.title")}
+            subtitle={t("pages.guests.subtitle")}
+          />
+        }
+        kpis={<GuestsExecutiveKpis kpis={kpis} loading={refreshing} />}
+        toolbar={
+          <GuestToolbar
+            filters={filters}
+            tagOptions={tagOptions}
+            countryOptions={countryOptions}
+            languageOptions={languageOptions}
+            refreshing={refreshing}
+            onFiltersChange={setFilters}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
+        <GlassSurface className={workspaceSurfaceClass}>
         <GuestsCardsView
           models={filteredModels}
-          viewMode={viewMode}
           loading={false}
           selectedId={selectedId}
           onOpenGuest={handleOpenGuest}
@@ -259,6 +260,7 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
         loading={false}
         onSelect={handleOpenGuest}
       />
+      </WorkspacePageLayout>
 
       <GuestDetailDrawer
         open={drawerOpen}
@@ -289,17 +291,19 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
         onOpenChange={(open) => {
           if (!open) setDeleteTarget(null);
         }}
-        title="Delete guest?"
+        title={t("guests.deleteConfirm")}
         description={
           deleteTarget
-            ? `Guest "${deleteTarget.guest.first_name} ${deleteTarget.guest.last_name}" will be moved to the archive (soft delete).`
+            ? formatTranslation(t("guests.deleteConfirmDesc"), {
+                name: `${deleteTarget.guest.first_name} ${deleteTarget.guest.last_name}`.trim(),
+              })
             : undefined
         }
-        confirmLabel="Delete"
+        confirmLabel={t("common.delete")}
         destructive
         loading={pending}
         onConfirm={confirmDelete}
       />
-    </Stack>
+    </>
   );
 }

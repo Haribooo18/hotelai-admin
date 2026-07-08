@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  ArrowLeftRight,
-  Download,
-  Filter,
-  RefreshCw,
-} from "lucide-react";
+import { useMemo } from "react";
+import { ArrowLeftRight, Download, Filter, RefreshCw } from "lucide-react";
 
-import { Button } from "@/components/ui/core/Button";
-import { Input } from "@/components/ui/core/Input";
+import { ToolbarDateInput } from "@/components/ui/core/ToolbarDateInput";
 import { SearchInput } from "@/components/ui/core/SearchInput";
 import {
   DropdownMenu,
@@ -16,9 +11,18 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/overlay/DropdownMenu";
-import { FilterBar, FilterChip } from "@/components/ui/data/FilterBar";
+import {
+  FilterChip,
+  ToolbarSecondaryButton,
+} from "@/components/ui/data/FilterBar";
+import { WorkspaceToolbar } from "@/components/dashboard/shared/WorkspaceToolbar";
 import { BOOKING_STATUS_OPTIONS } from "@/lib/booking-status";
-import { toolbarControlClass } from "@/lib/dashboard/design-system";
+import {
+  toolbarControlClass,
+  toolbarFilterIconSize,
+  toolbarInlineLabelClass,
+} from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
 import type { Room } from "@/types/room";
 
 import {
@@ -28,17 +32,6 @@ import {
   type RevenueToolbarFilters,
 } from "./revenue-ui";
 import type { RevenueDateRange } from "./revenue-metrics";
-
-const PRESET_OPTIONS: Array<{
-  value: Exclude<RevenueRangePreset, "custom">;
-  label: string;
-}> = [
-  { value: "today", label: "Today" },
-  { value: "week", label: "Week" },
-  { value: "month", label: "Month" },
-  { value: "quarter", label: "Quarter" },
-  { value: "year", label: "Year" },
-];
 
 type Props = {
   range: RevenueDateRange;
@@ -73,16 +66,44 @@ export function RevenueToolbar({
   onRefresh,
   onFiltersChange,
 }: Props) {
+  const { t } = useI18n();
+
+  const presetOptions = useMemo(
+    (): Array<{
+      value: Exclude<RevenueRangePreset, "custom">;
+      label: string;
+    }> => [
+      { value: "today", label: t("revenue.today") },
+      { value: "week", label: t("revenue.week") },
+      { value: "month", label: t("revenue.month") },
+      { value: "quarter", label: t("revenue.quarter") },
+      { value: "year", label: t("revenue.year") },
+    ],
+    [t]
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: t("toolbar.allStatuses") },
+      ...BOOKING_STATUS_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(`statuses.booking.${option.value}`),
+      })),
+    ],
+    [t]
+  );
+
   function patch(partial: Partial<RevenueToolbarFilters>) {
     onFiltersChange({ ...filters, ...partial });
   }
 
   const activeStatus =
-    BOOKING_STATUS_OPTIONS.find((option) => option.value === filters.status)
-      ?.label ?? "All statuses";
+    statusOptions.find((option) => option.value === filters.status)?.label ??
+    t("toolbar.allStatuses");
 
   const activeRoom =
-    rooms.find((room) => room.id === filters.roomId)?.room_type ?? "All rooms";
+    rooms.find((room) => room.id === filters.roomId)?.room_type ??
+    t("toolbar.allRooms");
 
   function applyPreset(next: Exclude<RevenueRangePreset, "custom">) {
     onPresetChange(next);
@@ -90,106 +111,43 @@ export function RevenueToolbar({
   }
 
   return (
-    <FilterBar
-      leading={
-        <div className="flex flex-wrap items-center gap-2">
-          {PRESET_OPTIONS.map((option) => (
-            <FilterChip
-              key={option.value}
-              active={preset === option.value}
-              onClick={() => applyPreset(option.value)}
-            >
-              {option.label}
-            </FilterChip>
-          ))}
-          <FilterChip
-            active={preset === "custom" || detectRevenuePreset(range) === "custom"}
-            onClick={() => onPresetChange("custom")}
-          >
-            Custom
-          </FilterChip>
-        </div>
+    <WorkspaceToolbar
+      search={
+        <SearchInput
+          placeholder={t("revenue.searchPlaceholder")}
+          aria-label={t("revenue.searchAria")}
+          value={filters.search}
+          onChange={(event) => patch({ search: event.target.value })}
+        />
       }
-      trailing={
+      primaryFilters={
         <>
-          <Input
-            type="date"
+          <ToolbarDateInput
             value={range.from}
             onChange={(event) => {
               onPresetChange("custom");
               onRangeChange({ ...range, from: event.target.value });
             }}
-            aria-label="Start date"
-            className="h-[var(--ds-input-height)] w-[148px]"
+            aria-label={t("revenue.startDate")}
           />
-          <span className="text-[12px] text-[var(--shell-muted)]">to</span>
-          <Input
-            type="date"
+          <span className={toolbarInlineLabelClass}>{t("revenue.dateTo")}</span>
+          <ToolbarDateInput
             value={range.to}
             onChange={(event) => {
               onPresetChange("custom");
               onRangeChange({ ...range, to: event.target.value });
             }}
-            aria-label="End date"
-            className="h-[var(--ds-input-height)] w-[148px]"
-          />
-
-          <Button
-            type="button"
-            variant={compareEnabled ? "default" : "outline"}
-            size="sm"
-            onClick={() => onCompareChange(!compareEnabled)}
-            className="gap-2"
-          >
-            <ArrowLeftRight size={15} aria-hidden />
-            Compare
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onExport}
-            disabled={exporting || !canExport}
-            loading={exporting}
-            className="gap-2"
-          >
-            <Download size={15} aria-hidden />
-            Export
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            disabled={refreshing}
-            loading={refreshing}
-            className="gap-2"
-          >
-            <RefreshCw size={15} aria-hidden />
-            Refresh
-          </Button>
-        </>
-      }
-      filters={
-        <>
-          <SearchInput
-            containerClassName="min-w-[220px] flex-1 xl:max-w-sm"
-            placeholder="Search guest or room"
-            aria-label="Search transactions"
-            value={filters.search}
-            onChange={(event) => patch({ search: event.target.value })}
+            aria-label={t("revenue.endDate")}
           />
 
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} aria-hidden />
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeRoom}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => patch({ roomId: "" })}>
-                All rooms
+                {t("toolbar.allRooms")}
               </DropdownMenuItem>
               {rooms.map((room) => (
                 <DropdownMenuItem
@@ -204,16 +162,13 @@ export function RevenueToolbar({
 
           <DropdownMenu>
             <DropdownMenuTrigger className={toolbarControlClass}>
-              <Filter size={15} aria-hidden />
+              <Filter size={toolbarFilterIconSize} aria-hidden />
               {activeStatus}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => patch({ status: "" })}>
-                All statuses
-              </DropdownMenuItem>
-              {BOOKING_STATUS_OPTIONS.map((option) => (
+              {statusOptions.map((option) => (
                 <DropdownMenuItem
-                  key={option.value}
+                  key={option.value || "all"}
                   onClick={() => patch({ status: option.value })}
                 >
                   {option.label}
@@ -221,6 +176,57 @@ export function RevenueToolbar({
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
+        </>
+      }
+      actions={
+        <>
+          <ToolbarSecondaryButton
+            type="button"
+            variant={compareEnabled ? "default" : "outline"}
+            onClick={() => onCompareChange(!compareEnabled)}
+          >
+            <ArrowLeftRight size={toolbarFilterIconSize} aria-hidden />
+            {t("revenue.compare")}
+          </ToolbarSecondaryButton>
+
+          <ToolbarSecondaryButton
+            type="button"
+            onClick={onExport}
+            disabled={exporting || !canExport}
+            loading={exporting}
+          >
+            <Download size={toolbarFilterIconSize} aria-hidden />
+            {t("common.export")}
+          </ToolbarSecondaryButton>
+
+          <ToolbarSecondaryButton
+            type="button"
+            onClick={onRefresh}
+            disabled={refreshing}
+            loading={refreshing}
+          >
+            <RefreshCw size={toolbarFilterIconSize} aria-hidden />
+            {t("common.refresh")}
+          </ToolbarSecondaryButton>
+        </>
+      }
+      chips={
+        <>
+          {presetOptions.map((option) => (
+            <FilterChip
+              key={option.value}
+              active={preset === option.value}
+              onClick={() => applyPreset(option.value)}
+            >
+              {option.label}
+            </FilterChip>
+          ))}
+          <FilterChip
+            active={preset === "custom" || detectRevenuePreset(range) === "custom"}
+            onClick={() => onPresetChange("custom")}
+          >
+            {t("revenue.custom")}
+          </FilterChip>
         </>
       }
     />

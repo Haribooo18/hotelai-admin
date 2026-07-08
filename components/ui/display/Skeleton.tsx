@@ -30,14 +30,16 @@ export function SkeletonGroup({
 type SkeletonRowsProps = {
   rows?: number;
   rowClassName?: string;
+  className?: string;
 };
 
 export function SkeletonRows({
   rows = 6,
   rowClassName = "h-14",
+  className,
 }: SkeletonRowsProps) {
   return (
-    <div className="space-y-2">
+    <div className={cn("space-y-2", className)}>
       {Array.from({ length: rows }).map((_, index) => (
         <Skeleton
           key={index}

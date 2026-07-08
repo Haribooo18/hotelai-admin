@@ -12,6 +12,7 @@ import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { todayIso } from "@/lib/dashboard/date";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 import { HousekeepingBadge } from "./HousekeepingBadge";
 import { MaintenanceBadge } from "./MaintenanceBadge";
@@ -37,11 +38,15 @@ function RoomOpsList({
   emptyTitle,
   emptyDescription,
   onSelect,
+  openRoomAria,
+  opsRoomLine,
 }: {
   models: RoomCardModel[];
   emptyTitle: string;
   emptyDescription: string;
   onSelect?: (model: RoomCardModel) => void;
+  openRoomAria: (code: string) => string;
+  opsRoomLine: (code: string, type: string) => string;
 }) {
   if (models.length === 0) {
     return (
@@ -59,13 +64,13 @@ function RoomOpsList({
         <RoomOpsListItem
           key={model.room.id}
           role="listitem"
-          aria-label={`Open room ${model.roomCode}`}
+          aria-label={openRoomAria(model.roomCode)}
           onClick={() => onSelect?.(model)}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
-                Room {model.roomCode} · {model.room.room_type}
+                {opsRoomLine(model.roomCode, model.room.room_type)}
               </p>
               <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
                 {model.floorLabel}
@@ -92,6 +97,7 @@ export function RoomsOperations({
   loading = false,
   onSelect,
 }: Props) {
+  const { t } = useI18n();
   const today = todayIso();
 
   const occupiedToday = useMemo(
@@ -138,12 +144,20 @@ export function RoomsOperations({
     [bookings, today]
   );
 
+  const openRoomAria = (code: string) =>
+    formatTranslation(t("rooms.openRoomAria"), { code });
+  const opsRoomLine = (code: string, type: string) =>
+    formatTranslation(t("rooms.opsRoomLine"), { code, type });
+
   if (loading) {
     return (
-      <Section title="Operations" subtitle="Housekeeping and inventory activity">
+      <Section
+        title={t("rooms.operationsTitle")}
+        subtitle={t("rooms.operationsSubtitle")}
+      >
         <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
           {Array.from({ length: 7 }).map((_, index) => (
-            <DataCard key={index} title="Loading">
+            <DataCard key={index} title={t("rooms.operationsLoading")}>
               <SkeletonGroup />
             </DataCard>
           ))}
@@ -154,84 +168,104 @@ export function RoomsOperations({
 
   return (
     <Section
-      title="Operations"
-      subtitle="Housekeeping, maintenance, and daily room flow"
+      title={t("rooms.operationsTitle")}
+      subtitle={t("rooms.operationsSubtitle")}
     >
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
         <DataCard
           interactive
-          title="Occupied today"
-          subtitle={`${occupiedToday.length} in-house rooms`}
+          title={t("rooms.opsOccupiedTitle")}
+          subtitle={formatTranslation(t("rooms.opsOccupiedSubtitle"), {
+            count: String(occupiedToday.length),
+          })}
         >
           <RoomOpsList
             models={occupiedToday}
-            emptyTitle="No occupied rooms"
-            emptyDescription="Rooms with active stays will appear here."
+            emptyTitle={t("rooms.opsOccupiedEmpty")}
+            emptyDescription={t("rooms.opsOccupiedEmptyDesc")}
             onSelect={onSelect}
+            openRoomAria={openRoomAria}
+            opsRoomLine={opsRoomLine}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Vacant"
-          subtitle={`${vacant.length} ready inventory`}
+          title={t("rooms.opsVacantTitle")}
+          subtitle={formatTranslation(t("rooms.opsVacantSubtitle"), {
+            count: String(vacant.length),
+          })}
         >
           <RoomOpsList
             models={vacant}
-            emptyTitle="No vacant rooms"
-            emptyDescription="Available rooms will appear here."
+            emptyTitle={t("rooms.opsVacantEmpty")}
+            emptyDescription={t("rooms.opsVacantEmptyDesc")}
             onSelect={onSelect}
+            openRoomAria={openRoomAria}
+            opsRoomLine={opsRoomLine}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Dirty"
-          subtitle={`${dirty.length} need service`}
+          title={t("rooms.opsDirtyTitle")}
+          subtitle={formatTranslation(t("rooms.opsDirtySubtitle"), {
+            count: String(dirty.length),
+          })}
         >
           <RoomOpsList
             models={dirty}
-            emptyTitle="No dirty rooms"
-            emptyDescription="Rooms awaiting housekeeping will appear here."
+            emptyTitle={t("rooms.opsDirtyEmpty")}
+            emptyDescription={t("rooms.opsDirtyEmptyDesc")}
             onSelect={onSelect}
+            openRoomAria={openRoomAria}
+            opsRoomLine={opsRoomLine}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Cleaning"
-          subtitle={`${cleaning.length} in turnover`}
+          title={t("rooms.opsCleaningTitle")}
+          subtitle={formatTranslation(t("rooms.opsCleaningSubtitle"), {
+            count: String(cleaning.length),
+          })}
         >
           <RoomOpsList
             models={cleaning}
-            emptyTitle="No rooms in cleaning"
-            emptyDescription="Post-checkout turnover rooms will appear here."
+            emptyTitle={t("rooms.opsCleaningEmpty")}
+            emptyDescription={t("rooms.opsCleaningEmptyDesc")}
             onSelect={onSelect}
+            openRoomAria={openRoomAria}
+            opsRoomLine={opsRoomLine}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Maintenance"
-          subtitle={`${maintenance.length} out of service`}
+          title={t("rooms.opsMaintenanceTitle")}
+          subtitle={formatTranslation(t("rooms.opsMaintenanceSubtitle"), {
+            count: String(maintenance.length),
+          })}
         >
           <RoomOpsList
             models={maintenance}
-            emptyTitle="No maintenance blocks"
-            emptyDescription="Rooms flagged for maintenance will appear here."
+            emptyTitle={t("rooms.opsMaintenanceEmpty")}
+            emptyDescription={t("rooms.opsMaintenanceEmptyDesc")}
             onSelect={onSelect}
+            openRoomAria={openRoomAria}
+            opsRoomLine={opsRoomLine}
           />
         </DataCard>
 
         <DataCard
           interactive
-          title="Revenue by room"
-          subtitle="Top performers today"
+          title={t("rooms.opsRevenueTitle")}
+          subtitle={t("rooms.opsRevenueSubtitle")}
         >
           {revenueByRoom.length === 0 ? (
             <EmptyState
-              title="No revenue yet"
-              description="Room revenue will appear as stays are recorded."
+              title={t("rooms.opsNoRevenue")}
+              description={t("rooms.opsNoRevenueDesc")}
               icon={<BedDouble size={16} />}
             />
           ) : (
@@ -249,7 +283,7 @@ export function RoomsOperations({
                   >
                     <div className="flex items-center justify-between gap-3">
                       <p className="text-[12px] font-medium text-[var(--shell-text)]">
-                        Room {model.roomCode}
+                        {opsRoomLine(model.roomCode, model.room.room_type)}
                       </p>
                       <p className="text-[12px] font-semibold text-[var(--shell-text)]">
                         {formatRoomCurrency(model.revenueToday)}
@@ -265,13 +299,13 @@ export function RoomsOperations({
 
         <DataCard
           interactive
-          title="Upcoming check-ins"
-          subtitle="Future arrivals by room"
+          title={t("rooms.opsCheckInsTitle")}
+          subtitle={t("rooms.opsCheckInsSubtitle")}
         >
           {upcomingCheckIns.length === 0 ? (
             <EmptyState
-              title="No upcoming check-ins"
-              description="Confirmed future arrivals will appear here."
+              title={t("rooms.opsNoCheckIns")}
+              description={t("rooms.opsNoCheckInsDesc")}
               icon={<CalendarDays size={16} />}
             />
           ) : (
@@ -296,22 +330,18 @@ export function RoomsOperations({
 
         <DataCard
           interactive
-          title="Occupancy summary"
-          subtitle="Live utilization"
+          title={t("rooms.opsOccupancyTitle")}
+          subtitle={t("rooms.opsOccupancySubtitle")}
         >
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 px-3 py-3">
-              <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-                Occupied
-              </p>
+              <p className="ds-overline">{t("rooms.summaryOccupied")}</p>
               <p className="mt-2 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
                 <Metric value={kpis.occupied} />
               </p>
             </div>
             <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 px-3 py-3">
-              <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-                Occupancy
-              </p>
+              <p className="ds-overline">{t("rooms.summaryOccupancy")}</p>
               <p className="mt-2 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
                 <Metric
                   value={kpis.averageOccupancy}
@@ -323,7 +353,9 @@ export function RoomsOperations({
               <MaintenanceBadge active={maintenance.length > 0} />
               {maintenance.length > 0 ? (
                 <span className="text-[11px] text-[var(--shell-muted)]">
-                  {maintenance.length} rooms blocked
+                  {formatTranslation(t("rooms.roomsBlocked"), {
+                    count: String(maintenance.length),
+                  })}
                 </span>
               ) : null}
             </div>

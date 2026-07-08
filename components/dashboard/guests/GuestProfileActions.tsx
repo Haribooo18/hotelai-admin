@@ -15,6 +15,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 import { GuestEditDialog } from "./GuestEditDialog";
 import { MergeGuestsDialog } from "./MergeGuestsDialog";
@@ -25,6 +26,7 @@ type Props = {
 };
 
 export function GuestProfileActions({ guest, candidates }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [editOpen, setEditOpen] = useState(false);
@@ -42,7 +44,12 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Failed to update status");
+        toast.error(
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("errors.updateFailed")
+          )
+        );
       }
     });
   }
@@ -51,11 +58,16 @@ export function GuestProfileActions({ guest, candidates }: Props) {
     startTransition(async () => {
       try {
         await deleteGuest(guest.id);
-        toast.success("Guest deleted");
+        toast.success(t("guests.deleted"));
         router.push("/guests");
       } catch (error) {
         console.error(error);
-        toast.error("Failed to delete guest");
+        toast.error(
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("guests.deleteFailed")
+          )
+        );
       }
     });
   }
@@ -70,7 +82,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => toggleFlag("vip")}
       >
         <Crown size={16} className="mr-1.5" />
-        {guest.is_vip ? "Remove VIP" : "VIP"}
+        {guest.is_vip ? t("guests.vipOnly") : t("guests.vipLabel")}
       </Button>
 
       <Button
@@ -81,7 +93,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => toggleFlag("favorite")}
       >
         <Star size={16} className="mr-1.5" />
-        {guest.is_favorite ? "Remove from favorites" : "Add to favorites"}
+        {guest.is_favorite ? t("guests.removeFavorite") : t("guests.addFavorite")}
       </Button>
 
       <Button
@@ -91,16 +103,12 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => setMergeOpen(true)}
       >
         <GitMerge size={16} className="mr-1.5" />
-        Merge
+        {t("guests.mergeTitle")}
       </Button>
 
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => setEditOpen(true)}
-      >
+      <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
         <Pencil size={16} className="mr-1.5" />
-        Edit
+        {t("common.edit")}
       </Button>
 
       <Button
@@ -110,7 +118,7 @@ export function GuestProfileActions({ guest, candidates }: Props) {
         onClick={() => setDeleteOpen(true)}
       >
         <Trash2 size={16} className="mr-1.5" />
-        Delete
+        {t("common.delete")}
       </Button>
 
       <GuestEditDialog open={editOpen} onOpenChange={setEditOpen} guest={guest} />
@@ -125,9 +133,9 @@ export function GuestProfileActions({ guest, candidates }: Props) {
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title="Delete guest?"
-        description={`Guest "${guest.first_name} ${guest.last_name}" will be moved to the archive.`}
-        confirmLabel="Delete"
+        title={t("guests.deleteConfirm")}
+        description={`${guest.first_name} ${guest.last_name}`}
+        confirmLabel={t("common.delete")}
         destructive
         loading={pending}
         onConfirm={confirmDelete}

@@ -9,6 +9,7 @@ import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { Surface } from "@/components/ui/primitives/Surface";
 import { Section } from "@/components/ui/primitives/Section";
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 
 import type { DashboardAlert } from "./dashboard-metrics";
 import { DashboardListItem, matchesDashboardSearch } from "./dashboard-ui";
@@ -42,6 +43,7 @@ export function DashboardAlerts({
   loading,
   searchQuery = "",
 }: Props) {
+  const { t } = useI18n();
   const filteredAlerts = alerts.filter((alert) =>
     matchesDashboardSearch(searchQuery, [alert.title, alert.description])
   );
@@ -49,20 +51,20 @@ export function DashboardAlerts({
   return (
     <Surface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
       <Section
-        title="Important alerts"
-        subtitle="Operational signals that need attention"
+        title={t("dashboard.alertsTitle")}
+        subtitle={t("dashboard.alertsSubtitle")}
       />
 
       {loading ? (
         <SkeletonGroup />
       ) : filteredAlerts.length === 0 ? (
         <EmptyState
-          title="All clear"
-          description="No urgent items right now. Alerts will surface when action is needed."
+          title={t("dashboard.allClear")}
+          description={t("dashboard.alertsAllClearDesc")}
           icon={<Bell size={18} />}
         />
       ) : (
-        <div className="space-y-2" role="list" aria-label="Important alerts">
+        <div className="space-y-2" role="list" aria-label={t("dashboard.alertsAriaLabel")}>
           {filteredAlerts.map((alert) => {
             const meta = SEVERITY_META[alert.severity];
             const Icon = meta.icon;

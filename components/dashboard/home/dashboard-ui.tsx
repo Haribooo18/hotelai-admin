@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
 
 import { motionPresets } from "@/lib/design/motion";
+import { cardListItemClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 export function DashboardCardAction({
@@ -16,7 +17,7 @@ export function DashboardCardAction({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-1 text-[12px] font-medium text-[var(--shell-accent)]",
+        "inline-flex items-center gap-1 ds-caption font-medium text-[var(--shell-accent)]",
         motionPresets.transitionOpacity,
         "hover:opacity-80 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"
       )}
@@ -40,7 +41,7 @@ export function DashboardListItem({
   return (
     <Component
       className={cn(
-        "rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3",
+        cardListItemClass,
         motionPresets.transitionBase,
         motionPresets.hover.surfaceLift,
         className
@@ -60,9 +61,7 @@ export type TrendHint = {
 export function DashboardTrendHint({ trend }: { trend: TrendHint }) {
   if (trend.direction === "flat") {
     return (
-      <span className="text-[11px] font-medium text-[var(--shell-muted)]">
-        {trend.label}
-      </span>
+      <span className="ds-caption font-medium">{trend.label}</span>
     );
   }
 
@@ -71,7 +70,7 @@ export function DashboardTrendHint({ trend }: { trend: TrendHint }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 text-[11px] font-medium",
+        "inline-flex items-center gap-1 ds-caption font-medium",
         trend.direction === "up" ? "text-emerald-400" : "text-amber-400"
       )}
     >

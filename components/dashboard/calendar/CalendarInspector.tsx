@@ -16,6 +16,7 @@ import {
   formatBookingDate,
   type BookingCardModel,
 } from "@/components/dashboard/bookings/booking-ops-metrics";
+import { useI18n } from "@/lib/i18n";
 
 import { CalendarDetailRow } from "./calendar-ui";
 
@@ -25,13 +26,18 @@ type Props = {
 };
 
 export function CalendarInspector({ model, onOpen }: Props) {
+  const { t } = useI18n();
+
   if (!model) {
     return (
       <Panel variant="glass" className="h-full p-[var(--ds-surface-padding)]">
-        <Section title="Inspector" subtitle="Selected reservation details" />
+        <Section
+          title={t("calendar.inspectorTitle")}
+          subtitle={t("calendar.inspectorSubtitle")}
+        />
         <EmptyState
-          title="No reservation selected"
-          description="Select a booking on the timeline or agenda to inspect details."
+          title={t("calendar.noSelection")}
+          description={t("calendar.noSelectionDesc")}
           icon={<CalendarDays size={18} />}
         />
       </Panel>
@@ -45,16 +51,16 @@ export function CalendarInspector({ model, onOpen }: Props) {
   const today = todayIso();
 
   const stayKind = (() => {
-    if (isActiveStay(booking, today)) return "Current stay";
-    if (booking.check_in === today) return "Arrival";
-    if (booking.check_out === today) return "Departure";
-    return "Scheduled stay";
+    if (isActiveStay(booking, today)) return t("calendar.currentStay");
+    if (booking.check_in === today) return t("calendar.arrival");
+    if (booking.check_out === today) return t("calendar.departure");
+    return t("calendar.scheduledStay");
   })();
 
   return (
     <Panel variant="glass" className="h-full p-[var(--ds-surface-padding)]">
       <Section
-        title="Inspector"
+        title={t("calendar.inspectorTitle")}
         subtitle={stayKind}
         action={
           <Button
@@ -65,7 +71,7 @@ export function CalendarInspector({ model, onOpen }: Props) {
             className="gap-1.5"
           >
             <ExternalLink size={14} />
-            Open
+            {t("common.open")}
           </Button>
         }
       />
@@ -96,16 +102,16 @@ export function CalendarInspector({ model, onOpen }: Props) {
 
       <dl className="mt-4 grid gap-2">
         <CalendarDetailRow
-          label="Check-in"
+          label={t("bookings.checkIn")}
           value={formatBookingDate(booking.check_in)}
         />
         <CalendarDetailRow
-          label="Check-out"
+          label={t("bookings.checkOut")}
           value={formatBookingDate(booking.check_out)}
         />
-        <CalendarDetailRow label="Nights" value={String(nights)} />
+        <CalendarDetailRow label={t("calendar.nights")} value={String(nights)} />
         <CalendarDetailRow
-          label="Revenue"
+          label={t("bookings.total")}
           value={formatBookingCurrency(Number(booking.total_price))}
         />
       </dl>

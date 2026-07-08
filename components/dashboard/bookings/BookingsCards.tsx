@@ -5,6 +5,7 @@ import { CalendarDays } from "lucide-react";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { useI18n } from "@/lib/i18n";
 
 import { BookingCard } from "./BookingCard";
 import type { BookingCardModel } from "./booking-ops-metrics";
@@ -26,6 +27,8 @@ export function BookingsCards({
   onEdit,
   onDelete,
 }: Props) {
+  const { t } = useI18n();
+
   if (loading) {
     return (
       <GlassSurface className="p-[var(--ds-surface-padding)]">
@@ -41,8 +44,8 @@ export function BookingsCards({
   if (models.length === 0) {
     return (
       <EmptyState
-        title="No reservations found"
-        description="Adjust filters or create a new reservation to populate this workspace."
+        title={t("bookings.noResults")}
+        description={t("bookings.noResultsDesc")}
         icon={<CalendarDays size={18} />}
       />
     );
@@ -52,7 +55,7 @@ export function BookingsCards({
     <div
       className="grid gap-4 md:grid-cols-2 2xl:grid-cols-3"
       role="list"
-      aria-label="Reservation cards"
+      aria-label={t("bookings.cardsAriaLabel")}
     >
       {models.map((model) => (
         <BookingCard

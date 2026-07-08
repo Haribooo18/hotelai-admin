@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
+import { useI18n } from "@/lib/i18n";
 
 import type { Guest } from "@/types/guest";
 
@@ -18,19 +14,17 @@ type Props = {
 };
 
 export function GuestEditDialog({ open, onOpenChange, guest }: Props) {
+  const { t } = useI18n();
+
   if (!guest) return null;
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="sm:max-w-lg overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Edit Guest</SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-6 px-6 pb-6">
-          <GuestForm guest={guest} onSuccess={() => onOpenChange(false)} />
-        </div>
-      </SheetContent>
-    </Sheet>
+    <WorkspaceFormDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      title={t("common.edit")}
+    >
+      <GuestForm guest={guest} onSuccess={() => onOpenChange(false)} />
+    </WorkspaceFormDrawer>
   );
 }

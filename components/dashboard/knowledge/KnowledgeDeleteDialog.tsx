@@ -3,6 +3,7 @@
 import type { KnowledgeArticle } from "@/types/knowledge-article";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 
 type Props = {
   article: KnowledgeArticle | null;
@@ -19,17 +20,21 @@ export function KnowledgeDeleteDialog({
   onConfirm,
   pending,
 }: Props) {
+  const { t } = useI18n();
+
   return (
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Delete article?"
+      title={t("knowledge.deleteDialogTitle")}
       description={
         article
-          ? `"${article.title}" will be moved to trash. The AI receptionist will stop using this article.`
+          ? formatTranslation(t("knowledge.deleteDialogDescWithTitle"), {
+              title: article.title,
+            })
           : undefined
       }
-      confirmLabel="Delete"
+      confirmLabel={t("common.delete")}
       onConfirm={onConfirm}
       loading={pending}
       destructive

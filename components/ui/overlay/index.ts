@@ -26,6 +26,12 @@ export {
 } from "./Drawer";
 
 export {
+  WorkspaceFormDrawer,
+  WorkspaceInspectorDrawer,
+  WorkspaceOverlayActions,
+} from "@/components/dashboard/shared/WorkspaceOverlay";
+
+export {
   DropdownMenu,
   DropdownMenuPortal,
   DropdownMenuTrigger,

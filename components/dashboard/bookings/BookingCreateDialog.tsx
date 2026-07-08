@@ -4,13 +4,9 @@ import { Plus } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { cn } from "@/lib/utils";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { useI18n } from "@/lib/i18n";
 
 import type { Room } from "@/types/room";
 
@@ -27,26 +23,16 @@ export function BookingCreateDialog({
   onOpenChange,
   rooms,
 }: Props) {
+  const { t } = useI18n();
+
   return (
-    <Sheet
+    <WorkspaceFormDrawer
       open={open}
       onOpenChange={onOpenChange}
+      title={t("bookings.dialogNewReservation")}
     >
-      <SheetContent className="sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>
-            New reservation
-          </SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-6">
-          <BookingForm
-            rooms={rooms}
-            onSuccess={() => onOpenChange(false)}
-          />
-        </div>
-      </SheetContent>
-    </Sheet>
+      <BookingForm rooms={rooms} onSuccess={() => onOpenChange(false)} />
+    </WorkspaceFormDrawer>
   );
 }
 
@@ -60,13 +46,16 @@ type ButtonProps = {
 export function BookingCreateButton({
   onClick,
   className,
-  label = "Create reservation",
+  label,
   icon: Icon = Plus,
 }: ButtonProps) {
+  const { t } = useI18n();
+  const resolvedLabel = label ?? t("bookings.createReservation");
+
   return (
-    <Button type="button" onClick={onClick} className={cn(className)}>
-      <Icon className="h-4 w-4" />
-      {label}
+    <Button type="button" size="sm" onClick={onClick} className={cn(className)}>
+      <Icon size={15} aria-hidden />
+      {resolvedLabel}
     </Button>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useState, useTransition, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 
@@ -16,17 +16,14 @@ import { CONVERSATION_CHANNEL_OPTIONS } from "@/lib/ai/metadata";
 import { Button } from "@/components/ui/core/Button";
 import { Input } from "@/components/ui/core/Input";
 import { Select } from "@/components/ui/core/Select";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/overlay/Drawer";
+import { FormField } from "@/components/ui/core/FormField";
+import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { PageHeader } from "@/components/ui/layout/PageHeader";
-import { shellFormLabelClass } from "@/lib/dashboard/design-system";
-import { useI18n } from "@/lib/i18n";
+import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
+import { formRaisedControlClass, formSectionClass } from "@/lib/dashboard/design-system";
+import { localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 import { AIContextPanel } from "./AIContextPanel";
 import { AIExecutiveKpis } from "./AIExecutiveKpis";
@@ -78,6 +75,8 @@ export function AIInboxPage({
 
   const [filters, setFilters] = useState<AIInboxFilters>(DEFAULT_FILTERS);
   const [createOpen, setCreateOpen] = useState(false);
+  const openCreate = useCallback(() => setCreateOpen(true), []);
+  useCreateQueryParam(openCreate);
   const [guestName, setGuestName] = useState("");
   const [channel, setChannel] = useState("website");
   const [pending, startTransition] = useTransition();
@@ -114,11 +113,14 @@ export function AIInboxPage({
       try {
         await streamAIConversation(selectedConversation.id);
         router.refresh();
-        toast.success("AI response regenerated");
+        toast.success(t("ai.regenerateSuccess"));
       } catch (error) {
         console.error(error);
         toast.error(
-          error instanceof Error ? error.message : "Failed to regenerate"
+          localizeErrorWithT(
+            t,
+            error instanceof Error ? error.message : t("ai.aiResponseFailed")
+          )
         );
       }
     });
@@ -133,7 +135,9 @@ export function AIInboxPage({
     });
 
     if (!parsed.success) {
-      toast.error(parsed.error.issues[0]?.message ?? "Error");
+      toast.error(
+        localizeErrorWithT(t, parsed.error.issues[0]?.message ?? t("errors.invalidData"))
+      );
       return;
     }
 
@@ -142,34 +146,36 @@ export function AIInboxPage({
         const id = await createConversation(parsed.data);
         setCreateOpen(false);
         setGuestName("");
-        toast.success("Conversation created");
+        toast.success(t("ai.conversationCreated"));
         router.push(`/ai?conversation=${id}`);
         router.refresh();
       } catch (error) {
         console.error(error);
-        toast.error("Failed to create conversation");
+        toast.error(t("ai.createFailed"));
       }
     });
   }
 
   return (
-    <Stack gap="md" className="ds-page-enter">
-      <PageHeader
-        title={t("pages.messages.title")}
-        subtitle={t("pages.messages.subtitle")}
-      />
-
-      <AIExecutiveKpis kpis={kpis} loading={refreshing} />
-
-      <AIInboxToolbar
-        filters={filters}
-        refreshing={refreshing}
-        onFiltersChange={setFilters}
-        onCreateClick={() => setCreateOpen(true)}
-        onRefresh={handleRefresh}
-      />
-
-      <GlassSurface className="flex min-h-[min(65svh,720px)] overflow-hidden shadow-[var(--shell-shadow-sm)]">
+    <>
+      <WorkspacePageLayout
+        header={
+          <PageHeader
+            title={t("pages.messages.title")}
+            subtitle={t("pages.messages.subtitle")}
+          />
+        }
+        kpis={<AIExecutiveKpis kpis={kpis} loading={refreshing} />}
+        toolbar={
+          <AIInboxToolbar
+            filters={filters}
+            refreshing={refreshing}
+            onFiltersChange={setFilters}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
+        <GlassSurface className="flex min-h-[min(65svh,720px)] overflow-hidden shadow-[var(--shell-shadow-sm)]">
         <div
           className={
             selectedId
@@ -216,51 +222,44 @@ export function AIInboxPage({
           onRegenerate={aiEnabled ? handleRegenerate : undefined}
         />
       </GlassSurface>
+      </WorkspacePageLayout>
 
-      <Drawer open={createOpen} onOpenChange={setCreateOpen}>
-        <DrawerContent className="border-0 bg-[var(--shell-content)] sm:max-w-md">
-          <DrawerHeader>
-            <DrawerTitle>New conversation</DrawerTitle>
-          </DrawerHeader>
+      <WorkspaceFormDrawer
+        open={createOpen}
+        onOpenChange={setCreateOpen}
+        title={t("ai.newConversation")}
+      >
+        <form onSubmit={handleCreate} className={formSectionClass}>
+          <FormField label={t("bookings.formGuestName")} htmlFor="guest_name">
+            <Input
+              id="guest_name"
+              value={guestName}
+              onChange={(event) => setGuestName(event.target.value)}
+              required
+              className={formRaisedControlClass}
+            />
+          </FormField>
 
-          <form onSubmit={handleCreate} className="mt-6 space-y-4 px-6 pb-6">
-            <div className="space-y-1.5">
-              <label htmlFor="guest_name" className={shellFormLabelClass}>
-                Guest name
-              </label>
-              <Input
-                id="guest_name"
-                value={guestName}
-                onChange={(event) => setGuestName(event.target.value)}
-                required
-                className="rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] shadow-[var(--shell-shadow-sm)]"
-              />
-            </div>
+          <FormField label={t("ai.formChannel")} htmlFor="channel">
+            <Select
+              id="channel"
+              value={channel}
+              onChange={setChannel}
+              aria-label={t("ai.formChannel")}
+              options={CONVERSATION_CHANNEL_OPTIONS}
+            />
+          </FormField>
 
-            <div className="space-y-1.5">
-              <label htmlFor="channel" className={shellFormLabelClass}>
-                Channel
-              </label>
-              <Select
-                id="channel"
-                value={channel}
-                onChange={setChannel}
-                aria-label="Channel"
-                options={CONVERSATION_CHANNEL_OPTIONS}
-              />
-            </div>
-
-            <Button
-              type="submit"
-              className="h-[var(--ds-input-height)] w-full bg-emerald-600 hover:bg-emerald-500"
-              disabled={pending}
-              loading={pending}
-            >
-              {pending ? "Creating…" : "Create conversation"}
-            </Button>
-          </form>
-        </DrawerContent>
-      </Drawer>
-    </Stack>
+          <Button
+            type="submit"
+            className="w-full"
+            disabled={pending}
+            loading={pending}
+          >
+            {pending ? t("ai.creating") : t("ai.createConversation")}
+          </Button>
+        </form>
+      </WorkspaceFormDrawer>
+    </>
   );
 }

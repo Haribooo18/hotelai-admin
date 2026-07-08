@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import type { LucideIcon } from "lucide-react";
 
-import type { ExecutiveKpiGridItem } from "./ExecutiveKpisGrid";
+import type { ExecutiveKpiGridItem } from "./executive-kpi-types";
 
 type KpiConfig<T extends Record<string, number>> = Array<{
   key: keyof T;

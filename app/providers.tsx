@@ -14,7 +14,8 @@ export function Providers({ children }: Props) {
         position="top-right"
         richColors
         closeButton
-        duration={5000}
+        duration={2000}
+        visibleToasts={4}
       />
     </>
   );

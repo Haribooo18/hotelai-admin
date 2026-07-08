@@ -1,300 +1,164 @@
 "use client";
 
-import {
-  Download,
-  Filter,
-  LayoutGrid,
-  List,
-  Plus,
-  RefreshCw,
-} from "lucide-react";
+import { useMemo } from "react";
+import { RefreshCw } from "lucide-react";
 
-import { Button } from "@/components/ui/core/Button";
-import { Input } from "@/components/ui/core/Input";
+import { FilterSelect } from "@/components/ui/core/FilterSelect";
 import { SearchInput } from "@/components/ui/core/SearchInput";
+import { ToolbarDateInput } from "@/components/ui/core/ToolbarDateInput";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/overlay/DropdownMenu";
-import { FilterBar, FilterChip } from "@/components/ui/data/FilterBar";
-import { SegmentedControl } from "@/components/ui/navigation/SegmentedControl";
+  FilterChip,
+  ToolbarSecondaryButton,
+} from "@/components/ui/data/FilterBar";
+import { WorkspaceToolbar } from "@/components/dashboard/shared/WorkspaceToolbar";
 import { BOOKING_STATUS_OPTIONS } from "@/lib/booking-status";
-import { toolbarControlClass } from "@/lib/dashboard/design-system";
-import { cn } from "@/lib/utils";
+import { toolbarFilterIconSize } from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
 
 import type { Room } from "@/types/room";
 
 import type {
   BookingPaymentStatus,
   BookingSource,
-  BookingViewMode,
 } from "./booking-ops-metrics";
 import type { BookingsChipFilter, BookingsToolbarFilters } from "./bookings-ui";
 
-const CHIP_FILTERS: { id: BookingsChipFilter; label: string }[] = [
-  { id: "all", label: "All" },
-  { id: "new", label: "New" },
-  { id: "confirmed", label: "Confirmed" },
-  { id: "check_in_today", label: "Check-in today" },
-  { id: "check_out_today", label: "Check-out today" },
-];
-
-const PAYMENT_OPTIONS: { value: BookingPaymentStatus | ""; label: string }[] =
-  [
-    { value: "", label: "All payments" },
-    { value: "paid", label: "Paid" },
-    { value: "deposit", label: "Deposit paid" },
-    { value: "pending", label: "Pending" },
-    { value: "void", label: "Void" },
-  ];
-
-const SOURCE_OPTIONS: { value: BookingSource | ""; label: string }[] = [
-  { value: "", label: "All sources" },
-  { value: "direct", label: "Direct" },
-  { value: "online", label: "Online" },
-  { value: "phone", label: "Phone" },
-];
-
-const SORT_OPTIONS: { value: BookingsToolbarFilters["sort"]; label: string }[] =
-  [
-    { value: "check_in", label: "Check-in date" },
-    { value: "guest", label: "Guest name" },
-    { value: "total", label: "Total amount" },
-    { value: "status", label: "Status" },
-  ];
-
 type Props = {
   filters: BookingsToolbarFilters;
-  viewMode: BookingViewMode;
   rooms: Room[];
   refreshing: boolean;
   onFiltersChange: (filters: BookingsToolbarFilters) => void;
-  onViewModeChange: (value: BookingViewMode) => void;
-  onCreateClick: () => void;
   onRefresh: () => void;
 };
 
 export function BookingsToolbar({
   filters,
-  viewMode,
   rooms,
   refreshing,
   onFiltersChange,
-  onViewModeChange,
-  onCreateClick,
   onRefresh,
 }: Props) {
+  const { t } = useI18n();
+
+  const chipFilters = useMemo(
+    (): { id: BookingsChipFilter; label: string }[] => [
+      { id: "all", label: t("bookings.chipAll") },
+      { id: "new", label: t("bookings.chipNew") },
+      { id: "confirmed", label: t("bookings.chipConfirmed") },
+      { id: "check_in_today", label: t("bookings.chipCheckInToday") },
+      { id: "check_out_today", label: t("bookings.chipCheckOutToday") },
+    ],
+    [t]
+  );
+
+  const paymentOptions = useMemo(
+    (): { value: BookingPaymentStatus | ""; label: string }[] => [
+      { value: "", label: t("toolbar.allPayments") },
+      { value: "paid", label: t("statuses.payment.paid") },
+      { value: "deposit", label: t("statuses.payment.deposit") },
+      { value: "pending", label: t("statuses.payment.pending") },
+      { value: "void", label: t("statuses.payment.void") },
+    ],
+    [t]
+  );
+
+  const sourceOptions = useMemo(
+    (): { value: BookingSource | ""; label: string }[] => [
+      { value: "", label: t("toolbar.allSources") },
+      { value: "direct", label: t("statuses.bookingSource.direct") },
+      { value: "online", label: t("statuses.bookingSource.online") },
+      { value: "phone", label: t("statuses.bookingSource.phone") },
+    ],
+    [t]
+  );
+
+  const statusOptions = useMemo(
+    () => [
+      { value: "", label: t("toolbar.allStatuses") },
+      ...BOOKING_STATUS_OPTIONS.map((option) => ({
+        value: option.value,
+        label: t(`statuses.booking.${option.value}`),
+      })),
+    ],
+    [t]
+  );
+
   function patch(partial: Partial<BookingsToolbarFilters>) {
     onFiltersChange({ ...filters, ...partial });
   }
 
-  const activeStatus =
-    BOOKING_STATUS_OPTIONS.find((option) => option.value === filters.status)
-      ?.label ?? "All statuses";
-
-  const activePayment =
-    PAYMENT_OPTIONS.find((option) => option.value === filters.payment)?.label ??
-    "All payments";
-
-  const activeSource =
-    SOURCE_OPTIONS.find((option) => option.value === filters.source)?.label ??
-    "All sources";
-
-  const activeRoom =
-    rooms.find((room) => room.id === filters.roomId)?.room_type ??
-    "All rooms";
-
-  const activeSort =
-    SORT_OPTIONS.find((option) => option.value === filters.sort)?.label ??
-    "Sort";
+  const roomOptions = useMemo(
+    () => [
+      { value: "", label: t("toolbar.allRooms") },
+      ...rooms.map((room) => ({ value: room.id, label: room.room_type })),
+    ],
+    [rooms, t]
+  );
 
   return (
-    <FilterBar
-      leading={
+    <WorkspaceToolbar
+      search={
         <SearchInput
-          containerClassName="flex-1 xl:max-w-md"
-          placeholder="Search by guest, email, or phone"
-          aria-label="Search reservations"
+          placeholder={t("bookings.searchPlaceholder")}
+          aria-label={t("bookings.searchAria")}
           value={filters.search}
           onChange={(event) => patch({ search: event.target.value })}
+          onClear={() => patch({ search: "" })}
         />
       }
-      trailing={
+      primaryFilters={
         <>
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={toolbarControlClass}
-              aria-label="Status filter"
-            >
-              <Filter size={15} aria-hidden />
-              {activeStatus}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => patch({ status: "" })}>
-                All statuses
-              </DropdownMenuItem>
-              {BOOKING_STATUS_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => patch({ status: option.value })}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <FilterSelect
+            value={filters.status}
+            options={statusOptions}
+            onChange={(value) => patch({ status: value })}
+            ariaLabel={t("bookings.statusFilter")}
+          />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={toolbarControlClass}
-              aria-label="Payment filter"
-            >
-              <Filter size={15} aria-hidden />
-              {activePayment}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {PAYMENT_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value || "all"}
-                  onClick={() => patch({ payment: option.value })}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <FilterSelect
+            value={filters.payment}
+            options={paymentOptions}
+            onChange={(value) => patch({ payment: value })}
+            ariaLabel={t("bookings.paymentFilter")}
+          />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={toolbarControlClass}
-              aria-label="Source filter"
-            >
-              <Filter size={15} aria-hidden />
-              {activeSource}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {SOURCE_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value || "all"}
-                  onClick={() => patch({ source: option.value })}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <FilterSelect
+            value={filters.source}
+            options={sourceOptions}
+            onChange={(value) => patch({ source: value })}
+            ariaLabel={t("bookings.sourceFilter")}
+          />
 
-          <Input
-            type="date"
+          <FilterSelect
+            value={filters.roomId}
+            options={roomOptions}
+            onChange={(value) => patch({ roomId: value })}
+            ariaLabel={t("bookings.roomFilter")}
+            className="max-w-[148px]"
+          />
+
+          <ToolbarDateInput
             value={filters.dateFilter}
             onChange={(event) => patch({ dateFilter: event.target.value })}
-            aria-label="Filter by stay date"
-            className="h-[var(--ds-input-height)] w-[148px] rounded-[var(--ds-radius-sm)] border-0 bg-[var(--shell-surface-raised)] text-[13px] shadow-[var(--shell-shadow-sm)]"
+            aria-label={t("bookings.checkIn")}
           />
-
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={toolbarControlClass}
-              aria-label="Room filter"
-            >
-              <Filter size={15} aria-hidden />
-              <span className="max-w-[96px] truncate">{activeRoom}</span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => patch({ roomId: "" })}>
-                All rooms
-              </DropdownMenuItem>
-              {rooms.map((room) => (
-                <DropdownMenuItem
-                  key={room.id}
-                  onClick={() => patch({ roomId: room.id })}
-                >
-                  {room.room_type}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger
-              className={toolbarControlClass}
-              aria-label="Sort reservations"
-            >
-              {activeSort}
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {SORT_OPTIONS.map((option) => (
-                <DropdownMenuItem
-                  key={option.value}
-                  onClick={() => patch({ sort: option.value })}
-                  className={cn(
-                    filters.sort === option.value &&
-                      "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)]"
-                  )}
-                >
-                  {option.label}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={onRefresh}
-            disabled={refreshing}
-            loading={refreshing}
-            aria-label="Refresh reservations"
-          >
-            <RefreshCw size={15} aria-hidden />
-            Refresh
-          </Button>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled
-            aria-label="Export reservations"
-            title="Export coming soon"
-          >
-            <Download size={15} aria-hidden />
-            Export
-          </Button>
-
-          <SegmentedControl
-            value={viewMode}
-            onChange={onViewModeChange}
-            options={[
-              {
-                value: "cards",
-                ariaLabel: "Card view",
-                label: <LayoutGrid size={15} aria-hidden />,
-              },
-              {
-                value: "table",
-                ariaLabel: "Table view",
-                label: <List size={15} aria-hidden />,
-              },
-            ]}
-          />
-
-          <Button
-            type="button"
-            onClick={onCreateClick}
-            className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
-          >
-            <Plus size={15} aria-hidden />
-            New reservation
-          </Button>
         </>
       }
-      filters={
+      actions={
+        <ToolbarSecondaryButton
+          type="button"
+          onClick={onRefresh}
+          disabled={refreshing}
+          loading={refreshing}
+          aria-label={t("bookings.refreshAria")}
+        >
+          <RefreshCw size={toolbarFilterIconSize} aria-hidden />
+          {t("common.refresh")}
+        </ToolbarSecondaryButton>
+      }
+      chips={
         <>
-          {CHIP_FILTERS.map((chip) => (
+          {chipFilters.map((chip) => (
             <FilterChip
               key={chip.id}
               active={filters.chipFilter === chip.id}

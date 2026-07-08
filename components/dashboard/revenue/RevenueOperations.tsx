@@ -8,6 +8,7 @@ import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { formatPercent } from "@/lib/dashboard/format";
+import { useI18n } from "@/lib/i18n";
 
 import {
   computeForecastConfidence,
@@ -101,7 +102,7 @@ function PaymentList({
         <RevenueOpsListItem
           key={item.id}
           role="listitem"
-          aria-label={`Payment for ${item.guestName}`}
+          aria-label={item.guestName}
         >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -129,6 +130,7 @@ export function RevenueOperations({
   trend,
   loading = false,
 }: Props) {
+  const { t } = useI18n();
   const recentPayments = transactions
     .filter(
       (item) =>
@@ -148,10 +150,13 @@ export function RevenueOperations({
 
   if (loading) {
     return (
-      <Section title="Analytics" subtitle="Revenue distribution and payment activity">
+      <Section
+        title={t("revenue.analyticsTitle")}
+        subtitle={t("revenue.analyticsSubtitle")}
+      >
         <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <DataCard key={index} title="Loading">
+            <DataCard key={index} title={t("revenue.loading")}>
               <SkeletonGroup />
             </DataCard>
           ))}
@@ -162,57 +167,83 @@ export function RevenueOperations({
 
   return (
     <Section
-      title="Analytics"
-      subtitle="Revenue distribution and payment activity"
+      title={t("revenue.analyticsTitle")}
+      subtitle={t("revenue.analyticsSubtitle")}
     >
       <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
-        <DataCard interactive title="Top room types" subtitle="Highest grossing categories">
+        <DataCard
+          interactive
+          title={t("revenue.topRoomTypes")}
+          subtitle={t("revenue.topRoomTypesSubtitle")}
+        >
           <BreakdownList
             items={byRoomType}
-            emptyTitle="No room type revenue"
-            emptyDescription="Room performance appears after bookings in range."
+            emptyTitle={t("revenue.noRoomTypeRevenue")}
+            emptyDescription={t("revenue.noRoomTypeRevenueDesc")}
           />
         </DataCard>
 
-        <DataCard interactive title="Top sources" subtitle="Primary booking channels">
+        <DataCard
+          interactive
+          title={t("revenue.topSources")}
+          subtitle={t("revenue.topSourcesSubtitle")}
+        >
           <BreakdownList
             items={bySource}
-            emptyTitle="No source revenue"
-            emptyDescription="Channel mix appears after bookings in range."
+            emptyTitle={t("revenue.noSourceRevenue")}
+            emptyDescription={t("revenue.noSourceRevenueDesc")}
           />
         </DataCard>
 
-        <DataCard interactive title="Revenue distribution" subtitle="Share by source">
+        <DataCard
+          interactive
+          title={t("revenue.distributionTitle")}
+          subtitle={t("revenue.distributionSubtitle")}
+        >
           <BreakdownList
             items={bySource}
-            emptyTitle="No distribution data"
-            emptyDescription="Distribution fills in as revenue accumulates."
+            emptyTitle={t("revenue.noDistribution")}
+            emptyDescription={t("revenue.noDistributionDesc")}
           />
         </DataCard>
 
-        <DataCard interactive title="Recent payments" subtitle="Settled bookings">
+        <DataCard
+          interactive
+          title={t("revenue.recentPayments")}
+          subtitle={t("revenue.recentPaymentsSubtitle")}
+        >
           <PaymentList
             items={recentPayments}
-            emptyTitle="No payments yet"
-            emptyDescription="Settled bookings appear here."
+            emptyTitle={t("revenue.noPayments")}
+            emptyDescription={t("revenue.noPaymentsDesc")}
           />
         </DataCard>
 
-        <DataCard interactive title="Outstanding payments" subtitle="Pending balances">
+        <DataCard
+          interactive
+          title={t("revenue.outstandingTitle")}
+          subtitle={t("revenue.outstandingSubtitle")}
+        >
           <PaymentList
             items={outstanding}
-            emptyTitle="No balances"
-            emptyDescription="Pending or partial payments appear here."
+            emptyTitle={t("revenue.noBalances")}
+            emptyDescription={t("revenue.noBalancesDesc")}
           />
         </DataCard>
 
-        <DataCard interactive title="Forecast confidence" subtitle="Projection stability">
+        <DataCard
+          interactive
+          title={t("revenue.forecastTitle")}
+          subtitle={t("revenue.forecastSubtitle")}
+        >
           <div className="space-y-3">
             <div className="flex items-end justify-between">
               <p className="text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
                 <Metric value={confidence} formatter={formatPercent} />
               </p>
-              <p className="text-[11px] text-[var(--shell-muted)]">model confidence</p>
+              <p className="text-[11px] text-[var(--shell-muted)]">
+                {t("revenue.modelConfidence")}
+              </p>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-[var(--shell-surface-raised)]">
               <div
@@ -221,7 +252,7 @@ export function RevenueOperations({
               />
             </div>
             <p className="text-[12px] text-[var(--shell-muted)]">
-              Based on recent revenue volatility in the selected period.
+              {t("revenue.forecastVolatilityHint")}
             </p>
           </div>
         </DataCard>

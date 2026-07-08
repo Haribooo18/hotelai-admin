@@ -1,8 +1,11 @@
-import { KNOWLEDGE_STATUS_LABELS } from "@/lib/knowledge";
+"use client";
+
+import { useI18n } from "@/lib/i18n";
 
 import type { KnowledgeArticleStatus } from "@/types/knowledge-article";
 
 import { Badge } from "@/components/ui/display/Badge";
+import { statusBadgeClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -20,12 +23,14 @@ const STATUS_VARIANT: Record<
 };
 
 export function KnowledgeStatusBadge({ status, className }: Props) {
+  const { t } = useI18n();
+
   return (
     <Badge
       variant={STATUS_VARIANT[status]}
-      className={cn("text-[10px] uppercase tracking-wide", className)}
+      className={cn(statusBadgeClass, className)}
     >
-      {KNOWLEDGE_STATUS_LABELS[status]}
+      {t(`statuses.knowledge.${status}`)}
     </Badge>
   );
 }

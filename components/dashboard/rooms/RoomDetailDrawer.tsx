@@ -16,18 +16,22 @@ import type { Booking } from "@/types/booking";
 
 import { Button } from "@/components/ui/core/Button";
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-} from "@/components/ui/overlay/Drawer";
+  WorkspaceInspectorDrawer,
+  WorkspaceOverlayActions,
+} from "@/components/dashboard/shared/WorkspaceOverlay";
+import { DrawerTitle } from "@/components/ui/overlay/Drawer";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Scrollable } from "@/components/ui/primitives/Scrollable";
 import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { PaymentStatusBadge } from "@/components/dashboard/bookings/PaymentStatusBadge";
 import { motionPresets } from "@/lib/design/motion";
+import {
+  cardPaddingClass,
+  drawerBadgeRowClass,
+  drawerSubtitleClass,
+} from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import { HousekeepingBadge } from "./HousekeepingBadge";
@@ -35,12 +39,15 @@ import { MaintenanceBadge } from "./MaintenanceBadge";
 import { RoomStatusBadge } from "./RoomStatusBadge";
 import {
   buildRoomTimeline,
+  translateRoomTimelineItem,
   formatRoomCurrency,
   formatRoomDate,
   getGuestInitials,
   getRoomBookings,
   getRoomMonthRevenue,
   getStayPaymentLabel,
+  translateHousekeepingLabelKey,
+  translateRoomFloor,
   type RoomCardModel,
 } from "./room-ops-metrics";
 import { RoomDetailRow } from "./rooms-ui";
@@ -60,6 +67,7 @@ export function RoomDetailDrawer({
   bookings,
   onEdit,
 }: Props) {
+  const { t } = useI18n();
   const router = useRouter();
   const [, startTransition] = useTransition();
 
@@ -100,47 +108,91 @@ export function RoomDetailDrawer({
   }
 
   return (
-    <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent
-        side="right"
-        className="w-full gap-0 overflow-hidden border-0 bg-[var(--shell-content)] p-0 sm:max-w-xl"
-      >
-        <DrawerHeader className="border-b border-[var(--shell-border)]/70 px-6 py-5">
-          <div className="flex items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[18px] font-semibold text-[var(--shell-accent)]">
-              {model.roomCode}
-            </div>
-            <div className="min-w-0 flex-1">
-              <DrawerTitle className="text-left text-[18px] font-semibold tracking-[-0.02em] text-[var(--shell-text)]">
-                Room {model.roomCode}
-              </DrawerTitle>
-              <p className="mt-1 text-left text-[13px] text-[var(--shell-muted)]">
-                {room.room_type} · {model.floorLabel}
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <RoomStatusBadge status={model.status} />
-                <HousekeepingBadge status={housekeepingStatus} />
-                <MaintenanceBadge active={model.status === "maintenance"} />
-              </div>
+    <WorkspaceInspectorDrawer
+      open={open}
+      onOpenChange={onOpenChange}
+      header={
+        <div className="flex items-start gap-4">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[18px] font-semibold text-[var(--shell-accent)]">
+            {model.roomCode}
+          </div>
+          <div className="min-w-0 flex-1">
+            <DrawerTitle>{model.roomCode}</DrawerTitle>
+            <p className={drawerSubtitleClass}>
+              {room.room_type} · {translateRoomFloor(model.floorLabel, t)}
+            </p>
+            <div className={drawerBadgeRowClass}>
+              <RoomStatusBadge status={model.status} />
+              <HousekeepingBadge status={housekeepingStatus} />
+              <MaintenanceBadge active={model.status === "maintenance"} />
             </div>
           </div>
-        </DrawerHeader>
-
-        <Scrollable className="flex-1 px-6 py-5">
+        </div>
+      }
+      footer={
+        <>
+          <Section
+            title={t("rooms.drawerActions")}
+            subtitle={t("rooms.drawerActionsSubtitle")}
+          />
+          <WorkspaceOverlayActions className="mt-3">
+            <Button type="button" className="gap-2" onClick={onEdit}>
+              <Pencil size={14} />
+              {t("common.edit")}
+            </Button>
+            <ActionChip
+              icon={<Brush size={14} />}
+              label={t("rooms.markCleaning")}
+              onClick={() => notify(t("rooms.markCleaningDone"))}
+            />
+            <ActionChip
+              icon={<ShieldCheck size={14} />}
+              label={t("rooms.markInspected")}
+              onClick={() => notify(t("rooms.markInspectedDone"))}
+            />
+            <ActionChip
+              icon={<Wrench size={14} />}
+              label={t("rooms.logMaintenance")}
+              onClick={() => notify(t("rooms.logMaintenanceDone"))}
+            />
+            <ActionChip
+              icon={<BedDouble size={14} />}
+              label={t("rooms.blockRoom")}
+              onClick={() => notify(t("rooms.blockRoomDone"))}
+            />
+          </WorkspaceOverlayActions>
+        </>
+      }
+    >
           <Stack gap="md">
-            <Panel variant="surface" className="p-4">
-              <Section title="Room info" subtitle="Inventory details" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section
+                title={t("rooms.drawerRoomInfo")}
+                subtitle={t("rooms.drawerRoomInfoSubtitle")}
+              />
               <dl className="mt-3 grid gap-2">
-                <RoomDetailRow label="Number" value={model.roomCode} />
-                <RoomDetailRow label="Type" value={room.room_type} />
-                <RoomDetailRow label="Floor" value={model.floorLabel} />
-                <RoomDetailRow label="Capacity" value={`${room.capacity} guests`} />
-                <RoomDetailRow label="Rate" value={formatRoomCurrency(room.price)} />
+                <RoomDetailRow label={t("rooms.roomInfo")} value={model.roomCode} />
+                <RoomDetailRow label={t("rooms.formRoomType")} value={room.room_type} />
+                <RoomDetailRow
+                  label={t("rooms.floorLabel").replace("{floor}", "").trim() || t("rooms.floorLabel")}
+                  value={translateRoomFloor(model.floorLabel, t)}
+                />
+                <RoomDetailRow
+                  label={t("rooms.formRoomType")}
+                  value={String(room.capacity)}
+                />
+                <RoomDetailRow
+                  label={t("rooms.formPricePerNight")}
+                  value={formatRoomCurrency(room.price)}
+                />
               </dl>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Current stay" subtitle="Guest and reservation" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section
+                title={t("rooms.drawerCurrentStay")}
+                subtitle={t("rooms.drawerCurrentStaySubtitle")}
+              />
               {activeBooking ? (
                 <div className="mt-3 space-y-3">
                   <div className="flex items-center gap-3">
@@ -154,17 +206,17 @@ export function RoomDetailDrawer({
                       <p className="text-[11px] text-[var(--shell-muted)]">
                         {activeBooking.guest_email ??
                           activeBooking.guest_phone ??
-                          "No contact"}
+                          t("rooms.noContact")}
                       </p>
                     </div>
                   </div>
                   <RoomDetailRow
-                    label="Dates"
+                    label={t("bookings.checkIn")}
                     value={`${formatRoomDate(activeBooking.check_in)} → ${formatRoomDate(activeBooking.check_out)}`}
                   />
                   <div className="flex items-center justify-between gap-2">
                     <span className="text-[12px] text-[var(--shell-muted)]">
-                      Payment
+                      {t("bookings.status")}
                     </span>
                     {paymentStatus ? (
                       <PaymentStatusBadge status={paymentStatus} />
@@ -172,25 +224,31 @@ export function RoomDetailDrawer({
                       <span>—</span>
                     )}
                   </div>
-                  <RoomDetailRow label="Adults" value={String(activeBooking.adults)} />
                   <RoomDetailRow
-                    label="Children"
+                    label={t("bookings.adult")}
+                    value={String(activeBooking.adults)}
+                  />
+                  <RoomDetailRow
+                    label={t("bookings.children")}
                     value={String(activeBooking.children)}
                   />
                 </div>
               ) : (
                 <p className="mt-3 text-[13px] text-[var(--shell-muted)]">
-                  No active stay
+                  {t("rooms.noGuestAssigned")}
                 </p>
               )}
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Upcoming bookings" subtitle="Future reservations" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section
+                title={t("rooms.drawerUpcoming")}
+                subtitle={t("rooms.drawerUpcomingSubtitle")}
+              />
               {upcomingBookings.length === 0 ? (
                 <EmptyState
-                  title="No upcoming bookings"
-                  description="Future reservations for this room will appear here."
+                  title={t("rooms.noUpcomingBookings")}
+                  description={t("rooms.noUpcomingBookingsDesc")}
                   icon={<BedDouble size={16} />}
                 />
               ) : (
@@ -213,37 +271,46 @@ export function RoomDetailDrawer({
               )}
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Housekeeping" subtitle="Turnover status" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section
+                title={t("rooms.drawerHousekeeping")}
+                subtitle={t("rooms.drawerHousekeepingSubtitle")}
+              />
               <div className="mt-3 flex flex-wrap gap-2">
                 <HousekeepingBadge status={housekeepingStatus} />
               </div>
               <p className="mt-3 text-[12px] text-[var(--shell-text)]">
-                {model.housekeepingLabel}
+                {translateHousekeepingLabelKey(t, model.housekeepingLabelKey)}
               </p>
               <p className="mt-2 text-[11px] text-[var(--shell-muted)]">
-                Progress: {model.cleaningProgress}%
+                {model.cleaningProgress}%
               </p>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Maintenance" subtitle="Incidents and blocks" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section
+                title={t("rooms.drawerMaintenance")}
+                subtitle={t("rooms.drawerMaintenanceSubtitle")}
+              />
               <p className="mt-3 text-[12px] text-[var(--shell-muted)]">
                 {model.status === "maintenance"
-                  ? "Room flagged for maintenance"
-                  : "No open maintenance incidents"}
+                  ? t("rooms.maintenanceFlagged")
+                  : t("rooms.noMaintenanceIncidents")}
               </p>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Revenue" subtitle="Financial snapshot" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section
+                title={t("rooms.drawerRevenue")}
+                subtitle={t("rooms.drawerRevenueSubtitle")}
+              />
               <dl className="mt-3 grid gap-2">
                 <RoomDetailRow
-                  label="Today"
+                  label={t("revenue.today")}
                   value={formatRoomCurrency(revenueToday)}
                 />
                 <RoomDetailRow
-                  label="Current stay"
+                  label={t("rooms.currentStayRevenue")}
                   value={
                     activeBooking
                       ? formatRoomCurrency(Number(activeBooking.total_price))
@@ -251,73 +318,44 @@ export function RoomDetailDrawer({
                   }
                 />
                 <RoomDetailRow
-                  label="Month"
+                  label={t("revenue.month")}
                   value={formatRoomCurrency(monthRevenue)}
                 />
               </dl>
             </Panel>
 
-            <Panel variant="surface" className="p-4">
-              <Section title="Timeline" subtitle="Room activity history" />
+            <Panel variant="surface" className={cardPaddingClass}>
+              <Section
+                title={t("rooms.drawerTimeline")}
+                subtitle={t("rooms.drawerTimelineSubtitle")}
+              />
               <div className="mt-3 space-y-2">
-                {timeline.slice(0, 6).map((item) => (
-                  <div
-                    key={item.id}
-                    className={cn(
-                      "flex items-start justify-between gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3",
-                      motionPresets.transitionBase
-                    )}
-                  >
-                    <div className="min-w-0">
-                      <p className="text-[13px] font-medium text-[var(--shell-text)]">
-                        {item.title}
-                      </p>
-                      <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
-                        {item.subtitle}
-                      </p>
+                {timeline.slice(0, 6).map((item) => {
+                  const translated = translateRoomTimelineItem(item, t);
+
+                  return (
+                    <div
+                      key={item.id}
+                      className={cn(
+                        "flex items-start justify-between gap-3 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/60 p-3",
+                        motionPresets.transitionBase
+                      )}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-[var(--shell-text)]">
+                          {translated.title}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
+                          {translated.subtitle}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </Panel>
           </Stack>
-        </Scrollable>
-
-        <div className="border-t border-[var(--shell-border)]/70 px-6 py-4">
-          <Section title="Actions" subtitle="Operational shortcuts" />
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Button
-              type="button"
-              className="h-[var(--ds-input-height)] gap-2 bg-emerald-600 hover:bg-emerald-500"
-              onClick={onEdit}
-            >
-              <Pencil size={14} />
-              Edit
-            </Button>
-            <ActionChip
-              icon={<Brush size={14} />}
-              label="Clean"
-              onClick={() => notify("Room marked for cleaning")}
-            />
-            <ActionChip
-              icon={<ShieldCheck size={14} />}
-              label="Mark inspected"
-              onClick={() => notify("Room marked as inspected")}
-            />
-            <ActionChip
-              icon={<Wrench size={14} />}
-              label="Maintenance"
-              onClick={() => notify("Maintenance request logged")}
-            />
-            <ActionChip
-              icon={<BedDouble size={14} />}
-              label="Block room"
-              onClick={() => notify("Room blocked for operations")}
-            />
-          </div>
-        </div>
-      </DrawerContent>
-    </Drawer>
+    </WorkspaceInspectorDrawer>
   );
 }
 

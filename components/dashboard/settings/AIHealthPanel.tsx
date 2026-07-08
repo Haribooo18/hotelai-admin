@@ -1,8 +1,11 @@
+"use client";
+
 import type { AIHealthStatus } from "@/types/ai-settings";
 
 import { Metric } from "@/components/ui/display/Metric";
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Section } from "@/components/ui/primitives/Section";
+import { useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 import { motionPresets } from "@/lib/design/motion";
 
@@ -11,30 +14,33 @@ type Props = {
 };
 
 export function AIHealthPanel({ health }: Props) {
+  const { t } = useI18n();
+
   const items = [
     {
-      label: "Provider",
-      value: health.configured ? health.provider : "not configured",
+      label: t("settings.aiHealthProvider"),
+      value: health.configured ? health.provider : t("settings.aiHealthNotConfigured"),
       ok: health.configured,
     },
     {
-      label: "AI enabled",
-      value: health.enabled ? "yes" : "no",
+      label: t("settings.aiHealthAiEnabled"),
+      value: health.enabled ? t("common.yes") : t("common.no"),
       ok: health.enabled && health.configured,
     },
-    { label: "Model", value: health.model, ok: true },
+    { label: t("settings.aiHealthModel"), value: health.model, ok: true },
     {
-      label: "Requests (24h)",
+      label: t("settings.aiHealthRequests24h"),
       value: String(health.recent_requests),
       ok: true,
+      metric: true,
     },
     {
-      label: "Errors (24h)",
+      label: t("settings.aiHealthErrors24h"),
       value: String(health.recent_errors),
       ok: health.recent_errors === 0,
     },
     {
-      label: "Avg latency",
+      label: t("settings.aiHealthAvgLatency"),
       value:
         health.avg_duration_ms != null
           ? `${health.avg_duration_ms} ms`
@@ -42,7 +48,7 @@ export function AIHealthPanel({ health }: Props) {
       ok: (health.avg_duration_ms ?? 0) < 5000,
     },
     {
-      label: "Cost (24h)",
+      label: t("settings.aiHealthCost24h"),
       value: `$${health.total_cost_usd_24h.toFixed(4)}`,
       ok: true,
     },
@@ -50,7 +56,10 @@ export function AIHealthPanel({ health }: Props) {
 
   return (
     <Panel variant="glass" className="p-[var(--ds-surface-padding)]">
-      <Section title="AI health" subtitle="Integration status for the last 24 hours" />
+      <Section
+        title={t("settings.aiHealthTitle")}
+        subtitle={t("settings.aiHealthSubtitle")}
+      />
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {items.map((item) => (
@@ -71,7 +80,7 @@ export function AIHealthPanel({ health }: Props) {
                 item.ok ? "text-[var(--shell-accent)]" : "text-amber-400"
               )}
             >
-              {item.label === "Requests (24h)" ? (
+              {"metric" in item && item.metric ? (
                 <Metric value={health.recent_requests} />
               ) : (
                 item.value

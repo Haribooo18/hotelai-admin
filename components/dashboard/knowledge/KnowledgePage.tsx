@@ -8,9 +8,11 @@ import type { KnowledgeArticle } from "@/types/knowledge-article";
 
 import { rankKnowledgeArticles } from "@/lib/knowledge-search";
 import { duplicateKnowledgeArticle } from "@/lib/services/knowledge.mutations";
+import { inspectorGridClass, workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { PageHeader } from "@/components/ui/layout/PageHeader";
+import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
 import { useI18n } from "@/lib/i18n";
 
 import { KnowledgeArticlesView } from "./KnowledgeArticlesView";
@@ -28,7 +30,6 @@ import {
   computeKnowledgeOpsKpis,
   sortKnowledgeModels,
   type KnowledgeArticleModel,
-  type KnowledgeViewMode,
 } from "./knowledge-ops-metrics";
 import {
   matchesKnowledgeQualityFilter,
@@ -56,6 +57,8 @@ export function KnowledgePage({ articles, categories }: Props) {
   const [actionPending, startAction] = useTransition();
 
   const [createOpen, setCreateOpen] = useState(false);
+  const openCreate = useCallback(() => setCreateOpen(true), []);
+  useCreateQueryParam(openCreate);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<KnowledgeArticleModel | null>(
     null
@@ -65,7 +68,6 @@ export function KnowledgePage({ articles, categories }: Props) {
   );
 
   const [filters, setFilters] = useState<KnowledgeToolbarFilters>(DEFAULT_FILTERS);
-  const [viewMode, setViewMode] = useState<KnowledgeViewMode>("grid");
 
   const articleModels = useMemo(
     () => buildKnowledgeArticleModels(articles),
@@ -132,14 +134,14 @@ export function KnowledgePage({ articles, categories }: Props) {
       startAction(async () => {
         try {
           const id = await duplicateKnowledgeArticle(model.article.id);
-          toast.success("Копия статьи создана");
+          toast.success(t("knowledge.duplicateSuccess"));
           router.push(`/knowledge/${id}`);
         } catch {
-          toast.error("Не удалось дублировать статью");
+          toast.error(t("errors.duplicateFailed"));
         }
       });
     },
-    [router, startAction]
+    [router, startAction, t]
   );
 
   const handleDelete = useCallback((model: KnowledgeArticleModel) => {
@@ -157,14 +159,14 @@ export function KnowledgePage({ articles, categories }: Props) {
           "@/lib/services/knowledge.mutations"
         );
         await deleteKnowledgeArticle(id);
-        toast.success("Статья удалена");
+        toast.success(t("knowledge.deleteSuccess"));
         setDeleteTarget(null);
         if (selectedModel?.article.id === id) {
           setSelectedModel(null);
         }
         router.refresh();
       } catch {
-        toast.error("Не удалось удалить статью");
+        toast.error(t("errors.deleteFailed"));
       }
     });
   }
@@ -176,38 +178,37 @@ export function KnowledgePage({ articles, categories }: Props) {
   }
 
   function handleImport() {
-    toast.info("Импорт статей скоро будет доступен");
+    toast.info(t("errors.importSoon"));
   }
 
   return (
-    <Stack gap="md" className="ds-page-enter">
-      <PageHeader
-        title={t("pages.reports.title")}
-        subtitle={t("pages.reports.subtitle")}
-      />
-
-      <KnowledgeExecutiveKpis kpis={kpis} loading={refreshing} />
-
-      <KnowledgeToolbar
-        filters={filters}
-        viewMode={viewMode}
-        categories={categories}
-        refreshing={refreshing}
-        onFiltersChange={setFilters}
-        onViewModeChange={setViewMode}
-        onCreateClick={() => setCreateOpen(true)}
-        onImportClick={handleImport}
-        onRefresh={handleRefresh}
-      />
-
-      {articles.length === 0 ? (
-        <KnowledgeEmptyState onCreate={() => setCreateOpen(true)} />
+    <>
+      <WorkspacePageLayout
+        header={
+          <PageHeader
+            title={t("pages.reports.title")}
+            subtitle={t("pages.reports.subtitle")}
+          />
+        }
+        kpis={<KnowledgeExecutiveKpis kpis={kpis} loading={refreshing} />}
+        toolbar={
+          <KnowledgeToolbar
+            filters={filters}
+            categories={categories}
+            refreshing={refreshing}
+            onFiltersChange={setFilters}
+            onImportClick={handleImport}
+            onRefresh={handleRefresh}
+          />
+        }
+      >
+        {articles.length === 0 ? (
+        <KnowledgeEmptyState />
       ) : (
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
-          <GlassSurface className="overflow-hidden p-[var(--ds-surface-padding)] shadow-[var(--shell-shadow-sm)]">
+        <div className={inspectorGridClass}>
+          <GlassSurface className={workspaceSurfaceClass}>
             <KnowledgeArticlesView
               models={filteredModels}
-              viewMode={viewMode}
               loading={refreshing}
               selectedId={selectedId}
               onSelect={handleSelect}
@@ -234,6 +235,7 @@ export function KnowledgePage({ articles, categories }: Props) {
         loading={refreshing}
         onSelect={handleOpen}
       />
+      </WorkspacePageLayout>
 
       <KnowledgeDetailDrawer
         open={drawerOpen}
@@ -254,6 +256,6 @@ export function KnowledgePage({ articles, categories }: Props) {
         onConfirm={confirmDelete}
         pending={actionPending}
       />
-    </Stack>
+    </>
   );
 }

@@ -24,11 +24,7 @@ export function PageHeader({
     >
       <div>
         <h1 className="ds-display">{title}</h1>
-        {subtitle ? (
-          <p className="mt-1.5 text-[var(--type-body-size)] leading-[var(--type-body-leading)] tracking-[var(--type-body-tracking)] text-[var(--shell-muted)]">
-            {subtitle}
-          </p>
-        ) : null}
+        {subtitle ? <p className="mt-1.5 ds-caption">{subtitle}</p> : null}
       </div>
       {actions ? (
         <div className="flex flex-wrap items-center gap-2">{actions}</div>

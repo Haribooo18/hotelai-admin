@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
 import { Button } from "@/components/ui/core/Button";
 import { activateOnKeyboard } from "@/lib/dashboard/a11y";
 import { hoverRevealClass, iconActionClass } from "@/lib/dashboard/design-system";
+import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 import type { Room } from "@/types/room";
@@ -41,12 +42,21 @@ type Props = {
   onEdit?: (room: Room) => void;
 };
 
+const OCCUPANCY_KEYS = {
+  occupied: "rooms.cardInHouse",
+  reserved: "rooms.cardArriving",
+  cleaning: "rooms.cardTurnover",
+  maintenance: "rooms.cardBlocked",
+  available: "rooms.cardVacant",
+} as const;
+
 export const RoomCard = memo(function RoomCard({
   model,
   selected = false,
   onOpen,
   onEdit,
 }: Props) {
+  const { t } = useI18n();
   const {
     room,
     roomCode,
@@ -59,23 +69,14 @@ export const RoomCard = memo(function RoomCard({
   } = model;
 
   const stayBooking = activeBooking ?? upcomingBooking;
-  const occupancyLabel =
-    status === "occupied"
-      ? "In-house"
-      : status === "reserved"
-        ? "Arriving"
-        : status === "cleaning"
-          ? "Turnover"
-          : status === "maintenance"
-            ? "Blocked"
-            : "Vacant";
+  const occupancyLabel = t(OCCUPANCY_KEYS[status]);
 
   return (
     <RoomWorkspaceCard
       selected={selected}
       role="button"
       tabIndex={0}
-      aria-label={`Open room ${roomCode}`}
+      aria-label={formatTranslation(t("rooms.openRoomAria"), { code: roomCode })}
       aria-pressed={selected}
       onClick={() => onOpen?.(model)}
       onKeyDown={(event) => activateOnKeyboard(event, () => onOpen?.(model))}
@@ -95,7 +96,9 @@ export const RoomCard = memo(function RoomCard({
 
         <DropdownMenu>
           <DropdownMenuTrigger
-            aria-label={`Actions for room ${room.room_type}`}
+            aria-label={formatTranslation(t("rooms.actionsForRoom"), {
+              name: room.room_type,
+            })}
             onClick={(event) => event.stopPropagation()}
             className={cn(iconActionClass, hoverRevealClass, "shrink-0")}
           >
@@ -110,7 +113,7 @@ export const RoomCard = memo(function RoomCard({
               className="gap-2"
             >
               <Eye size={14} />
-              Open
+              {t("common.open")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={(event) => {
@@ -120,7 +123,7 @@ export const RoomCard = memo(function RoomCard({
               className="gap-2"
             >
               <Pencil size={14} />
-              Edit
+              {t("common.edit")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -134,7 +137,7 @@ export const RoomCard = memo(function RoomCard({
         </Avatar>
         <div className="min-w-0">
           <p className="truncate text-[12px] font-medium text-[var(--shell-text)]">
-            {currentGuest ?? "No guest assigned"}
+            {currentGuest ?? t("rooms.noGuestAssigned")}
           </p>
           {stayBooking ? (
             <p className="mt-0.5 flex items-center gap-1 text-[11px] text-[var(--shell-muted)]">
@@ -144,7 +147,7 @@ export const RoomCard = memo(function RoomCard({
             </p>
           ) : (
             <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
-              No active stay
+              {t("rooms.cardNoActiveStay")}
             </p>
           )}
         </div>
@@ -158,13 +161,13 @@ export const RoomCard = memo(function RoomCard({
 
       <div className="mt-3 grid grid-cols-2 gap-2 text-[11px]">
         <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-2.5 py-2">
-          <p className="text-[var(--shell-muted)]">Revenue today</p>
+          <p className="text-[var(--shell-muted)]">{t("rooms.kpiRevenueToday")}</p>
           <p className="mt-0.5 font-semibold text-[var(--shell-text)]">
             {formatRoomCurrency(revenueToday)}
           </p>
         </div>
         <div className="rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)]/70 px-2.5 py-2">
-          <p className="text-[var(--shell-muted)]">Capacity</p>
+          <p className="text-[var(--shell-muted)]">{t("rooms.cardCapacity")}</p>
           <p className="mt-0.5 flex items-center gap-1 font-semibold text-[var(--shell-text)]">
             <Users size={11} aria-hidden />
             {room.capacity}
@@ -183,7 +186,7 @@ export const RoomCard = memo(function RoomCard({
             onOpen?.(model);
           }}
         >
-          Details
+          {t("rooms.cardDetails")}
         </Button>
         <Button
           type="button"
@@ -194,7 +197,7 @@ export const RoomCard = memo(function RoomCard({
             onEdit?.(model.room);
           }}
         >
-          Edit
+          {t("common.edit")}
         </Button>
       </div>
     </RoomWorkspaceCard>

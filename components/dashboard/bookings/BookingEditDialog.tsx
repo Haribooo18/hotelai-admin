@@ -1,11 +1,7 @@
 "use client";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
+import { useI18n } from "@/lib/i18n";
 
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
@@ -25,28 +21,21 @@ export function BookingEditDialog({
   booking,
   rooms,
 }: Props) {
+  const { t } = useI18n();
+
   if (!booking) return null;
 
   return (
-    <Sheet
+    <WorkspaceFormDrawer
       open={open}
       onOpenChange={onOpenChange}
+      title={t("bookings.editReservation")}
     >
-      <SheetContent className="sm:max-w-lg">
-        <SheetHeader>
-          <SheetTitle>
-            Edit reservation
-          </SheetTitle>
-        </SheetHeader>
-
-        <div className="mt-6">
-          <BookingForm
-            booking={booking}
-            rooms={rooms}
-            onSuccess={() => onOpenChange(false)}
-          />
-        </div>
-      </SheetContent>
-    </Sheet>
+      <BookingForm
+        booking={booking}
+        rooms={rooms}
+        onSuccess={() => onOpenChange(false)}
+      />
+    </WorkspaceFormDrawer>
   );
 }

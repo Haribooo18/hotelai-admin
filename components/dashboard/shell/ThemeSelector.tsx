@@ -1,13 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import { useI18n } from "@/lib/i18n";
 import type { ShellTheme } from "@/lib/dashboard/shell-theme";
-
-const THEMES: { id: ShellTheme; label: string }[] = [
-  { id: "light", label: "Light" },
-  { id: "gray", label: "Gray" },
-  { id: "dark", label: "Dark" },
-];
 
 type Props = {
   value: ShellTheme;
@@ -16,6 +11,13 @@ type Props = {
 };
 
 export function ThemeSelector({ value, onChange, compact = false }: Props) {
+  const { t } = useI18n();
+
+  const themes: { id: ShellTheme; labelKey: "settings.themeLight" | "settings.themeGray" | "settings.themeDark" }[] = [
+    { id: "light", labelKey: "settings.themeLight" },
+    { id: "gray", labelKey: "settings.themeGray" },
+    { id: "dark", labelKey: "settings.themeDark" },
+  ];
   return (
     <div
       className={cn(
@@ -25,7 +27,7 @@ export function ThemeSelector({ value, onChange, compact = false }: Props) {
       role="radiogroup"
       aria-label="Theme"
     >
-      {THEMES.map((theme) => {
+      {themes.map((theme) => {
         const selected = value === theme.id;
 
         return (
@@ -42,7 +44,7 @@ export function ThemeSelector({ value, onChange, compact = false }: Props) {
                 : "text-[var(--shell-muted)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]"
             )}
           >
-            {theme.label}
+            {t(theme.labelKey)}
           </button>
         );
       })}

@@ -5,7 +5,7 @@ import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 import { Radio } from "@base-ui/react/radio";
 import { CircleIcon } from "lucide-react";
 
-import { focusRingClassName } from "@/lib/design/motion";
+import { radioLabelClass, radioRootClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
 type RadioOption = {
@@ -46,17 +46,15 @@ export function RadioGroup({
         <label
           key={option.value}
           className={cn(
-            "inline-flex cursor-pointer items-center gap-2 text-[13px] text-[var(--shell-text)]",
+            "inline-flex cursor-pointer items-center gap-2",
+            radioLabelClass,
             option.disabled && "cursor-not-allowed opacity-50"
           )}
         >
           <Radio.Root
             value={option.value}
             disabled={option.disabled}
-            className={cn(
-              "flex size-4 items-center justify-center rounded-full border border-[var(--shell-border-strong)] bg-[var(--shell-surface-raised)] transition-[border-color,box-shadow,background-color] duration-[var(--ds-duration)] ease-[var(--ds-ease)] data-checked:border-[var(--shell-accent-border)] data-checked:bg-[var(--shell-accent-muted)]",
-              focusRingClassName
-            )}
+            className={radioRootClass}
           >
             <Radio.Indicator className="flex items-center justify-center text-[var(--shell-accent)]">
               <CircleIcon className="size-2 fill-current" aria-hidden />

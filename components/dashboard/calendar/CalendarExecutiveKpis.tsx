@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   BedDouble,
   DoorClosed,
@@ -9,13 +10,10 @@ import {
   Wallet,
 } from "lucide-react";
 
-import { Metric } from "@/components/ui/display/Metric";
-import { StatusDot } from "@/components/ui/display/StatusDot";
-import { Skeleton } from "@/components/ui/display/Skeleton";
-import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { motionPresets } from "@/lib/design/motion";
-import { cn } from "@/lib/utils";
+import { KpiCard } from "@/components/ui/data/KpiCard";
+import { ExecutiveKpisPanel } from "@/components/dashboard/shared/ExecutiveKpisPanel";
 import { formatPercent } from "@/lib/dashboard/format";
+import { useI18n } from "@/lib/i18n";
 
 import { formatBookingCurrency } from "@/components/dashboard/bookings/booking-ops-metrics";
 import { useExecutiveKpiItems } from "@/components/dashboard/shared/useExecutiveKpiItems";
@@ -27,124 +25,87 @@ type Props = {
   loading?: boolean;
 };
 
-const KPI_ITEMS: Array<{
-  key: keyof CalendarOpsKpis;
-  label: string;
-  icon: typeof Wallet;
-  tone: "default" | "success" | "warning";
-  format: (value: number) => string;
-}> = [
-  {
-    key: "occupancyPercent",
-    label: "Occupancy",
-    icon: Percent,
-    tone: "success",
-    format: formatPercent,
-  },
-  {
-    key: "checkInsToday",
-    label: "Check-ins today",
-    icon: DoorOpen,
-    tone: "success",
-    format: (value) => String(Math.round(value)),
-  },
-  {
-    key: "checkOutsToday",
-    label: "Check-outs today",
-    icon: DoorClosed,
-    tone: "default",
-    format: (value) => String(Math.round(value)),
-  },
-  {
-    key: "availableRooms",
-    label: "Available rooms",
-    icon: BedDouble,
-    tone: "default",
-    format: (value) => String(Math.round(value)),
-  },
-  {
-    key: "revenueToday",
-    label: "Revenue today",
-    icon: Wallet,
-    tone: "success",
-    format: formatBookingCurrency,
-  },
-  {
-    key: "activeStays",
-    label: "Active stays",
-    icon: Users,
-    tone: "default",
-    format: (value) => String(Math.round(value)),
-  },
-];
-
 export function CalendarExecutiveKpis({ kpis, loading }: Props) {
-  const items = useExecutiveKpiItems(kpis, KPI_ITEMS);
+  const { t } = useI18n();
 
-  if (loading) {
-    return (
-      <GlassSurface className="p-[var(--ds-surface-padding)]">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="space-y-2 px-2 py-1">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-7 w-16" />
-            </div>
-          ))}
-        </div>
-      </GlassSurface>
-    );
-  }
+  const kpiItems = useMemo(
+    (): Array<{
+      key: keyof CalendarOpsKpis;
+      label: string;
+      icon: typeof Wallet;
+      tone: "default" | "success" | "warning";
+      format: (value: number) => string;
+    }> => [
+      {
+        key: "occupancyPercent",
+        label: t("dashboard.occupancy"),
+        icon: Percent,
+        tone: "success",
+        format: formatPercent,
+      },
+      {
+        key: "checkInsToday",
+        label: t("bookings.kpiCheckInsToday"),
+        icon: DoorOpen,
+        tone: "success",
+        format: (value) => String(Math.round(value)),
+      },
+      {
+        key: "checkOutsToday",
+        label: t("bookings.kpiCheckOutsToday"),
+        icon: DoorClosed,
+        tone: "default",
+        format: (value) => String(Math.round(value)),
+      },
+      {
+        key: "availableRooms",
+        label: t("calendar.kpiAvailable"),
+        icon: BedDouble,
+        tone: "default",
+        format: (value) => String(Math.round(value)),
+      },
+      {
+        key: "revenueToday",
+        label: t("calendar.kpiRevenueToday"),
+        icon: Wallet,
+        tone: "success",
+        format: formatBookingCurrency,
+      },
+      {
+        key: "activeStays",
+        label: t("calendar.kpiActiveStays"),
+        icon: Users,
+        tone: "default",
+        format: (value) => String(Math.round(value)),
+      },
+    ],
+    [t]
+  );
 
-  const borderClass = "xl:border-l xl:border-[var(--shell-border)]/60";
+  const items = useExecutiveKpiItems(kpis, kpiItems);
 
   return (
-    <GlassSurface
-      interactive
-      className="overflow-hidden p-[var(--ds-surface-padding)]"
-      aria-label="Calendar executive KPIs"
+    <ExecutiveKpisPanel
+      ariaLabel={t("calendar.kpiAriaLabel")}
+      loading={loading}
+      count={6}
+      gridClassName="sm:grid-cols-2 xl:grid-cols-6"
     >
-      <div className="grid gap-1 sm:grid-cols-2 xl:grid-cols-6">
-        {items.map((item, index) => {
-          const meta = KPI_ITEMS.find((entry) => entry.key === item.key);
-          const Icon = item.icon;
+      {items.map((item, index) => {
+        const meta = kpiItems.find((entry) => entry.key === item.key);
 
-          return (
-            <div
-              key={item.key}
-              className={cn(
-                "group px-3 py-3",
-                motionPresets.transitionBase,
-                motionPresets.hover.surfaceLift,
-                index > 0 && borderClass
-              )}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex min-w-0 items-center gap-2">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)] bg-[var(--shell-accent-muted)] text-[var(--shell-accent)] transition-transform duration-[var(--ds-duration)] ease-[var(--ds-ease)] group-hover:scale-[1.04]">
-                    <Icon size={15} aria-hidden />
-                  </div>
-                  <p className="text-[11px] font-medium uppercase tracking-[0.06em] text-[var(--shell-muted)]">
-                    {item.label}
-                  </p>
-                </div>
-                <StatusDot
-                  tone={
-                    meta?.tone === "warning"
-                      ? "warning"
-                      : meta?.tone === "success"
-                        ? "success"
-                        : "default"
-                  }
-                />
-              </div>
-              <p className="mt-2.5 text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] leading-[var(--type-kpi-leading)] tracking-[var(--type-kpi-tracking)] text-[var(--shell-text)]">
-                <Metric value={item.value} formatter={item.format} />
-              </p>
-            </div>
-          );
-        })}
-      </div>
-    </GlassSurface>
+        return (
+          <KpiCard
+            key={item.key}
+            label={item.label}
+            icon={item.icon}
+            value={item.value}
+            format={item.format}
+            tone={meta?.tone}
+            bordered={index > 0}
+          />
+        );
+      })}
+    </ExecutiveKpisPanel>
   );
 }

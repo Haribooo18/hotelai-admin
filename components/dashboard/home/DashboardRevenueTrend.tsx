@@ -17,6 +17,7 @@ import { Section } from "@/components/ui/primitives/Section";
 
 import type { TrendPoint } from "./dashboard-metrics";
 import { formatDashboardCurrency } from "./dashboard-metrics";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   data: TrendPoint[];
@@ -24,27 +25,28 @@ type Props = {
 };
 
 export function DashboardRevenueTrend({ data, loading }: Props) {
+  const { t } = useI18n();
   const hasData = data.some((point) => point.value > 0);
 
   return (
     <GlassSurface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
       <Section
-        title="Revenue trend"
-        subtitle="Daily revenue over the last 7 days"
+        title={t("dashboard.revenueTrend")}
+        subtitle={t("dashboard.revenueTrendSubtitle")}
       />
 
       {loading ? (
         <SkeletonGroup className="h-52" lines={["h-full w-full"]} />
       ) : !hasData ? (
         <EmptyState
-          title="No revenue data"
-          description="When reservations with check-ins from the last week appear, the chart will fill in automatically."
+          title={t("dashboard.noRevenueData")}
+          description={t("dashboard.noRevenueDataDesc")}
         />
       ) : (
         <div
           className="h-52 min-h-[208px]"
           role="img"
-          aria-label="Revenue trend chart for the last 7 days"
+          aria-label={t("dashboard.revenueTrendAria")}
         >
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={data} margin={{ top: 4, right: 4, left: -12, bottom: 0 }}>
@@ -84,7 +86,7 @@ export function DashboardRevenueTrend({ data, loading }: Props) {
                 }}
                 formatter={(value) => [
                   formatDashboardCurrency(Number(value)),
-                  "Revenue",
+                  t("dashboard.revenueToday"),
                 ]}
               />
               <Area
