@@ -1,3 +1,5 @@
+"use client";
+
 import type { HTMLAttributes } from "react";
 
 import { cn } from "@/lib/utils";
@@ -22,7 +24,7 @@ export function ContentLayout({
     >
       <div
         className={cn(
-          "ds-page-enter mx-auto w-full",
+          "mx-auto w-full",
           padded &&
             "px-[max(1rem,env(safe-area-inset-left))] py-5 pr-[max(1rem,env(safe-area-inset-right))] lg:px-5 lg:py-6"
         )}
