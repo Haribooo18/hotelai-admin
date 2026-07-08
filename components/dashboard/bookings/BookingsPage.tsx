@@ -246,26 +246,27 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
             onRefresh={handleRefresh}
           />
         }
+        secondary={
+          <BookingsOperations
+            bookings={optimisticBookings}
+            rooms={rooms}
+            guests={guests}
+            kpis={kpis}
+            loading={loading}
+            onSelect={handleSelect}
+          />
+        }
       >
         <GlassSurface className={workspaceSurfaceClass}>
-        <BookingsCards
-          models={cardModels}
-          loading={loading}
-          selectedId={selectedId}
-          onSelect={handleSelect}
-          onEdit={handleEdit}
-          onDelete={handleDeleteRequest}
-        />
-      </GlassSurface>
-
-      <BookingsOperations
-        bookings={optimisticBookings}
-        rooms={rooms}
-        guests={guests}
-        kpis={kpis}
-        loading={loading}
-        onSelect={handleSelect}
-      />
+          <BookingsCards
+            models={cardModels}
+            loading={loading}
+            selectedId={selectedId}
+            onSelect={handleSelect}
+            onEdit={handleEdit}
+            onDelete={handleDeleteRequest}
+          />
+        </GlassSurface>
       </WorkspacePageLayout>
 
       <BookingDetailDrawer

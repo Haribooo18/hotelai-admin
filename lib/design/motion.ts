@@ -1,11 +1,12 @@
+import type { MotionRevealOrder } from "@/lib/motion/reveal";
+import { motionRevealDelayClass } from "@/lib/motion/reveal";
 import { motion as motionTokens } from "./tokens";
 
 const focusRingClass =
   "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]";
 
 export { motionTokens };
-
-export type MotionRevealOrder = 0 | 1 | 2 | 3 | 4;
+export type { MotionRevealOrder };
 
 export const motionDurations = {
   fast: "var(--ds-duration-fast)",
@@ -19,7 +20,7 @@ export const motionDurations = {
 export const motionEase = "var(--ds-ease)";
 
 export const motionRevealClass = (order: MotionRevealOrder = 0) =>
-  `ds-motion-reveal ds-motion-reveal-${order}`;
+  `ds-motion-reveal ${motionRevealDelayClass(order)}`;
 
 export const motionPresets = {
   transitionBase:

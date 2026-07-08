@@ -34,7 +34,7 @@ import type { DashboardMetrics } from "@/components/dashboard/home/dashboard-met
 import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
-import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { DashboardPageLayout } from "@/components/dashboard/home/DashboardPageLayout";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { useI18n } from "@/lib/i18n";
 
@@ -130,7 +130,10 @@ export function DashboardPage({
   );
 
   return (
-    <WorkspacePageLayout
+    <DashboardPageLayout
+      toolbar={
+        <DashboardToolbar search={search} onSearchChange={setSearch} />
+      }
       header={
         <PageHeader
           title={t("pages.dashboard.title")}
@@ -146,60 +149,64 @@ export function DashboardPage({
           occupancyTrend={occupancyTrend}
         />
       }
-      toolbar={
-        <DashboardToolbar search={search} onSearchChange={setSearch} />
+      charts={
+        <Stack gap="md" aria-label="Dashboard charts">
+          <DashboardRevenueTrend data={revenueTrend} loading={false} />
+          <DashboardOccupancyTrend data={occupancyTrend} loading={false} />
+        </Stack>
       }
-    >
-      <Stack gap="md" aria-label="Main workspace">
-        <DashboardRevenueTrend data={revenueTrend} loading={false} />
-        <DashboardOccupancyTrend data={occupancyTrend} loading={false} />
+      tables={
         <DashboardTimeline
           items={timeline}
           loading={false}
           searchQuery={search}
         />
-        <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-          <DashboardAiActivity
-            items={aiActivity}
-            loading={false}
-            searchQuery={search}
-          />
-          <DashboardLatestReservations
-            bookings={latestBookings}
-            loading={false}
-            searchQuery={search}
-          />
-          <DashboardAlerts
-            alerts={alerts}
-            loading={false}
-            searchQuery={search}
-          />
-          <DashboardQuickActions />
-        </div>
-      </Stack>
+      }
+      secondary={
+        <>
+          <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
+            <DashboardAiActivity
+              items={aiActivity}
+              loading={false}
+              searchQuery={search}
+            />
+            <DashboardLatestReservations
+              bookings={latestBookings}
+              loading={false}
+              searchQuery={search}
+            />
+            <DashboardAlerts
+              alerts={alerts}
+              loading={false}
+              searchQuery={search}
+            />
+            <DashboardQuickActions />
+          </div>
 
-      <Section
-        title={t("dashboard.operations")}
-        subtitle={t("dashboard.operationsSubtitle")}
-      >
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:gap-5">
-          <DashboardRecentGuests
-            guests={recentGuests}
-            loading={false}
-            searchQuery={search}
-          />
-          <DashboardRecentBookings
-            bookings={upcomingBookings}
-            loading={false}
-            searchQuery={search}
-          />
-          <DashboardRoomStatus
-            rooms={rooms}
-            bookings={bookings}
-            loading={false}
-          />
-        </div>
-      </Section>
-    </WorkspacePageLayout>
+          <Section
+            title={t("dashboard.operations")}
+            subtitle={t("dashboard.operationsSubtitle")}
+          >
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:gap-5">
+              <DashboardRecentGuests
+                guests={recentGuests}
+                loading={false}
+                searchQuery={search}
+              />
+              <DashboardRecentBookings
+                bookings={upcomingBookings}
+                loading={false}
+                searchQuery={search}
+              />
+              <DashboardRoomStatus
+                rooms={rooms}
+                bookings={bookings}
+                loading={false}
+              />
+            </div>
+          </Section>
+        </>
+      }
+    />
   );
 }

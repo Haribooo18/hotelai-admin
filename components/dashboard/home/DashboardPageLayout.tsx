@@ -8,23 +8,25 @@ import {
 } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
 
-type WorkspacePageLayoutProps = {
+type Props = {
+  toolbar?: ReactNode;
   header?: ReactNode;
   kpis?: ReactNode;
-  toolbar?: ReactNode;
-  children: ReactNode;
+  charts?: ReactNode;
+  tables?: ReactNode;
   secondary?: ReactNode;
   className?: string;
 };
 
-export function WorkspacePageLayout({
+export function DashboardPageLayout({
+  toolbar,
   header,
   kpis,
-  toolbar,
-  children,
+  charts,
+  tables,
   secondary,
   className,
-}: WorkspacePageLayoutProps) {
+}: Props) {
   return (
     <div className={cn(shellWorkspaceFrameClass, className)}>
       <div className={shellWorkspaceScrollClass}>
@@ -32,8 +34,9 @@ export function WorkspacePageLayout({
           <MotionReveal order={0}>{toolbar}</MotionReveal>
           <MotionReveal order={1}>{header}</MotionReveal>
           <MotionReveal order={2}>{kpis}</MotionReveal>
-          <MotionReveal order={3}>{children}</MotionReveal>
-          <MotionReveal order={4}>{secondary}</MotionReveal>
+          <MotionReveal order={3}>{charts}</MotionReveal>
+          <MotionReveal order={4}>{tables}</MotionReveal>
+          <MotionReveal order={5}>{secondary}</MotionReveal>
         </div>
       </div>
     </div>

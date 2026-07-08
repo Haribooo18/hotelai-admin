@@ -301,6 +301,18 @@ export function CalendarPage({
             onRefresh={handleRefresh}
           />
         }
+        secondary={
+          <CalendarOperations
+            bookings={bookings}
+            rooms={rooms}
+            roomModels={roomModels}
+            loading={false}
+            onSelect={(booking) => {
+              selectBooking(booking);
+              openDrawer(booking);
+            }}
+          />
+        }
       >
         <div className="space-y-4">
           <div className="hidden md:block">
@@ -334,20 +346,9 @@ export function CalendarPage({
               }}
             />
           </div>
+
+          <CalendarLegend />
         </div>
-
-      <CalendarOperations
-        bookings={bookings}
-        rooms={rooms}
-        roomModels={roomModels}
-        loading={false}
-        onSelect={(booking) => {
-          selectBooking(booking);
-          openDrawer(booking);
-        }}
-      />
-
-      <CalendarLegend />
       </WorkspacePageLayout>
 
       <BookingDetailDrawer

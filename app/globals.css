@@ -489,7 +489,7 @@ html[data-shell-theme="gray"] {
   }
 
   .ds-motion-reveal {
-    animation: ds-reveal-up var(--ds-duration-long) var(--ds-ease) both;
+    animation: ds-reveal-up var(--ds-duration) var(--ds-ease) both;
   }
 
   .ds-motion-reveal-0 {
@@ -510,6 +510,10 @@ html[data-shell-theme="gray"] {
 
   .ds-motion-reveal-4 {
     animation-delay: calc(var(--ds-motion-reveal-gap) * 4);
+  }
+
+  .ds-motion-reveal-5 {
+    animation-delay: calc(var(--ds-motion-reveal-gap) * 5);
   }
 
   .ds-motion-filter-panel {

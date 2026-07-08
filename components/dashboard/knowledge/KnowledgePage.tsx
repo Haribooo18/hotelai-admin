@@ -201,40 +201,41 @@ export function KnowledgePage({ articles, categories }: Props) {
             onRefresh={handleRefresh}
           />
         }
+        secondary={
+          <KnowledgeOperations
+            snapshot={operations}
+            loading={refreshing}
+            onSelect={handleOpen}
+          />
+        }
       >
         {articles.length === 0 ? (
-        <KnowledgeEmptyState />
-      ) : (
-        <div className={inspectorGridClass}>
-          <GlassSurface className={workspaceSurfaceClass}>
-            <KnowledgeArticlesView
-              models={filteredModels}
-              loading={refreshing}
-              selectedId={selectedId}
-              onSelect={handleSelect}
-              onOpen={handleOpen}
-              onEdit={handleEdit}
-              onDuplicate={handleDuplicate}
-              onDelete={handleDelete}
-            />
-          </GlassSurface>
+          <KnowledgeEmptyState />
+        ) : (
+          <div className={inspectorGridClass}>
+            <GlassSurface className={workspaceSurfaceClass}>
+              <KnowledgeArticlesView
+                models={filteredModels}
+                loading={refreshing}
+                selectedId={selectedId}
+                onSelect={handleSelect}
+                onOpen={handleOpen}
+                onEdit={handleEdit}
+                onDuplicate={handleDuplicate}
+                onDelete={handleDelete}
+              />
+            </GlassSurface>
 
-          <div className="hidden xl:block">
-            <KnowledgeInspector
-              model={selectedModel}
-              onOpen={() => {
-                if (selectedModel) handleOpen(selectedModel);
-              }}
-            />
+            <div className="hidden xl:block">
+              <KnowledgeInspector
+                model={selectedModel}
+                onOpen={() => {
+                  if (selectedModel) handleOpen(selectedModel);
+                }}
+              />
+            </div>
           </div>
-        </div>
-      )}
-
-      <KnowledgeOperations
-        snapshot={operations}
-        loading={refreshing}
-        onSelect={handleOpen}
-      />
+        )}
       </WorkspacePageLayout>
 
       <KnowledgeDetailDrawer

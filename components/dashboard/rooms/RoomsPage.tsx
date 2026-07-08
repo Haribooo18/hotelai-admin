@@ -159,24 +159,25 @@ export function RoomsPage({ rooms, bookings }: Props) {
             onRefresh={handleRefresh}
           />
         }
+        secondary={
+          <RoomsOperations
+            models={cardModels}
+            bookings={bookings}
+            kpis={kpis}
+            loading={false}
+            onSelect={handleOpen}
+          />
+        }
       >
         <GlassSurface className={workspaceSurfaceClass}>
-        <RoomsCardsView
-          models={filteredModels}
-          loading={false}
-          selectedId={selectedId}
-          onOpenRoom={handleOpen}
-          onEditRoom={handleEdit}
-        />
-      </GlassSurface>
-
-      <RoomsOperations
-        models={cardModels}
-        bookings={bookings}
-        kpis={kpis}
-        loading={false}
-        onSelect={handleOpen}
-      />
+          <RoomsCardsView
+            models={filteredModels}
+            loading={false}
+            selectedId={selectedId}
+            onOpenRoom={handleOpen}
+            onEditRoom={handleEdit}
+          />
+        </GlassSurface>
       </WorkspacePageLayout>
 
       <RoomDetailDrawer

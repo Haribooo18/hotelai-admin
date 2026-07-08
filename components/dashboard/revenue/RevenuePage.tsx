@@ -213,61 +213,62 @@ export function RevenuePage({
           loading={refreshing}
         />
       }
-      toolbar={
-        <RevenueToolbar
-          range={range}
-          preset={preset}
-          compareEnabled={compareEnabled}
-          exporting={exporting}
-          refreshing={refreshing}
-          canExport={transactions.length > 0}
-          filters={filters}
-          rooms={rooms}
-          onRangeChange={setRange}
-          onPresetChange={setPreset}
-          onCompareChange={setCompareEnabled}
-          onExport={handleExport}
-          onRefresh={handleRefresh}
-          onFiltersChange={setFilters}
-        />
-      }
-    >
-      <div className={inspectorGridClass}>
-        <div className="space-y-4">
-          <RevenueAnalytics
-            trend={trend}
-            compareTrend={compareTrend}
-            bySource={bySource}
-            byRoomType={byRoomType}
-            forecast={forecast}
+        toolbar={
+          <RevenueToolbar
+            range={range}
+            preset={preset}
             compareEnabled={compareEnabled}
+            exporting={exporting}
+            refreshing={refreshing}
+            canExport={transactions.length > 0}
+            filters={filters}
+            rooms={rooms}
+            onRangeChange={setRange}
+            onPresetChange={setPreset}
+            onCompareChange={setCompareEnabled}
+            onExport={handleExport}
+            onRefresh={handleRefresh}
+            onFiltersChange={setFilters}
+          />
+        }
+        secondary={
+          <RevenueOperations
+            byRoomType={byRoomType}
+            bySource={bySource}
+            transactions={transactions}
+            trend={trend}
             loading={refreshing}
           />
+        }
+      >
+        <div className={inspectorGridClass}>
+          <div className="space-y-4">
+            <RevenueAnalytics
+              trend={trend}
+              compareTrend={compareTrend}
+              bySource={bySource}
+              byRoomType={byRoomType}
+              forecast={forecast}
+              compareEnabled={compareEnabled}
+              loading={refreshing}
+            />
 
-          <RevenueInsights insights={insights} loading={refreshing} />
+            <RevenueInsights insights={insights} loading={refreshing} />
+          </div>
+
+          <div className="hidden xl:block">
+            <RevenueInspector
+              kpis={kpis}
+              trend={trend}
+              forecast={forecast}
+              range={range}
+              useServerSnapshot={useServerSnapshot}
+              canExport={transactions.length > 0}
+              exporting={exporting}
+              onExport={handleExport}
+            />
+          </div>
         </div>
-
-        <div className="hidden xl:block">
-          <RevenueInspector
-            kpis={kpis}
-            trend={trend}
-            forecast={forecast}
-            range={range}
-            useServerSnapshot={useServerSnapshot}
-            canExport={transactions.length > 0}
-            exporting={exporting}
-            onExport={handleExport}
-          />
-        </div>
-      </div>
-
-      <RevenueOperations
-        byRoomType={byRoomType}
-        bySource={bySource}
-        transactions={transactions}
-        trend={trend}
-        loading={refreshing}
-      />
-    </WorkspacePageLayout>
+      </WorkspacePageLayout>
   );
 }

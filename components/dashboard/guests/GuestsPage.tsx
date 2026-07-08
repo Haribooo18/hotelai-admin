@@ -242,24 +242,25 @@ export function GuestsPage({ guests, bookings, rooms }: Props) {
             onRefresh={handleRefresh}
           />
         }
+        secondary={
+          <GuestsCrmInsights
+            models={cardModels}
+            loading={false}
+            onSelect={handleOpenGuest}
+          />
+        }
       >
         <GlassSurface className={workspaceSurfaceClass}>
-        <GuestsCardsView
-          models={filteredModels}
-          loading={false}
-          selectedId={selectedId}
-          onOpenGuest={handleOpenGuest}
-          onEditGuest={handleEdit}
-          onDeleteGuest={handleDeleteRequest}
-          onToggleFavorite={toggleFavorite}
-        />
-      </GlassSurface>
-
-      <GuestsCrmInsights
-        models={cardModels}
-        loading={false}
-        onSelect={handleOpenGuest}
-      />
+          <GuestsCardsView
+            models={filteredModels}
+            loading={false}
+            selectedId={selectedId}
+            onOpenGuest={handleOpenGuest}
+            onEditGuest={handleEdit}
+            onDeleteGuest={handleDeleteRequest}
+            onToggleFavorite={toggleFavorite}
+          />
+        </GlassSurface>
       </WorkspacePageLayout>
 
       <GuestDetailDrawer
