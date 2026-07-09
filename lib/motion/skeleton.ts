@@ -4,3 +4,5 @@ export const motionSkeletonClass = "ds-skeleton";
 export const motionSkeletonExitClass = "ds-skeleton-exit";
 export const motionSkeletonContentEnterClass = "ds-skeleton-content-enter";
 export const motionSkeletonCrossfadeRootClass = "ds-skeleton-crossfade";
+
+export const motionSkeletonExitDurationMs = 200;

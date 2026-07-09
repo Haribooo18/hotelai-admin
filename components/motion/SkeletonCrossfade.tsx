@@ -6,6 +6,7 @@ import {
   motionSkeletonContentEnterClass,
   motionSkeletonCrossfadeRootClass,
   motionSkeletonExitClass,
+  motionSkeletonExitDurationMs,
 } from "@/lib/motion/skeleton";
 import { cn } from "@/lib/utils";
 
@@ -15,8 +16,6 @@ type Props = {
   children: ReactNode;
   className?: string;
 };
-
-const SKELETON_EXIT_MS = 200;
 
 export function SkeletonCrossfade({
   loading,
@@ -40,7 +39,7 @@ export function SkeletonCrossfade({
     const startTimer = window.setTimeout(() => setRevealed(false), 0);
     const revealTimer = window.setTimeout(
       () => setRevealed(true),
-      SKELETON_EXIT_MS
+      motionSkeletonExitDurationMs
     );
 
     return () => {

@@ -18,6 +18,16 @@ import {
   motionToastToasterClass,
 } from "@/lib/motion/toast";
 import {
+  motionChartEmptyClass,
+  motionChartLegendItemClass,
+  motionChartSurfaceClass,
+  motionChartTooltipClass,
+} from "@/lib/motion/chart";
+import {
+  motionKpiDeltaClass,
+  motionKpiValueClass,
+} from "@/lib/motion/kpi";
+import {
   motionFormDrawerClass,
   motionInspectorPanelClass,
   motionInspectorRevealRootClass,
@@ -62,11 +72,11 @@ export const motionPresets = {
 
   hover: {
     surfaceLift:
-      "hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-md)]",
+      "ds-motion-surface-lift hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-md)]",
     subtleBg:
       "hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]",
     scalePress:
-      "active:scale-[0.98] active:duration-[var(--ds-duration-press)]",
+      "ds-motion-scale-press active:scale-[0.98] active:duration-[var(--ds-duration-press)]",
   },
 
   focus: {
@@ -148,6 +158,18 @@ export const motionPresets = {
     toaster: motionToastToasterClass,
     toast: motionToastClass,
     actionButton: motionToastActionButtonClass,
+  },
+
+  kpi: {
+    value: motionKpiValueClass,
+    delta: motionKpiDeltaClass,
+  },
+
+  chart: {
+    surface: motionChartSurfaceClass,
+    empty: motionChartEmptyClass,
+    tooltip: motionChartTooltipClass,
+    legendItem: motionChartLegendItemClass,
   },
 } as const;
 

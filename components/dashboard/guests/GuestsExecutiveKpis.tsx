@@ -11,6 +11,7 @@ import {
 
 import { KpiCard } from "@/components/ui/data/KpiCard";
 import { ExecutiveKpisPanel } from "@/components/dashboard/shared/ExecutiveKpisPanel";
+import type { MotionRevealOrder } from "@/lib/design/motion";
 import { useI18n } from "@/lib/i18n";
 
 import { formatNightsCount } from "@/lib/dashboard/format";
@@ -105,6 +106,7 @@ export function GuestsExecutiveKpis({ kpis, loading = false }: Props) {
             format={item.format}
             tone={meta?.tone}
             bordered={index > 0}
+            revealOrder={Math.min(index, 7) as MotionRevealOrder}
           />
         );
       })}

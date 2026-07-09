@@ -102,6 +102,12 @@ html {
   --ds-duration-press: 80ms;
   --ds-duration-toast-in: 80ms;
   --ds-duration-toast-out: 200ms;
+  --ds-duration-chart-enter: 300ms;
+  --ds-duration-chart-crossfade: 200ms;
+  --ds-duration-chart-tooltip: 120ms;
+  --ds-duration-chart-empty: 180ms;
+  --ds-duration-kpi-value: 180ms;
+  --ds-duration-kpi-delta: 150ms;
   --ds-duration-skeleton: 200ms;
   --ds-duration-slow: 220ms;
   --ds-ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -525,6 +531,54 @@ html[data-shell-theme="gray"] {
     animation-delay: calc(var(--ds-motion-reveal-gap) * 5);
   }
 
+  .ds-motion-reveal-6 {
+    animation-delay: calc(var(--ds-motion-reveal-gap) * 6);
+  }
+
+  .ds-motion-reveal-7 {
+    animation-delay: calc(var(--ds-motion-reveal-gap) * 7);
+  }
+
+  .ds-motion-kpi-value {
+    display: inline-block;
+    animation: ds-kpi-value-enter var(--ds-duration-kpi-value) var(--ds-ease) both;
+  }
+
+  .ds-motion-kpi-delta {
+    display: inline-flex;
+    animation: ds-kpi-delta-enter var(--ds-duration-kpi-delta) var(--ds-ease) both;
+  }
+
+  .ds-motion-chart-surface {
+    opacity: 1;
+    transition: opacity var(--ds-duration-chart-crossfade) var(--ds-ease);
+  }
+
+  .ds-motion-chart-surface[data-entering="true"] {
+    animation: ds-chart-enter var(--ds-duration-chart-enter) var(--ds-ease) both;
+  }
+
+  .ds-motion-chart-surface[data-fading="true"] {
+    opacity: 0;
+  }
+
+  .ds-motion-chart-empty {
+    animation: ds-chart-empty-enter var(--ds-duration-chart-empty) var(--ds-ease) both;
+  }
+
+  .ds-motion-chart-tooltip {
+    border-radius: var(--ds-radius-sm);
+    background: var(--shell-surface);
+    box-shadow: var(--shell-shadow-md);
+    padding: 0.5rem 0.625rem;
+    animation: ds-chart-tooltip-enter var(--ds-duration-chart-tooltip) var(--ds-ease) both;
+  }
+
+  .ds-motion-chart-legend-item {
+    display: inline-flex;
+    animation: ds-chart-legend-enter var(--ds-duration-chart-tooltip) var(--ds-ease) both;
+  }
+
   .ds-motion-filter-panel {
     animation: ds-filter-panel var(--ds-duration) var(--ds-ease) both;
   }
@@ -652,18 +706,39 @@ html[data-shell-theme="gray"] {
     .ds-dialog-backdrop,
     .ds-motion-dropdown,
     .ds-skeleton,
+    .ds-skeleton::after,
     .ds-skeleton-exit,
     .ds-skeleton-content-enter,
     .ds-motion-toast-toaster,
-    .ds-motion-toast-toaster [data-sonner-toast] {
+    .ds-motion-toast-toaster [data-sonner-toast],
+    .ds-motion-kpi-value,
+    .ds-motion-kpi-delta,
+    .ds-motion-chart-surface,
+    .ds-motion-chart-empty,
+    .ds-motion-chart-tooltip,
+    .ds-motion-chart-legend-item {
       animation: none !important;
       transition: none !important;
       opacity: 1 !important;
       transform: none !important;
     }
 
-    .ds-surface-interactive:hover {
-      transform: none;
+    .animate-bounce,
+    .animate-pulse,
+    .animate-ping {
+      animation: none !important;
+    }
+
+    .ds-surface-interactive:hover,
+    .ds-motion-surface-lift:hover,
+    .ds-motion-scale-press:active,
+    button:hover,
+    button:active,
+    a:hover,
+    a:active,
+    [data-slot="button"]:hover,
+    [data-slot="button"]:active {
+      transform: none !important;
     }
   }
 }
@@ -764,6 +839,66 @@ html[data-shell-theme="gray"] {
 }
 
 @keyframes ds-skeleton-content-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ds-kpi-value-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ds-kpi-delta-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ds-chart-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ds-chart-empty-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes ds-chart-tooltip-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ds-chart-legend-enter {
   from {
     opacity: 0;
   }

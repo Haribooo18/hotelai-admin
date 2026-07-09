@@ -12,6 +12,7 @@ import {
 
 import { KpiCard } from "@/components/ui/data/KpiCard";
 import { ExecutiveKpisPanel } from "@/components/dashboard/shared/ExecutiveKpisPanel";
+import type { MotionRevealOrder } from "@/lib/design/motion";
 import { useI18n } from "@/lib/i18n";
 
 import type { TrendPoint } from "./dashboard-metrics";
@@ -144,11 +145,17 @@ export function DashboardExecutiveKpis({
             format={item.format}
             tone={item.tone}
             bordered={index > 0}
+            revealOrder={Math.min(index, 7) as MotionRevealOrder}
             pulse={"pulse" in item && item.pulse ? value > 0 : false}
             trend={
               item.trendKey && trendHints[item.trendKey] ? (
                 <DashboardTrendHint trend={trendHints[item.trendKey]!} />
               ) : null
+            }
+            trendKey={
+              item.trendKey && trendHints[item.trendKey]
+                ? `${item.trendKey}-${trendHints[item.trendKey]!.label}`
+                : undefined
             }
           />
         );

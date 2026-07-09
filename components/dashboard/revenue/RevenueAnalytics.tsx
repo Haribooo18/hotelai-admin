@@ -15,6 +15,8 @@ import {
   YAxis,
 } from "recharts";
 
+import { createChartTooltip } from "@/components/motion/ChartTooltip";
+import { MotionChart } from "@/components/motion/MotionChart";
 import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
 import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
 import { DataCard } from "@/components/ui/data/DataCard";
@@ -32,15 +34,6 @@ import {
   type RevenueTrendPoint,
 } from "./revenue-metrics";
 
-const TOOLTIP_STYLE = {
-  background: "var(--shell-surface)",
-  border: "none",
-  borderRadius: "var(--ds-radius-sm)",
-  boxShadow: "var(--shell-shadow-md)",
-  color: "var(--shell-text)",
-  fontSize: 12,
-};
-
 type Props = {
   trend: RevenueTrendPoint[];
   compareTrend: RevenueTrendPoint[];
@@ -51,7 +44,7 @@ type Props = {
   loading?: boolean;
 };
 
-function ChartCard({
+function ChartCard<T>({
   title,
   subtitle,
   loading,
@@ -59,6 +52,7 @@ function ChartCard({
   emptyTitle,
   emptyDescription,
   heightClass,
+  chartData,
   children,
   noDataTitle,
   noDataDescription,
@@ -70,7 +64,8 @@ function ChartCard({
   emptyTitle?: string;
   emptyDescription?: string;
   heightClass: string;
-  children: ReactNode;
+  chartData: T;
+  children: (data: T) => ReactNode;
   noDataTitle: string;
   noDataDescription: string;
 }) {
@@ -85,20 +80,23 @@ function ChartCard({
         loading={!!loading}
         skeleton={<WorkspaceChartSkeleton className={heightClass} />}
       >
-        {empty ? (
-          <EmptyState
-            title={emptyTitle ?? noDataTitle}
-            description={emptyDescription ?? noDataDescription}
-          />
-        ) : (
-          <div
-            className={heightClass}
-            role="img"
-            aria-label={`${title} chart`}
-          >
-            {children}
-          </div>
-        )}
+        <MotionChart
+          data={chartData}
+          empty={!!empty}
+          className={heightClass}
+          emptyContent={
+            <EmptyState
+              title={emptyTitle ?? noDataTitle}
+              description={emptyDescription ?? noDataDescription}
+            />
+          }
+        >
+          {(data) => (
+            <div className="h-full" role="img" aria-label={`${title} chart`}>
+              {children(data)}
+            </div>
+          )}
+        </MotionChart>
       </SkeletonCrossfade>
     </DataCard>
   );
@@ -140,73 +138,79 @@ export function RevenueAnalytics({
             noDataTitle={noDataTitle}
             noDataDescription={noDataDescription}
             heightClass="h-64 min-h-[256px]"
+            chartData={mergedTrend}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart
-                data={mergedTrend}
-                margin={{ top: 4, right: 4, left: -8, bottom: 0 }}
-              >
-                <defs>
-                  <linearGradient id="revenueArea" x1="0" y1="0" x2="0" y2="1">
-                    <stop
-                      offset="0%"
-                      stopColor="var(--shell-accent)"
-                      stopOpacity={0.3}
-                    />
-                    <stop
-                      offset="100%"
-                      stopColor="var(--shell-accent)"
-                      stopOpacity={0.02}
-                    />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  stroke="var(--shell-border)"
-                  strokeOpacity={0.35}
-                  strokeDasharray="3 6"
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={48}
-                />
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  formatter={(value, name) => [
-                    formatRevenueCurrency(Number(value)),
-                    name === "compareRevenue"
-                      ? t("revenue.previousPeriod")
-                      : t("revenue.periodRevenue"),
-                  ]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="revenue"
-                  stroke="var(--shell-accent)"
-                  strokeWidth={2.5}
-                  fill="url(#revenueArea)"
-                  dot={false}
-                />
-                {compareEnabled ? (
-                  <Line
-                    type="monotone"
-                    dataKey="compareRevenue"
-                    stroke="var(--shell-muted)"
-                    strokeWidth={1.5}
-                    strokeDasharray="4 4"
-                    dot={false}
+            {(chartTrend) => (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart
+                  data={chartTrend}
+                  margin={{ top: 4, right: 4, left: -8, bottom: 0 }}
+                >
+                  <defs>
+                    <linearGradient id="revenueArea" x1="0" y1="0" x2="0" y2="1">
+                      <stop
+                        offset="0%"
+                        stopColor="var(--shell-accent)"
+                        stopOpacity={0.3}
+                      />
+                      <stop
+                        offset="100%"
+                        stopColor="var(--shell-accent)"
+                        stopOpacity={0.02}
+                      />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    stroke="var(--shell-border)"
+                    strokeOpacity={0.35}
+                    strokeDasharray="3 6"
+                    vertical={false}
                   />
-                ) : null}
-              </AreaChart>
-            </ResponsiveContainer>
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                  />
+                  <Tooltip
+                    content={createChartTooltip({
+                      formatter: (value, name) => [
+                        formatRevenueCurrency(Number(value)),
+                        name === "compareRevenue"
+                          ? t("revenue.previousPeriod")
+                          : t("revenue.periodRevenue"),
+                      ],
+                    })}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="var(--shell-accent)"
+                    strokeWidth={2.5}
+                    fill="url(#revenueArea)"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                  {compareEnabled ? (
+                    <Line
+                      type="monotone"
+                      dataKey="compareRevenue"
+                      stroke="var(--shell-muted)"
+                      strokeWidth={1.5}
+                      strokeDasharray="4 4"
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  ) : null}
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </ChartCard>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -217,44 +221,49 @@ export function RevenueAnalytics({
               empty={!hasAdr}
               emptyDescription={t("revenue.noDataDesc")}
               noDataTitle={noDataTitle}
-            noDataDescription={noDataDescription}
-            heightClass="h-48 min-h-[192px]"
+              noDataDescription={noDataDescription}
+              heightClass="h-48 min-h-[192px]"
+              chartData={trend}
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trend}>
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                    width={44}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={TOOLTIP_STYLE}
-                    formatter={(value) => [
-                      formatRevenueCurrency(Number(value)),
-                      t("revenue.kpiAdr"),
-                    ]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="adr"
-                    stroke="#60a5fa"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {(chartTrend) => (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartTrend}>
+                    <CartesianGrid
+                      stroke="var(--shell-border)"
+                      strokeOpacity={0.35}
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      width={44}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      content={createChartTooltip({
+                        formatter: (value) => [
+                          formatRevenueCurrency(Number(value)),
+                          t("revenue.kpiAdr"),
+                        ],
+                      })}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="adr"
+                      stroke="#60a5fa"
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </ChartCard>
 
             <ChartCard
@@ -264,44 +273,49 @@ export function RevenueAnalytics({
               empty={!hasRevpar}
               emptyDescription={t("revenue.noDataDesc")}
               noDataTitle={noDataTitle}
-            noDataDescription={noDataDescription}
-            heightClass="h-48 min-h-[192px]"
+              noDataDescription={noDataDescription}
+              heightClass="h-48 min-h-[192px]"
+              chartData={trend}
             >
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={trend}>
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    vertical={false}
-                  />
-                  <XAxis
-                    dataKey="label"
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                    width={44}
-                    axisLine={false}
-                    tickLine={false}
-                  />
-                  <Tooltip
-                    contentStyle={TOOLTIP_STYLE}
-                    formatter={(value) => [
-                      formatRevenueCurrency(Number(value)),
-                      t("revenue.revpar"),
-                    ]}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="revpar"
-                    stroke="#a78bfa"
-                    strokeWidth={2}
-                    dot={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              {(chartTrend) => (
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={chartTrend}>
+                    <CartesianGrid
+                      stroke="var(--shell-border)"
+                      strokeOpacity={0.35}
+                      vertical={false}
+                    />
+                    <XAxis
+                      dataKey="label"
+                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      width={44}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      content={createChartTooltip({
+                        formatter: (value) => [
+                          formatRevenueCurrency(Number(value)),
+                          t("revenue.revpar"),
+                        ],
+                      })}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="revpar"
+                      stroke="#a78bfa"
+                      strokeWidth={2}
+                      dot={false}
+                      isAnimationActive={false}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              )}
             </ChartCard>
           </div>
         </div>
@@ -316,47 +330,52 @@ export function RevenueAnalytics({
             noDataTitle={noDataTitle}
             noDataDescription={noDataDescription}
             heightClass="h-44 min-h-[176px]"
+            chartData={byRoomType}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart
-                data={byRoomType}
-                layout="vertical"
-                margin={{ left: 4, right: 8 }}
-              >
-                <CartesianGrid
-                  stroke="var(--shell-border)"
-                  strokeOpacity={0.35}
-                  horizontal={false}
-                />
-                <XAxis
-                  type="number"
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  type="category"
-                  dataKey="label"
-                  width={72}
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  formatter={(value) => [
-                    formatRevenueCurrency(Number(value)),
-                    t("revenue.periodRevenue"),
-                  ]}
-                />
-                <Bar
-                  dataKey="value"
-                  fill="var(--shell-accent)"
-                  radius={[0, 8, 8, 0]}
-                  barSize={14}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {(chartData) => (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  layout="vertical"
+                  margin={{ left: 4, right: 8 }}
+                >
+                  <CartesianGrid
+                    stroke="var(--shell-border)"
+                    strokeOpacity={0.35}
+                    horizontal={false}
+                  />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="label"
+                    width={72}
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={createChartTooltip({
+                      formatter: (value) => [
+                        formatRevenueCurrency(Number(value)),
+                        t("revenue.periodRevenue"),
+                      ],
+                    })}
+                  />
+                  <Bar
+                    dataKey="value"
+                    fill="var(--shell-accent)"
+                    radius={[0, 8, 8, 0]}
+                    barSize={14}
+                    isAnimationActive={false}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </ChartCard>
 
           <ChartCard
@@ -368,41 +387,46 @@ export function RevenueAnalytics({
             noDataTitle={noDataTitle}
             noDataDescription={noDataDescription}
             heightClass="h-44 min-h-[176px]"
+            chartData={bySource}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={bySource}>
-                <CartesianGrid
-                  stroke="var(--shell-border)"
-                  strokeOpacity={0.35}
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  width={44}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  formatter={(value) => [
-                    formatRevenueCurrency(Number(value)),
-                    t("revenue.periodRevenue"),
-                  ]}
-                />
-                <Bar
-                  dataKey="value"
-                  fill="#34d399"
-                  radius={[8, 8, 0, 0]}
-                  barSize={22}
-                />
-              </BarChart>
-            </ResponsiveContainer>
+            {(chartData) => (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData}>
+                  <CartesianGrid
+                    stroke="var(--shell-border)"
+                    strokeOpacity={0.35}
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    width={44}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={createChartTooltip({
+                      formatter: (value) => [
+                        formatRevenueCurrency(Number(value)),
+                        t("revenue.periodRevenue"),
+                      ],
+                    })}
+                  />
+                  <Bar
+                    dataKey="value"
+                    fill="#34d399"
+                    radius={[8, 8, 0, 0]}
+                    barSize={22}
+                    isAnimationActive={false}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </ChartCard>
 
           <ChartCard
@@ -414,47 +438,55 @@ export function RevenueAnalytics({
             noDataTitle={noDataTitle}
             noDataDescription={noDataDescription}
             heightClass="h-40 min-h-[160px]"
+            chartData={trend}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trend}>
-                <defs>
-                  <linearGradient id="occArea" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#34d399" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#34d399" stopOpacity={0.02} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid
-                  stroke="var(--shell-border)"
-                  strokeOpacity={0.35}
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  domain={[0, 100]}
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  width={36}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  formatter={(value) => [`${value}%`, t("revenue.chartOccupancyLabel")]}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="occupancy"
-                  stroke="#34d399"
-                  fill="url(#occArea)"
-                  strokeWidth={2}
-                  dot={false}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
+            {(chartTrend) => (
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={chartTrend}>
+                  <defs>
+                    <linearGradient id="occArea" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#34d399" stopOpacity={0.25} />
+                      <stop offset="100%" stopColor="#34d399" stopOpacity={0.02} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    stroke="var(--shell-border)"
+                    strokeOpacity={0.35}
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    domain={[0, 100]}
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    width={36}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={createChartTooltip({
+                      formatter: (value) => [
+                        `${value}%`,
+                        t("revenue.chartOccupancyLabel"),
+                      ],
+                    })}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="occupancy"
+                    stroke="#34d399"
+                    fill="url(#occArea)"
+                    strokeWidth={2}
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            )}
           </ChartCard>
 
           <ChartCard
@@ -466,43 +498,48 @@ export function RevenueAnalytics({
             noDataTitle={noDataTitle}
             noDataDescription={noDataDescription}
             heightClass="h-40 min-h-[160px]"
+            chartData={forecast}
           >
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={forecast}>
-                <CartesianGrid
-                  stroke="var(--shell-border)"
-                  strokeOpacity={0.35}
-                  vertical={false}
-                />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
-                  width={44}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <Tooltip
-                  contentStyle={TOOLTIP_STYLE}
-                  formatter={(value) => [
-                    formatRevenueCurrency(Number(value)),
-                    t("revenue.projectedLabel"),
-                  ]}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="projected"
-                  stroke="#f59e0b"
-                  strokeWidth={2}
-                  strokeDasharray="6 4"
-                  dot={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            {(chartForecast) => (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartForecast}>
+                  <CartesianGrid
+                    stroke="var(--shell-border)"
+                    strokeOpacity={0.35}
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    width={44}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    content={createChartTooltip({
+                      formatter: (value) => [
+                        formatRevenueCurrency(Number(value)),
+                        t("revenue.projectedLabel"),
+                      ],
+                    })}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="projected"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    dot={false}
+                    isAnimationActive={false}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            )}
           </ChartCard>
         </div>
       </div>

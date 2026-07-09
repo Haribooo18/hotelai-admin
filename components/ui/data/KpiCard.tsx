@@ -1,6 +1,9 @@
-import type { LucideIcon } from "lucide-react";
-import type { ReactNode } from "react";
+"use client";
 
+import type { LucideIcon } from "lucide-react";
+import { useEffect, useRef, type ReactNode } from "react";
+
+import { MotionReveal } from "@/components/motion/MotionReveal";
 import { Metric } from "@/components/ui/display/Metric";
 import { StatusDot } from "@/components/ui/display/StatusDot";
 import {
@@ -12,7 +15,11 @@ import {
   kpiSparklineGapClass,
   kpiTrendGapClass,
 } from "@/lib/dashboard/design-system";
-import { motionPresets } from "@/lib/design/motion";
+import { motionPresets, type MotionRevealOrder } from "@/lib/design/motion";
+import {
+  motionKpiDeltaClass,
+  motionKpiValueClass,
+} from "@/lib/motion/kpi";
 import { cn } from "@/lib/utils";
 
 export type KpiTone = "default" | "success" | "warning" | "muted";
@@ -26,9 +33,17 @@ type KpiCardProps = {
   bordered?: boolean;
   pulse?: boolean;
   trend?: ReactNode;
+  trendKey?: string;
   sparkline?: ReactNode;
+  revealOrder?: MotionRevealOrder;
   className?: string;
 };
+
+function replayValueEnterAnimation(element: HTMLSpanElement) {
+  element.style.animation = "none";
+  void element.offsetHeight;
+  element.style.removeProperty("animation");
+}
 
 export function KpiCard({
   label,
@@ -39,10 +54,35 @@ export function KpiCard({
   bordered = false,
   pulse = false,
   trend,
+  trendKey,
   sparkline,
+  revealOrder,
   className,
 }: KpiCardProps) {
-  return (
+  const valueWrapperRef = useRef<HTMLSpanElement>(null);
+  const previousValue = useRef(value);
+  const isHydrated = useRef(false);
+
+  useEffect(() => {
+    isHydrated.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!isHydrated.current || previousValue.current === value) {
+      return;
+    }
+
+    previousValue.current = value;
+
+    const element = valueWrapperRef.current;
+    if (!element) {
+      return;
+    }
+
+    replayValueEnterAnimation(element);
+  }, [value]);
+
+  const card = (
     <div
       className={cn(
         kpiCellClass,
@@ -71,13 +111,30 @@ export function KpiCard({
         />
       </div>
       <p className={cn(kpiMetricGapClass, "ds-kpi")}>
-        <Metric value={value} formatter={format} />
+        <span ref={valueWrapperRef} className={motionKpiValueClass}>
+          <Metric value={value} formatter={format} />
+        </span>
       </p>
-      {trend ? <div className={kpiTrendGapClass}>{trend}</div> : null}
+      {trend ? (
+        <div className={kpiTrendGapClass}>
+          <span
+            className={motionKpiDeltaClass}
+            key={trendKey ?? "trend"}
+          >
+            {trend}
+          </span>
+        </div>
+      ) : null}
       {sparkline ? <div className={kpiSparklineGapClass}>{sparkline}</div> : null}
       <span className="sr-only" aria-live="polite">
         {format(value)}
       </span>
     </div>
   );
+
+  if (revealOrder === undefined) {
+    return card;
+  }
+
+  return <MotionReveal order={revealOrder}>{card}</MotionReveal>;
 }

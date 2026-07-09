@@ -12,6 +12,7 @@ import {
 
 import { KpiCard } from "@/components/ui/data/KpiCard";
 import { ExecutiveKpisPanel } from "@/components/dashboard/shared/ExecutiveKpisPanel";
+import type { MotionRevealOrder } from "@/lib/design/motion";
 import { formatPercent, formatNightsCount } from "@/lib/dashboard/format";
 import { useI18n } from "@/lib/i18n";
 import type { TranslationPath } from "@/lib/i18n/translations";
@@ -150,6 +151,7 @@ export function RevenueExecutiveKpis({
           format={item.format}
           tone={item.tone}
           bordered={index > 0}
+          revealOrder={Math.min(index, 7) as MotionRevealOrder}
           sparkline={<MiniTrend values={item.trendValues} />}
         />
       ))}

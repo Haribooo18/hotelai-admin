@@ -4,6 +4,7 @@ import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 
+import { Drawer, DrawerContent } from "@/components/ui/overlay/Drawer";
 import { useI18n } from "@/lib/i18n";
 import { SIDEBAR_WIDTH_PX } from "@/lib/i18n/shell-pages";
 import {
@@ -121,24 +122,20 @@ export function Sidebar({ hotel, userEmail }: Pick<Props, "hotel" | "userEmail">
         />
       </div>
 
-      {mobileOpen ? (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <button
-            type="button"
-            aria-label={t("a11y.closeNav")}
-            className="ds-dialog-backdrop absolute inset-0 bg-black/50 backdrop-blur-[4px]"
-            onClick={() => setMobileOpen(false)}
+      <Drawer open={mobileOpen} onOpenChange={setMobileOpen}>
+        <DrawerContent
+          showCloseButton={false}
+          className="left-0 right-auto max-w-none border-r border-l-0 shadow-[var(--shell-shadow-lg)]"
+          style={{ width: SIDEBAR_WIDTH_PX }}
+        >
+          <SidebarPanel
+            hotel={hotel}
+            userEmail={userEmail}
+            onMobileClose={() => setMobileOpen(false)}
+            className="h-svh"
           />
-          <div className="absolute left-0 top-0 h-svh">
-            <SidebarPanel
-              hotel={hotel}
-              userEmail={userEmail}
-              onMobileClose={() => setMobileOpen(false)}
-              className="h-svh shadow-[var(--shell-shadow-lg)]"
-            />
-          </div>
-        </div>
-      ) : null}
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }
