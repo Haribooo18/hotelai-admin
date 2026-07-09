@@ -6,7 +6,7 @@ import { Globe, Languages, Users } from "lucide-react";
 import { DataCard } from "@/components/ui/data/DataCard";
 import { Metric } from "@/components/ui/display/Metric";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { useI18n } from "@/lib/i18n";
 
@@ -41,7 +41,7 @@ function GuestInsightList({
 }) {
   if (models.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={emptyTitle}
         description={emptyDescription}
         icon={<Users size={16} />}
@@ -246,7 +246,7 @@ export function GuestsCrmInsights({
           subtitle={t("guests.crmRecentActivitySubtitle")}
         >
           {recentActivity.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("guests.crmNoActivity")}
               description={t("guests.crmNoActivityDesc")}
               icon={<Users size={16} />}
@@ -281,7 +281,7 @@ export function GuestsCrmInsights({
           subtitle={t("guests.crmCountriesSubtitle")}
         >
           {countries.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("guests.crmNoCountry")}
               description={t("guests.crmNoCountryDesc")}
               icon={<Globe size={16} />}
@@ -311,7 +311,7 @@ export function GuestsCrmInsights({
           subtitle={t("guests.crmLanguagesSubtitle")}
         >
           {languages.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("guests.crmNoLanguage")}
               description={t("guests.crmNoLanguageDesc")}
               icon={<Languages size={16} />}

@@ -4,9 +4,12 @@
  */
 
 export const theme = {
+  surfaceBackground: "var(--shell-bg)",
+  surfaceWorkspace: "var(--shell-content)",
   surface: "var(--shell-surface)",
   surfaceRaised: "var(--shell-surface-raised)",
   surfaceGlass: "var(--shell-glass)",
+  surfaceHighlight: "var(--shell-highlight)",
 
   primary: "var(--shell-accent)",
   primaryHover: "var(--shell-accent-hover)",

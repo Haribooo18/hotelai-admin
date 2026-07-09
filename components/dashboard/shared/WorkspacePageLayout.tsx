@@ -29,9 +29,9 @@ export function WorkspacePageLayout({
     <div className={cn(shellWorkspaceFrameClass, className)}>
       <div className={shellWorkspaceScrollClass}>
         <div className={pageStackClass}>
-          <MotionReveal order={0}>{toolbar}</MotionReveal>
-          <MotionReveal order={1}>{header}</MotionReveal>
-          <MotionReveal order={2}>{kpis}</MotionReveal>
+          <MotionReveal order={0}>{header}</MotionReveal>
+          <MotionReveal order={1}>{kpis}</MotionReveal>
+          <MotionReveal order={2}>{toolbar}</MotionReveal>
           <MotionReveal order={3}>{children}</MotionReveal>
           <MotionReveal order={4}>{secondary}</MotionReveal>
         </div>

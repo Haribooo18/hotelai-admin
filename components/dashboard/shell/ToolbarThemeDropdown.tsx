@@ -46,7 +46,7 @@ export function ToolbarThemeDropdown({ value, onChange, className }: Props) {
         className={cn(toolbarControlClass, "gap-1.5 px-2.5", className)}
         aria-label={t("a11y.theme")}
       >
-        <ActiveIcon size={14} aria-hidden className="shrink-0 text-[var(--shell-muted)]" />
+        <ActiveIcon size={14} aria-hidden className="shrink-0 text-[var(--shell-muted)]/80" />
         <span>{t(activeTheme.labelKey)}</span>
         <ChevronDown size={14} aria-hidden className="text-[var(--shell-muted)]" />
       </DropdownMenuTrigger>

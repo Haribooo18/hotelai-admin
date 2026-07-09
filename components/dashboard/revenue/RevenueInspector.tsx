@@ -8,9 +8,9 @@ import { WorkspaceInspectorSkeleton } from "@/components/dashboard/shared/skelet
 import { Button } from "@/components/ui/core/Button";
 import { Badge } from "@/components/ui/display/Badge";
 import { Metric } from "@/components/ui/display/Metric";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
+import { WorkspaceInspectorHeader } from "@/components/dashboard/shared/WorkspaceInspectorHeader";
 import { formatPercent, formatNightsCount } from "@/lib/dashboard/format";
 import { formatTranslation, useI18n } from "@/lib/i18n";
 
@@ -64,7 +64,7 @@ export function RevenueInspector({
       >
         <MotionInspectorShell
         header={
-          <Section
+          <WorkspaceInspectorHeader
             title={t("revenue.inspectorTitle")}
             subtitle={t("revenue.inspectorSubtitle")}
             action={
@@ -134,7 +134,7 @@ export function RevenueInspector({
               <p className="ds-overline">{t("revenue.forecastDetailsTitle")}</p>
               {forecast.length === 0 ? (
                 <div className="mt-3">
-                  <EmptyState
+                  <WorkspaceEmptyState
                     title={t("revenue.noForecast")}
                     description={t("revenue.noForecastDesc")}
                     icon={<LineChart size={16} />}

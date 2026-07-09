@@ -17,10 +17,11 @@ import {
 
 import { createChartTooltip } from "@/components/motion/ChartTooltip";
 import { MotionChart } from "@/components/motion/MotionChart";
+import { chartAxisTickProps, chartAxisTickSmallProps, chartGridProps, chartGridVerticalProps } from "@/lib/design/chart";
 import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
 import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
 import { DataCard } from "@/components/ui/data/DataCard";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { motionPresets } from "@/lib/design/motion";
@@ -85,7 +86,7 @@ function ChartCard<T>({
           empty={!!empty}
           className={heightClass}
           emptyContent={
-            <EmptyState
+            <WorkspaceEmptyState
               title={emptyTitle ?? noDataTitle}
               description={emptyDescription ?? noDataDescription}
             />
@@ -160,20 +161,15 @@ export function RevenueAnalytics({
                       />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    strokeDasharray="3 6"
-                    vertical={false}
-                  />
+                  <CartesianGrid {...chartGridProps} />
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    tick={chartAxisTickProps}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    tick={chartAxisTickProps}
                     axisLine={false}
                     tickLine={false}
                     width={48}
@@ -228,19 +224,15 @@ export function RevenueAnalytics({
               {(chartTrend) => (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartTrend}>
-                    <CartesianGrid
-                      stroke="var(--shell-border)"
-                      strokeOpacity={0.35}
-                      vertical={false}
-                    />
+                    <CartesianGrid {...chartGridProps} />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      tick={chartAxisTickSmallProps}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      tick={chartAxisTickSmallProps}
                       width={44}
                       axisLine={false}
                       tickLine={false}
@@ -280,19 +272,15 @@ export function RevenueAnalytics({
               {(chartTrend) => (
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartTrend}>
-                    <CartesianGrid
-                      stroke="var(--shell-border)"
-                      strokeOpacity={0.35}
-                      vertical={false}
-                    />
+                    <CartesianGrid {...chartGridProps} />
                     <XAxis
                       dataKey="label"
-                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      tick={chartAxisTickSmallProps}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                      tick={chartAxisTickSmallProps}
                       width={44}
                       axisLine={false}
                       tickLine={false}
@@ -339,14 +327,10 @@ export function RevenueAnalytics({
                   layout="vertical"
                   margin={{ left: 4, right: 8 }}
                 >
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    horizontal={false}
-                  />
+                  <CartesianGrid {...chartGridVerticalProps} />
                   <XAxis
                     type="number"
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     axisLine={false}
                     tickLine={false}
                   />
@@ -354,7 +338,7 @@ export function RevenueAnalytics({
                     type="category"
                     dataKey="label"
                     width={72}
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     axisLine={false}
                     tickLine={false}
                   />
@@ -392,19 +376,15 @@ export function RevenueAnalytics({
             {(chartData) => (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartData}>
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    vertical={false}
-                  />
+                  <CartesianGrid {...chartGridProps} />
                   <XAxis
                     dataKey="label"
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     width={44}
                     axisLine={false}
                     tickLine={false}
@@ -449,20 +429,16 @@ export function RevenueAnalytics({
                       <stop offset="100%" stopColor="#34d399" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    vertical={false}
-                  />
+                  <CartesianGrid {...chartGridProps} />
                   <XAxis
                     dataKey="label"
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
                     domain={[0, 100]}
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     width={36}
                     axisLine={false}
                     tickLine={false}
@@ -503,19 +479,15 @@ export function RevenueAnalytics({
             {(chartForecast) => (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={chartForecast}>
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    vertical={false}
-                  />
+                  <CartesianGrid {...chartGridProps} />
                   <XAxis
                     dataKey="label"
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     axisLine={false}
                     tickLine={false}
                   />
                   <YAxis
-                    tick={{ fontSize: 10, fill: "var(--shell-muted)" }}
+                    tick={chartAxisTickSmallProps}
                     width={44}
                     axisLine={false}
                     tickLine={false}

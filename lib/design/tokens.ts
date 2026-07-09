@@ -67,6 +67,13 @@ export const spacing = {
 } as const;
 
 export const radius = {
+  workspace: "var(--ds-radius-workspace)",
+  card: "var(--ds-radius-card)",
+  button: "var(--ds-radius-button)",
+  input: "var(--ds-radius-input)",
+  dropdown: "var(--ds-radius-dropdown)",
+  modal: "var(--ds-radius-modal)",
+  inspector: "var(--ds-radius-inspector)",
   sm: "var(--ds-radius-sm)",
   md: "var(--ds-radius)",
   lg: "var(--ds-radius-lg)",

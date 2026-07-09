@@ -66,6 +66,7 @@ export function BookingsTable({
         title: t("bookings.noResults"),
         description: t("bookings.noResultsDesc"),
         icon: <CalendarDays size={18} />,
+        guidance: t("workspace.bookings.emptyGuidance"),
       }}
       headers={HEADER_KEYS.map((headerKey) => ({
         key: headerKey,

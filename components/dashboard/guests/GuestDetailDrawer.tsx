@@ -18,9 +18,9 @@ import {
   WorkspaceOverlayActions,
 } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { DrawerTitle } from "@/components/ui/overlay/Drawer";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
+import { WorkspaceInspectorHeader } from "@/components/dashboard/shared/WorkspaceInspectorHeader";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { motionPresets } from "@/lib/design/motion";
 import {
@@ -111,7 +111,7 @@ export function GuestDetailDrawer({
       }
       footer={
         <>
-          <Section
+          <WorkspaceInspectorHeader compact
             title={t("guests.drawerActions")}
             subtitle={t("guests.drawerActionsSubtitle")}
           />
@@ -146,7 +146,7 @@ export function GuestDetailDrawer({
     >
           <Stack gap="md">
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("guests.drawerProfile")}
                 subtitle={t("guests.drawerProfileSubtitle")}
               />
@@ -172,7 +172,7 @@ export function GuestDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("guests.drawerContact")}
                 subtitle={t("guests.drawerContactSubtitle")}
               />
@@ -196,7 +196,7 @@ export function GuestDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className="overflow-hidden p-2">
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("guests.drawerBookingHistory")}
                 subtitle={t("guests.drawerBookingHistorySubtitle")}
                 className="px-2 pt-2"
@@ -205,7 +205,7 @@ export function GuestDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("guests.drawerRevenue")}
                 subtitle={t("guests.drawerRevenueSubtitle")}
               />
@@ -229,7 +229,7 @@ export function GuestDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("guests.vipLabel")} subtitle={t("guests.vipOnly")} />
+              <WorkspaceInspectorHeader compact title={t("guests.vipLabel")} subtitle={t("guests.vipOnly")} />
               <dl className="mt-3 grid gap-2 text-[13px]">
                 <GuestDetailRow
                   label={t("guests.vipLabel")}
@@ -243,20 +243,20 @@ export function GuestDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("guests.tagsLabel")} subtitle={t("guests.tagFilter")} />
+              <WorkspaceInspectorHeader compact title={t("guests.tagsLabel")} subtitle={t("guests.tagFilter")} />
               <div className="mt-3">
                 <GuestTags tags={guest.tags} isVip={guest.is_vip} />
               </div>
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("guests.noNotes")} subtitle={t("guests.noNotesDesc")} />
+              <WorkspaceInspectorHeader compact title={t("guests.noNotes")} subtitle={t("guests.noNotesDesc")} />
               {guest.notes ? (
                 <p className="mt-3 whitespace-pre-wrap text-[13px] leading-relaxed text-[var(--shell-text)]">
                   {guest.notes}
                 </p>
               ) : (
-                <EmptyState
+                <WorkspaceEmptyState
                   title={t("guests.noNotes")}
                   description={t("guests.noNotesDesc")}
                   icon={<FileText size={16} />}
@@ -265,12 +265,12 @@ export function GuestDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("guests.drawerTimeline")}
                 subtitle={t("guests.drawerTimelineSubtitle")}
               />
               {timeline.length === 0 ? (
-                <EmptyState
+                <WorkspaceEmptyState
                   title={t("guests.timelineEmpty")}
                   description={t("guests.timelineEmptyDesc")}
                   icon={<FileText size={16} />}

@@ -2,7 +2,7 @@
 
 import { BookOpen } from "lucide-react";
 
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { useI18n } from "@/lib/i18n";
 
@@ -48,10 +48,11 @@ export function KnowledgeArticlesView({
 
   if (models.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={t("knowledge.notFound")}
         description={t("knowledge.notFoundDesc")}
         icon={<BookOpen size={18} />}
+        guidance={t("workspace.knowledge.emptyGuidance")}
       />
     );
   }

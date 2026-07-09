@@ -2,7 +2,7 @@
 
 import { BedDouble } from "lucide-react";
 
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { useI18n } from "@/lib/i18n";
@@ -42,9 +42,10 @@ export function RoomsCardsView({
 
   if (models.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={t("rooms.noResults")}
         description={t("rooms.noResultsDesc")}
+        guidance={t("workspace.rooms.emptyGuidance")}
         icon={<BedDouble size={18} />}
       />
     );

@@ -10,8 +10,12 @@ import { rankKnowledgeArticles } from "@/lib/knowledge-search";
 import { duplicateKnowledgeArticle } from "@/lib/services/knowledge.mutations";
 import { inspectorGridClass, workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
+import {
+  buildKnowledgeWorkspaceInsight,
+  formatWorkspaceInsight,
+} from "@/components/dashboard/shared/workspace-insights";
 import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
 import { useI18n } from "@/lib/i18n";
 
@@ -106,6 +110,11 @@ export function KnowledgePage({ articles, categories }: Props) {
     [articles, articleModels]
   );
 
+  const headerInsight = useMemo(() => {
+    const insight = buildKnowledgeWorkspaceInsight(kpis);
+    return formatWorkspaceInsight(insight, t);
+  }, [kpis, t]);
+
   const operations = useMemo(
     () => buildKnowledgeOperationsSnapshot(articleModels),
     [articleModels]
@@ -185,9 +194,11 @@ export function KnowledgePage({ articles, categories }: Props) {
     <>
       <WorkspacePageLayout
         header={
-          <PageHeader
+          <WorkspacePageHeader
             title={t("pages.reports.title")}
             subtitle={t("pages.reports.subtitle")}
+            contextSummary={headerInsight.contextSummary}
+            aiHint={headerInsight.aiHint}
           />
         }
         kpis={<KnowledgeExecutiveKpis kpis={kpis} loading={refreshing} />}

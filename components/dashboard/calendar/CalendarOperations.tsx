@@ -9,7 +9,7 @@ import type { Room } from "@/types/room";
 import { DataCard } from "@/components/ui/data/DataCard";
 import { Badge } from "@/components/ui/display/Badge";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { todayIso } from "@/lib/dashboard/date";
 import { rangesOverlap } from "@/lib/calendar";
@@ -47,7 +47,7 @@ function BookingOpsList({
 }) {
   if (items.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={emptyTitle}
         description={emptyDescription}
         icon={<CalendarDays size={16} />}
@@ -226,7 +226,7 @@ export function CalendarOperations({
           })}
         >
           {occupiedRooms.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("calendar.opsOccupiedEmpty")}
               description={t("calendar.opsOccupiedEmptyDesc")}
               icon={<BedDouble size={16} />}
@@ -255,7 +255,7 @@ export function CalendarOperations({
           })}
         >
           {availableRooms.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("calendar.opsAvailableEmpty")}
               description={t("calendar.opsAvailableEmptyDesc")}
               icon={<BedDouble size={16} />}
@@ -298,7 +298,7 @@ export function CalendarOperations({
           })}
         >
           {conflicts.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("calendar.opsConflictsEmpty")}
               description={t("calendar.opsConflictsEmptyDesc")}
               icon={<AlertTriangle size={16} />}

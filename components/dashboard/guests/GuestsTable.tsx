@@ -76,6 +76,7 @@ export function GuestsTable({
         title: t("guests.noResults"),
         description: t("guests.noResultsDesc"),
         icon: <Users size={18} />,
+        guidance: t("workspace.guests.emptyGuidance"),
       }}
       headers={HEADER_KEYS.map((headerKey) => ({
         key: headerKey,

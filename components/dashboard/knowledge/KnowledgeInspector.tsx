@@ -4,10 +4,10 @@ import { BookOpen, ExternalLink } from "lucide-react";
 
 import { MotionInspectorShell } from "@/components/motion/MotionInspectorShell";
 import { Button } from "@/components/ui/core/Button";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Metric } from "@/components/ui/display/Metric";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
+import { WorkspaceInspectorHeader } from "@/components/dashboard/shared/WorkspaceInspectorHeader";
 import {
   cardBadgeRowClass,
   cardContentGapClass,
@@ -40,13 +40,13 @@ export function KnowledgeInspector({ model, onOpen }: Props) {
       <Panel variant="glass" className={cn("h-full", inspectorPanelClass)}>
         <MotionInspectorShell
           header={
-            <Section
+            <WorkspaceInspectorHeader
               title={t("knowledge.inspectorTitle")}
               subtitle={t("knowledge.inspectorSubtitle")}
             />
           }
           content={
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("knowledge.noArticleSelected")}
               description={t("knowledge.noArticleSelectedDesc")}
               icon={<BookOpen size={18} />}
@@ -63,7 +63,7 @@ export function KnowledgeInspector({ model, onOpen }: Props) {
     <Panel variant="glass" className={cn("h-full", inspectorPanelClass)}>
       <MotionInspectorShell
         header={
-          <Section
+          <WorkspaceInspectorHeader
             title={t("knowledge.inspectorTitle")}
             subtitle={article.category ?? t("common.noCategory")}
             action={

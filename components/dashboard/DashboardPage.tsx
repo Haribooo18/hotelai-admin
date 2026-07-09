@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 
 import { subscribeLeadsChanges } from "@/lib/realtime/leads";
 import type { Booking } from "@/types/booking";
-import type { Guest } from "@/types/guest";
 import type { Lead } from "@/types/lead";
 import type { Room } from "@/types/room";
 
@@ -17,61 +16,48 @@ import {
   buildTimeline,
   getAiConversationCount,
   getLatestBookings,
-  getRecentGuests,
-  getUpcomingBookings,
-  DashboardAiActivity,
-  DashboardAlerts,
+  DashboardActivityFeed,
+  DashboardAiInsights,
   DashboardExecutiveKpis,
-  DashboardLatestReservations,
-  DashboardQuickActions,
-  DashboardRecentBookings,
-  DashboardRecentGuests,
-  DashboardRoomStatus,
-  DashboardTimeline,
+  DashboardHero,
+  DashboardTodayOperations,
   DashboardToolbar,
 } from "@/components/dashboard/home";
+import {
+  buildDashboardAiInsights,
+  buildDashboardHeroInsight,
+  buildHeroExecutiveStatus,
+  buildTodayOperations,
+} from "@/components/dashboard/home/dashboard-insights";
 import type { DashboardMetrics } from "@/components/dashboard/home/dashboard-metrics";
-import { PageHeader } from "@/components/ui/layout/PageHeader";
-import { Section } from "@/components/ui/primitives/Section";
-import { Stack } from "@/components/ui/primitives/Stack";
 import { DashboardPageLayout } from "@/components/dashboard/home/DashboardPageLayout";
 import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
-import { useI18n } from "@/lib/i18n";
 
 const DashboardRevenueTrend = dynamic(
   () =>
     import("@/components/dashboard/home/DashboardRevenueTrend").then((mod) => ({
       default: mod.DashboardRevenueTrend,
     })),
-  { loading: () => <WorkspaceChartSkeleton className="h-52" /> }
-);
-
-const DashboardOccupancyTrend = dynamic(
-  () =>
-    import("@/components/dashboard/home/DashboardOccupancyTrend").then((mod) => ({
-      default: mod.DashboardOccupancyTrend,
-    })),
-  { loading: () => <WorkspaceChartSkeleton className="h-52" /> }
+  { loading: () => <WorkspaceChartSkeleton className="h-72" /> }
 );
 
 type Props = {
   initialLeads: Lead[];
   bookings: Booking[];
   rooms: Room[];
-  guests: Guest[];
   initialMetrics: DashboardMetrics;
   hotelId: string;
+  hotelName: string;
 };
 
 export function DashboardPage({
   initialLeads,
   bookings,
   rooms,
-  guests,
   initialMetrics,
   hotelId,
+  hotelName,
 }: Props) {
-  const { t } = useI18n();
   const [leads, setLeads] = useState(initialLeads);
   const [search, setSearch] = useState("");
 
@@ -112,16 +98,6 @@ export function DashboardPage({
     [bookings]
   );
 
-  const recentGuests = useMemo(
-    () => getRecentGuests(guests),
-    [guests]
-  );
-
-  const upcomingBookings = useMemo(
-    () => getUpcomingBookings(bookings),
-    [bookings]
-  );
-
   const aiActivity = useMemo(() => buildAiActivity(leads), [leads]);
 
   const alerts = useMemo(
@@ -129,15 +105,36 @@ export function DashboardPage({
     [bookings, rooms, leads]
   );
 
+  const heroInsight = useMemo(
+    () => buildDashboardHeroInsight(metrics, occupancyTrend),
+    [metrics, occupancyTrend]
+  );
+
+  const heroStatus = useMemo(
+    () => buildHeroExecutiveStatus(metrics, alerts, leads, bookings),
+    [metrics, alerts, leads, bookings]
+  );
+
+  const aiInsights = useMemo(
+    () => buildDashboardAiInsights(metrics, alerts, leads, rooms, bookings),
+    [metrics, alerts, leads, rooms, bookings]
+  );
+
+  const todayOperations = useMemo(
+    () => buildTodayOperations(metrics, leads, rooms, bookings),
+    [metrics, leads, rooms, bookings]
+  );
+
   return (
     <DashboardPageLayout
       toolbar={
         <DashboardToolbar search={search} onSearchChange={setSearch} />
       }
-      header={
-        <PageHeader
-          title={t("pages.dashboard.title")}
-          subtitle={t("pages.dashboard.subtitle")}
+      hero={
+        <DashboardHero
+          hotelName={hotelName}
+          insight={heroInsight}
+          status={heroStatus}
         />
       }
       kpis={
@@ -149,63 +146,19 @@ export function DashboardPage({
           occupancyTrend={occupancyTrend}
         />
       }
-      charts={
-        <Stack gap="md" aria-label="Dashboard charts">
-          <DashboardRevenueTrend data={revenueTrend} loading={false} />
-          <DashboardOccupancyTrend data={occupancyTrend} loading={false} />
-        </Stack>
+      aiInsights={<DashboardAiInsights insight={aiInsights} />}
+      todayOps={<DashboardTodayOperations items={todayOperations} />}
+      revenue={
+        <DashboardRevenueTrend data={revenueTrend} loading={false} />
       }
-      tables={
-        <DashboardTimeline
-          items={timeline}
+      activity={
+        <DashboardActivityFeed
+          timeline={timeline}
+          aiActivity={aiActivity}
+          latestBookings={latestBookings}
           loading={false}
           searchQuery={search}
         />
-      }
-      secondary={
-        <>
-          <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
-            <DashboardAiActivity
-              items={aiActivity}
-              loading={false}
-              searchQuery={search}
-            />
-            <DashboardLatestReservations
-              bookings={latestBookings}
-              loading={false}
-              searchQuery={search}
-            />
-            <DashboardAlerts
-              alerts={alerts}
-              loading={false}
-              searchQuery={search}
-            />
-            <DashboardQuickActions />
-          </div>
-
-          <Section
-            title={t("dashboard.operations")}
-            subtitle={t("dashboard.operationsSubtitle")}
-          >
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 2xl:gap-5">
-              <DashboardRecentGuests
-                guests={recentGuests}
-                loading={false}
-                searchQuery={search}
-              />
-              <DashboardRecentBookings
-                bookings={upcomingBookings}
-                loading={false}
-                searchQuery={search}
-              />
-              <DashboardRoomStatus
-                rooms={rooms}
-                bookings={bookings}
-                loading={false}
-              />
-            </div>
-          </Section>
-        </>
       }
     />
   );

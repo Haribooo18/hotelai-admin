@@ -65,6 +65,7 @@ export function RoomsTable({
         title: t("rooms.noResults"),
         description: t("rooms.noResultsDesc"),
         icon: <BedDouble size={18} />,
+        guidance: t("workspace.rooms.emptyGuidance"),
       }}
       headers={HEADER_KEYS.map((key) => ({
         key,

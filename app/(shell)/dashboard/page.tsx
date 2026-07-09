@@ -7,7 +7,6 @@ import { getTenantContext } from "@/lib/tenant/context";
 
 import type { DashboardMetrics } from "@/components/dashboard/home/dashboard-metrics";
 import type { Booking } from "@/types/booking";
-import type { Guest } from "@/types/guest";
 import type { Lead } from "@/types/lead";
 import type { Room } from "@/types/room";
 
@@ -19,7 +18,6 @@ export default async function DashboardRoute() {
   let leads: Lead[] = [];
   let bookings: Booking[] = [];
   let rooms: Room[] = [];
-  let guests: Guest[] = [];
   let metrics: DashboardMetrics | null = null;
   let errorMessage: string | null = null;
 
@@ -33,7 +31,6 @@ export default async function DashboardRoute() {
     leads = data.leads;
     bookings = data.bookings;
     rooms = data.rooms;
-    guests = data.guests;
     metrics = resolvedMetrics;
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : "Unknown error";
@@ -52,9 +49,9 @@ export default async function DashboardRoute() {
       initialLeads={leads}
       bookings={bookings}
       rooms={rooms}
-      guests={guests}
       initialMetrics={metrics}
       hotelId={tenant.hotelId}
+      hotelName={tenant.hotelName}
     />
   );
 }

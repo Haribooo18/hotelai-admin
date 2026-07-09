@@ -19,7 +19,7 @@ import {
 import { buildBookingCardModels } from "@/components/dashboard/bookings/booking-ops-metrics";
 import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
 import { WorkspaceCalendarGridSkeleton } from "@/components/dashboard/shared/skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { CalendarDays } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -148,9 +148,10 @@ export function CalendarTimeline({
 
   if (!loading && rooms.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={t("calendar.noRooms")}
         description={t("calendar.noRoomsDesc")}
+        guidance={t("workspace.calendar.emptyGuidance")}
         icon={<CalendarDays size={18} />}
       />
     );

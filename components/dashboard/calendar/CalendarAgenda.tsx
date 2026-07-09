@@ -9,7 +9,7 @@ import { placeBooking } from "@/lib/calendar";
 import { isActiveStay, todayIso } from "@/lib/dashboard/date";
 
 import { Badge } from "@/components/ui/display/Badge";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { BookingStatusBadge } from "@/components/dashboard/bookings/BookingStatusBadge";
 import { PaymentStatusBadge } from "@/components/dashboard/bookings/PaymentStatusBadge";
@@ -79,9 +79,10 @@ export function CalendarAgenda({
 
   if (visible.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={t("calendar.agendaEmpty")}
         description={t("calendar.agendaEmptyDesc")}
+        guidance={t("workspace.calendar.emptyGuidance")}
         icon={<CalendarDays size={18} />}
       />
     );

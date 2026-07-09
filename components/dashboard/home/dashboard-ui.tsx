@@ -58,24 +58,42 @@ export type TrendHint = {
   label: string;
 };
 
-export function DashboardTrendHint({ trend }: { trend: TrendHint }) {
-  if (trend.direction === "flat") {
-    return (
-      <span className="ds-caption font-medium">{trend.label}</span>
+export function DashboardTrendHint({
+  trend,
+  comparisonLabel,
+}: {
+  trend: TrendHint;
+  comparisonLabel?: string;
+}) {
+  const content =
+    trend.direction === "flat" ? (
+      <span className="ds-caption font-medium text-[var(--shell-muted)]">
+        {trend.label}
+      </span>
+    ) : (
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 ds-caption font-medium",
+          trend.direction === "up" ? "text-emerald-400" : "text-amber-400"
+        )}
+      >
+        {trend.direction === "up" ? (
+          <TrendingUp size={12} aria-hidden />
+        ) : (
+          <TrendingDown size={12} aria-hidden />
+        )}
+        {trend.label}
+      </span>
     );
-  }
 
-  const Icon = trend.direction === "up" ? TrendingUp : TrendingDown;
+  if (!comparisonLabel) return content;
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center gap-1 ds-caption font-medium",
-        trend.direction === "up" ? "text-emerald-400" : "text-amber-400"
-      )}
-    >
-      <Icon size={12} aria-hidden />
-      {trend.label}
+    <span className="inline-flex flex-wrap items-center gap-1.5">
+      {content}
+      <span className="ds-caption text-[var(--shell-muted)]">
+        {comparisonLabel}
+      </span>
     </span>
   );
 }

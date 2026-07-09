@@ -33,7 +33,7 @@ export function SearchInput({
   return (
     <div
       className={cn(
-        "relative min-w-0",
+        "group relative min-w-0",
         variant === "toolbar" ? toolbarSearchContainerClass : "w-full",
         containerClassName
       )}

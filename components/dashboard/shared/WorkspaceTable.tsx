@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/overlay/DropdownMenu";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { TableContainer } from "@/components/ui/data/TableContainer";
 import { tableRowA11yProps } from "@/lib/dashboard/a11y";
 import {
@@ -53,6 +53,8 @@ type WorkspaceTableProps = {
     title: string;
     description: string;
     icon: ReactNode;
+    guidance?: string;
+    action?: ReactNode;
   };
   children: ReactNode;
   footer?: ReactNode;
@@ -71,10 +73,12 @@ export function WorkspaceTable({
 }: WorkspaceTableProps) {
   if (isEmpty && empty && !loading) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={empty.title}
         description={empty.description}
         icon={empty.icon}
+        guidance={empty.guidance}
+        action={empty.action}
       />
     );
   }

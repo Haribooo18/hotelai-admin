@@ -9,7 +9,7 @@ import {
   type DataTableColumn,
 } from "@/components/dashboard/DataTable";
 import { BookingStatusBadge } from "@/components/dashboard/bookings/BookingStatusBadge";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -41,7 +41,7 @@ export function GuestBookingHistory({ bookings }: Props) {
       getRowId={(b) => b.id}
       caption={t("guests.bookingHistoryCaption")}
       empty={
-        <EmptyState
+        <WorkspaceEmptyState
           title={t("guests.noResults")}
           description={t("guests.noResultsDesc")}
           icon={<CalendarDays size={18} />}

@@ -5,7 +5,7 @@ import { LineChart, Wallet } from "lucide-react";
 import { DataCard } from "@/components/ui/data/DataCard";
 import { Metric } from "@/components/ui/display/Metric";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { formatPercent } from "@/lib/dashboard/format";
 import { useI18n } from "@/lib/i18n";
@@ -41,7 +41,7 @@ function BreakdownList({
 }) {
   if (items.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={emptyTitle}
         description={emptyDescription}
         icon={<LineChart size={16} />}
@@ -88,7 +88,7 @@ function PaymentList({
 }) {
   if (items.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={emptyTitle}
         description={emptyDescription}
         icon={<Wallet size={16} />}

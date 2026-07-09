@@ -21,7 +21,7 @@ export function Inspector({
   const resolvedHeader =
     header ??
     (title ? (
-      <div className="border-b border-[var(--shell-border)] px-[var(--ds-surface-padding)] py-3">
+      <div className="border-b border-[var(--shell-border)]/45 px-[var(--ds-surface-padding)] py-3.5">
         <h2 className="ds-section-title">{title}</h2>
       </div>
     ) : null);
@@ -29,7 +29,7 @@ export function Inspector({
   return (
     <aside
       className={cn(
-        "flex min-h-0 flex-col overflow-hidden rounded-[var(--ds-radius)] bg-[var(--shell-surface)] shadow-[var(--shell-shadow-sm)]",
+        "ds-inspector-surface flex min-h-0 flex-col overflow-hidden",
         motionPresets.inspectorPanel,
         className
       )}
@@ -42,7 +42,7 @@ export function Inspector({
         </MotionReveal>
         {footer ? (
           <MotionReveal order={resolvedHeader ? 2 : 1}>
-            <div className="border-t border-[var(--shell-border)] p-[var(--ds-surface-padding)]">
+            <div className="border-t border-[var(--shell-border)]/45 p-[var(--ds-surface-padding)]">
               {footer}
             </div>
           </MotionReveal>

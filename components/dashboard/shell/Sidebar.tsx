@@ -9,11 +9,12 @@ import { useI18n } from "@/lib/i18n";
 import { SIDEBAR_WIDTH_PX } from "@/lib/i18n/shell-pages";
 import {
   isShellNavActive,
-  SHELL_PRIMARY_NAV_ITEMS,
+  SHELL_NAV_GROUPS,
   SHELL_SETTINGS_NAV_ITEM,
 } from "@/lib/dashboard/shell-nav";
 import { cn } from "@/lib/utils";
 
+import { SidebarGroup } from "./SidebarGroup";
 import { SidebarItem } from "./SidebarItem";
 import { SidebarProfile } from "./SidebarProfile";
 import { ShellWordmark } from "./ShellWordmark";
@@ -45,25 +46,23 @@ function SidebarPanel({ hotel, userEmail, onMobileClose, className }: Props) {
         className
       )}
     >
-      <div className="flex shrink-0 items-center px-3.5 pb-1 pt-4 lg:hidden">
+      <div className="flex shrink-0 items-center px-4 pb-2 pt-5 lg:hidden">
         <ShellWordmark />
       </div>
 
-      <div className="flex flex-col px-2.5 pb-2.5 pt-3">
-        <nav aria-label={t("a11y.mainNav")} className="space-y-0.5">
-          {SHELL_PRIMARY_NAV_ITEMS.map((item) => (
-            <SidebarItem
-              key={item.labelKey}
-              href={item.href}
-              label={t(item.labelKey)}
-              icon={item.icon}
-              active={isShellNavActive(pathname, item)}
+      <div className="flex flex-1 flex-col px-3 pb-4 pt-4">
+        <nav aria-label={t("a11y.mainNav")} className="space-y-4">
+          {SHELL_NAV_GROUPS.map((group, index) => (
+            <SidebarGroup
+              key={group.labelKey ?? "dashboard"}
+              group={group}
               onNavigate={onMobileClose}
+              isFirst={index === 0}
             />
           ))}
         </nav>
 
-        <nav aria-label={t("a11y.settingsNav")} className="mt-0.5">
+        <nav aria-label={t("a11y.settingsNav")} className="mt-5">
           <SidebarItem
             href={SHELL_SETTINGS_NAV_ITEM.href}
             label={t(SHELL_SETTINGS_NAV_ITEM.labelKey)}
@@ -73,13 +72,13 @@ function SidebarPanel({ hotel, userEmail, onMobileClose, className }: Props) {
           />
         </nav>
 
-        <div
-          role="separator"
-          aria-orientation="horizontal"
-          className="mt-4 border-t border-[var(--shell-border)]/55"
-        />
+        <div className="mt-auto pt-6">
+          <div
+            role="separator"
+            aria-orientation="horizontal"
+            className="mb-4 border-t border-[var(--shell-border)]/35"
+          />
 
-        <div className="mt-3">
           <SidebarProfile
             hotelName={hotelName}
             hotels={hotels}

@@ -64,6 +64,7 @@ export function KnowledgeArticlesTable({
         title: t("knowledge.notFound"),
         description: t("knowledge.notFoundDesc"),
         icon: <BookOpen size={18} />,
+        guidance: t("workspace.knowledge.emptyGuidance"),
       }}
       headers={headers.map((header) => ({
         key: header.key,

@@ -2,7 +2,7 @@
 
 import { MessageSquare, Sparkles } from "lucide-react";
 
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Badge } from "@/components/ui/display/Badge";
 import { Surface } from "@/components/ui/primitives/Surface";
 import { useI18n } from "@/lib/i18n";
@@ -15,9 +15,10 @@ export function EmptyConversation() {
       interactive={false}
       className="flex h-full min-h-[400px] flex-col items-center justify-center bg-[var(--shell-surface)]/50 p-8"
     >
-      <EmptyState
+      <WorkspaceEmptyState
         title={t("ai.selectConversation")}
         description={t("ai.selectConversationDesc")}
+        guidance={t("workspace.ai.emptyGuidance")}
         icon={<MessageSquare size={18} />}
       />
 

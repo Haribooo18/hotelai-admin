@@ -9,7 +9,7 @@ import { DataCard } from "@/components/ui/data/DataCard";
 import { Metric } from "@/components/ui/display/Metric";
 import { Progress } from "@/components/ui/display/Progress";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { todayIso } from "@/lib/dashboard/date";
 import { formatTranslation, useI18n } from "@/lib/i18n";
@@ -50,7 +50,7 @@ function RoomOpsList({
 }) {
   if (models.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={emptyTitle}
         description={emptyDescription}
         icon={<BedDouble size={16} />}
@@ -263,7 +263,7 @@ export function RoomsOperations({
           subtitle={t("rooms.opsRevenueSubtitle")}
         >
           {revenueByRoom.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("rooms.opsNoRevenue")}
               description={t("rooms.opsNoRevenueDesc")}
               icon={<BedDouble size={16} />}
@@ -303,7 +303,7 @@ export function RoomsOperations({
           subtitle={t("rooms.opsCheckInsSubtitle")}
         >
           {upcomingCheckIns.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("rooms.opsNoCheckIns")}
               description={t("rooms.opsNoCheckInsDesc")}
               icon={<CalendarDays size={16} />}

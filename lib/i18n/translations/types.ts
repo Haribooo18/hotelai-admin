@@ -14,6 +14,10 @@ export type AdminTranslations = {
     messages: string;
     receptionAi: string;
     settings: string;
+    groupOperations: string;
+    groupCrm: string;
+    groupBusiness: string;
+    groupAi: string;
   };
   pages: {
     dashboard: { title: string; subtitle: string };
@@ -27,6 +31,65 @@ export type AdminTranslations = {
     receptionAi: { title: string; subtitle: string };
     settings: { title: string; subtitle: string };
   };
+  workspace: {
+    bookings: {
+      contextSummary: string;
+      contextSummaryQuiet: string;
+      aiHintPending: string;
+      aiHintDefault: string;
+      emptyGuidance: string;
+    };
+    guests: {
+      contextSummary: string;
+      contextSummaryVip: string;
+      aiHintVip: string;
+      aiHintDefault: string;
+      emptyGuidance: string;
+    };
+    calendar: {
+      contextSummary: string;
+      aiHintBusy: string;
+      aiHintDefault: string;
+      emptyGuidance: string;
+    };
+    rooms: {
+      contextSummary: string;
+      aiHintMaintenance: string;
+      aiHintDefault: string;
+      emptyGuidance: string;
+    };
+    revenue: {
+      contextSummary: string;
+      contextSummaryGrowth: string;
+      aiHintDemand: string;
+      aiHintDefault: string;
+    };
+    knowledge: {
+      contextSummary: string;
+      aiHintCoverage: string;
+      aiHintDefault: string;
+      emptyGuidance: string;
+    };
+    ai: {
+      contextSummary: string;
+      aiHintWaiting: string;
+      aiHintDefault: string;
+      emptyGuidance: string;
+    };
+    receptionAi: {
+      contextSummaryActive: string;
+      contextSummaryDisabled: string;
+      contextSummarySetup: string;
+      aiHintErrors: string;
+      aiHintDefault: string;
+      aiHintSetup: string;
+    };
+    settings: {
+      contextSummary: string;
+      aiHintSetup: string;
+      aiHintDefault: string;
+    };
+  };
   profile: {
     profile: string;
     switchProperty: string;
@@ -34,6 +97,8 @@ export type AdminTranslations = {
     appearance: string;
     signOut: string;
     signingOut: string;
+    defaultPlan: string;
+    settingsShortcut: string;
   };
   a11y: {
     skipToContent: string;
@@ -1310,5 +1375,71 @@ export type AdminTranslations = {
     relativeHoursAgo: string;
     aiConversationsAria: string;
     vipAria: string;
+    hero: {
+      greetingMorning: string;
+      greetingAfternoon: string;
+      greetingEvening: string;
+      operationalSummary: string;
+      executiveBrief: string;
+      recommended: string;
+      estimatedRevenue: string;
+      placeholderBadge: string;
+      placeholderHeadline: string;
+      placeholderRecommendation: string;
+      occupancyForecast: string;
+      priceRecommendation: string;
+      statusTitle: string;
+      statusOccupancy: string;
+      statusHealth: string;
+      statusArrivals: string;
+      statusCritical: string;
+      healthGood: string;
+      healthAttention: string;
+      healthCritical: string;
+    };
+    kpiVsYesterday: string;
+    aiInsights: {
+      title: string;
+      subtitle: string;
+      executiveBrief: string;
+      summary: string;
+      recommended: string;
+      expectedImpact: string;
+      confidence: string;
+      confidenceModel: string;
+      placeholderHeadline: string;
+      placeholderRecommendation1: string;
+      placeholderRecommendation2: string;
+      otaDemandHeadline: string;
+      operationsHeadline: string;
+      recommendOtaDemand: string;
+      recommendPricing: string;
+      recommendAutoReplies: string;
+      recommendEarlyCheckins: string;
+      recommendInbox: string;
+      impactHigherOccupancy: string;
+      impactHigherRevenue: string;
+      impactFewerUnanswered: string;
+    };
+    todayOps: {
+      title: string;
+      subtitle: string;
+      arrivals: string;
+      departures: string;
+      housekeeping: string;
+      maintenance: string;
+      unreadMessages: string;
+      paymentIssues: string;
+      today: string;
+    };
+    activity: {
+      title: string;
+      subtitle: string;
+      ariaLabel: string;
+      emptyTitle: string;
+      emptyDesc: string;
+      reservationCreated: string;
+      aiMessage: string;
+    };
   };
 };

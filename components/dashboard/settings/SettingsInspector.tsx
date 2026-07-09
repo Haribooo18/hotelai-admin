@@ -2,8 +2,8 @@
 
 import { Badge } from "@/components/ui/display/Badge";
 import { Metric } from "@/components/ui/display/Metric";
+import { WorkspaceInspectorHeader } from "@/components/dashboard/shared/WorkspaceInspectorHeader";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
 import { formatPercent } from "@/lib/dashboard/format";
 import { useI18n, type TranslationPath } from "@/lib/i18n";
 
@@ -60,7 +60,7 @@ export function SettingsInspector({
 
   return (
     <Panel variant="glass" className="h-full p-[var(--ds-surface-padding)]">
-      <Section
+      <WorkspaceInspectorHeader
         title={t("settings.inspectorTitle")}
         subtitle={t(SECTION_LABEL_KEYS[section])}
       />

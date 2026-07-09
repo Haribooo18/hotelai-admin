@@ -10,7 +10,7 @@ import type { Room } from "@/types/room";
 import { DataCard } from "@/components/ui/data/DataCard";
 import { Metric } from "@/components/ui/display/Metric";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { todayIso } from "@/lib/dashboard/date";
 import { formatPercent } from "@/lib/dashboard/format";
@@ -52,7 +52,7 @@ function OpsBookingList({
 }) {
   if (models.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={emptyTitle}
         description={emptyDescription}
         icon={<CalendarDays size={16} />}

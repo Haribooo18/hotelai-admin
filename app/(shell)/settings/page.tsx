@@ -20,10 +20,11 @@ export default async function SettingsRoute({
   const repositoryContext = await createServerRepositoryContext(tenant);
   const settingsRepo = createSettingsRepository(repositoryContext);
 
-  const [settings, completionStats, subscription] = await Promise.all([
+  const [settings, completionStats, subscription, logs] = await Promise.all([
     settingsRepo.getHotelAISettings(),
     settingsRepo.getCompletionStats24h(),
     settingsRepo.getHotelSubscription(),
+    settingsRepo.getAIObservabilityLogs(6),
   ]);
 
   const health = await computeAIHealthStatus(settings, completionStats);
@@ -32,6 +33,7 @@ export default async function SettingsRoute({
     <SettingsTabs
       settings={settings}
       health={health}
+      logs={logs}
       configured={isOpenAIConfigured()}
       subscription={subscription}
       stripeConfigured={isStripeConfigured()}

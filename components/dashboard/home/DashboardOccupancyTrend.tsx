@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { chartAxisTickProps, chartGridProps, chartTokens } from "@/lib/design/chart";
 import { createChartTooltip } from "@/components/motion/ChartTooltip";
 import { MotionChart } from "@/components/motion/MotionChart";
 import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
@@ -61,23 +62,18 @@ export function DashboardOccupancyTrend({ data, loading }: Props) {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={chartData}
-                  margin={{ top: 4, right: 4, left: -12, bottom: 0 }}
+                  margin={chartTokens.margin}
                 >
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    strokeDasharray="3 6"
-                    vertical={false}
-                  />
+                  <CartesianGrid {...chartGridProps} />
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    tick={chartAxisTickProps}
                     axisLine={false}
                     tickLine={false}
                     dy={8}
                   />
                   <YAxis
-                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    tick={chartAxisTickProps}
                     axisLine={false}
                     tickLine={false}
                     domain={[0, 100]}

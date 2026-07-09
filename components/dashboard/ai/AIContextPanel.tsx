@@ -28,7 +28,7 @@ import {
 import { getConversationChannelMeta } from "@/lib/ai/metadata";
 import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
 import { Badge } from "@/components/ui/display/Badge";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { Panel } from "@/components/ui/primitives/Panel";
 import { Scrollable } from "@/components/ui/primitives/Scrollable";
@@ -81,10 +81,11 @@ export function AIContextPanel({
     return (
       <aside className="hidden h-full w-80 shrink-0 flex-col border-l border-[var(--shell-border)]/50 bg-[var(--shell-surface)]/80 backdrop-blur-xl xl:flex">
         <div className="flex flex-1 items-center justify-center p-6">
-          <EmptyState
+          <WorkspaceEmptyState
             title={t("ai.contextTitle")}
             description={t("ai.contextSelectDesc")}
             icon={<Sparkles size={18} />}
+            guidance={t("workspace.ai.emptyGuidance")}
           />
         </div>
       </aside>
@@ -198,7 +199,7 @@ export function AIContextPanel({
             <Section title={t("ai.knowledgeTitle")} subtitle={t("ai.knowledgeSubtitle")} />
 
             {relevantArticles.length === 0 ? (
-              <EmptyState
+              <WorkspaceEmptyState
                 title={t("ai.noMatches")}
                 description={t("ai.noMatchesDesc")}
               />

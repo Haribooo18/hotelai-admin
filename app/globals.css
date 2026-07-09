@@ -82,10 +82,18 @@
 
 html {
   /* Layout */
-  --ds-radius: 14px;
-  --ds-radius-sm: 10px;
-  --ds-radius-lg: 18px;
-  --ds-surface-padding: 18px;
+  --ds-radius-workspace: 20px;
+  --ds-radius-card: 18px;
+  --ds-radius-button: 14px;
+  --ds-radius-input: 14px;
+  --ds-radius-dropdown: 16px;
+  --ds-radius-modal: 24px;
+  --ds-radius-inspector: 24px;
+  /* Legacy aliases */
+  --ds-radius: var(--ds-radius-card);
+  --ds-radius-sm: var(--ds-radius-button);
+  --ds-radius-lg: var(--ds-radius-workspace);
+  --ds-surface-padding: 20px;
   --ds-input-height: 36px;
   --ds-button-height: 36px;
   --ds-toolbar-gap: 0.75rem;
@@ -149,44 +157,53 @@ html {
   --type-kpi-leading: 1.15;
   --type-kpi-tracking: -0.03em;
 
-  /* Shell palette — dark default */
-  --shell-bg: oklch(0.1 0.012 265);
-  --shell-content: oklch(0.118 0.014 265);
-  --shell-sidebar: oklch(0.104 0.013 265);
-  --shell-sidebar-elevated: oklch(0.128 0.016 268);
-  --shell-surface: oklch(0.148 0.016 268);
-  --shell-surface-raised: oklch(0.162 0.018 268);
-  --shell-glass: oklch(0.15 0.016 268 / 68%);
-  --shell-topbar: oklch(0.114 0.013 265 / 72%);
+  /* Surface levels — Background → Workspace → Card → Interactive Card */
+  --shell-bg: oklch(0.098 0.012 265);
+  --shell-content: oklch(0.112 0.013 265);
+  --shell-sidebar: oklch(0.102 0.013 265);
+  --shell-sidebar-elevated: oklch(0.126 0.016 268);
+  --shell-surface: oklch(0.152 0.016 268);
+  --shell-surface-raised: oklch(0.166 0.018 268);
+  --shell-glass: oklch(0.154 0.016 268 / 72%);
+  --shell-topbar: oklch(0.108 0.013 265 / 78%);
   --shell-text: oklch(0.95 0.005 265);
   --shell-muted: oklch(0.56 0.014 265);
-  --shell-border: oklch(1 0 0 / 5%);
-  --shell-border-strong: oklch(1 0 0 / 8%);
+  --shell-border: oklch(1 0 0 / 6%);
+  --shell-border-strong: oklch(1 0 0 / 9%);
+  --shell-highlight: oklch(1 0 0 / 5%);
   --shell-nav-text: oklch(0.6 0.012 265);
   --shell-nav-icon: oklch(0.5 0.012 265);
-  --shell-nav-hover-bg: oklch(1 0 0 / 5%);
-  --shell-nav-active-bg: oklch(0.58 0.11 162 / 10%);
+  --shell-nav-hover-bg: oklch(1 0 0 / 4.5%);
+  --shell-nav-active-bg: oklch(0.58 0.11 162 / 11%);
   --shell-nav-active-text: oklch(0.97 0.004 265);
   --shell-accent: oklch(0.6 0.12 162);
   --shell-accent-hover: oklch(0.64 0.13 162);
   --shell-accent-muted: oklch(0.58 0.11 162 / 16%);
   --shell-accent-border: oklch(0.58 0.11 162 / 32%);
-  --shell-accent-ring: oklch(0.58 0.11 162 / 20%);
+  --shell-accent-ring: oklch(0.58 0.11 162 / 22%);
   --shell-shadow-sm:
-    0 1px 2px oklch(0 0 0 / 22%),
-    0 0 0 1px oklch(1 0 0 / 3%);
+    0 0 0 1px oklch(1 0 0 / 5%),
+    inset 0 1px 0 var(--shell-highlight),
+    0 16px 48px -14px oklch(0 0 0 / 14%),
+    0 4px 12px -6px oklch(0 0 0 / 8%);
   --shell-shadow-md:
-    0 8px 24px oklch(0 0 0 / 22%),
-    0 2px 6px oklch(0 0 0 / 14%),
-    0 0 0 1px oklch(1 0 0 / 3%);
+    0 0 0 1px oklch(1 0 0 / 6%),
+    inset 0 1px 0 var(--shell-highlight),
+    0 24px 56px -16px oklch(0 0 0 / 18%),
+    0 8px 20px -8px oklch(0 0 0 / 10%);
   --shell-shadow-lg:
-    0 20px 48px oklch(0 0 0 / 28%),
-    0 6px 16px oklch(0 0 0 / 16%),
-    0 0 0 1px oklch(1 0 0 / 4%);
+    0 0 0 1px oklch(1 0 0 / 7%),
+    inset 0 1px 0 var(--shell-highlight),
+    0 32px 72px -20px oklch(0 0 0 / 22%),
+    0 12px 28px -10px oklch(0 0 0 / 12%);
   --shell-shadow-accent:
-    0 1px 2px oklch(0 0 0 / 18%),
-    0 6px 16px oklch(0.45 0.1 162 / 24%),
-    0 0 0 1px oklch(0.58 0.11 162 / 26%);
+    0 0 0 1px oklch(0.58 0.11 162 / 22%),
+    inset 0 1px 0 oklch(1 0 0 / 12%),
+    0 16px 40px -12px oklch(0.45 0.1 162 / 18%),
+    0 4px 12px -4px oklch(0 0 0 / 10%);
+  --shell-chart-grid: oklch(1 0 0 / 4%);
+  --shell-chart-grid-opacity: 0.28;
+  --shell-chart-axis: oklch(0.56 0.014 265);
   --shell-sidebar-gradient: linear-gradient(
     180deg,
     oklch(0.108 0.014 265) 0%,
@@ -202,52 +219,76 @@ html {
 
 html[data-shell-theme="dark"],
 html:not([data-shell-theme]) {
-  --shell-bg: oklch(0.1 0.012 265);
-  --shell-content: oklch(0.118 0.014 265);
-  --shell-sidebar: oklch(0.104 0.013 265);
-  --shell-sidebar-elevated: oklch(0.128 0.016 268);
-  --shell-surface: oklch(0.148 0.016 268);
-  --shell-surface-raised: oklch(0.162 0.018 268);
-  --shell-glass: oklch(0.15 0.016 268 / 68%);
-  --shell-topbar: oklch(0.114 0.013 265 / 72%);
+  --shell-bg: oklch(0.098 0.012 265);
+  --shell-content: oklch(0.112 0.013 265);
+  --shell-sidebar: oklch(0.102 0.013 265);
+  --shell-sidebar-elevated: oklch(0.126 0.016 268);
+  --shell-surface: oklch(0.152 0.016 268);
+  --shell-surface-raised: oklch(0.166 0.018 268);
+  --shell-glass: oklch(0.154 0.016 268 / 72%);
+  --shell-topbar: oklch(0.108 0.013 265 / 78%);
   --shell-text: oklch(0.95 0.005 265);
   --shell-muted: oklch(0.56 0.014 265);
-  --shell-border: oklch(1 0 0 / 5%);
-  --shell-border-strong: oklch(1 0 0 / 8%);
+  --shell-border: oklch(1 0 0 / 6%);
+  --shell-border-strong: oklch(1 0 0 / 9%);
+  --shell-highlight: oklch(1 0 0 / 5%);
   --shell-nav-text: oklch(0.6 0.012 265);
   --shell-nav-icon: oklch(0.5 0.012 265);
-  --shell-nav-hover-bg: oklch(1 0 0 / 5%);
-  --shell-nav-active-bg: oklch(0.58 0.11 162 / 10%);
+  --shell-nav-hover-bg: oklch(1 0 0 / 4.5%);
+  --shell-nav-active-bg: oklch(0.58 0.11 162 / 11%);
   --shell-nav-active-text: oklch(0.97 0.004 265);
+  --shell-chart-grid: oklch(1 0 0 / 4%);
+  --shell-chart-grid-opacity: 0.28;
+  --shell-chart-axis: oklch(0.56 0.014 265);
 }
 
 html[data-shell-theme="light"] {
-  --shell-bg: oklch(0.975 0.004 265);
-  --shell-content: oklch(0.995 0.002 265);
-  --shell-sidebar: oklch(0.985 0.003 265);
-  --shell-sidebar-elevated: oklch(0.99 0.002 265);
+  --shell-bg: oklch(0.966 0.004 265);
+  --shell-content: oklch(0.982 0.003 265);
+  --shell-sidebar: oklch(0.978 0.003 265);
+  --shell-sidebar-elevated: oklch(0.988 0.002 265);
   --shell-surface: oklch(1 0 0);
-  --shell-surface-raised: oklch(0.995 0.002 265);
-  --shell-glass: oklch(1 0 0 / 78%);
-  --shell-topbar: oklch(0.995 0.002 265 / 80%);
+  --shell-surface-raised: oklch(0.992 0.002 265);
+  --shell-glass: oklch(1 0 0 / 82%);
+  --shell-topbar: oklch(0.988 0.002 265 / 84%);
   --shell-text: oklch(0.24 0.02 265);
   --shell-muted: oklch(0.5 0.02 265);
-  --shell-border: oklch(0 0 0 / 6%);
-  --shell-border-strong: oklch(0 0 0 / 9%);
+  --shell-border: oklch(0 0 0 / 7%);
+  --shell-border-strong: oklch(0 0 0 / 10%);
+  --shell-highlight: oklch(1 0 0 / 72%);
   --shell-nav-text: oklch(0.44 0.02 265);
   --shell-nav-icon: oklch(0.54 0.02 265);
   --shell-nav-hover-bg: oklch(0 0 0 / 3.5%);
-  --shell-nav-active-bg: oklch(0.55 0.1 162 / 10%);
+  --shell-nav-active-bg: oklch(0.55 0.1 162 / 11%);
   --shell-nav-active-text: oklch(0.26 0.05 162);
   --shell-accent: oklch(0.48 0.12 162);
   --shell-accent-hover: oklch(0.44 0.12 162);
   --shell-accent-muted: oklch(0.48 0.12 162 / 12%);
   --shell-accent-border: oklch(0.48 0.12 162 / 30%);
-  --shell-accent-ring: oklch(0.48 0.12 162 / 16%);
-  --shell-shadow-sm: 0 1px 2px oklch(0 0 0 / 4%), 0 0 0 1px oklch(0 0 0 / 3%);
-  --shell-shadow-md: 0 8px 24px oklch(0 0 0 / 6%), 0 2px 6px oklch(0 0 0 / 4%);
-  --shell-shadow-lg: 0 20px 48px oklch(0 0 0 / 10%), 0 6px 16px oklch(0 0 0 / 5%);
-  --shell-shadow-accent: 0 1px 2px oklch(0 0 0 / 6%), 0 6px 16px oklch(0.45 0.1 162 / 14%);
+  --shell-accent-ring: oklch(0.48 0.12 162 / 18%);
+  --shell-shadow-sm:
+    0 0 0 1px oklch(0 0 0 / 5%),
+    inset 0 1px 0 var(--shell-highlight),
+    0 16px 48px -14px oklch(0 0 0 / 6%),
+    0 4px 12px -6px oklch(0 0 0 / 4%);
+  --shell-shadow-md:
+    0 0 0 1px oklch(0 0 0 / 6%),
+    inset 0 1px 0 var(--shell-highlight),
+    0 24px 56px -16px oklch(0 0 0 / 8%),
+    0 8px 20px -8px oklch(0 0 0 / 5%);
+  --shell-shadow-lg:
+    0 0 0 1px oklch(0 0 0 / 7%),
+    inset 0 1px 0 var(--shell-highlight),
+    0 32px 72px -20px oklch(0 0 0 / 10%),
+    0 12px 28px -10px oklch(0 0 0 / 6%);
+  --shell-shadow-accent:
+    0 0 0 1px oklch(0.48 0.12 162 / 20%),
+    inset 0 1px 0 oklch(1 0 0 / 40%),
+    0 16px 40px -12px oklch(0.45 0.1 162 / 12%),
+    0 4px 12px -4px oklch(0 0 0 / 5%);
+  --shell-chart-grid: oklch(0 0 0 / 5%);
+  --shell-chart-grid-opacity: 0.32;
+  --shell-chart-axis: oklch(0.5 0.02 265);
   --shell-sidebar-gradient: linear-gradient(
     180deg,
     oklch(0.99 0.002 265) 0%,
@@ -261,23 +302,27 @@ html[data-shell-theme="light"] {
 }
 
 html[data-shell-theme="gray"] {
-  --shell-bg: oklch(0.2 0.008 265);
-  --shell-content: oklch(0.22 0.009 265);
-  --shell-sidebar: oklch(0.19 0.008 265);
-  --shell-sidebar-elevated: oklch(0.24 0.01 265);
-  --shell-surface: oklch(0.26 0.01 265);
-  --shell-surface-raised: oklch(0.28 0.011 265);
-  --shell-glass: oklch(0.28 0.011 265 / 72%);
-  --shell-topbar: oklch(0.22 0.009 265 / 72%);
+  --shell-bg: oklch(0.198 0.008 265);
+  --shell-content: oklch(0.218 0.009 265);
+  --shell-sidebar: oklch(0.188 0.008 265);
+  --shell-sidebar-elevated: oklch(0.238 0.01 265);
+  --shell-surface: oklch(0.262 0.01 265);
+  --shell-surface-raised: oklch(0.282 0.011 265);
+  --shell-glass: oklch(0.272 0.011 265 / 74%);
+  --shell-topbar: oklch(0.212 0.009 265 / 78%);
   --shell-text: oklch(0.92 0.004 265);
   --shell-muted: oklch(0.66 0.01 265);
-  --shell-border: oklch(1 0 0 / 6%);
-  --shell-border-strong: oklch(1 0 0 / 9%);
+  --shell-border: oklch(1 0 0 / 7%);
+  --shell-border-strong: oklch(1 0 0 / 10%);
+  --shell-highlight: oklch(1 0 0 / 5%);
   --shell-nav-text: oklch(0.7 0.01 265);
   --shell-nav-icon: oklch(0.6 0.01 265);
-  --shell-nav-hover-bg: oklch(1 0 0 / 5%);
-  --shell-nav-active-bg: oklch(1 0 0 / 8%);
+  --shell-nav-hover-bg: oklch(1 0 0 / 4.5%);
+  --shell-nav-active-bg: oklch(1 0 0 / 9%);
   --shell-nav-active-text: oklch(0.96 0 0);
+  --shell-chart-grid: oklch(1 0 0 / 5%);
+  --shell-chart-grid-opacity: 0.3;
+  --shell-chart-axis: oklch(0.66 0.01 265);
   --shell-sidebar-gradient: linear-gradient(
     180deg,
     oklch(0.2 0.009 265) 0%,
@@ -308,27 +353,68 @@ html[data-shell-theme="gray"] {
 
   .ds-sidebar {
     background: var(--shell-sidebar-gradient);
-    box-shadow: inset -1px 0 0 oklch(1 0 0 / 4%);
+    box-shadow:
+      inset -1px 0 0 oklch(1 0 0 / 5%),
+      inset 0 1px 0 oklch(1 0 0 / 3%);
   }
 
   .ds-sidebar-profile {
-    background: linear-gradient(
-      180deg,
-      transparent 0%,
-      oklch(0 0 0 / 12%) 100%
-    );
+    background: transparent;
+    border-top: none;
   }
 
   .ds-topbar {
     background: var(--shell-topbar);
-    backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(16px) saturate(1.15);
     box-shadow:
-      inset 0 -1px 0 oklch(1 0 0 / 4%),
-      0 1px 0 oklch(0 0 0 / 8%);
+      inset 0 -1px 0 oklch(1 0 0 / 5%),
+      0 1px 0 oklch(0 0 0 / 6%);
   }
 
   .ds-content-canvas {
+    background-color: var(--shell-content);
     background-image: var(--shell-content-gradient);
+  }
+
+  .ds-surface,
+  .ds-card-surface {
+    border-radius: var(--ds-radius-card);
+    border: 1px solid var(--shell-border);
+    background: var(--shell-surface);
+    box-shadow: var(--shell-shadow-sm);
+    transition:
+      transform var(--ds-duration-short) var(--ds-ease),
+      box-shadow var(--ds-duration-short) var(--ds-ease),
+      background-color var(--ds-duration-short) var(--ds-ease),
+      border-color var(--ds-duration-short) var(--ds-ease);
+  }
+
+  .ds-workspace-surface {
+    border-radius: var(--ds-radius-workspace);
+    border: 1px solid var(--shell-border);
+    background: var(--shell-glass);
+    box-shadow: var(--shell-shadow-sm);
+    backdrop-filter: blur(20px) saturate(1.1);
+  }
+
+  .ds-surface-interactive:hover,
+  .ds-card-surface-interactive:hover {
+    transform: translateY(-1px);
+    border-color: var(--shell-border-strong);
+    box-shadow: var(--shell-shadow-md);
+    background: var(--shell-surface-raised);
+  }
+
+  .ds-modal-content {
+    border: 1px solid var(--shell-border);
+    box-shadow: var(--shell-shadow-lg);
+  }
+
+  .ds-inspector-surface {
+    border-radius: var(--ds-radius-inspector);
+    border: 1px solid var(--shell-border);
+    background: var(--shell-surface);
+    box-shadow: var(--shell-shadow-sm);
   }
 
   .ds-page-title {
@@ -425,22 +511,6 @@ html[data-shell-theme="gray"] {
     font-weight: var(--type-label-weight);
     letter-spacing: var(--type-body-tracking);
     line-height: var(--type-body-leading);
-  }
-
-  .ds-surface {
-    border-radius: var(--ds-radius);
-    background: var(--shell-surface);
-    box-shadow: var(--shell-shadow-sm);
-    transition:
-      transform var(--ds-duration-short) var(--ds-ease),
-      box-shadow var(--ds-duration-short) var(--ds-ease),
-      background-color var(--ds-duration-short) var(--ds-ease);
-  }
-
-  .ds-surface-interactive:hover {
-    transform: translateY(-2px) scale(1.01);
-    box-shadow: var(--shell-shadow-md);
-    background: var(--shell-surface-raised);
   }
 
   .ds-skeleton {
@@ -567,10 +637,11 @@ html[data-shell-theme="gray"] {
   }
 
   .ds-motion-chart-tooltip {
-    border-radius: var(--ds-radius-sm);
-    background: var(--shell-surface);
+    border-radius: var(--ds-radius-dropdown);
+    border: 1px solid var(--shell-border);
+    background: var(--shell-surface-raised);
     box-shadow: var(--shell-shadow-md);
-    padding: 0.5rem 0.625rem;
+    padding: 0.5rem 0.75rem;
     animation: ds-chart-tooltip-enter var(--ds-duration-chart-tooltip) var(--ds-ease) both;
   }
 

@@ -19,9 +19,9 @@ import {
 } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { DrawerTitle } from "@/components/ui/overlay/Drawer";
 import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceInspectorHeader } from "@/components/dashboard/shared/WorkspaceInspectorHeader";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { GuestAvatar } from "@/components/dashboard/guests/GuestAvatar";
 import { motionPresets } from "@/lib/design/motion";
@@ -177,7 +177,7 @@ export function BookingDetailDrawer({
     >
           <Stack gap="md">
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("bookings.drawerBooking")}
                 subtitle={t("bookings.drawerBookingSubtitle")}
               />
@@ -204,7 +204,7 @@ export function BookingDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("bookings.drawerGuest")} subtitle={t("bookings.drawerGuestSubtitle")} />
+              <WorkspaceInspectorHeader compact title={t("bookings.drawerGuest")} subtitle={t("bookings.drawerGuestSubtitle")} />
               <div className="mt-3 space-y-2.5">
                 <div className="flex items-center gap-2 text-[13px] text-[var(--shell-text)]">
                   <UserRound size={14} className="text-[var(--shell-muted)]" />
@@ -226,7 +226,7 @@ export function BookingDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("bookings.drawerStay")} subtitle={t("bookings.drawerStaySubtitle")} />
+              <WorkspaceInspectorHeader compact title={t("bookings.drawerStay")} subtitle={t("bookings.drawerStaySubtitle")} />
               <div className="mt-3 space-y-2.5 text-[13px] text-[var(--shell-muted)]">
                 <div className="flex items-center gap-2">
                   <CalendarDays size={14} />
@@ -243,7 +243,7 @@ export function BookingDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("bookings.drawerPayment")} subtitle={t("bookings.drawerPaymentSubtitle")} />
+              <WorkspaceInspectorHeader compact title={t("bookings.drawerPayment")} subtitle={t("bookings.drawerPaymentSubtitle")} />
               <div className="mt-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-[13px] text-[var(--shell-muted)]">
                   <CreditCard size={14} />
@@ -268,13 +268,13 @@ export function BookingDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("bookings.drawerNotes")} subtitle={t("bookings.drawerNotesSubtitle")} />
+              <WorkspaceInspectorHeader compact title={t("bookings.drawerNotes")} subtitle={t("bookings.drawerNotesSubtitle")} />
               {internalNotes ? (
                 <p className="mt-3 text-[13px] leading-relaxed text-[var(--shell-text)]">
                   {internalNotes}
                 </p>
               ) : (
-                <EmptyState
+                <WorkspaceEmptyState
                   title={t("bookings.noInternalNotes")}
                   description={t("bookings.noInternalNotesDesc")}
                   icon={<FileText size={16} />}
@@ -283,7 +283,7 @@ export function BookingDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section title={t("bookings.drawerTimeline")} subtitle={t("bookings.drawerTimelineSubtitle")} />
+              <WorkspaceInspectorHeader compact title={t("bookings.drawerTimeline")} subtitle={t("bookings.drawerTimelineSubtitle")} />
               <div className="mt-3 space-y-2">
                 {timeline.map((item) => (
                   <div

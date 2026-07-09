@@ -10,17 +10,26 @@ import {
   YAxis,
 } from "recharts";
 
+import { chartAxisTickProps, chartTokens } from "@/lib/design/chart";
 import { createChartTooltip } from "@/components/motion/ChartTooltip";
 import { MotionChart } from "@/components/motion/MotionChart";
 import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
 import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { Section } from "@/components/ui/primitives/Section";
+import { cardPaddingClass } from "@/lib/dashboard/design-system";
+import { useI18n } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 
 import type { TrendPoint } from "./dashboard-metrics";
 import { formatDashboardCurrency } from "./dashboard-metrics";
-import { useI18n } from "@/lib/i18n";
+
+const revenueGridProps = {
+  stroke: chartTokens.gridStroke,
+  strokeOpacity: 0.18,
+  strokeDasharray: chartTokens.gridDasharray,
+  vertical: false as const,
+};
 
 type Props = {
   data: TrendPoint[];
@@ -32,20 +41,25 @@ export function DashboardRevenueTrend({ data, loading }: Props) {
   const hasData = data.some((point) => point.value > 0);
 
   return (
-    <GlassSurface interactive className="overflow-hidden p-[var(--ds-surface-padding)]">
-      <Section
-        title={t("dashboard.revenueTrend")}
-        subtitle={t("dashboard.revenueTrendSubtitle")}
-      />
+    <GlassSurface
+      interactive
+      className={cn(cardPaddingClass, "overflow-hidden p-6 md:p-8")}
+    >
+      <div className="mb-8 flex items-baseline justify-between gap-4">
+        <h2 className="ds-section-title">{t("dashboard.revenueTrend")}</h2>
+        <p className="ds-caption text-[var(--shell-muted)]">
+          {t("dashboard.revenueTrendSubtitle")}
+        </p>
+      </div>
 
       <SkeletonCrossfade
         loading={loading}
-        skeleton={<WorkspaceChartSkeleton className="h-52 min-h-[208px]" />}
+        skeleton={<WorkspaceChartSkeleton className="h-72 min-h-[288px]" />}
       >
         <MotionChart
           data={data}
           empty={!hasData}
-          className="h-52 min-h-[208px]"
+          className="h-72 min-h-[288px] px-2"
           emptyContent={
             <EmptyState
               title={t("dashboard.noRevenueData")}
@@ -55,47 +69,42 @@ export function DashboardRevenueTrend({ data, loading }: Props) {
         >
           {(chartData) => (
             <div
-              className="h-full min-h-[208px]"
+              className="h-full min-h-[288px]"
               role="img"
               aria-label={t("dashboard.revenueTrendAria")}
             >
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={chartData}
-                  margin={{ top: 4, right: 4, left: -12, bottom: 0 }}
+                  margin={{ ...chartTokens.margin, top: 12, right: 12, left: -4 }}
                 >
                   <defs>
                     <linearGradient id="revenueFill" x1="0" y1="0" x2="0" y2="1">
                       <stop
                         offset="0%"
                         stopColor="var(--shell-accent)"
-                        stopOpacity={0.28}
+                        stopOpacity={0.22}
                       />
                       <stop
                         offset="100%"
                         stopColor="var(--shell-accent)"
-                        stopOpacity={0.02}
+                        stopOpacity={0.01}
                       />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid
-                    stroke="var(--shell-border)"
-                    strokeOpacity={0.35}
-                    strokeDasharray="3 6"
-                    vertical={false}
-                  />
+                  <CartesianGrid {...revenueGridProps} />
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    tick={chartAxisTickProps}
                     axisLine={false}
                     tickLine={false}
-                    dy={8}
+                    dy={12}
                   />
                   <YAxis
-                    tick={{ fill: "var(--shell-muted)", fontSize: 11 }}
+                    tick={chartAxisTickProps}
                     axisLine={false}
                     tickLine={false}
-                    width={44}
+                    width={52}
                   />
                   <Tooltip
                     content={createChartTooltip({

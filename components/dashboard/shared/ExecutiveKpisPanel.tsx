@@ -21,6 +21,7 @@ type Props = {
   count: number;
   gridClassName: string;
   skeletonVariant?: KpiSkeletonVariant;
+  connected?: boolean;
   children: ReactNode;
 };
 
@@ -30,6 +31,7 @@ export function ExecutiveKpisPanel({
   count,
   gridClassName,
   skeletonVariant = "default",
+  connected = false,
   children,
 }: Props) {
   return (
@@ -47,10 +49,22 @@ export function ExecutiveKpisPanel({
     >
       <GlassSurface
         interactive
-        className={workspaceSurfaceClass}
+        className={cn(
+          workspaceSurfaceClass,
+          connected && "overflow-hidden"
+        )}
         aria-label={ariaLabel}
       >
-        <div className={cn(kpiGridClass, gridClassName)}>{children}</div>
+        <div
+          className={cn(
+            connected
+              ? "grid divide-x divide-y divide-[var(--shell-border)]/20"
+              : kpiGridClass,
+            gridClassName
+          )}
+        >
+          {children}
+        </div>
       </GlassSurface>
     </SkeletonCrossfade>
   );

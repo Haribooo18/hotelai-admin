@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, History, HeartPulse } from "lucide-react";
 
 import { DataCard } from "@/components/ui/data/DataCard";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
@@ -54,7 +54,7 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
           subtitle={t("settings.opsRecentChangesSubtitle")}
         >
           {snapshot.recentActivity.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("settings.opsNoRecentChanges")}
               description={t("settings.opsNoRecentChangesDesc")}
               icon={<History size={16} />}
@@ -89,7 +89,7 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
           subtitle={t("settings.opsWarningsSubtitle")}
         >
           {warnings.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("settings.opsNoWarnings")}
               description={t("settings.opsNoWarningsDesc")}
               icon={<AlertTriangle size={16} />}
@@ -115,7 +115,7 @@ export function SettingsOperations({ snapshot, loading = false }: Props) {
           subtitle={t("settings.opsRecommendationsSubtitle")}
         >
           {recommendations.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("settings.opsNoRecommendations")}
               description={t("settings.opsNoRecommendationsDesc")}
               icon={<CheckCircle2 size={16} />}

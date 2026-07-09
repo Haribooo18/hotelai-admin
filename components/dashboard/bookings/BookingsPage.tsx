@@ -13,8 +13,12 @@ import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
+import {
+  buildBookingsWorkspaceInsight,
+  formatWorkspaceInsight,
+} from "@/components/dashboard/shared/workspace-insights";
 import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
 import { formatTranslation, useI18n } from "@/lib/i18n";
 
@@ -175,6 +179,11 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
     [filteredBookings, rooms, guests]
   );
 
+  const headerInsight = useMemo(() => {
+    const insight = buildBookingsWorkspaceInsight(kpis, optimisticBookings);
+    return formatWorkspaceInsight(insight, t);
+  }, [kpis, optimisticBookings, t]);
+
   const loading = false;
   const selectedId = selectedModel?.booking.id ?? null;
 
@@ -231,9 +240,11 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
     <>
       <WorkspacePageLayout
         header={
-          <PageHeader
+          <WorkspacePageHeader
             title={t("pages.reservations.title")}
             subtitle={t("pages.reservations.subtitle")}
+            contextSummary={headerInsight.contextSummary}
+            aiHint={headerInsight.aiHint}
           />
         }
         kpis={<BookingsExecutiveKpis kpis={kpis} loading={loading || refreshing} />}

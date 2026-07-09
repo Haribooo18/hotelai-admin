@@ -42,6 +42,46 @@ export const SHELL_SETTINGS_NAV_ITEM = SHELL_NAV_ITEMS.find(
   (item) => item.labelKey === "nav.settings"
 )!;
 
+const NAV_BY_LABEL_KEY = Object.fromEntries(
+  SHELL_NAV_ITEMS.map((item) => [item.labelKey, item])
+) as Record<ShellNavItem["labelKey"], ShellNavItem>;
+
+export type ShellNavGroup = {
+  labelKey?: TranslationPath;
+  items: ShellNavItem[];
+};
+
+/** Visual navigation groups — routes and items unchanged */
+export const SHELL_NAV_GROUPS: ShellNavGroup[] = [
+  {
+    items: [NAV_BY_LABEL_KEY["nav.dashboard"]],
+  },
+  {
+    labelKey: "nav.groupOperations",
+    items: [
+      NAV_BY_LABEL_KEY["nav.reservations"],
+      NAV_BY_LABEL_KEY["nav.calendar"],
+      NAV_BY_LABEL_KEY["nav.rooms"],
+    ],
+  },
+  {
+    labelKey: "nav.groupCrm",
+    items: [NAV_BY_LABEL_KEY["nav.guests"]],
+  },
+  {
+    labelKey: "nav.groupBusiness",
+    items: [NAV_BY_LABEL_KEY["nav.revenue"]],
+  },
+  {
+    labelKey: "nav.groupAi",
+    items: [
+      NAV_BY_LABEL_KEY["nav.receptionAi"],
+      NAV_BY_LABEL_KEY["nav.reports"],
+      NAV_BY_LABEL_KEY["nav.messages"],
+    ],
+  },
+];
+
 export function isShellNavActive(
   pathname: string,
   item: ShellNavItem,

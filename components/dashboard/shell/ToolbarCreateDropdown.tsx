@@ -37,7 +37,7 @@ export function ToolbarCreateDropdown() {
       <DropdownMenuTrigger
         className={cn(
           buttonVariants({ size: "sm" }),
-          "h-[var(--ds-button-height)] gap-1.5 rounded-[var(--ds-radius-sm)] px-3 text-[12px] font-medium shadow-[var(--shell-shadow-accent)]"
+          "h-[var(--ds-button-height)] gap-1.5 rounded-[var(--ds-radius-sm)] px-3.5 text-[12px] font-semibold shadow-[var(--shell-shadow-accent)]"
         )}
         aria-label={t("create.menuAria")}
       >

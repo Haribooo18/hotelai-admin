@@ -9,8 +9,12 @@ import type { Room } from "@/types/room";
 
 import { inspectorGridClass, workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
+import {
+  buildRevenueWorkspaceInsight,
+  formatWorkspaceInsight,
+} from "@/components/dashboard/shared/workspace-insights";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { useI18n } from "@/lib/i18n";
 
@@ -41,6 +45,7 @@ import {
   type RevenueToolbarFilters,
 } from "./revenue-ui";
 import { RevenueToolbar } from "./RevenueToolbar";
+import { computeDisplayGrowth } from "./revenue-ui";
 
 const RevenueAnalytics = dynamic(
   () =>
@@ -185,6 +190,13 @@ export function RevenuePage({
     [filteredBookings, rooms, range]
   );
 
+  const headerInsight = useMemo(() => {
+    const periodRevenue = trend.reduce((sum, point) => sum + point.revenue, 0);
+    const growth = computeDisplayGrowth(trend);
+    const insight = buildRevenueWorkspaceInsight(periodRevenue, growth);
+    return formatWorkspaceInsight(insight, t);
+  }, [trend, t]);
+
   function handleExport() {
     setExporting(true);
     exportBookingsCsv(transactions);
@@ -200,9 +212,11 @@ export function RevenuePage({
   return (
     <WorkspacePageLayout
       header={
-        <PageHeader
+        <WorkspacePageHeader
           title={t("pages.revenue.title")}
           subtitle={t("pages.revenue.subtitle")}
+          contextSummary={headerInsight.contextSummary}
+          aiHint={headerInsight.aiHint}
         />
       }
       kpis={

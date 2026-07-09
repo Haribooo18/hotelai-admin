@@ -20,9 +20,9 @@ import {
   WorkspaceOverlayActions,
 } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { DrawerTitle } from "@/components/ui/overlay/Drawer";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
+import { WorkspaceInspectorHeader } from "@/components/dashboard/shared/WorkspaceInspectorHeader";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { PaymentStatusBadge } from "@/components/dashboard/bookings/PaymentStatusBadge";
 import { motionPresets } from "@/lib/design/motion";
@@ -131,7 +131,7 @@ export function RoomDetailDrawer({
       }
       footer={
         <>
-          <Section
+          <WorkspaceInspectorHeader compact
             title={t("rooms.drawerActions")}
             subtitle={t("rooms.drawerActionsSubtitle")}
           />
@@ -166,7 +166,7 @@ export function RoomDetailDrawer({
     >
           <Stack gap="md">
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("rooms.drawerRoomInfo")}
                 subtitle={t("rooms.drawerRoomInfoSubtitle")}
               />
@@ -189,7 +189,7 @@ export function RoomDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("rooms.drawerCurrentStay")}
                 subtitle={t("rooms.drawerCurrentStaySubtitle")}
               />
@@ -241,12 +241,12 @@ export function RoomDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("rooms.drawerUpcoming")}
                 subtitle={t("rooms.drawerUpcomingSubtitle")}
               />
               {upcomingBookings.length === 0 ? (
-                <EmptyState
+                <WorkspaceEmptyState
                   title={t("rooms.noUpcomingBookings")}
                   description={t("rooms.noUpcomingBookingsDesc")}
                   icon={<BedDouble size={16} />}
@@ -272,7 +272,7 @@ export function RoomDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("rooms.drawerHousekeeping")}
                 subtitle={t("rooms.drawerHousekeepingSubtitle")}
               />
@@ -288,7 +288,7 @@ export function RoomDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("rooms.drawerMaintenance")}
                 subtitle={t("rooms.drawerMaintenanceSubtitle")}
               />
@@ -300,7 +300,7 @@ export function RoomDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("rooms.drawerRevenue")}
                 subtitle={t("rooms.drawerRevenueSubtitle")}
               />
@@ -325,7 +325,7 @@ export function RoomDetailDrawer({
             </Panel>
 
             <Panel variant="surface" className={cardPaddingClass}>
-              <Section
+              <WorkspaceInspectorHeader compact
                 title={t("rooms.drawerTimeline")}
                 subtitle={t("rooms.drawerTimelineSubtitle")}
               />

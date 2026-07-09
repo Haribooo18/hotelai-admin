@@ -1,4 +1,8 @@
 export { DashboardExecutiveKpis } from "./DashboardExecutiveKpis";
+export { DashboardHero } from "./DashboardHero";
+export { DashboardAiInsights } from "./DashboardAiInsights";
+export { DashboardTodayOperations } from "./DashboardTodayOperations";
+export { DashboardActivityFeed } from "./DashboardActivityFeed";
 export { DashboardAiActivity } from "./DashboardAiActivity";
 export { DashboardAlerts } from "./DashboardAlerts";
 export { DashboardRecentGuests } from "./DashboardRecentGuests";
@@ -24,3 +28,9 @@ export {
   getRecentGuests,
   getUpcomingBookings,
 } from "./dashboard-metrics";
+export {
+  buildDashboardAiInsights,
+  buildDashboardHeroInsight,
+  buildHeroExecutiveStatus,
+  buildTodayOperations,
+} from "./dashboard-insights";

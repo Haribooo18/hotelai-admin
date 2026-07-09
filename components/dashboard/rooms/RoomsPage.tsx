@@ -8,8 +8,12 @@ import type { Room } from "@/types/room";
 
 import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
+import {
+  buildRoomsWorkspaceInsight,
+  formatWorkspaceInsight,
+} from "@/components/dashboard/shared/workspace-insights";
 import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
 import { useI18n } from "@/lib/i18n";
 
@@ -119,6 +123,11 @@ export function RoomsPage({ rooms, bookings }: Props) {
     [cardModels, bookings]
   );
 
+  const headerInsight = useMemo(() => {
+    const insight = buildRoomsWorkspaceInsight(kpis);
+    return formatWorkspaceInsight(insight, t);
+  }, [kpis, t]);
+
   const selectedId = drawerModel?.room.id ?? null;
 
   const handleEdit = useCallback((room: Room) => {
@@ -143,9 +152,11 @@ export function RoomsPage({ rooms, bookings }: Props) {
     <>
       <WorkspacePageLayout
         header={
-          <PageHeader
+          <WorkspacePageHeader
             title={t("pages.rooms.title")}
             subtitle={t("pages.rooms.subtitle")}
+            contextSummary={headerInsight.contextSummary}
+            aiHint={headerInsight.aiHint}
           />
         }
         kpis={<RoomsExecutiveKpis kpis={kpis} loading={refreshing} />}

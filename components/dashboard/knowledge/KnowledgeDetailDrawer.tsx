@@ -19,8 +19,8 @@ import {
 } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { DrawerTitle } from "@/components/ui/overlay/Drawer";
 import { Metric } from "@/components/ui/display/Metric";
+import { WorkspaceInspectorHeader } from "@/components/dashboard/shared/WorkspaceInspectorHeader";
 import { Panel } from "@/components/ui/primitives/Panel";
-import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { motionPresets } from "@/lib/design/motion";
 import {
@@ -232,7 +232,7 @@ export function KnowledgeDetailDrawer({
       >
             <Stack gap="sm">
               <Panel variant="glass" className={cardPaddingClass}>
-                <Section
+                <WorkspaceInspectorHeader compact
                   title={t("knowledge.metadata")}
                   subtitle={t("knowledge.metadataSubtitle")}
                 />
@@ -259,7 +259,7 @@ export function KnowledgeDetailDrawer({
               </Panel>
 
               <Panel variant="glass" className={cardPaddingClass}>
-                <Section
+                <WorkspaceInspectorHeader compact
                   title={t("knowledge.preview")}
                   subtitle={t("knowledge.previewSubtitle")}
                 />
@@ -283,7 +283,7 @@ export function KnowledgeDetailDrawer({
               </Panel>
 
               <Panel variant="glass" className={cardPaddingClass}>
-                <Section
+                <WorkspaceInspectorHeader compact
                   title={t("knowledge.aiIndexing")}
                   subtitle={t("knowledge.aiIndexingSubtitle")}
                 />
@@ -313,7 +313,7 @@ export function KnowledgeDetailDrawer({
 
               {related.length > 0 ? (
                 <Panel variant="glass" className={cardPaddingClass}>
-                  <Section
+                  <WorkspaceInspectorHeader compact
                     title={t("knowledge.relatedArticles")}
                     subtitle={t("knowledge.relatedSubtitle")}
                   />
@@ -335,7 +335,7 @@ export function KnowledgeDetailDrawer({
               ) : null}
 
               <Panel variant="glass" className={cardPaddingClass}>
-                <Section
+                <WorkspaceInspectorHeader compact
                   title={t("knowledge.history")}
                   subtitle={t("knowledge.historySubtitle")}
                 />
@@ -358,7 +358,7 @@ export function KnowledgeDetailDrawer({
               </Panel>
 
               <Panel variant="glass" className={cardPaddingClass}>
-                <Section
+                <WorkspaceInspectorHeader compact
                   title={t("knowledge.usageSection")}
                   subtitle={t("knowledge.usageSectionSubtitle")}
                 />

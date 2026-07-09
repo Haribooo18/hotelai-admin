@@ -6,7 +6,7 @@ import { BookOpen } from "lucide-react";
 import { DataCard } from "@/components/ui/data/DataCard";
 import { Metric } from "@/components/ui/display/Metric";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { formatPercent } from "@/lib/dashboard/format";
 import { formatTranslation, useI18n } from "@/lib/i18n";
@@ -42,7 +42,7 @@ function ArticleOpsList({
 }) {
   if (items.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={emptyTitle}
         description={emptyDescription}
         icon={<BookOpen size={16} />}
@@ -178,7 +178,7 @@ export function KnowledgeOperations({ snapshot, loading = false, onSelect }: Pro
 
         <DataCard interactive title={t("knowledge.categoryDistribution")}>
           {snapshot.categoryDistribution.length === 0 ? (
-            <EmptyState
+            <WorkspaceEmptyState
               title={t("knowledge.noCategories")}
               description={t("knowledge.noCategoriesDesc")}
               icon={<BookOpen size={16} />}

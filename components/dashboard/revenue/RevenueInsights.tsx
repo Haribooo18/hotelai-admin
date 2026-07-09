@@ -4,7 +4,7 @@ import { Lightbulb } from "lucide-react";
 
 import { DataCard } from "@/components/ui/data/DataCard";
 import { SkeletonGroup } from "@/components/ui/display/Skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { Section } from "@/components/ui/primitives/Section";
 import { motionPresets } from "@/lib/design/motion";
 import { useI18n } from "@/lib/i18n";
@@ -43,7 +43,7 @@ export function RevenueInsights({ insights, loading = false }: Props) {
         className={cn(motionPresets.transitionBase, motionPresets.hover.surfaceLift)}
       >
         {insights.length === 0 ? (
-          <EmptyState
+          <WorkspaceEmptyState
             title={t("revenue.insightsUnavailable")}
             description={t("revenue.insightsUnavailableDesc")}
             icon={<Lightbulb size={18} />}

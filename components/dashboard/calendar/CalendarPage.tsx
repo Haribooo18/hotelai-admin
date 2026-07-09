@@ -31,8 +31,12 @@ import {
 } from "@/components/dashboard/bookings/booking-ops-metrics";
 import type { Guest } from "@/types/guest";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
+import {
+  buildCalendarWorkspaceInsight,
+  formatWorkspaceInsight,
+} from "@/components/dashboard/shared/workspace-insights";
 import { formatTranslation, localizeErrorWithT, useI18n } from "@/lib/i18n";
 
 import { CalendarExecutiveKpis } from "./CalendarExecutiveKpis";
@@ -105,6 +109,11 @@ export function CalendarPage({
     () => computeCalendarOpsKpis(bookings, rooms),
     [bookings, rooms]
   );
+
+  const headerInsight = useMemo(() => {
+    const insight = buildCalendarWorkspaceInsight(kpis);
+    return formatWorkspaceInsight(insight, t);
+  }, [kpis, t]);
 
   const roomModels = useMemo(
     () => buildCalendarRoomModels(rooms, bookings),
@@ -275,9 +284,11 @@ export function CalendarPage({
     <>
       <WorkspacePageLayout
         header={
-          <PageHeader
+          <WorkspacePageHeader
             title={t("pages.calendar.title")}
             subtitle={t("pages.calendar.subtitle")}
+            contextSummary={headerInsight.contextSummary}
+            aiHint={headerInsight.aiHint}
           />
         }
         kpis={<CalendarExecutiveKpis kpis={kpis} loading={refreshing} />}

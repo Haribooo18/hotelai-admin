@@ -19,8 +19,12 @@ import { Select } from "@/components/ui/core/Select";
 import { FormField } from "@/components/ui/core/FormField";
 import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
-import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
+import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
+import {
+  buildAiWorkspaceInsight,
+  formatWorkspaceInsight,
+} from "@/components/dashboard/shared/workspace-insights";
 import { useCreateQueryParam } from "@/components/dashboard/shared/useCreateQueryParam";
 import { formRaisedControlClass, formSectionClass } from "@/lib/dashboard/design-system";
 import { localizeErrorWithT, useI18n } from "@/lib/i18n";
@@ -86,6 +90,11 @@ export function AIInboxPage({
     () => computeAIOpsKpis(conversations),
     [conversations]
   );
+
+  const headerInsight = useMemo(() => {
+    const insight = buildAiWorkspaceInsight(kpis);
+    return formatWorkspaceInsight(insight, t);
+  }, [kpis, t]);
 
   const filteredConversations = useMemo(
     () => filterConversations(conversations, filters, currentUserId),
@@ -160,9 +169,11 @@ export function AIInboxPage({
     <>
       <WorkspacePageLayout
         header={
-          <PageHeader
+          <WorkspacePageHeader
             title={t("pages.messages.title")}
             subtitle={t("pages.messages.subtitle")}
+            contextSummary={headerInsight.contextSummary}
+            aiHint={headerInsight.aiHint}
           />
         }
         kpis={<AIExecutiveKpis kpis={kpis} loading={refreshing} />}

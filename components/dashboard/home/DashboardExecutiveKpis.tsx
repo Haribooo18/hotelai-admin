@@ -10,18 +10,23 @@ import {
   Wallet,
 } from "lucide-react";
 
+import { MiniTrend } from "@/components/dashboard/revenue/revenue-ui";
 import { KpiCard } from "@/components/ui/data/KpiCard";
 import { ExecutiveKpisPanel } from "@/components/dashboard/shared/ExecutiveKpisPanel";
 import type { MotionRevealOrder } from "@/lib/design/motion";
 import { useI18n } from "@/lib/i18n";
 
+import {
+  buildKpiTrendDelta,
+  buildKpiTrendSeries,
+} from "./dashboard-insights";
 import type { TrendPoint } from "./dashboard-metrics";
 import {
   formatDashboardCurrency,
   formatDashboardPercent,
   type DashboardMetrics,
 } from "./dashboard-metrics";
-import { DashboardTrendHint, type TrendHint } from "./dashboard-ui";
+import { DashboardTrendHint } from "./dashboard-ui";
 
 type Props = {
   metrics: DashboardMetrics;
@@ -33,22 +38,35 @@ type Props = {
 
 function buildTrendHint(
   points: TrendPoint[] | undefined,
-  stableLabel: string
-): TrendHint | null {
-  if (!points || points.length < 2) return null;
+  stableLabel: string,
+  comparisonLabel: string
+) {
+  const delta = buildKpiTrendDelta(points);
+  if (!delta) return null;
 
-  const current = points[points.length - 1]?.value ?? 0;
-  const previous = points[points.length - 2]?.value ?? 0;
-  const delta = current - previous;
-
-  if (Math.abs(delta) < 0.01) {
-    return { direction: "flat", label: stableLabel };
+  if (delta.direction === "flat") {
+    return (
+      <DashboardTrendHint
+        trend={{ direction: "flat", label: stableLabel }}
+        comparisonLabel={comparisonLabel}
+      />
+    );
   }
 
-  return {
-    direction: delta > 0 ? "up" : "down",
-    label: `${delta > 0 ? "+" : ""}${Math.round(delta)}`,
-  };
+  return (
+    <DashboardTrendHint
+      trend={{ direction: delta.direction, label: delta.percentLabel }}
+      comparisonLabel={comparisonLabel}
+    />
+  );
+}
+
+function buildCountSparkline(value: number): number[] {
+  const safe = Math.max(0, Math.round(value));
+  if (safe === 0) return [0, 0, 0, 0, 0, 0, 0];
+  return Array.from({ length: 7 }, (_, index) =>
+    Math.max(0, Math.round((safe * (index + 1)) / 7))
+  );
 }
 
 export function DashboardExecutiveKpis({
@@ -59,6 +77,7 @@ export function DashboardExecutiveKpis({
   occupancyTrend,
 }: Props) {
   const { t } = useI18n();
+  const comparisonLabel = t("dashboard.kpiVsYesterday");
 
   const kpiItems = useMemo(
     () => [
@@ -70,6 +89,7 @@ export function DashboardExecutiveKpis({
         getValue: (m: DashboardMetrics) => m.revenueToday,
         format: formatDashboardCurrency,
         trendKey: "revenue" as const,
+        sparkline: revenueTrend,
       },
       {
         key: "occupancy",
@@ -79,6 +99,7 @@ export function DashboardExecutiveKpis({
         getValue: (m: DashboardMetrics) => m.occupancyPercent,
         format: formatDashboardPercent,
         trendKey: "occupancy" as const,
+        sparkline: occupancyTrend,
       },
       {
         key: "arrivals",
@@ -87,6 +108,7 @@ export function DashboardExecutiveKpis({
         tone: "success" as const,
         getValue: (m: DashboardMetrics) => m.arrivalsToday,
         format: (value: number) => String(Math.round(value)),
+        sparklineValues: buildCountSparkline(metrics.arrivalsToday),
       },
       {
         key: "departures",
@@ -96,6 +118,7 @@ export function DashboardExecutiveKpis({
         getValue: (m: DashboardMetrics) => m.departuresToday,
         format: (value: number) => String(Math.round(value)),
         pulse: true,
+        sparklineValues: buildCountSparkline(metrics.departuresToday),
       },
       {
         key: "guests",
@@ -104,6 +127,7 @@ export function DashboardExecutiveKpis({
         tone: "default" as const,
         getValue: (m: DashboardMetrics) => m.activeGuests,
         format: (value: number) => String(Math.round(value)),
+        sparklineValues: buildCountSparkline(metrics.activeGuests),
       },
       {
         key: "ai",
@@ -112,17 +136,22 @@ export function DashboardExecutiveKpis({
         tone: "default" as const,
         getValue: (_m: DashboardMetrics, ai = 0) => ai,
         format: (value: number) => String(Math.round(value)),
+        sparklineValues: buildCountSparkline(aiConversations),
       },
     ],
-    [t]
+    [t, metrics.arrivalsToday, metrics.departuresToday, metrics.activeGuests, aiConversations, revenueTrend, occupancyTrend]
   );
 
   const trendHints = useMemo(
     () => ({
-      revenue: buildTrendHint(revenueTrend, t("dashboard.stable")),
-      occupancy: buildTrendHint(occupancyTrend, t("dashboard.stable")),
+      revenue: buildTrendHint(revenueTrend, t("dashboard.stable"), comparisonLabel),
+      occupancy: buildTrendHint(
+        occupancyTrend,
+        t("dashboard.stable"),
+        comparisonLabel
+      ),
     }),
-    [revenueTrend, occupancyTrend, t]
+    [revenueTrend, occupancyTrend, t, comparisonLabel]
   );
 
   return (
@@ -130,11 +159,18 @@ export function DashboardExecutiveKpis({
       ariaLabel={t("dashboard.kpiAriaLabel")}
       loading={loading}
       count={6}
+      connected
       gridClassName="sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6"
-      skeletonVariant="trend"
+      skeletonVariant="sparkline"
     >
       {kpiItems.map((item, index) => {
         const value = item.getValue(metrics, aiConversations);
+        const sparklineSeries: number[] =
+          "sparkline" in item && item.sparkline
+            ? buildKpiTrendSeries(item.sparkline)
+            : "sparklineValues" in item && item.sparklineValues
+              ? item.sparklineValues
+              : [];
 
         return (
           <KpiCard
@@ -144,18 +180,24 @@ export function DashboardExecutiveKpis({
             value={value}
             format={item.format}
             tone={item.tone}
-            bordered={index > 0}
+            executive
+            connected
             revealOrder={Math.min(index, 7) as MotionRevealOrder}
             pulse={"pulse" in item && item.pulse ? value > 0 : false}
             trend={
-              item.trendKey && trendHints[item.trendKey] ? (
-                <DashboardTrendHint trend={trendHints[item.trendKey]!} />
-              ) : null
+              item.trendKey && trendHints[item.trendKey]
+                ? trendHints[item.trendKey]
+                : null
             }
             trendKey={
               item.trendKey && trendHints[item.trendKey]
-                ? `${item.trendKey}-${trendHints[item.trendKey]!.label}`
+                ? `${item.trendKey}-${comparisonLabel}`
                 : undefined
+            }
+            sparkline={
+              sparklineSeries.length >= 2 ? (
+                <MiniTrend values={sparklineSeries} className="h-6 opacity-35" />
+              ) : null
             }
           />
         );

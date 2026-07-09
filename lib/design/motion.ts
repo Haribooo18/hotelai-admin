@@ -72,7 +72,7 @@ export const motionPresets = {
 
   hover: {
     surfaceLift:
-      "ds-motion-surface-lift hover:-translate-y-0.5 hover:scale-[1.01] hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-md)]",
+      "ds-motion-surface-lift hover:-translate-y-px hover:border-[var(--shell-border-strong)] hover:bg-[var(--shell-surface-raised)] hover:shadow-[var(--shell-shadow-md)]",
     subtleBg:
       "hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-text)]",
     scalePress:

@@ -3,7 +3,10 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 
+import { sidebarNavItemClass } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
+
+const SIDEBAR_ICON_SIZE = 16;
 
 type Props = {
   href: string;
@@ -25,30 +28,30 @@ export function SidebarItem({
       href={href}
       onClick={onNavigate}
       className={cn(
-        "group relative ds-body flex h-9 items-center gap-2.5 rounded-[var(--ds-radius-sm)] px-2.5 font-medium tracking-[-0.01em] transition-[color,background-color,box-shadow,transform] duration-[var(--ds-duration-short)] ease-[var(--ds-ease)]",
+        sidebarNavItemClass,
         active
-          ? "bg-[var(--shell-nav-active-bg)] text-[var(--shell-nav-active-text)] shadow-[0_0_0_1px_var(--shell-accent-border),0_4px_14px_oklch(0.45_0.1_162/10%)]"
-          : "text-[var(--shell-nav-text)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-nav-active-text)] active:scale-[0.99]"
+          ? "bg-[var(--shell-nav-active-bg)] font-semibold text-[var(--shell-text)]"
+          : "font-medium text-[var(--shell-nav-text)] hover:bg-[var(--shell-nav-hover-bg)] hover:text-[var(--shell-nav-active-text)] active:scale-[0.99]"
       )}
     >
       <span
         aria-hidden
         className={cn(
-          "absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[var(--shell-accent)] transition-[opacity,transform,box-shadow] duration-[var(--ds-duration-short)] ease-[var(--ds-ease)]",
+          "absolute left-0 top-1/2 w-1 -translate-y-1/2 rounded-full bg-[var(--shell-accent)] transition-[opacity,transform] duration-[var(--ds-duration-short)] ease-[var(--ds-ease)]",
           active
-            ? "scale-y-100 opacity-100 shadow-[0_0_10px_oklch(0.58_0.11_162/55%)]"
-            : "scale-y-50 opacity-0 group-hover:opacity-35"
+            ? "h-6 opacity-100"
+            : "h-4 opacity-0 group-hover:opacity-40"
         )}
       />
 
       <Icon
-        size={16}
-        strokeWidth={active ? 2.25 : 1.85}
+        size={SIDEBAR_ICON_SIZE}
+        strokeWidth={active ? 2.35 : 1.75}
         className={cn(
-          "relative shrink-0 transition-[color,transform] duration-[var(--ds-duration-short)] ease-[var(--ds-ease)]",
+          "relative shrink-0 transition-[color,opacity] duration-[var(--ds-duration-short)] ease-[var(--ds-ease)]",
           active
             ? "text-[var(--shell-accent)]"
-            : "text-[var(--shell-nav-icon)] group-hover:text-[var(--shell-nav-active-text)]"
+            : "text-[var(--shell-nav-icon)] opacity-70 group-hover:text-[var(--shell-nav-active-text)] group-hover:opacity-100"
         )}
       />
 

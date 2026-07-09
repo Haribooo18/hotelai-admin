@@ -4,7 +4,7 @@ import { CalendarDays } from "lucide-react";
 
 import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
 import { WorkspaceCardGridSkeleton } from "@/components/dashboard/shared/skeleton";
-import { EmptyState } from "@/components/ui/feedback/EmptyState";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { useI18n } from "@/lib/i18n";
 
@@ -32,9 +32,10 @@ export function BookingsCards({
 
   if (!loading && models.length === 0) {
     return (
-      <EmptyState
+      <WorkspaceEmptyState
         title={t("bookings.noResults")}
         description={t("bookings.noResultsDesc")}
+        guidance={t("workspace.bookings.emptyGuidance")}
         icon={<CalendarDays size={18} />}
       />
     );
