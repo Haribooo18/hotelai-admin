@@ -10,6 +10,8 @@ import type {
 import type { HotelSubscription } from "@/types/subscription";
 
 import { formatPlanLabel } from "@/lib/billing/plans";
+import { buildSettingsRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -67,6 +69,11 @@ export function SettingsTabs({
     return formatWorkspaceInsight(insight, t);
   }, [kpis, subscriptionLabel, t]);
 
+  const aiRecommendations = useMemo(
+    () => buildSettingsRecommendations(kpis, health, configured),
+    [kpis, health, configured]
+  );
+
   const operations = useMemo(
     () =>
       buildSettingsOperationsSnapshot(health, logs, configured, locale),
@@ -84,6 +91,9 @@ export function SettingsTabs({
         />
       }
       kpis={<SettingsExecutiveKpis kpis={kpis} />}
+      recommendations={
+        <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+      }
       secondary={<SettingsOperations snapshot={operations} />}
     >
       <div className="grid gap-4 lg:grid-cols-[240px_minmax(0,1fr)]">

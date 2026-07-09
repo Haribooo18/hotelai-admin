@@ -31,6 +31,8 @@ import {
 } from "@/components/dashboard/home/dashboard-insights";
 import type { DashboardMetrics } from "@/components/dashboard/home/dashboard-metrics";
 import { DashboardPageLayout } from "@/components/dashboard/home/DashboardPageLayout";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
+import { buildDashboardRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
 import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
 
 const DashboardRevenueTrend = dynamic(
@@ -125,6 +127,11 @@ export function DashboardPage({
     [metrics, leads, rooms, bookings]
   );
 
+  const aiRecommendations = useMemo(
+    () => buildDashboardRecommendations(metrics, alerts, leads, rooms, bookings),
+    [metrics, alerts, leads, rooms, bookings]
+  );
+
   return (
     <DashboardPageLayout
       toolbar={
@@ -145,6 +152,9 @@ export function DashboardPage({
           revenueTrend={revenueTrend}
           occupancyTrend={occupancyTrend}
         />
+      }
+      recommendations={
+        <WorkspaceAiRecommendations recommendations={aiRecommendations} />
       }
       aiInsights={<DashboardAiInsights insight={aiInsights} />}
       todayOps={<DashboardTodayOperations items={todayOperations} />}

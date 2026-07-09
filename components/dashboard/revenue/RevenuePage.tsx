@@ -9,6 +9,8 @@ import type { Room } from "@/types/room";
 
 import { inspectorGridClass, workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { buildRevenueRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -197,6 +199,12 @@ export function RevenuePage({
     return formatWorkspaceInsight(insight, t);
   }, [trend, t]);
 
+  const aiRecommendations = useMemo(() => {
+    const periodRevenue = trend.reduce((sum, point) => sum + point.revenue, 0);
+    const growth = computeDisplayGrowth(trend);
+    return buildRevenueRecommendations(growth, kpis.occupancy, periodRevenue);
+  }, [trend, kpis.occupancy]);
+
   function handleExport() {
     setExporting(true);
     exportBookingsCsv(transactions);
@@ -226,6 +234,9 @@ export function RevenuePage({
           forecast={forecast}
           loading={refreshing}
         />
+      }
+      recommendations={
+        <WorkspaceAiRecommendations recommendations={aiRecommendations} />
       }
         toolbar={
           <RevenueToolbar

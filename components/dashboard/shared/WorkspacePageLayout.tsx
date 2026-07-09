@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 type WorkspacePageLayoutProps = {
   header?: ReactNode;
   kpis?: ReactNode;
+  recommendations?: ReactNode;
   toolbar?: ReactNode;
   children: ReactNode;
   secondary?: ReactNode;
@@ -20,6 +21,7 @@ type WorkspacePageLayoutProps = {
 export function WorkspacePageLayout({
   header,
   kpis,
+  recommendations,
   toolbar,
   children,
   secondary,
@@ -31,9 +33,10 @@ export function WorkspacePageLayout({
         <div className={pageStackClass}>
           <MotionReveal order={0}>{header}</MotionReveal>
           <MotionReveal order={1}>{kpis}</MotionReveal>
-          <MotionReveal order={2}>{toolbar}</MotionReveal>
-          <MotionReveal order={3}>{children}</MotionReveal>
-          <MotionReveal order={4}>{secondary}</MotionReveal>
+          <MotionReveal order={2}>{recommendations}</MotionReveal>
+          <MotionReveal order={3}>{toolbar}</MotionReveal>
+          <MotionReveal order={4}>{children}</MotionReveal>
+          <MotionReveal order={5}>{secondary}</MotionReveal>
         </div>
       </div>
     </div>

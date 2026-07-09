@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 
 import type { AIHealthStatus, AIObservabilityLog, HotelAISettings } from "@/types/ai-settings";
 
+import { buildReceptionAiRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -97,6 +99,11 @@ export function ReceptionAIPage({ settings, logs, configured }: Props) {
     return formatWorkspaceInsight(insight, t);
   }, [settings, health, configured, t]);
 
+  const aiRecommendations = useMemo(
+    () => buildReceptionAiRecommendations(settings, health, configured),
+    [settings, health, configured]
+  );
+
   const filteredLogs = useMemo(() => {
     return logs.filter((log) =>
       matchesToolbarFilters(log, filters, configured, settings.enabled)
@@ -114,6 +121,9 @@ export function ReceptionAIPage({ settings, logs, configured }: Props) {
         />
       }
       kpis={<SettingsExecutiveKpis kpis={kpis} />}
+      recommendations={
+        <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+      }
       toolbar={
         <ReceptionAiToolbar filters={filters} onFiltersChange={setFilters} />
       }

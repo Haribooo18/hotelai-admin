@@ -31,6 +31,8 @@ import {
 } from "@/components/dashboard/bookings/booking-ops-metrics";
 import type { Guest } from "@/types/guest";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { buildCalendarRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -114,6 +116,11 @@ export function CalendarPage({
     const insight = buildCalendarWorkspaceInsight(kpis);
     return formatWorkspaceInsight(insight, t);
   }, [kpis, t]);
+
+  const aiRecommendations = useMemo(
+    () => buildCalendarRecommendations(kpis),
+    [kpis]
+  );
 
   const roomModels = useMemo(
     () => buildCalendarRoomModels(rooms, bookings),
@@ -292,6 +299,9 @@ export function CalendarPage({
           />
         }
         kpis={<CalendarExecutiveKpis kpis={kpis} loading={refreshing} />}
+        recommendations={
+          <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+        }
         toolbar={
           <CalendarToolbar
             title={formatRangeTitle(days, view)}

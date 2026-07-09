@@ -19,6 +19,8 @@ import { Select } from "@/components/ui/core/Select";
 import { FormField } from "@/components/ui/core/FormField";
 import { WorkspaceFormDrawer } from "@/components/dashboard/shared/WorkspaceOverlay";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { buildAiInboxRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -95,6 +97,11 @@ export function AIInboxPage({
     const insight = buildAiWorkspaceInsight(kpis);
     return formatWorkspaceInsight(insight, t);
   }, [kpis, t]);
+
+  const aiRecommendations = useMemo(
+    () => buildAiInboxRecommendations(kpis),
+    [kpis]
+  );
 
   const filteredConversations = useMemo(
     () => filterConversations(conversations, filters, currentUserId),
@@ -177,6 +184,9 @@ export function AIInboxPage({
           />
         }
         kpis={<AIExecutiveKpis kpis={kpis} loading={refreshing} />}
+        recommendations={
+          <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+        }
         toolbar={
           <AIInboxToolbar
             filters={filters}

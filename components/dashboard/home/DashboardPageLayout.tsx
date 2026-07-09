@@ -11,6 +11,7 @@ type Props = {
   toolbar?: ReactNode;
   hero?: ReactNode;
   kpis?: ReactNode;
+  recommendations?: ReactNode;
   aiInsights?: ReactNode;
   todayOps?: ReactNode;
   revenue?: ReactNode;
@@ -22,6 +23,7 @@ export function DashboardPageLayout({
   toolbar,
   hero,
   kpis,
+  recommendations,
   aiInsights,
   todayOps,
   revenue,
@@ -35,6 +37,7 @@ export function DashboardPageLayout({
           {toolbar ? <MotionReveal order={0}>{toolbar}</MotionReveal> : null}
           {hero}
           {kpis ? <MotionReveal order={2}>{kpis}</MotionReveal> : null}
+          {recommendations ? <MotionReveal order={3}>{recommendations}</MotionReveal> : null}
           {aiInsights}
           {todayOps}
           {revenue ? <MotionReveal order={5}>{revenue}</MotionReveal> : null}

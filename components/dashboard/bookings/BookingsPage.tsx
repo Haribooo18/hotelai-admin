@@ -13,6 +13,8 @@ import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { buildBookingsRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -184,6 +186,11 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
     return formatWorkspaceInsight(insight, t);
   }, [kpis, optimisticBookings, t]);
 
+  const aiRecommendations = useMemo(
+    () => buildBookingsRecommendations(kpis, optimisticBookings),
+    [kpis, optimisticBookings]
+  );
+
   const loading = false;
   const selectedId = selectedModel?.booking.id ?? null;
 
@@ -248,6 +255,9 @@ export function BookingsPage({ bookings, rooms, guests }: Props) {
           />
         }
         kpis={<BookingsExecutiveKpis kpis={kpis} loading={loading || refreshing} />}
+        recommendations={
+          <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+        }
         toolbar={
           <BookingsToolbar
             filters={filters}

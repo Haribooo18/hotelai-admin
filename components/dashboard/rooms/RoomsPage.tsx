@@ -8,6 +8,8 @@ import type { Room } from "@/types/room";
 
 import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { buildRoomsRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -128,6 +130,11 @@ export function RoomsPage({ rooms, bookings }: Props) {
     return formatWorkspaceInsight(insight, t);
   }, [kpis, t]);
 
+  const aiRecommendations = useMemo(
+    () => buildRoomsRecommendations(kpis),
+    [kpis]
+  );
+
   const selectedId = drawerModel?.room.id ?? null;
 
   const handleEdit = useCallback((room: Room) => {
@@ -160,6 +167,9 @@ export function RoomsPage({ rooms, bookings }: Props) {
           />
         }
         kpis={<RoomsExecutiveKpis kpis={kpis} loading={refreshing} />}
+        recommendations={
+          <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+        }
         toolbar={
           <RoomToolbar
             filters={filters}

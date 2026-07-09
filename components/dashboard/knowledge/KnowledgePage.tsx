@@ -10,6 +10,8 @@ import { rankKnowledgeArticles } from "@/lib/knowledge-search";
 import { duplicateKnowledgeArticle } from "@/lib/services/knowledge.mutations";
 import { inspectorGridClass, workspaceSurfaceClass } from "@/lib/dashboard/design-system";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
+import { buildKnowledgeRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
 import { WorkspacePageLayout } from "@/components/dashboard/shared/WorkspacePageLayout";
 import { WorkspacePageHeader } from "@/components/dashboard/shared/WorkspacePageHeader";
 import {
@@ -115,6 +117,11 @@ export function KnowledgePage({ articles, categories }: Props) {
     return formatWorkspaceInsight(insight, t);
   }, [kpis, t]);
 
+  const aiRecommendations = useMemo(
+    () => buildKnowledgeRecommendations(kpis),
+    [kpis]
+  );
+
   const operations = useMemo(
     () => buildKnowledgeOperationsSnapshot(articleModels),
     [articleModels]
@@ -202,6 +209,9 @@ export function KnowledgePage({ articles, categories }: Props) {
           />
         }
         kpis={<KnowledgeExecutiveKpis kpis={kpis} loading={refreshing} />}
+        recommendations={
+          <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+        }
         toolbar={
           <KnowledgeToolbar
             filters={filters}
