@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 
+import { MotionReveal } from "@/components/motion/MotionReveal";
 import {
   Drawer,
   DrawerContent,
@@ -10,6 +11,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/overlay/Drawer";
 import { Scrollable } from "@/components/ui/primitives/Scrollable";
+import { motionPresets } from "@/lib/design/motion";
 import {
   drawerFooterActionsClass,
   drawerFooterClass,
@@ -60,6 +62,7 @@ type WorkspaceInspectorDrawerProps = {
   header: ReactNode;
   children: ReactNode;
   footer?: ReactNode;
+  tabs?: ReactNode;
 };
 
 export function WorkspaceInspectorDrawer({
@@ -68,17 +71,28 @@ export function WorkspaceInspectorDrawer({
   header,
   children,
   footer,
+  tabs,
 }: WorkspaceInspectorDrawerProps) {
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className={drawerInspectorContentClass}>
-        <DrawerHeader>{header}</DrawerHeader>
+        <div className={motionPresets.inspectorRevealRoot}>
+          <MotionReveal order={0}>
+            <DrawerHeader>{header}</DrawerHeader>
+          </MotionReveal>
 
-        <Scrollable className={drawerInspectorBodyClass}>{children}</Scrollable>
+          {tabs ? <MotionReveal order={1}>{tabs}</MotionReveal> : null}
 
-        {footer ? (
-          <div className={drawerFooterClass}>{footer}</div>
-        ) : null}
+          <MotionReveal order={tabs ? 2 : 1}>
+            <Scrollable className={drawerInspectorBodyClass}>{children}</Scrollable>
+          </MotionReveal>
+
+          {footer ? (
+            <MotionReveal order={tabs ? 3 : 2}>
+              <div className={drawerFooterClass}>{footer}</div>
+            </MotionReveal>
+          ) : null}
+        </div>
       </DrawerContent>
     </Drawer>
   );

@@ -13,7 +13,7 @@ import {
   UserCheck,
   XCircle,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import type { AIAction } from "@/types/ai-action";
 import type { Conversation } from "@/types/conversation";

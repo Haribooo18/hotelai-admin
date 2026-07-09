@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Bot, Copy, Paperclip, Sparkles, UserRound } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
 import { Badge } from "@/components/ui/display/Badge";

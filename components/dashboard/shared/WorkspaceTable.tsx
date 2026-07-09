@@ -4,6 +4,8 @@ import type { ComponentProps, ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import { MoreHorizontal } from "lucide-react";
 
+import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
+import { WorkspaceTableSkeleton } from "@/components/dashboard/shared/skeleton";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +14,6 @@ import {
 } from "@/components/ui/overlay/DropdownMenu";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { TableContainer } from "@/components/ui/data/TableContainer";
-import { TableRowsSkeleton } from "@/components/dashboard/shared/TableRowsSkeleton";
 import { tableRowA11yProps } from "@/lib/dashboard/a11y";
 import {
   tableBodyCellClass,
@@ -68,15 +69,7 @@ export function WorkspaceTable({
   children,
   footer,
 }: WorkspaceTableProps) {
-  if (loading) {
-    return (
-      <TableContainer>
-        <TableRowsSkeleton rows={skeletonRows} />
-      </TableContainer>
-    );
-  }
-
-  if (isEmpty && empty) {
+  if (isEmpty && empty && !loading) {
     return (
       <EmptyState
         title={empty.title}
@@ -87,28 +80,37 @@ export function WorkspaceTable({
   }
 
   return (
-    <TableContainer scrollable className={tableContainerClass} footer={footer}>
-      <table
-        className={tableElementClass}
-        style={{ minWidth: `${minWidth}px` }}
-      >
-        <caption className="sr-only">{caption}</caption>
-        <thead className={tableHeadClass}>
-          <tr className={tableHeadRowClass}>
-            {headers.map((header) => (
-              <th key={header.key} scope="col" className={tableHeaderCellClass}>
-                {header.srOnly ? (
-                  <span className="sr-only">{header.label}</span>
-                ) : (
-                  header.label
-                )}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>{children}</tbody>
-      </table>
-    </TableContainer>
+    <SkeletonCrossfade
+      loading={loading}
+      skeleton={
+        <TableContainer>
+          <WorkspaceTableSkeleton rows={skeletonRows} columns={headers.length} />
+        </TableContainer>
+      }
+    >
+      <TableContainer scrollable className={tableContainerClass} footer={footer}>
+        <table
+          className={tableElementClass}
+          style={{ minWidth: `${minWidth}px` }}
+        >
+          <caption className="sr-only">{caption}</caption>
+          <thead className={tableHeadClass}>
+            <tr className={tableHeadRowClass}>
+              {headers.map((header) => (
+                <th key={header.key} scope="col" className={tableHeaderCellClass}>
+                  {header.srOnly ? (
+                    <span className="sr-only">{header.label}</span>
+                  ) : (
+                    header.label
+                  )}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>{children}</tbody>
+        </table>
+      </TableContainer>
+    </SkeletonCrossfade>
   );
 }
 

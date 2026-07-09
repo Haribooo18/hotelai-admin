@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import type { Conversation } from "@/types/conversation";
 import type { Message } from "@/types/message";

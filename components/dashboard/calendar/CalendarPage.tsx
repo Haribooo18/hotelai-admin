@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import type { Booking } from "@/types/booking";
 import type { Room } from "@/types/room";
@@ -306,7 +306,7 @@ export function CalendarPage({
             bookings={bookings}
             rooms={rooms}
             roomModels={roomModels}
-            loading={false}
+            loading={refreshing}
             onSelect={(booking) => {
               selectBooking(booking);
               openDrawer(booking);
@@ -322,7 +322,7 @@ export function CalendarPage({
               bookings={filteredBookings}
               guests={guests}
               days={days}
-              loading={false}
+              loading={refreshing}
               selectedId={selectedId}
               scrollToTodayTick={scrollToTodayTick}
               onReschedule={handleReschedule}

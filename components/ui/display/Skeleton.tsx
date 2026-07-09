@@ -1,12 +1,17 @@
+import type { CSSProperties } from "react";
+
 import { motionPresets } from "@/lib/design/motion";
 import { cn } from "@/lib/utils";
 
 type SkeletonProps = {
   className?: string;
+  style?: CSSProperties;
 };
 
-export function Skeleton({ className }: SkeletonProps) {
-  return <div className={cn(motionPresets.skeleton.base, className)} />;
+export function Skeleton({ className, style }: SkeletonProps) {
+  return (
+    <div className={cn(motionPresets.skeleton.base, className)} style={style} />
+  );
 }
 
 type SkeletonGroupProps = {

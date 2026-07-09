@@ -17,8 +17,9 @@ import {
   placeBooking,
 } from "@/lib/calendar";
 import { buildBookingCardModels } from "@/components/dashboard/bookings/booking-ops-metrics";
+import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
+import { WorkspaceCalendarGridSkeleton } from "@/components/dashboard/shared/skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
-import { Skeleton } from "@/components/ui/display/Skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { CalendarDays } from "lucide-react";
 import { useI18n } from "@/lib/i18n";
@@ -145,21 +146,7 @@ export function CalendarTimeline({
 
   const periodKey = days[0]?.toISOString() ?? "empty";
 
-  if (loading) {
-    return (
-      <GlassSurface className="p-[var(--ds-surface-padding)]">
-        <Skeleton className="mb-2 h-[68px] w-full rounded-[var(--ds-radius-sm)]" />
-        {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton
-            key={index}
-            className="mb-2 h-[72px] w-full rounded-[var(--ds-radius-sm)]"
-          />
-        ))}
-      </GlassSurface>
-    );
-  }
-
-  if (rooms.length === 0) {
+  if (!loading && rooms.length === 0) {
     return (
       <EmptyState
         title={t("calendar.noRooms")}
@@ -170,7 +157,15 @@ export function CalendarTimeline({
   }
 
   return (
-    <GlassSurface className="overflow-hidden p-0 shadow-[var(--shell-shadow-sm)]">
+    <SkeletonCrossfade
+      loading={!!loading}
+      skeleton={
+        <GlassSurface className="p-[var(--ds-surface-padding)]">
+          <WorkspaceCalendarGridSkeleton />
+        </GlassSurface>
+      }
+    >
+      <GlassSurface className="overflow-hidden p-0 shadow-[var(--shell-shadow-sm)]">
       <div
         ref={scrollRef}
         onScroll={handleScroll}
@@ -247,5 +242,6 @@ export function CalendarTimeline({
         </div>
       </div>
     </GlassSurface>
+    </SkeletonCrossfade>
   );
 }

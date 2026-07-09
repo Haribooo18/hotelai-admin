@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useOptimistic, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import type { Booking } from "@/types/booking";
 import type { Guest } from "@/types/guest";

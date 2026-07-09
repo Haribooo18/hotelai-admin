@@ -1,5 +1,30 @@
 import type { MotionRevealOrder } from "@/lib/motion/reveal";
 import { motionRevealDelayClass } from "@/lib/motion/reveal";
+import {
+  motionCalendarCrossfadeClass,
+  motionDropdownPopupClass,
+  motionFilterPanelClass,
+  motionInspectorPopoverClass,
+} from "@/lib/motion/dropdown";
+import {
+  motionSkeletonClass,
+  motionSkeletonContentEnterClass,
+  motionSkeletonCrossfadeRootClass,
+  motionSkeletonExitClass,
+} from "@/lib/motion/skeleton";
+import {
+  motionToastActionButtonClass,
+  motionToastClass,
+  motionToastToasterClass,
+} from "@/lib/motion/toast";
+import {
+  motionFormDrawerClass,
+  motionInspectorPanelClass,
+  motionInspectorRevealRootClass,
+  motionLayoutAdaptClass,
+  motionModalBackdropClass,
+  motionModalContentClass,
+} from "@/lib/motion/modal";
 import { motion as motionTokens } from "./tokens";
 
 const focusRingClass =
@@ -14,6 +39,7 @@ export const motionDurations = {
   base: "var(--ds-duration)",
   long: "var(--ds-duration-long)",
   modal: "var(--ds-duration-modal)",
+  inspector: "var(--ds-duration-inspector)",
   press: "var(--ds-duration-press)",
 } as const;
 
@@ -61,37 +87,67 @@ export const motionPresets = {
     order: motionRevealClass,
   },
 
-  filterPanel: "ds-motion-filter-panel",
-  inspector: "ds-motion-inspector",
+  filterPanel: motionFilterPanelClass,
+  inspectorPopover: motionInspectorPopoverClass,
+  inspector: motionInspectorPanelClass,
+  inspectorPanel: motionInspectorPanelClass,
+  inspectorRevealRoot: motionInspectorRevealRootClass,
+  layoutAdapt: motionLayoutAdaptClass,
   inspectorDrawer: "ds-inspector-drawer",
-  calendarCrossfade: "ds-motion-calendar-crossfade",
-  dropdownEnter: "ds-motion-dropdown",
-  dropdownExit: "ds-motion-dropdown-exit",
+  calendarCrossfade: motionCalendarCrossfadeClass,
 
-  drawer: {
-    backdrop: "ds-overlay-backdrop",
-    content: "ds-drawer-content",
+  floating: {
+    popup: motionDropdownPopupClass,
   },
 
-  dialog: {
-    backdrop: "ds-overlay-backdrop",
-    content: "ds-modal-content",
-  },
-
-  tooltip: {
-    enter:
-      "animate-in fade-in-0 zoom-in-[0.98] duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+  dropdown: {
+    popup: motionDropdownPopupClass,
+    enter: motionDropdownPopupClass,
+    exit: motionDropdownPopupClass,
   },
 
   popover: {
-    enter:
-      "animate-in fade-in-0 zoom-in-[0.98] duration-[var(--ds-duration)] ease-[var(--ds-ease)]",
+    popup: motionDropdownPopupClass,
+    enter: motionDropdownPopupClass,
+  },
+
+  tooltip: {
+    popup: motionDropdownPopupClass,
+    enter: motionDropdownPopupClass,
+  },
+
+  contextMenu: {
+    popup: motionDropdownPopupClass,
+  },
+
+  drawer: {
+    backdrop: motionModalBackdropClass,
+    content: motionFormDrawerClass,
+  },
+
+  dialog: {
+    backdrop: motionModalBackdropClass,
+    content: motionModalContentClass,
+  },
+
+  modal: {
+    backdrop: motionModalBackdropClass,
+    content: motionModalContentClass,
+    formDrawer: motionFormDrawerClass,
   },
 
   skeleton: {
-    base: "ds-skeleton",
-    exit: "ds-skeleton-exit",
+    base: motionSkeletonClass,
+    exit: motionSkeletonExitClass,
+    contentEnter: motionSkeletonContentEnterClass,
+    crossfade: motionSkeletonCrossfadeRootClass,
     shimmer: "animate-[ds-shimmer_1.4s_var(--ds-ease)_infinite]",
+  },
+
+  toast: {
+    toaster: motionToastToasterClass,
+    toast: motionToastClass,
+    actionButton: motionToastActionButtonClass,
   },
 } as const;
 

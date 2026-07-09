@@ -28,8 +28,8 @@ function PopoverContent({
         <PopoverPrimitive.Popup
           data-slot="popover-content"
           className={cn(
-            "z-50 w-72 rounded-[var(--ds-radius-sm)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4 text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] outline-none",
-            motionPresets.popover.enter,
+            "z-50 w-72 origin-(--transform-origin) rounded-[var(--ds-radius-sm)] border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] p-4 text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] outline-none",
+            motionPresets.popover.popup,
             className
           )}
           {...props}

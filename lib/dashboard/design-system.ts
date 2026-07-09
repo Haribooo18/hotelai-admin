@@ -229,7 +229,7 @@ export const workspaceSurfaceClass =
 
 /** Inspector sidebar width used across workspaces */
 export const inspectorGridClass =
-  "grid gap-4 transition-[grid-template-columns,gap] duration-[var(--ds-duration-long)] ease-[var(--ds-ease)] xl:grid-cols-[minmax(0,1fr)_340px]";
+  "ds-motion-layout-adapt grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]";
 
 /** Inspector / ops detail rows */
 export const detailRowClass = "flex items-center justify-between gap-3 ds-caption";
@@ -330,13 +330,13 @@ export const dropdownItemClass = `relative flex min-h-[var(--ds-input-height)] c
 
 /** Overlay backdrop — shared by modal and drawer */
 export const overlayBackdropClass =
-  "ds-overlay-backdrop fixed inset-0 z-50 bg-black/50 backdrop-blur-[3px]";
+  "ds-motion-modal-backdrop ds-overlay-backdrop fixed inset-0 z-50 bg-black/50 backdrop-blur-[3px]";
 
 /** Centered modal shell */
 export const modalContentClass =
-  "ds-modal-content fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none";
+  "ds-motion-modal-content ds-modal-content fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none";
 export const modalConfirmContentClass =
-  "ds-modal-content fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none";
+  "ds-motion-modal-content ds-modal-content fixed left-1/2 top-1/2 z-50 mx-4 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-[var(--ds-radius)] bg-[var(--shell-surface-raised)] p-5 shadow-[var(--shell-shadow-lg)] outline-none";
 export const modalHeaderClass = "space-y-1.5";
 export const modalFooterClass =
   "mt-5 flex flex-col-reverse gap-2.5 sm:flex-row sm:justify-end";
@@ -346,9 +346,9 @@ export const modalDescriptionClass =
 
 /** Drawer shells */
 export const drawerContentBaseClass =
-  "ds-drawer-content fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-[var(--shell-border)] bg-[var(--shell-surface-raised)] pb-[env(safe-area-inset-bottom)] shadow-[var(--shell-shadow-lg)] outline-none";
-export const drawerFormContentClass = `${drawerContentBaseClass} max-w-lg`;
-export const drawerInspectorContentClass = `${drawerContentBaseClass} ds-inspector-drawer gap-0 overflow-hidden border-0 bg-[var(--shell-content)] p-0 max-w-xl`;
+  "fixed inset-y-0 right-0 z-50 flex w-full flex-col border-l border-[var(--shell-border)] bg-[var(--shell-surface-raised)] pb-[env(safe-area-inset-bottom)] shadow-[var(--shell-shadow-lg)] outline-none";
+export const drawerFormContentClass = `${drawerContentBaseClass} ds-motion-form-drawer max-w-lg`;
+export const drawerInspectorContentClass = `${drawerContentBaseClass} ds-motion-inspector-panel ds-inspector-drawer gap-0 overflow-hidden border-0 bg-[var(--shell-content)] p-0 max-w-xl`;
 
 /** Drawer header, body, footer */
 export const drawerHeaderClass =

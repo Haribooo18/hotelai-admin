@@ -15,8 +15,9 @@ import {
   YAxis,
 } from "recharts";
 
+import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
+import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
 import { DataCard } from "@/components/ui/data/DataCard";
-import { SkeletonGroup } from "@/components/ui/display/Skeleton";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { workspaceSurfaceClass } from "@/lib/dashboard/design-system";
@@ -80,22 +81,25 @@ function ChartCard({
       subtitle={subtitle}
       className={cn(motionPresets.transitionBase, motionPresets.hover.surfaceLift)}
     >
-      {loading ? (
-        <SkeletonGroup className={heightClass} lines={["h-full w-full"]} />
-      ) : empty ? (
-        <EmptyState
-          title={emptyTitle ?? noDataTitle}
-          description={emptyDescription ?? noDataDescription}
-        />
-      ) : (
-        <div
-          className={heightClass}
-          role="img"
-          aria-label={`${title} chart`}
-        >
-          {children}
-        </div>
-      )}
+      <SkeletonCrossfade
+        loading={!!loading}
+        skeleton={<WorkspaceChartSkeleton className={heightClass} />}
+      >
+        {empty ? (
+          <EmptyState
+            title={emptyTitle ?? noDataTitle}
+            description={emptyDescription ?? noDataDescription}
+          />
+        ) : (
+          <div
+            className={heightClass}
+            role="img"
+            aria-label={`${title} chart`}
+          >
+            {children}
+          </div>
+        )}
+      </SkeletonCrossfade>
     </DataCard>
   );
 }

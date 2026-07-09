@@ -43,7 +43,12 @@ function DropdownMenuContent({
       >
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
-          className={cn("z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none data-open:animate-none data-closed:animate-none", motionPresets.dropdownEnter, dropdownContentClass, className )}
+          className={cn(
+            "z-50 max-h-(--available-height) w-(--anchor-width) min-w-32 origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none",
+            motionPresets.dropdown.popup,
+            dropdownContentClass,
+            className
+          )}
           {...props}
         />
       </MenuPrimitive.Positioner>
@@ -138,7 +143,7 @@ function DropdownMenuSubContent({
   return (
     <DropdownMenuContent
       data-slot="dropdown-menu-sub-content"
-      className={cn("w-auto min-w-[96px] rounded-lg bg-[var(--shell-surface-raised)] p-1 text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] ring-1 ring-[var(--shell-border)] duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
+      className={cn("w-auto min-w-[96px]", className)}
       align={align}
       alignOffset={alignOffset}
       side={side}

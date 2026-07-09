@@ -7,8 +7,9 @@ import {
   CalendarClock,
 } from "lucide-react";
 
+import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
 import { EmptyState } from "@/components/ui/feedback/EmptyState";
-import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { Skeleton } from "@/components/ui/display/Skeleton";
 import { Surface } from "@/components/ui/primitives/Surface";
 import { Section } from "@/components/ui/primitives/Section";
 import { useI18n } from "@/lib/i18n";
@@ -59,53 +60,62 @@ export function DashboardTimeline({
         subtitle={t("dashboard.timelineSubtitle")}
       />
 
-      {loading ? (
-        <SkeletonGroup />
-      ) : filteredItems.length === 0 ? (
-        <EmptyState
-          title={t("dashboard.timelineAllQuiet")}
-          description={t("dashboard.timelineAllQuietDesc")}
-          icon={<CalendarCheck size={18} />}
-        />
-      ) : (
-        <div
-          className="space-y-2"
-          role="list"
-          aria-label={t("dashboard.timelineAriaLabel")}
-        >
-          {filteredItems.map((item) => {
-            const meta = KIND_META[item.kind];
-            const Icon = meta.icon;
+      <SkeletonCrossfade
+        loading={loading}
+        skeleton={
+          <div className="space-y-2">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <Skeleton key={index} className="h-14 rounded-[var(--ds-radius-sm)]" />
+            ))}
+          </div>
+        }
+      >
+        {filteredItems.length === 0 ? (
+          <EmptyState
+            title={t("dashboard.timelineAllQuiet")}
+            description={t("dashboard.timelineAllQuietDesc")}
+            icon={<CalendarCheck size={18} />}
+          />
+        ) : (
+          <div
+            className="space-y-2"
+            role="list"
+            aria-label={t("dashboard.timelineAriaLabel")}
+          >
+            {filteredItems.map((item) => {
+              const meta = KIND_META[item.kind];
+              const Icon = meta.icon;
 
-            return (
-              <DashboardListItem key={item.id} as="article" className="flex items-start gap-3">
-                <div
-                  className={cn(
-                    "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)]",
-                    meta.color
-                  )}
-                >
-                  <Icon size={15} aria-hidden />
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
-                      {item.title}
-                    </p>
-                    <time className="shrink-0 text-[11px] text-[var(--shell-muted)]">
-                      {item.time}
-                    </time>
+              return (
+                <DashboardListItem key={item.id} as="article" className="flex items-start gap-3">
+                  <div
+                    className={cn(
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--ds-radius-sm)]",
+                      meta.color
+                    )}
+                  >
+                    <Icon size={15} aria-hidden />
                   </div>
-                  <p className="mt-0.5 text-[12px] text-[var(--shell-muted)]">
-                    {item.subtitle}
-                  </p>
-                </div>
-              </DashboardListItem>
-            );
-          })}
-        </div>
-      )}
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
+                        {item.title}
+                      </p>
+                      <time className="shrink-0 text-[11px] text-[var(--shell-muted)]">
+                        {item.time}
+                      </time>
+                    </div>
+                    <p className="mt-0.5 text-[12px] text-[var(--shell-muted)]">
+                      {item.subtitle}
+                    </p>
+                  </div>
+                </DashboardListItem>
+              );
+            })}
+          </div>
+        )}
+      </SkeletonCrossfade>
     </Surface>
   );
 }

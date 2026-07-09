@@ -265,6 +265,7 @@ export function RevenuePage({
               useServerSnapshot={useServerSnapshot}
               canExport={transactions.length > 0}
               exporting={exporting}
+              loading={refreshing}
               onExport={handleExport}
             />
           </div>

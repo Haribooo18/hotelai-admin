@@ -30,8 +30,8 @@ function TooltipContent({
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"
           className={cn(
-            "z-50 max-w-xs rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] px-2.5 py-1.5 text-[12px] text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] outline-none",
-            motionPresets.tooltip.enter,
+            "z-50 max-w-xs origin-(--transform-origin) rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] px-2.5 py-1.5 text-[12px] text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] outline-none",
+            motionPresets.tooltip.popup,
             className
           )}
           {...props}

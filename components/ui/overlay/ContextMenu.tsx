@@ -4,6 +4,8 @@ import * as React from "react";
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
 import { CheckIcon, ChevronRightIcon } from "lucide-react";
 
+import { dropdownContentClass } from "@/lib/dashboard/design-system"
+import { motionPresets } from "@/lib/design/motion"
 import { cn } from "@/lib/utils";
 
 function ContextMenu(props: ContextMenuPrimitive.Root.Props) {
@@ -26,7 +28,9 @@ function ContextMenuContent({
         <ContextMenuPrimitive.Popup
           data-slot="context-menu-content"
           className={cn(
-            "z-50 min-w-32 rounded-[var(--ds-radius-sm)] bg-[var(--shell-surface-raised)] p-1 text-[var(--shell-text)] shadow-[var(--shell-shadow-md)] outline-none duration-[var(--ds-duration)] ease-[var(--ds-ease)] data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
+            "z-50 min-w-32 origin-(--transform-origin) outline-none",
+            motionPresets.contextMenu.popup,
+            dropdownContentClass,
             className
           )}
           {...props}

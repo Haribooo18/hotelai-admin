@@ -35,7 +35,7 @@ import { PageHeader } from "@/components/ui/layout/PageHeader";
 import { Section } from "@/components/ui/primitives/Section";
 import { Stack } from "@/components/ui/primitives/Stack";
 import { DashboardPageLayout } from "@/components/dashboard/home/DashboardPageLayout";
-import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
 import { useI18n } from "@/lib/i18n";
 
 const DashboardRevenueTrend = dynamic(
@@ -43,7 +43,7 @@ const DashboardRevenueTrend = dynamic(
     import("@/components/dashboard/home/DashboardRevenueTrend").then((mod) => ({
       default: mod.DashboardRevenueTrend,
     })),
-  { loading: () => <SkeletonGroup className="h-52" lines={["h-full w-full"]} /> }
+  { loading: () => <WorkspaceChartSkeleton className="h-52" /> }
 );
 
 const DashboardOccupancyTrend = dynamic(
@@ -51,7 +51,7 @@ const DashboardOccupancyTrend = dynamic(
     import("@/components/dashboard/home/DashboardOccupancyTrend").then((mod) => ({
       default: mod.DashboardOccupancyTrend,
     })),
-  { loading: () => <SkeletonGroup className="h-52" lines={["h-full w-full"]} /> }
+  { loading: () => <WorkspaceChartSkeleton className="h-52" /> }
 );
 
 type Props = {

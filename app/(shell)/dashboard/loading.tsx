@@ -1,11 +1,7 @@
-import { WorkspaceRouteSkeleton } from "@/components/dashboard/shared/WorkspaceRouteSkeleton";
+import { WorkspacePageSkeleton } from "@/components/dashboard/shared/skeleton";
 
 export default function DashboardLoading() {
   return (
-    <WorkspaceRouteSkeleton
-      label="Loading dashboard"
-      kpiCount={6}
-      kpiGridClassName="sm:grid-cols-2 xl:grid-cols-6"
-    />
+    <WorkspacePageSkeleton label="Loading dashboard" variant="dashboard" />
   );
 }

@@ -2,25 +2,25 @@
 
 import type { ReactNode } from "react";
 
-import { Skeleton } from "@/components/ui/display/Skeleton";
+import { SkeletonCrossfade } from "@/components/motion/SkeletonCrossfade";
+import {
+  WorkspaceKpiSkeleton,
+  type KpiSkeletonVariant,
+} from "@/components/dashboard/shared/skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import {
   cardPaddingClass,
-  kpiCellClass,
   kpiGridClass,
-  kpiSkeletonCellClass,
   workspaceSurfaceClass,
 } from "@/lib/dashboard/design-system";
 import { cn } from "@/lib/utils";
-
-type SkeletonVariant = "default" | "trend" | "sparkline";
 
 type Props = {
   ariaLabel: string;
   loading?: boolean;
   count: number;
   gridClassName: string;
-  skeletonVariant?: SkeletonVariant;
+  skeletonVariant?: KpiSkeletonVariant;
   children: ReactNode;
 };
 
@@ -32,34 +32,26 @@ export function ExecutiveKpisPanel({
   skeletonVariant = "default",
   children,
 }: Props) {
-  if (loading) {
-    return (
-      <GlassSurface className={cardPaddingClass}>
-        <div className={cn(kpiGridClass, gridClassName)}>
-          {Array.from({ length: count }).map((_, index) => (
-            <div key={index} className={cn(kpiCellClass, kpiSkeletonCellClass)}>
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-7 w-16" />
-              {skeletonVariant === "trend" ? (
-                <Skeleton className="h-3 w-12" />
-              ) : null}
-              {skeletonVariant === "sparkline" ? (
-                <Skeleton className="h-6 w-full" />
-              ) : null}
-            </div>
-          ))}
-        </div>
-      </GlassSurface>
-    );
-  }
-
   return (
-    <GlassSurface
-      interactive
-      className={workspaceSurfaceClass}
-      aria-label={ariaLabel}
+    <SkeletonCrossfade
+      loading={loading}
+      skeleton={
+        <GlassSurface className={cardPaddingClass}>
+          <WorkspaceKpiSkeleton
+            count={count}
+            gridClassName={gridClassName}
+            variant={skeletonVariant}
+          />
+        </GlassSurface>
+      }
     >
-      <div className={cn(kpiGridClass, gridClassName)}>{children}</div>
-    </GlassSurface>
+      <GlassSurface
+        interactive
+        className={workspaceSurfaceClass}
+        aria-label={ariaLabel}
+      >
+        <div className={cn(kpiGridClass, gridClassName)}>{children}</div>
+      </GlassSurface>
+    </SkeletonCrossfade>
   );
 }

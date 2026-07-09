@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import type { HotelAISettings } from "@/types/ai-settings";
 import type { AIModelId } from "@/lib/ai/models";
