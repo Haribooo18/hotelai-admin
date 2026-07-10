@@ -1,16 +1,15 @@
 import type { MetadataRoute } from "next";
 
 import { MARKETING_SITEMAP_PATHS } from "@/lib/marketing/routes";
-import { getSiteUrl } from "@/lib/marketing/site";
+import { getCanonicalUrl } from "@/lib/marketing/seo";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = getSiteUrl();
   const lastModified = new Date();
 
   return MARKETING_SITEMAP_PATHS.map((path) => ({
-    url: `${baseUrl}${path}`,
+    url: getCanonicalUrl(path),
     lastModified,
     changeFrequency: path === "" ? "weekly" : "monthly",
-    priority: path === "" ? 1 : 0.8,
+    priority: path === "" ? 1 : path.startsWith("/docs/") ? 0.6 : 0.8,
   }));
 }

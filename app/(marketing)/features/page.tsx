@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
-
 import { FeaturesPage } from "@/components/marketing";
+import { generateMarketingMetadata } from "@/lib/marketing/metadata";
 
-export const metadata: Metadata = {
-  title: "Features",
-  description:
-    "Monavel platform overview: PMS, AI reception, guest channels, revenue, knowledge, and connected hotel workspaces.",
-};
+export function generateMetadata() {
+  return generateMarketingMetadata("features");
+}
 
 export default function FeaturesRoutePage() {
   return <FeaturesPage />;

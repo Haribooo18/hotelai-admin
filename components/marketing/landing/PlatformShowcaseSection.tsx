@@ -39,9 +39,8 @@ export function PlatformShowcaseSection() {
         <div className={mktSectionBodyClass}>
           <PlatformWorkspaceNav workspaces={PLATFORM_WORKSPACES} />
 
-          <div className="relative mt-5 lg:mt-6">
-            <div className="mkt-product-halo pointer-events-none absolute inset-[4%_2%_2%]" aria-hidden />
-            <WorkspacePreview />
+          <div className="mkt-platform-showcase-visual">
+            <WorkspacePreview presentation="platformShowcase" />
           </div>
         </div>
       </div>

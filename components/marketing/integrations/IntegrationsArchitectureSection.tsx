@@ -1,13 +1,16 @@
 import { ArrowDown, ArrowRight } from "lucide-react";
 
+import { WorkspacePreview } from "@/components/marketing/product/WorkspacePreview";
 import {
   mktOverlineClass,
-  mktSectionBodyClass,
   mktSectionHeadlineClass,
-  mktSectionHeaderClass,
   mktSectionSubheadClass,
+  mktSplitSectionClass,
+  mktSplitSectionCopyCompactClass,
+  mktSplitSectionVisualEmphasisClass,
 } from "@/lib/marketing/design";
 import { INTEGRATIONS_PAGE_ARCHITECTURE } from "@/lib/marketing/integrations-page";
+import { cn } from "@/lib/utils";
 
 export function IntegrationsArchitectureSection() {
   return (
@@ -17,44 +20,57 @@ export function IntegrationsArchitectureSection() {
       aria-labelledby="integrations-architecture-heading"
     >
       <div className="mkt-container-wide">
-        <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>
-            {INTEGRATIONS_PAGE_ARCHITECTURE.overline}
-          </p>
-          <h2
-            id="integrations-architecture-heading"
-            className={mktSectionHeadlineClass}
-          >
-            {INTEGRATIONS_PAGE_ARCHITECTURE.headline}
-          </h2>
-          <p className={mktSectionSubheadClass}>
-            {INTEGRATIONS_PAGE_ARCHITECTURE.subhead}
-          </p>
-        </header>
+        <div
+          className={cn(
+            "mkt-split-section mkt-split-section-reverse",
+            mktSplitSectionClass,
+            mktSplitSectionVisualEmphasisClass
+          )}
+        >
+          <div className={cn("mkt-split-section-copy", mktSplitSectionCopyCompactClass)}>
+            <p className={mktOverlineClass}>
+              {INTEGRATIONS_PAGE_ARCHITECTURE.overline}
+            </p>
+            <h2
+              id="integrations-architecture-heading"
+              className={mktSectionHeadlineClass}
+            >
+              {INTEGRATIONS_PAGE_ARCHITECTURE.headline}
+            </h2>
+            <p className={mktSectionSubheadClass}>
+              {INTEGRATIONS_PAGE_ARCHITECTURE.subhead}
+            </p>
 
-        <div className={mktSectionBodyClass}>
-          <ol
-            className="mkt-features-workflow mkt-integrations-architecture-flow"
-            aria-label="Integration architecture overview"
-          >
-            {INTEGRATIONS_PAGE_ARCHITECTURE.steps.map((step, index) => (
-              <li key={step.id} className="mkt-features-workflow-step">
-                <span className="mkt-features-workflow-node">{step.label}</span>
-                {index < INTEGRATIONS_PAGE_ARCHITECTURE.steps.length - 1 ? (
-                  <>
-                    <ArrowRight
-                      className="mkt-features-workflow-arrow mkt-features-workflow-arrow-horizontal"
-                      aria-hidden
-                    />
-                    <ArrowDown
-                      className="mkt-features-workflow-arrow mkt-features-workflow-arrow-vertical"
-                      aria-hidden
-                    />
-                  </>
-                ) : null}
-              </li>
-            ))}
-          </ol>
+            <ol
+              className="mkt-features-workflow mkt-integrations-architecture-flow mkt-split-workflow"
+              aria-label="Integration architecture overview"
+            >
+              {INTEGRATIONS_PAGE_ARCHITECTURE.steps.map((step, index) => (
+                <li key={step.id} className="mkt-features-workflow-step">
+                  <span className="mkt-features-workflow-node">{step.label}</span>
+                  {index < INTEGRATIONS_PAGE_ARCHITECTURE.steps.length - 1 ? (
+                    <>
+                      <ArrowRight
+                        className="mkt-features-workflow-arrow mkt-features-workflow-arrow-horizontal"
+                        aria-hidden
+                      />
+                      <ArrowDown
+                        className="mkt-features-workflow-arrow mkt-features-workflow-arrow-vertical"
+                        aria-hidden
+                      />
+                    </>
+                  ) : null}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="mkt-split-section-visual">
+            <WorkspacePreview
+              workspaceId="reception-ai"
+              presentation="integrationsArchitecture"
+            />
+          </div>
         </div>
       </div>
     </section>

@@ -1,16 +1,14 @@
-import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
 import { AppShell } from "@/components/dashboard/AppShell";
 import { MarketingShell } from "@/components/marketing";
+import { generateMarketingMetadata } from "@/lib/marketing/metadata";
 import { createClient } from "@/lib/supabase/server";
 import { getTenantContext } from "@/lib/tenant/context";
 
-export const metadata: Metadata = {
-  title: "AI",
-  description:
-    "How Monavel AI works: contextual guest communication, knowledge-backed replies, and human escalation for hotel teams.",
-};
+export function generateMetadata() {
+  return generateMarketingMetadata("ai");
+}
 
 type Props = {
   children: ReactNode;

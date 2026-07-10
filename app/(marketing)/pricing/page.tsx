@@ -1,13 +1,17 @@
-import type { Metadata } from "next";
-
 import { PricingPage } from "@/components/marketing";
+import { MarketingJsonLd } from "@/components/marketing/seo/MarketingJsonLd";
+import { buildPricingJsonLd } from "@/lib/marketing/jsonld";
+import { generateMarketingMetadata } from "@/lib/marketing/metadata";
 
-export const metadata: Metadata = {
-  title: "Pricing",
-  description:
-    "Monavel pricing: Starter, Pro, and Enterprise plans with feature comparison, FAQs, and free trial.",
-};
+export function generateMetadata() {
+  return generateMarketingMetadata("pricing");
+}
 
 export default function PricingRoutePage() {
-  return <PricingPage />;
+  return (
+    <>
+      <MarketingJsonLd data={buildPricingJsonLd()} />
+      <PricingPage />
+    </>
+  );
 }

@@ -1,14 +1,18 @@
 import type { MetadataRoute } from "next";
 
-import { getSiteUrl } from "@/lib/marketing/site";
+import {
+  MARKETING_CANONICAL_ORIGIN,
+  ROBOTS_DISALLOW_PATHS,
+} from "@/lib/marketing/seo";
 
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/dashboard", "/bookings", "/rooms", "/guests", "/calendar", "/ai", "/knowledge", "/settings", "/login", "/api/"],
+      disallow: [...ROBOTS_DISALLOW_PATHS],
     },
-    sitemap: `${getSiteUrl()}/sitemap.xml`,
+    sitemap: `${MARKETING_CANONICAL_ORIGIN}/sitemap.xml`,
+    host: MARKETING_CANONICAL_ORIGIN,
   };
 }

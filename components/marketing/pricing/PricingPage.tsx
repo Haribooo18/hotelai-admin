@@ -13,7 +13,7 @@ export function PricingPage() {
       <PricingComparisonSection />
       <PricingAudienceSection />
       <PricingFaqSection />
-      <FinalCtaSection />
+      <FinalCtaSection variant="pricing" />
     </>
   );
 }

@@ -20,7 +20,7 @@ export const FEATURES_PAGE_HERO = {
   headline: "Everything your hotel needs.",
   headlineAccent: "One connected platform.",
   subhead:
-    "Monavel is a product overview — PMS, AI reception, guest channels, revenue tools, and knowledge in one workspace built for hotel operations.",
+    "PMS, AI reception, guest channels, and revenue in one workspace built for hotel operations.",
   primaryCtaLabel: "Start free trial",
   primaryCtaHref: MARKETING_CTA.trial,
   secondaryCtaLabel: "Book a demo",
@@ -38,7 +38,7 @@ export const FEATURES_PLATFORM_OVERVIEW = {
   overline: "Platform overview",
   headline: "Five connected layers.",
   subhead:
-    "Each layer shares context with the others — so AI, staff, and guest channels work from the same source of truth.",
+    "Five layers sharing context — AI, staff, and guest channels work from one source of truth.",
   areas: [
     {
       id: "pms",

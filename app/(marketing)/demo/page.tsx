@@ -1,12 +1,9 @@
-import type { Metadata } from "next";
-
 import { DemoPage } from "@/components/marketing";
+import { generateMarketingMetadata } from "@/lib/marketing/metadata";
 
-export const metadata: Metadata = {
-  title: "Demo",
-  description:
-    "Book a personalized Monavel demo — see hotel operations, AI reception, revenue, and administration in action.",
-};
+export function generateMetadata() {
+  return generateMarketingMetadata("demo");
+}
 
 export default function DemoRoutePage() {
   return <DemoPage />;

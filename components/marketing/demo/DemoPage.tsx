@@ -15,7 +15,7 @@ export function DemoPage() {
       <DemoAudienceSection />
       <DemoBookingFormSection />
       <DemoFaqSection />
-      <FinalCtaSection />
+      <FinalCtaSection variant="demo" />
     </>
   );
 }

@@ -14,6 +14,9 @@ describe("marketing routes", () => {
     expect(isMarketingPublicPath("/security")).toBe(true);
     expect(isMarketingPublicPath("/integrations")).toBe(true);
     expect(isMarketingPublicPath("/demo")).toBe(true);
+    expect(isMarketingPublicPath("/about")).toBe(true);
+    expect(isMarketingPublicPath("/docs")).toBe(true);
+    expect(isMarketingPublicPath("/docs/getting-started")).toBe(true);
     expect(isMarketingPublicPath("/privacy")).toBe(true);
   });
 
@@ -26,5 +29,7 @@ describe("marketing routes", () => {
     expect(MARKETING_CTA.trial).toBe("/login?intent=trial");
     expect(MARKETING_CTA.demo).toBe("/demo");
     expect(MARKETING_PUBLIC_PATHS).toContain("/demo");
+    expect(MARKETING_PUBLIC_PATHS).toContain("/about");
+    expect(MARKETING_PUBLIC_PATHS).toContain("/docs");
   });
 });

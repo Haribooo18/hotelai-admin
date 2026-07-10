@@ -1,8 +1,6 @@
 import type { ReactNode } from "react";
 
-import {
-  PRODUCT_SCREENSHOT_ASPECT_RATIO,
-} from "@/lib/marketing/product-media";
+import type { ProductShowcaseSize } from "@/lib/marketing/product-presentation";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -11,6 +9,7 @@ type Props = {
   className?: string;
   contentClassName?: string;
   ariaHidden?: boolean;
+  size?: ProductShowcaseSize;
 };
 
 export function BrowserFrame({
@@ -19,35 +18,27 @@ export function BrowserFrame({
   className,
   contentClassName,
   ariaHidden = false,
+  size = "section",
 }: Props) {
   return (
     <div
-      className={className}
+      className={cn("mkt-browser-frame", `mkt-browser-frame--${size}`, className)}
       aria-hidden={ariaHidden || undefined}
-      style={{ aspectRatio: PRODUCT_SCREENSHOT_ASPECT_RATIO }}
     >
-      <div className="relative h-full overflow-hidden rounded-[var(--mkt-radius-2xl)] border border-[var(--mkt-border-strong)] bg-[var(--mkt-surface-2)] shadow-[var(--mkt-shadow-lg)]">
-        <div className="flex h-10 items-center gap-3 border-b border-[var(--mkt-border-subtle)] bg-[var(--mkt-surface-glass)] px-4 backdrop-blur-md">
-          <div className="flex items-center gap-1.5" aria-hidden>
-            <span className="size-2.5 rounded-full bg-[oklch(0.55_0.18_25)]" />
-            <span className="size-2.5 rounded-full bg-[oklch(0.75_0.14_85)]" />
-            <span className="size-2.5 rounded-full bg-[oklch(0.62_0.14_145)]" />
+      <div className="mkt-browser-shell">
+        <div className="mkt-browser-chrome">
+          <div className="mkt-browser-traffic" aria-hidden>
+            <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--close" />
+            <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--minimize" />
+            <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--maximize" />
           </div>
-          <div className="min-w-0 flex-1 rounded-md border border-[var(--mkt-border-subtle)] bg-[var(--mkt-surface-inset)] px-3 py-1">
-            <p className="truncate font-mono text-xs text-[var(--mkt-text-subtle)]">
-              {productUrl}
-            </p>
+          <div className="mkt-browser-url">
+            <span className="mkt-browser-url-text">{productUrl}</span>
           </div>
         </div>
 
-        <div
-          className={cn(
-            "relative w-full bg-[var(--mkt-surface-inset)]",
-            contentClassName
-          )}
-          style={{ aspectRatio: PRODUCT_SCREENSHOT_ASPECT_RATIO }}
-        >
-          {children}
+        <div className={cn("mkt-browser-content", contentClassName)}>
+          <div className="mkt-browser-content-inner">{children}</div>
         </div>
       </div>
     </div>

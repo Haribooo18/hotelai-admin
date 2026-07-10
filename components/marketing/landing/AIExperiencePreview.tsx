@@ -7,13 +7,22 @@ import {
   PRODUCT_SCREENSHOT_HEIGHT,
   PRODUCT_SCREENSHOT_WIDTH,
 } from "@/lib/marketing/product-media";
+import { getProductPresentation } from "@/lib/marketing/product-presentation";
 
 export function AIExperiencePreview() {
   const { preview, previewProductUrl } = AI_EXPERIENCE_CONTENT;
+  const presentation = getProductPresentation("aiExperience");
 
   return (
-    <figure className="mkt-ai-preview" aria-label={preview.label}>
-      <BrowserFrame productUrl={previewProductUrl} contentClassName="overflow-hidden">
+    <figure
+      className="mkt-ai-preview mkt-product-showcase mkt-product-showcase--section"
+      aria-label={preview.label}
+    >
+      <BrowserFrame
+        productUrl={previewProductUrl}
+        size={presentation.size}
+        contentClassName="mkt-browser-content--media"
+      >
         <Image
           src={getProductScreenshotPath("reception-ai")}
           alt=""
@@ -22,10 +31,11 @@ export function AIExperiencePreview() {
           unoptimized
           loading="lazy"
           aria-hidden
-          className="absolute inset-0 h-full w-full object-cover object-left-top opacity-35"
+          className="mkt-browser-screenshot mkt-browser-screenshot--dimmed"
+          style={{ objectPosition: presentation.crop.objectPosition }}
         />
 
-        <div className="relative z-10 flex h-full items-end p-4 sm:p-6 lg:p-8">
+        <div className="mkt-ai-preview-overlay">
           <div
             className="mkt-ai-preview-panel"
             role="group"

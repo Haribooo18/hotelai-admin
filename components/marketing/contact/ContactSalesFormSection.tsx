@@ -120,7 +120,7 @@ export function ContactSalesFormSection() {
                 />
               </div>
 
-              <button type="submit" className="mkt-btn mkt-btn-primary mkt-btn-mobile-full">
+              <button type="submit" className="mkt-btn mkt-btn-primary mkt-btn-form mkt-btn-mobile-full">
                 {CONTACT_PAGE_FORM.submitLabel}
               </button>
             </form>

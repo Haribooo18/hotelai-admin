@@ -16,7 +16,7 @@ export const AI_PAGE_HERO = {
   overline: "Monavel AI",
   headline: "AI that understands your hotel.",
   subhead:
-    "Monavel AI uses your hotel knowledge base, reservations, guest context, and operational data to provide accurate assistance — not generic chatbot replies.",
+    "Grounded in your knowledge base, reservations, and operational data — not generic chatbot replies.",
   primaryCtaLabel: "Start free trial",
   primaryCtaHref: MARKETING_CTA.trial,
   secondaryCtaLabel: "Book a demo",

@@ -19,3 +19,11 @@ export const mktSectionHeaderClass = "mkt-section-header";
 export const mktSectionHeadlineClass = "mkt-section-headline";
 export const mktSectionSubheadClass = "mkt-section-subhead";
 export const mktSectionBodyClass = "mkt-section-body";
+export const mktPageHeroHeadlineClass = "mkt-page-hero-headline";
+export const mktPageHeroSubheadClass = "mkt-page-hero-subhead";
+export const mktSplitSectionClass = "mkt-split-section";
+export const mktSplitSectionReverseClass = "mkt-split-section-reverse";
+export const mktSplitSectionVisualEmphasisClass =
+  "mkt-split-section--visual-emphasis";
+export const mktSplitSectionCopyCompactClass = "mkt-split-section-copy--compact";
+export const mktProductShowcaseClass = "mkt-product-showcase";

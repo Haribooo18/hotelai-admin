@@ -26,7 +26,7 @@ export const INTEGRATIONS_PAGE_HERO = {
   overline: "Integrations",
   headline: "Connect every guest conversation.",
   subhead:
-    "Monavel connects guest channels into one unified workspace — so messages, knowledge, and hotel operations stay in sync.",
+    "Guest channels route into one workspace — messages, knowledge, and operations stay in sync.",
   primaryCtaLabel: "Start free trial",
   primaryCtaHref: MARKETING_CTA.trial,
   secondaryCtaLabel: "Book a demo",

@@ -4,15 +4,22 @@ import {
   mktSectionSubheadClass,
 } from "@/lib/marketing/design";
 import {
-  FINAL_CTA_CONTENT,
-  FINAL_CTA_TRUST_ITEMS,
+  FINAL_CTA_SECTION_ID,
+  getFinalCtaContent,
+  type FinalCtaVariant,
 } from "@/lib/marketing/final-cta";
 import { cn } from "@/lib/utils";
 
-export function FinalCtaSection() {
+type Props = {
+  variant?: FinalCtaVariant;
+};
+
+export function FinalCtaSection({ variant = "default" }: Props) {
+  const content = getFinalCtaContent(variant);
+
   return (
     <section
-      id={FINAL_CTA_CONTENT.sectionId}
+      id={FINAL_CTA_SECTION_ID}
       className="mkt-final-cta-section"
       aria-labelledby="final-cta-heading"
     >
@@ -22,32 +29,34 @@ export function FinalCtaSection() {
             id="final-cta-heading"
             className={cn(mktSectionHeadlineClass, "mt-0 text-center")}
           >
-            {FINAL_CTA_CONTENT.headline}
+            {content.headline}
           </h2>
 
           <p className={cn(mktSectionSubheadClass, "mx-auto text-center")}>
-            {FINAL_CTA_CONTENT.subhead}
+            {content.subhead}
           </p>
 
           <div className="mkt-final-cta-actions">
             <MarketingButton
-              href={FINAL_CTA_CONTENT.primaryCtaHref}
+              href={content.primaryCtaHref}
               variant="primary"
+              size="section"
               mobileFull
             >
-              {FINAL_CTA_CONTENT.primaryCtaLabel}
+              {content.primaryCtaLabel}
             </MarketingButton>
             <MarketingButton
-              href={FINAL_CTA_CONTENT.secondaryCtaHref}
+              href={content.secondaryCtaHref}
               variant="secondary"
+              size="section"
               mobileFull
             >
-              {FINAL_CTA_CONTENT.secondaryCtaLabel}
+              {content.secondaryCtaLabel}
             </MarketingButton>
           </div>
 
           <ul className="mkt-final-cta-trust" aria-label="Platform highlights">
-            {FINAL_CTA_TRUST_ITEMS.map((item) => (
+            {content.trustItems.map((item) => (
               <li key={item}>{item}</li>
             ))}
           </ul>

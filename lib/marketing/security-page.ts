@@ -22,7 +22,7 @@ export const SECURITY_PAGE_HERO = {
   overline: "Security",
   headline: "Security built into every workspace.",
   subhead:
-    "Monavel is designed with security, tenant isolation, and operational reliability in mind — so each hotel runs on a platform built to protect its data.",
+    "Tenant isolation and operational reliability — each hotel runs on a platform built to protect its data.",
   primaryCtaLabel: "Contact sales",
   primaryCtaHref: "/contact",
   secondaryCtaLabel: "Start free trial",

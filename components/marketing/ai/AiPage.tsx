@@ -17,7 +17,7 @@ export function AiPage() {
       <AiGuestChannelsSection />
       <AiHumanWorkflowSection />
       <AiBenefitsSection />
-      <FinalCtaSection />
+      <FinalCtaSection variant="ai" />
     </>
   );
 }

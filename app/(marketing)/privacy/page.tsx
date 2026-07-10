@@ -1,35 +1,24 @@
-import type { Metadata } from "next";
+import { LegalPage } from "@/components/marketing";
+import { MarketingJsonLd } from "@/components/marketing/seo/MarketingJsonLd";
+import { buildWebPageJsonLd } from "@/lib/marketing/jsonld";
+import { generateMarketingMetadata } from "@/lib/marketing/metadata";
+import { PRIVACY_POLICY } from "@/lib/marketing/legal";
 
-export const metadata: Metadata = {
-  title: "Политика конфиденциальности",
-  description: "Политика конфиденциальности Monavel.",
-};
+export function generateMetadata() {
+  return generateMarketingMetadata("privacy");
+}
 
-export default function PrivacyPage() {
+export default function PrivacyRoutePage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16 prose prose-invert">
-      <h1 className="text-4xl font-bold not-prose">Политика конфиденциальности</h1>
-      <p className="mt-4 text-zinc-400 not-prose">
-        Последнее обновление: {new Date().toLocaleDateString("ru-RU")}
-      </p>
-
-      <section className="mt-8 space-y-4 text-sm text-zinc-300">
-        <p>
-          Monavel обрабатывает персональные данные гостей и сотрудников отелей
-          исключительно для предоставления сервиса AI-ресепшна и панели
-          администратора.
-        </p>
-        <p>
-          Данные хранятся в Supabase с изоляцией по hotel_id и защитой Row Level
-          Security. Доступ имеют только авторизованные сотрудники отеля.
-        </p>
-        <p>
-          Для вопросов о данных обращайтесь:{" "}
-          <a href="mailto:privacy@monavel.app" className="text-emerald-400">
-            privacy@monavel.app
-          </a>
-        </p>
-      </section>
-    </div>
+    <>
+      <MarketingJsonLd
+        data={buildWebPageJsonLd({
+          title: PRIVACY_POLICY.title,
+          description: PRIVACY_POLICY.description,
+          path: PRIVACY_POLICY.path,
+        })}
+      />
+      <LegalPage document={PRIVACY_POLICY} />
+    </>
   );
 }

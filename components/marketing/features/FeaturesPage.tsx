@@ -15,7 +15,7 @@ export function FeaturesPage() {
       <FeaturesAiIntegrationsSection />
       <FeaturesOperationsWorkflowSection />
       <FeaturesBenefitsSection />
-      <FinalCtaSection />
+      <FinalCtaSection variant="features" />
     </>
   );
 }

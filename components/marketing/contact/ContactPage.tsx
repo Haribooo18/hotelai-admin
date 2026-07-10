@@ -11,7 +11,7 @@ export function ContactPage() {
       <ContactMethodsSection />
       <ContactSalesFormSection />
       <ContactFaqSection />
-      <FinalCtaSection />
+      <FinalCtaSection variant="contact" />
     </>
   );
 }

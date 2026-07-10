@@ -15,6 +15,8 @@ export {
 } from "./product";
 export { ProductBrowserFrame } from "./landing/ProductBrowserFrame";
 export { MarketingButton } from "./shared/MarketingButton";
+export { MarketingPageHero } from "./shared/MarketingPageHero";
+export { MarketingDocsHero } from "./shared/MarketingDocsHero";
 export {
   FeaturesSection,
   HowItWorksSection,
@@ -32,3 +34,7 @@ export { ContactPage } from "./contact/ContactPage";
 export { SecurityPage } from "./security/SecurityPage";
 export { IntegrationsPage } from "./integrations/IntegrationsPage";
 export { DemoPage } from "./demo/DemoPage";
+export { AboutPage } from "./about/AboutPage";
+export { DocsLandingPage } from "./docs/DocsLandingPage";
+export { DocsArticlePage } from "./docs/DocsArticlePage";
+export { LegalPage } from "./legal/LegalPage";

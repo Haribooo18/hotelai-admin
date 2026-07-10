@@ -15,7 +15,7 @@ export function IntegrationsPage() {
       <IntegrationsFutureSection />
       <IntegrationsArchitectureSection />
       <IntegrationsBenefitsSection />
-      <FinalCtaSection />
+      <FinalCtaSection variant="integrations" />
     </>
   );
 }

@@ -28,7 +28,7 @@ export const PRICING_PAGE_HERO = {
   overline: "Pricing",
   headline: "Simple pricing for every hotel.",
   subhead:
-    "Choose a plan that matches your hotel size and growth stage. Start with a free trial on Starter or Pro, or talk to us about Enterprise.",
+    "Match your hotel size and growth stage. Free trial on Starter or Pro.",
   primaryCtaLabel: "Start free trial",
   primaryCtaHref: MARKETING_CTA.trial,
   secondaryCtaLabel: "Book a demo",

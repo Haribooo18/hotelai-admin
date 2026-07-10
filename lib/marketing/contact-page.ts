@@ -15,7 +15,7 @@ export const CONTACT_PAGE_HERO = {
   overline: "Contact",
   headline: "Let's talk about your hotel.",
   subhead:
-    "Whether you are evaluating Monavel, planning a demo, or exploring a partnership — our team is here to help you find the right next step.",
+    "Evaluating Monavel, planning a demo, or exploring a partnership — we will help you find the right next step.",
   primaryCtaLabel: "Book a demo",
   primaryCtaHref: MARKETING_CTA.demo,
   secondaryCtaLabel: "Start free trial",

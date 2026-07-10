@@ -77,8 +77,7 @@ export function HeroSection() {
             )}
             data-order="5"
           >
-            <div className="mkt-product-halo" aria-hidden />
-            <ProductBrowserFrame />
+            <ProductBrowserFrame className="mkt-product-showcase mkt-product-showcase--hero mkt-product-showcase--emphasis" />
           </div>
         </div>
       </div>

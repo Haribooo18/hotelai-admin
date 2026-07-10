@@ -16,7 +16,7 @@ export function PricingPlansSection() {
   return (
     <section
       id={PRICING_PAGE_PLANS_SECTION.sectionId}
-      className="mkt-features-section mkt-features-section-alt"
+      className="mkt-features-section"
       aria-labelledby="pricing-plans-heading"
     >
       <div className="mkt-container-wide">

@@ -26,7 +26,7 @@ export const DEMO_PAGE_HERO = {
   overline: "Demo",
   headline: "See Monavel in action.",
   subhead:
-    "Book a personalized walkthrough of Monavel — we show real hotel workflows across operations, AI reception, revenue, and administration.",
+    "A personalized walkthrough across operations, AI reception, revenue, and administration.",
   primaryCtaLabel: "Book a demo",
   primaryCtaHref: "#demo-booking",
   secondaryCtaLabel: "Start free trial",

@@ -15,7 +15,7 @@ export function SecurityPage() {
       <SecurityAccessControlSection />
       <SecurityInfrastructureSection />
       <SecurityFaqSection />
-      <FinalCtaSection />
+      <FinalCtaSection variant="security" />
     </>
   );
 }
