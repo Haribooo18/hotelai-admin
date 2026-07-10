@@ -10,6 +10,7 @@ describe("marketing routes", () => {
   it("treats home and marketing pages as public", () => {
     expect(isMarketingPublicPath("/")).toBe(true);
     expect(isMarketingPublicPath("/features")).toBe(true);
+    expect(isMarketingPublicPath("/ai")).toBe(true);
     expect(isMarketingPublicPath("/demo")).toBe(true);
     expect(isMarketingPublicPath("/privacy")).toBe(true);
   });

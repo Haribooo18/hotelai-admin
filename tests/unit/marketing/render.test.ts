@@ -7,6 +7,7 @@ import {
   FAQSection,
   FeaturesOverview,
   FeaturesPage,
+  AiPage,
   FeaturesSection,
   HeroSection,
   HowItWorksSection,
@@ -188,6 +189,24 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Ready to modernize your hotel?");
     expect(html).toContain("/login?intent=trial");
     expect(html).toContain("/demo");
+  });
+
+  it("renders ai marketing page content", () => {
+    const html = renderToStaticMarkup(React.createElement(AiPage));
+
+    expect(html).toContain("AI that understands your hotel.");
+    expect(html).toContain("How AI works");
+    expect(html).toContain("Monavel AI");
+    expect(html).toContain("Knowledge + Reservation Context");
+    expect(html).toContain("Guest Communication");
+    expect(html).toContain("Reservation Assistance");
+    expect(html).toContain("Contextual responses, not generic chat.");
+    expect(html).toContain("Website Chat");
+    expect(html).toContain("Planned");
+    expect(html).toContain("AI handles routine. Staff handles exceptions.");
+    expect(html).toContain("Escalation to staff");
+    expect(html).toContain("Faster guest responses");
+    expect(html).toContain("Ready to modernize your hotel?");
   });
 
   it("renders legacy features overview content", () => {

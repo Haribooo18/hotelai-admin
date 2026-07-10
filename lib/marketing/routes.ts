@@ -5,6 +5,7 @@
 export const MARKETING_PUBLIC_PATHS = [
   "/login",
   "/auth",
+  "/ai",
   "/features",
   "/pricing",
   "/contact",
@@ -19,6 +20,7 @@ export const MARKETING_PUBLIC_PATHS = [
 export const MARKETING_SITEMAP_PATHS = [
   "",
   "/features",
+  "/ai",
   "/pricing",
   "/contact",
   "/privacy",

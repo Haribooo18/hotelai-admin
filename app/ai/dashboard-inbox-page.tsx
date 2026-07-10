@@ -11,7 +11,7 @@ type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function AIRoute({ searchParams }: Props) {
+export async function DashboardAiInboxPage({ searchParams }: Props) {
   const params = (await searchParams) ?? {};
   const conversationParam = params.conversation;
   const conversationId =

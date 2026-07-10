@@ -24,5 +24,6 @@ export {
 } from "./LandingSections";
 export { FeaturesOverview } from "./FeaturesOverview";
 export { FeaturesPage } from "./features/FeaturesPage";
+export { AiPage } from "./ai/AiPage";
 export { PricingOverview } from "./PricingOverview";
 export { ContactForm } from "./ContactForm";
