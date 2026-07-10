@@ -10,6 +10,7 @@ export const MARKETING_PUBLIC_PATHS = [
   "/pricing",
   "/contact",
   "/security",
+  "/integrations",
   "/privacy",
   "/terms",
   "/demo",
@@ -25,6 +26,7 @@ export const MARKETING_SITEMAP_PATHS = [
   "/pricing",
   "/contact",
   "/security",
+  "/integrations",
   "/privacy",
   "/terms",
 ] as const;

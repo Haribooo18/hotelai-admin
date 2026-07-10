@@ -22,6 +22,7 @@ import {
   FinalCtaSection,
   ContactPage,
   SecurityPage,
+  IntegrationsPage,
   MarketingFooter,
   WorkspacePreview,
 } from "@/components/marketing";
@@ -280,5 +281,22 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Encrypted connections");
     expect(html).toContain("Where is data stored?");
     expect(html).toContain("certifications");
+  });
+
+  it("renders integrations page content", () => {
+    const html = renderToStaticMarkup(React.createElement(IntegrationsPage));
+
+    expect(html).toContain("Connect every guest conversation.");
+    expect(html).toContain("Website Chat");
+    expect(html).toContain("Telegram");
+    expect(html).toContain("Knowledge Base");
+    expect(html).toContain("Available");
+    expect(html).toContain("Planned");
+    expect(html).toContain("WhatsApp");
+    expect(html).toContain("Booking.com");
+    expect(html).toContain("PMS integrations");
+    expect(html).toContain("Hotel Team");
+    expect(html).toContain("Unified conversations");
+    expect(html).toContain("Ready to modernize your hotel?");
   });
 });

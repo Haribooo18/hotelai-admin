@@ -12,6 +12,7 @@ describe("marketing routes", () => {
     expect(isMarketingPublicPath("/features")).toBe(true);
     expect(isMarketingPublicPath("/ai")).toBe(true);
     expect(isMarketingPublicPath("/security")).toBe(true);
+    expect(isMarketingPublicPath("/integrations")).toBe(true);
     expect(isMarketingPublicPath("/demo")).toBe(true);
     expect(isMarketingPublicPath("/privacy")).toBe(true);
   });

@@ -2933,3 +2933,65 @@ html[data-shell-theme="gray"] {
     padding-inline: 0.75rem;
   }
 }
+
+[data-surface="marketing"] .mkt-integrations-available-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  [data-surface="marketing"] .mkt-integrations-available-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.125rem;
+  }
+}
+
+[data-surface="marketing"] .mkt-integrations-future-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 640px) {
+  [data-surface="marketing"] .mkt-integrations-future-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-surface="marketing"] .mkt-integrations-future-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.125rem;
+  }
+}
+
+[data-surface="marketing"] .mkt-integration-badge-available {
+  display: inline-flex;
+  padding: 0.125rem 0.5rem;
+  border-radius: 9999px;
+  background: var(--mkt-accent-muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mkt-accent);
+}
+
+[data-surface="marketing"] .mkt-integrations-workflow .mkt-features-workflow-node,
+[data-surface="marketing"] .mkt-integrations-architecture-flow .mkt-features-workflow-node {
+  min-width: 5.5rem;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 1024px) {
+  [data-surface="marketing"] .mkt-integrations-workflow .mkt-features-workflow-node,
+  [data-surface="marketing"] .mkt-integrations-architecture-flow .mkt-features-workflow-node {
+    min-width: 7rem;
+    padding-inline: 0.75rem;
+  }
+}

@@ -30,3 +30,4 @@ export { PricingOverview } from "./PricingOverview";
 export { ContactForm } from "./ContactForm";
 export { ContactPage } from "./contact/ContactPage";
 export { SecurityPage } from "./security/SecurityPage";
+export { IntegrationsPage } from "./integrations/IntegrationsPage";
