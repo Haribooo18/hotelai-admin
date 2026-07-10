@@ -2995,3 +2995,15 @@ html[data-shell-theme="gray"] {
     padding-inline: 0.75rem;
   }
 }
+
+[data-surface="marketing"] .mkt-demo-process-flow .mkt-features-workflow-node {
+  min-width: 5.5rem;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 1024px) {
+  [data-surface="marketing"] .mkt-demo-process-flow .mkt-features-workflow-node {
+    min-width: 8rem;
+    padding-inline: 0.75rem;
+  }
+}

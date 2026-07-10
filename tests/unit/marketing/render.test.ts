@@ -23,6 +23,7 @@ import {
   ContactPage,
   SecurityPage,
   IntegrationsPage,
+  DemoPage,
   MarketingFooter,
   WorkspacePreview,
 } from "@/components/marketing";
@@ -297,6 +298,27 @@ describe("marketing page rendering", () => {
     expect(html).toContain("PMS integrations");
     expect(html).toContain("Hotel Team");
     expect(html).toContain("Unified conversations");
+    expect(html).toContain("Ready to modernize your hotel?");
+  });
+
+  it("renders demo page content", () => {
+    const html = renderToStaticMarkup(React.createElement(DemoPage));
+
+    expect(html).toContain("See Monavel in action.");
+    expect(html).toContain("Book a demo");
+    expect(html).toContain("#demo-booking");
+    expect(html).toContain("/login?intent=trial");
+    expect(html).toContain("Hotel Operations");
+    expect(html).toContain("AI Reception");
+    expect(html).toContain("Book a time");
+    expect(html).toContain("Discuss onboarding");
+    expect(html).toContain("Independent hotels");
+    expect(html).toContain("Hotel groups");
+    expect(html).toContain("Growing properties");
+    expect(html).toContain("Book demo");
+    expect(html).toContain("Preferred date");
+    expect(html).toContain("How long is the demo?");
+    expect(html).toContain("What happens after the demo?");
     expect(html).toContain("Ready to modernize your hotel?");
   });
 });

@@ -27,6 +27,7 @@ export const MARKETING_SITEMAP_PATHS = [
   "/contact",
   "/security",
   "/integrations",
+  "/demo",
   "/privacy",
   "/terms",
 ] as const;
