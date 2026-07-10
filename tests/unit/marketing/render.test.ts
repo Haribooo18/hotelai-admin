@@ -6,6 +6,7 @@ import {
   AIChannelsSection,
   FAQSection,
   FeaturesOverview,
+  FeaturesPage,
   FeaturesSection,
   HeroSection,
   HowItWorksSection,
@@ -171,7 +172,25 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Analytics");
   });
 
-  it("renders features overview page content", () => {
+  it("renders features page content", () => {
+    const html = renderToStaticMarkup(React.createElement(FeaturesPage));
+
+    expect(html).toContain("Everything your hotel needs.");
+    expect(html).toContain("One connected platform.");
+    expect(html).toContain("Five connected layers.");
+    expect(html).toContain("Every workspace in Monavel.");
+    expect(html).toContain("Website Chat");
+    expect(html).toContain("Future integrations");
+    expect(html).toContain("Planned");
+    expect(html).toContain("Guest");
+    expect(html).toContain("Workspace");
+    expect(html).toContain("Less manual work");
+    expect(html).toContain("Ready to modernize your hotel?");
+    expect(html).toContain("/login?intent=trial");
+    expect(html).toContain("/demo");
+  });
+
+  it("renders legacy features overview content", () => {
     const html = renderToStaticMarkup(React.createElement(FeaturesOverview));
 
     expect(html).toContain("Возможности Monavel");

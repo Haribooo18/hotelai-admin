@@ -23,5 +23,6 @@ export {
   FAQSection,
 } from "./LandingSections";
 export { FeaturesOverview } from "./FeaturesOverview";
+export { FeaturesPage } from "./features/FeaturesPage";
 export { PricingOverview } from "./PricingOverview";
 export { ContactForm } from "./ContactForm";

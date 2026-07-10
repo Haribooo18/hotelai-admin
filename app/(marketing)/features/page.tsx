@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 
-import { FeaturesOverview } from "@/components/marketing";
+import { FeaturesPage } from "@/components/marketing";
 
 export const metadata: Metadata = {
-  title: "Возможности",
-  description: "Обзор возможностей Monavel: AI-ресепшн, каналы, PMS и аналитика.",
+  title: "Features",
+  description:
+    "Monavel platform overview: PMS, AI reception, guest channels, revenue, knowledge, and connected hotel workspaces.",
 };
 
-export default function FeaturesPage() {
-  return <FeaturesOverview />;
+export default function FeaturesRoutePage() {
+  return <FeaturesPage />;
 }
