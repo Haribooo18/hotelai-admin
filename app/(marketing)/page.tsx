@@ -1,21 +1,23 @@
 import {
-  AIChannelsSection,
-  FAQSection,
-  FeaturesSection,
+  AIExperienceSection,
   HeroSection,
-  HowItWorksSection,
-  PricingSection,
+  PlatformPillarsSection,
+  PlatformShowcaseSection,
+  PricingPreviewSection,
+  TrustSection,
+  FinalCtaSection,
 } from "@/components/marketing";
 
 export default function LandingPage() {
   return (
     <>
       <HeroSection />
-      <FeaturesSection />
-      <HowItWorksSection />
-      <AIChannelsSection />
-      <PricingSection />
-      <FAQSection />
+      <PlatformShowcaseSection />
+      <PlatformPillarsSection />
+      <AIExperienceSection />
+      <PricingPreviewSection />
+      <TrustSection />
+      <FinalCtaSection />
     </>
   );
 }

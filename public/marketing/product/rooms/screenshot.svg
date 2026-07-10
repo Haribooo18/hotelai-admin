@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" fill="none">
+  <rect width="1280" height="800" fill="#0f1115"/>
+  <rect x="0" y="0" width="220" height="800" fill="#12151b"/>
+  <rect x="219" y="0" width="1" height="800" fill="#ffffff" opacity="0.08"/>
+  <text x="28" y="39" fill="#e8eaed" font-family="system-ui,sans-serif" font-size="12" font-weight="600">Monavel</text>
+  <text x="16" y="88" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10" letter-spacing="0.08em">WORKSPACES</text>
+  <rect x="16" y="104" width="188" height="24" rx="6" fill="#141820"/>
+<text x="28" y="120" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11" font-weight="400">Dashboard</text>
+<rect x="16" y="132" width="188" height="24" rx="6" fill="#141820"/>
+<text x="28" y="148" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11" font-weight="400">Bookings</text>
+<rect x="16" y="160" width="188" height="24" rx="6" fill="#141820"/>
+<text x="28" y="176" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11" font-weight="400">Guests</text>
+<rect x="16" y="188" width="188" height="24" rx="6" fill="#f59e0b33"/>
+<text x="28" y="204" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="11" font-weight="600">Rooms</text>
+<rect x="16" y="216" width="188" height="24" rx="6" fill="#141820"/>
+<text x="28" y="232" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11" font-weight="400">Calendar</text>
+<rect x="16" y="244" width="188" height="24" rx="6" fill="#141820"/>
+<text x="28" y="260" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11" font-weight="400">Revenue</text>
+<rect x="16" y="272" width="188" height="24" rx="6" fill="#141820"/>
+<text x="28" y="288" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11" font-weight="400">Knowledge</text>
+<rect x="16" y="300" width="188" height="24" rx="6" fill="#141820"/>
+<text x="28" y="316" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11" font-weight="400">Reception AI</text>
+  <rect x="220" y="0" width="1060" height="800" fill="#0f1115"/>
+  <text x="252" y="48" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="20" font-weight="600">Rooms</text>
+  <text x="252" y="72" fill="#6b7280" font-family="system-ui,sans-serif" font-size="12">app.monavel.com/rooms</text>
+  <rect x="252" y="88" width="180" height="24" rx="12" fill="#f59e0b22"/>
+  <text x="264" y="104" fill="#f59e0b" font-family="system-ui,sans-serif" font-size="11" font-weight="600">Connected by AI</text>
+  <rect x="252" y="120" width="300" height="150" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+<text x="268" y="148" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Room grid</text>
+<text x="268" y="172" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11">Monavel workspace preview</text>
+<rect x="572" y="120" width="300" height="150" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+<text x="588" y="148" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Maintenance</text>
+<text x="588" y="172" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11">Monavel workspace preview</text>
+<rect x="252" y="300" width="300" height="150" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+<text x="268" y="328" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Status</text>
+<text x="268" y="352" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11">Monavel workspace preview</text>
+</svg>

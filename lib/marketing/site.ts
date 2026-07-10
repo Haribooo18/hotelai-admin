@@ -13,7 +13,12 @@ export function getSiteUrl(): string {
 }
 
 export const MARKETING_NAV = [
-  { href: "/features", label: "Возможности" },
+  { href: "/features", label: "Продукт" },
+  { href: "/ai", label: "AI" },
   { href: "/pricing", label: "Тарифы" },
-  { href: "/contact", label: "Контакты" },
+  { href: "/docs", label: "Документация" },
+  { href: "/blog", label: "Блог" },
 ] as const;
+
+export const SITE_TAGLINE =
+  "Операционная система для современного отеля";

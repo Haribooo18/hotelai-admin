@@ -1,21 +1,13 @@
 import type { MetadataRoute } from "next";
 
+import { MARKETING_SITEMAP_PATHS } from "@/lib/marketing/routes";
 import { getSiteUrl } from "@/lib/marketing/site";
-
-const PUBLIC_ROUTES = [
-  "",
-  "/features",
-  "/pricing",
-  "/contact",
-  "/privacy",
-  "/terms",
-] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getSiteUrl();
   const lastModified = new Date();
 
-  return PUBLIC_ROUTES.map((path) => ({
+  return MARKETING_SITEMAP_PATHS.map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified,
     changeFrequency: path === "" ? "weekly" : "monthly",

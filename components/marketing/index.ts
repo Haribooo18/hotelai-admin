@@ -1,6 +1,21 @@
-export { MarketingShell } from "./MarketingShell";
+export { MarketingShell } from "./shell/MarketingShell";
+export { MarketingHeader } from "./shell/MarketingHeader";
+export { MarketingFooter } from "./shell/MarketingFooter";
+export { HeroSection } from "./landing/HeroSection";
+export { PlatformShowcaseSection } from "./landing/PlatformShowcaseSection";
+export { PlatformPillarsSection } from "./landing/PlatformPillarsSection";
+export { AIExperienceSection } from "./landing/AIExperienceSection";
+export { PricingPreviewSection } from "./landing/PricingPreviewSection";
+export { TrustSection } from "./landing/TrustSection";
+export { FinalCtaSection } from "./landing/FinalCtaSection";
 export {
-  HeroSection,
+  BrowserFrame,
+  ProductScreenshot,
+  WorkspacePreview,
+} from "./product";
+export { ProductBrowserFrame } from "./landing/ProductBrowserFrame";
+export { MarketingButton } from "./shared/MarketingButton";
+export {
   FeaturesSection,
   HowItWorksSection,
   AIChannelsSection,

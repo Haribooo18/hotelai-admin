@@ -10,37 +10,6 @@ import {
 import { getMarketingPlans } from "@/lib/marketing/pricing";
 import { cn } from "@/lib/utils";
 
-export function HeroSection() {
-  return (
-    <section className="mx-auto max-w-6xl px-6 py-20 text-center">
-      <p className="text-sm uppercase tracking-[0.3em] text-emerald-400">
-        AI Receptionist для отелей
-      </p>
-      <h1 className="mt-4 text-4xl font-bold tracking-tight md:text-6xl">
-        Автоматизируйте гостевой сервис без потери качества
-      </h1>
-      <p className="mx-auto mt-6 max-w-2xl text-lg text-zinc-400">
-        Monavel объединяет AI-ресепшн, каналы связи и панель управления отелем
-        в одном решении для независимых отелей.
-      </p>
-      <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-        <Link
-          href="/settings?tab=billing"
-          className={cn(buttonVariants({ size: "lg" }))}
-        >
-          Начать пробный период
-        </Link>
-        <a
-          href="mailto:hello@monavel.app?subject=Monavel Demo"
-          className={cn(buttonVariants({ size: "lg", variant: "outline" }))}
-        >
-          Записаться на демо
-        </a>
-      </div>
-    </section>
-  );
-}
-
 export function FeaturesSection() {
   return (
     <section className="border-t border-zinc-800 bg-zinc-900/30 py-20">
