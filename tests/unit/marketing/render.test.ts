@@ -20,6 +20,7 @@ import {
   PricingSection,
   TrustSection,
   FinalCtaSection,
+  ContactPage,
   MarketingFooter,
   WorkspacePreview,
 } from "@/components/marketing";
@@ -244,5 +245,23 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Starter");
     expect(html).toContain("Pro");
     expect(html).toContain("Enterprise");
+  });
+
+  it("renders contact page content", () => {
+    const html = renderToStaticMarkup(React.createElement(ContactPage));
+
+    expect(html).toContain("talk about your hotel.");
+    expect(html).toContain("Book a demo");
+    expect(html).toContain("/demo");
+    expect(html).toContain("/login?intent=trial");
+    expect(html).toContain("Sales");
+    expect(html).toContain("Partnerships");
+    expect(html).toContain("General inquiries");
+    expect(html).toContain("sales@monavel.app");
+    expect(html).toContain("hello@monavel.app");
+    expect(html).toContain("Contact sales");
+    expect(html).toContain("Number of rooms");
+    expect(html).toContain("How quickly will you reply?");
+    expect(html).toContain("Ready to modernize your hotel?");
   });
 });

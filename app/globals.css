@@ -2752,3 +2752,157 @@ html[data-shell-theme="gray"] {
     gap: 1.25rem 2rem;
   }
 }
+
+[data-surface="marketing"] .mkt-contact-methods-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  [data-surface="marketing"] .mkt-contact-methods-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.125rem;
+  }
+}
+
+[data-surface="marketing"] .mkt-contact-method-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 1.375rem;
+  border-radius: var(--mkt-radius-lg);
+  border: 1px solid var(--mkt-border-default);
+  background: var(--mkt-surface-1);
+  transition:
+    border-color var(--mkt-duration) var(--mkt-ease),
+    box-shadow var(--mkt-duration) var(--mkt-ease);
+}
+
+@media (hover: hover) {
+  [data-surface="marketing"] .mkt-contact-method-card:hover {
+    border-color: var(--mkt-border-strong);
+    box-shadow: var(--mkt-shadow-sm);
+  }
+}
+
+[data-surface="marketing"] .mkt-contact-email {
+  margin-top: auto;
+  padding-top: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--mkt-accent);
+  transition: color var(--mkt-duration) var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-contact-email:hover {
+  color: var(--mkt-text);
+}
+
+[data-surface="marketing"] .mkt-contact-email:focus-visible {
+  outline: none;
+  border-radius: var(--mkt-radius-sm);
+  box-shadow: 0 0 0 2px var(--mkt-bg-0), 0 0 0 4px var(--mkt-accent-ring);
+}
+
+[data-surface="marketing"] .mkt-contact-form {
+  max-width: 40rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: var(--mkt-radius-lg);
+  border: 1px solid var(--mkt-border-default);
+  background: var(--mkt-surface-1);
+}
+
+[data-surface="marketing"] .mkt-contact-form-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  [data-surface="marketing"] .mkt-contact-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+[data-surface="marketing"] .mkt-contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+[data-surface="marketing"] .mkt-contact-field label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--mkt-text-muted);
+}
+
+[data-surface="marketing"] .mkt-contact-input,
+[data-surface="marketing"] .mkt-contact-textarea {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--mkt-radius-md);
+  border: 1px solid var(--mkt-border-default);
+  background: var(--mkt-surface-2);
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--mkt-text);
+  transition:
+    border-color var(--mkt-duration) var(--mkt-ease),
+    box-shadow var(--mkt-duration) var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-contact-input::placeholder,
+[data-surface="marketing"] .mkt-contact-textarea::placeholder {
+  color: var(--mkt-text-subtle);
+}
+
+[data-surface="marketing"] .mkt-contact-input:focus-visible,
+[data-surface="marketing"] .mkt-contact-textarea:focus-visible {
+  outline: none;
+  border-color: var(--mkt-accent);
+  box-shadow: 0 0 0 2px var(--mkt-accent-ring);
+}
+
+[data-surface="marketing"] .mkt-contact-textarea {
+  resize: vertical;
+  min-height: 7.5rem;
+}
+
+[data-surface="marketing"] .mkt-contact-form-success {
+  max-width: 40rem;
+  padding: 1.5rem;
+  border-radius: var(--mkt-radius-lg);
+  border: 1px solid oklch(0.62 0.14 165 / 35%);
+  background: var(--mkt-accent-muted);
+}
+
+[data-surface="marketing"] .mkt-contact-form-success-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--mkt-text);
+}
+
+[data-surface="marketing"] .mkt-contact-form-success-message {
+  margin: 0.5rem 0 0;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--mkt-text-muted);
+}
+
+[data-surface="marketing"] .mkt-contact-faq-list {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  [data-surface="marketing"] .mkt-contact-faq-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem 2rem;
+  }
+}

@@ -28,3 +28,4 @@ export { PricingPage } from "./pricing/PricingPage";
 export { AiPage } from "./ai/AiPage";
 export { PricingOverview } from "./PricingOverview";
 export { ContactForm } from "./ContactForm";
+export { ContactPage } from "./contact/ContactPage";
