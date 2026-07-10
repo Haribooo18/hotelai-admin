@@ -16,6 +16,7 @@ import {
   PlatformPillarsSection,
   PlatformShowcaseSection,
   PricingOverview,
+  PricingPage,
   PricingSection,
   TrustSection,
   FinalCtaSection,
@@ -215,6 +216,25 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Возможности Monavel");
     expect(html).toContain("Записаться на демо");
     expect(html).toContain("mailto:hello@monavel.app");
+  });
+
+  it("renders pricing page content", () => {
+    const html = renderToStaticMarkup(React.createElement(PricingPage));
+
+    expect(html).toContain("Simple pricing for every hotel.");
+    expect(html).toContain("Three plans. One platform.");
+    expect(html).toContain("Most popular");
+    expect(html).toContain("Start free trial");
+    expect(html).toContain("Contact sales");
+    expect(html).toContain("Feature comparison.");
+    expect(html).toContain("Knowledge Base");
+    expect(html).toContain("Included");
+    expect(html).toContain("Who is this plan for?");
+    expect(html).toContain("Hotel groups and chains");
+    expect(html).toContain("Can I cancel anytime?");
+    expect(html).toContain('href="/contact"');
+    expect(html).toContain("Contact us");
+    expect(html).toContain("Ready to modernize your hotel?");
   });
 
   it("renders pricing overview from billing plans", () => {
