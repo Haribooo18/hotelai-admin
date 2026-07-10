@@ -2906,3 +2906,30 @@ html[data-shell-theme="gray"] {
     gap: 1.25rem 2rem;
   }
 }
+
+[data-surface="marketing"] .mkt-security-access-grid {
+  display: grid;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  [data-surface="marketing"] .mkt-security-access-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.125rem;
+  }
+}
+
+[data-surface="marketing"] .mkt-security-architecture-flow .mkt-features-workflow-node {
+  min-width: 5.5rem;
+  font-size: 0.8125rem;
+}
+
+@media (min-width: 1024px) {
+  [data-surface="marketing"] .mkt-security-architecture-flow .mkt-features-workflow-node {
+    min-width: 7.5rem;
+    padding-inline: 0.75rem;
+  }
+}

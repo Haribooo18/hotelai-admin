@@ -21,6 +21,7 @@ import {
   TrustSection,
   FinalCtaSection,
   ContactPage,
+  SecurityPage,
   MarketingFooter,
   WorkspacePreview,
 } from "@/components/marketing";
@@ -263,5 +264,21 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Number of rooms");
     expect(html).toContain("How quickly will you reply?");
     expect(html).toContain("Ready to modernize your hotel?");
+  });
+
+  it("renders security page content", () => {
+    const html = renderToStaticMarkup(React.createElement(SecurityPage));
+
+    expect(html).toContain("Security built into every workspace.");
+    expect(html).toContain("Contact sales");
+    expect(html).toContain('href="/contact"');
+    expect(html).toContain("Tenant isolation");
+    expect(html).toContain("Role-based access");
+    expect(html).toContain("Monavel Platform");
+    expect(html).toContain("Secure infrastructure");
+    expect(html).toContain("Workspace isolation");
+    expect(html).toContain("Encrypted connections");
+    expect(html).toContain("Where is data stored?");
+    expect(html).toContain("certifications");
   });
 });
