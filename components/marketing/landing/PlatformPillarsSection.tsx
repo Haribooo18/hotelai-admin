@@ -1,8 +1,10 @@
 import { PlatformPillarCard } from "@/components/marketing/landing/PlatformPillarCard";
 import {
   mktOverlineClass,
-  mktPlatformHeadlineClass,
-  mktSubheadClass,
+  mktSectionBodyClass,
+  mktSectionHeadlineClass,
+  mktSectionHeaderClass,
+  mktSectionSubheadClass,
 } from "@/lib/marketing/design";
 import {
   PLATFORM_PILLARS,
@@ -18,20 +20,20 @@ export function PlatformPillarsSection() {
       aria-labelledby="platform-pillars-heading"
     >
       <div className="mkt-container-wide">
-        <header className="max-w-3xl">
+        <header className={mktSectionHeaderClass}>
           <p className={mktOverlineClass}>{PLATFORM_PILLARS_CONTENT.overline}</p>
           <h2
             id="platform-pillars-heading"
-            className={cn(mktPlatformHeadlineClass, "mt-4")}
+            className={mktSectionHeadlineClass}
           >
             {PLATFORM_PILLARS_CONTENT.headline}
           </h2>
-          <p className={cn(mktSubheadClass, "mt-6 max-w-2xl")}>
+          <p className={mktSectionSubheadClass}>
             {PLATFORM_PILLARS_CONTENT.subhead}
           </p>
         </header>
 
-        <div className="mkt-pillars-grid">
+        <div className={cn(mktSectionBodyClass, "mkt-pillars-grid")}>
           {PLATFORM_PILLARS.map((pillar) => (
             <PlatformPillarCard key={pillar.id} pillar={pillar} />
           ))}

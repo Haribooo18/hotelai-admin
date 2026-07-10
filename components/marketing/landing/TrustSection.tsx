@@ -5,8 +5,10 @@ import { TrustCard } from "@/components/marketing/landing/TrustCard";
 import { TrustMetricsStrip } from "@/components/marketing/landing/TrustMetricsStrip";
 import {
   mktOverlineClass,
-  mktPlatformHeadlineClass,
-  mktSubheadClass,
+  mktSectionBodyClass,
+  mktSectionHeadlineClass,
+  mktSectionHeaderClass,
+  mktSectionSubheadClass,
 } from "@/lib/marketing/design";
 import {
   TRUST_CARDS,
@@ -22,20 +24,20 @@ export function TrustSection() {
       aria-labelledby="trust-heading"
     >
       <div className="mkt-container-wide">
-        <header className="max-w-3xl">
+        <header className={mktSectionHeaderClass}>
           <p className={mktOverlineClass}>{TRUST_SECTION_CONTENT.overline}</p>
           <h2
             id="trust-heading"
-            className={cn(mktPlatformHeadlineClass, "mt-4")}
+            className={mktSectionHeadlineClass}
           >
             {TRUST_SECTION_CONTENT.headline}
           </h2>
-          <p className={cn(mktSubheadClass, "mt-6 max-w-2xl")}>
+          <p className={mktSectionSubheadClass}>
             {TRUST_SECTION_CONTENT.subhead}
           </p>
         </header>
 
-        <div className="mkt-trust-grid">
+        <div className={cn(mktSectionBodyClass, "mkt-trust-grid")}>
           {TRUST_CARDS.map((card) => (
             <TrustCard key={card.id} card={card} />
           ))}

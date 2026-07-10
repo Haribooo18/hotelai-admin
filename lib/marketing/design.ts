@@ -15,3 +15,7 @@ export const mktMotionRevealClass = "mkt-motion-reveal";
 export const mktProductHaloClass = "mkt-product-halo";
 export const mktPlatformHeadlineClass = "mkt-platform-headline";
 export const mktPlatformSectionClass = "mkt-platform-section";
+export const mktSectionHeaderClass = "mkt-section-header";
+export const mktSectionHeadlineClass = "mkt-section-headline";
+export const mktSectionSubheadClass = "mkt-section-subhead";
+export const mktSectionBodyClass = "mkt-section-body";

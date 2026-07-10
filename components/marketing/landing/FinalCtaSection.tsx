@@ -1,7 +1,7 @@
 import { MarketingButton } from "@/components/marketing/shared/MarketingButton";
 import {
-  mktPlatformHeadlineClass,
-  mktSubheadClass,
+  mktSectionHeadlineClass,
+  mktSectionSubheadClass,
 } from "@/lib/marketing/design";
 import {
   FINAL_CTA_CONTENT,
@@ -20,12 +20,12 @@ export function FinalCtaSection() {
         <div className="mkt-final-cta-panel">
           <h2
             id="final-cta-heading"
-            className={cn(mktPlatformHeadlineClass, "text-center")}
+            className={cn(mktSectionHeadlineClass, "mt-0 text-center")}
           >
             {FINAL_CTA_CONTENT.headline}
           </h2>
 
-          <p className={cn(mktSubheadClass, "mt-4 text-center max-w-2xl mx-auto")}>
+          <p className={cn(mktSectionSubheadClass, "mx-auto text-center")}>
             {FINAL_CTA_CONTENT.subhead}
           </p>
 
