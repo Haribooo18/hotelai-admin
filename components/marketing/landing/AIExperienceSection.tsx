@@ -1,7 +1,6 @@
 import { AIExperienceCapabilityCard } from "@/components/marketing/landing/AIExperienceCapabilityCard";
 import { AIExperiencePreview } from "@/components/marketing/landing/AIExperiencePreview";
 import {
-  mktOverlineClass,
   mktSectionBodyClass,
   mktSectionHeadlineClass,
   mktSectionHeaderClass,
@@ -17,12 +16,11 @@ export function AIExperienceSection() {
   return (
     <section
       id={AI_EXPERIENCE_CONTENT.sectionId}
-      className="mkt-ai-experience-section"
+      className="mkt-ai-experience-section mkt-section--visual-first"
       aria-labelledby="ai-experience-heading"
     >
       <div className="mkt-container-wide">
-        <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>{AI_EXPERIENCE_CONTENT.overline}</p>
+        <header className={cn(mktSectionHeaderClass, "mkt-section-header--split")}>
           <h2
             id="ai-experience-heading"
             className={mktSectionHeadlineClass}
@@ -34,17 +32,19 @@ export function AIExperienceSection() {
           </p>
         </header>
 
-        <div className={cn(mktSectionBodyClass, "mkt-ai-capabilities-grid")}>
-          {AI_EXPERIENCE_CAPABILITIES.map((capability) => (
-            <AIExperienceCapabilityCard
-              key={capability.id}
-              capability={capability}
-            />
-          ))}
-        </div>
+        <div className={cn(mktSectionBodyClass, "mkt-ai-experience-layout")}>
+          <div className="mkt-ai-experience-preview">
+            <AIExperiencePreview />
+          </div>
 
-        <div className="mt-8 lg:mt-9">
-          <AIExperiencePreview />
+          <div className="mkt-ai-capabilities-grid">
+            {AI_EXPERIENCE_CAPABILITIES.map((capability) => (
+              <AIExperienceCapabilityCard
+                key={capability.id}
+                capability={capability}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </section>

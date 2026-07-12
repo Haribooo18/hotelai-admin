@@ -10,7 +10,7 @@ type Props = {
 
 export function MarketingShell({ children }: Props) {
   return (
-    <div data-surface="marketing" className="min-h-screen">
+    <div data-surface="marketing" lang="en" className="min-h-screen">
       <a href={`#${HERO_CONTENT.skipLinkTarget}`} className="mkt-skip-link">
         {HERO_CONTENT.skipLinkLabel}
       </a>

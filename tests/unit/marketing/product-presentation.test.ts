@@ -8,10 +8,10 @@ import {
 
 describe("product presentation", () => {
   it("defines crop presets for each workspace context", () => {
-    expect(PRODUCT_CROP_PRESETS.dashboardOverview.objectPosition).toBe("0% 0%");
-    expect(PRODUCT_CROP_PRESETS.receptionChannels.objectPosition).toBe("22% 0%");
-    expect(PRODUCT_CROP_PRESETS.revenueDashboard.objectPosition).toBe("0% 6%");
-    expect(PRODUCT_CROP_PRESETS.calendarTimeline.objectPosition).toBe("0% 12%");
+    expect(PRODUCT_CROP_PRESETS.dashboardOverview.objectPosition).toBe("4% 2%");
+    expect(PRODUCT_CROP_PRESETS.receptionChannels.objectPosition).toBe("20% 4%");
+    expect(PRODUCT_CROP_PRESETS.revenueDashboard.objectPosition).toBe("10% 6%");
+    expect(PRODUCT_CROP_PRESETS.calendarTimeline.objectPosition).toBe("8% 10%");
   });
 
   it("maps page heroes to the correct workspaces and crops", () => {

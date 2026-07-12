@@ -9,12 +9,13 @@ import {
 describe("marketing routes", () => {
   it("treats home and marketing pages as public", () => {
     expect(isMarketingPublicPath("/")).toBe(true);
-    expect(isMarketingPublicPath("/features")).toBe(true);
+    expect(isMarketingPublicPath("/features")).toBe(false);
     expect(isMarketingPublicPath("/ai")).toBe(true);
     expect(isMarketingPublicPath("/security")).toBe(true);
     expect(isMarketingPublicPath("/integrations")).toBe(true);
     expect(isMarketingPublicPath("/demo")).toBe(true);
     expect(isMarketingPublicPath("/about")).toBe(true);
+    expect(isMarketingPublicPath("/blog")).toBe(true);
     expect(isMarketingPublicPath("/docs")).toBe(true);
     expect(isMarketingPublicPath("/docs/getting-started")).toBe(true);
     expect(isMarketingPublicPath("/privacy")).toBe(true);
@@ -30,6 +31,7 @@ describe("marketing routes", () => {
     expect(MARKETING_CTA.demo).toBe("/demo");
     expect(MARKETING_PUBLIC_PATHS).toContain("/demo");
     expect(MARKETING_PUBLIC_PATHS).toContain("/about");
+    expect(MARKETING_PUBLIC_PATHS).toContain("/blog");
     expect(MARKETING_PUBLIC_PATHS).toContain("/docs");
   });
 });

@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { MonavelMark } from "@/components/marketing/brand/MonavelMark";
 import {
   FOOTER_BOTTOM,
   FOOTER_BRAND,
@@ -39,22 +40,25 @@ export function MarketingFooter() {
   return (
     <footer className="mkt-footer">
       <div className="mkt-container-wide mkt-footer-main">
-        <div className="mkt-footer-grid">
+        <div className="mkt-footer-layout">
           <div className="mkt-footer-brand">
-            <Link href="/" className="mkt-footer-brand-name">
-              {FOOTER_BRAND.name}
+            <Link href="/" className="mkt-footer-brand-lockup">
+              <MonavelMark className="mkt-footer-brand-mark" />
+              <span className="mkt-footer-brand-name">{FOOTER_BRAND.name}</span>
             </Link>
             <p className="mkt-footer-brand-tagline">{FOOTER_BRAND.tagline}</p>
           </div>
 
-          {FOOTER_COLUMNS.map((column) => (
-            <FooterNavColumn
-              key={column.id}
-              id={column.id}
-              title={column.title}
-              links={column.links}
-            />
-          ))}
+          <div className="mkt-footer-nav">
+            {FOOTER_COLUMNS.map((column) => (
+              <FooterNavColumn
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                links={column.links}
+              />
+            ))}
+          </div>
         </div>
       </div>
 

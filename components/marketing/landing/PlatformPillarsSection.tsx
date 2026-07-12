@@ -20,7 +20,7 @@ export function PlatformPillarsSection() {
       aria-labelledby="platform-pillars-heading"
     >
       <div className="mkt-container-wide">
-        <header className={mktSectionHeaderClass}>
+        <header className={cn(mktSectionHeaderClass, "mkt-section-header--centered")}>
           <p className={mktOverlineClass}>{PLATFORM_PILLARS_CONTENT.overline}</p>
           <h2
             id="platform-pillars-heading"

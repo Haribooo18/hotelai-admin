@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   AIChannelsSection,
+  BlogComingSoonPage,
   FAQSection,
   FeaturesOverview,
   FeaturesPage,
@@ -11,14 +12,23 @@ import {
   FeaturesSection,
   HeroSection,
   HowItWorksSection,
+  HowMonavelWorksSection,
+  OperationalScenarioSection,
+  BusinessOutcomesSection,
+  WhyHotelsNeedSection,
+  WhoIsMonavelForSection,
   AIExperienceSection,
   PricingPreviewSection,
+  PlatformOverviewSection,
   PlatformPillarsSection,
   PlatformShowcaseSection,
+  PhilosophySection,
+  StorytellingSection,
   PricingOverview,
   PricingPage,
   PricingSection,
   TrustSection,
+  HomepageFaqSection,
   FinalCtaSection,
   ContactPage,
   SecurityPage,
@@ -34,39 +44,153 @@ import {
 import { PRIVACY_POLICY, TERMS_OF_SERVICE } from "@/lib/marketing/legal";
 
 describe("marketing page rendering", () => {
-  it("renders landing hero with trial CTA", () => {
+  it("renders landing hero with concept illustration", () => {
     const html = renderToStaticMarkup(React.createElement(HeroSection));
 
-    expect(html).toContain("Операционная система для современного отеля");
-    expect(html).toContain("Начать пробный период");
+    expect(html).toContain("Everything your hotel needs");
+    expect(html).toContain("One intelligent operating system");
+    expect(html).toContain("AI Operating System for hotels");
+    expect(html).not.toContain("mkt-overline");
+    expect(html).toContain("One Workspace");
+    expect(html).toContain("Guest Communication");
+    expect(html).toContain("Start free trial");
     expect(html).toContain("/login?intent=trial");
     expect(html).toContain("/demo");
-    expect(html).toContain("app.monavel.com/ai");
+    expect(html).toContain("mkt-architecture-diagram-v2");
+    expect(html).toContain("MONAVEL");
+    expect(html).toContain("AI Operating System");
+    expect(html).toContain("GUEST CHANNELS");
+    expect(html).toContain("HOTEL OPERATIONS");
+    expect(html).toContain("One workspace");
+    expect(html).toContain("One AI");
+    expect(html).toContain("Live data");
+    expect(html).not.toContain("Guest Profile");
+    expect(html).toContain("Real-time");
+    expect(html).toContain("Security");
+    expect(html).toContain("Automation");
+    expect(html).not.toContain("Shared Knowledge");
+    expect(html).not.toContain("DATA &amp; INTELLIGENCE LAYER");
+    expect(html).not.toContain("AI Insights");
+    expect(html).not.toContain("AI LAYER");
+    expect(html).not.toContain("hero-live-workspace.svg");
+    expect(html).not.toContain("mkt-hero-stage");
   });
 
-  it("renders platform showcase section", () => {
+  it("renders why hotels need comparison section", () => {
+    const html = renderToStaticMarkup(React.createElement(WhyHotelsNeedSection));
+
+    expect(html).toContain('id="why-hotels-need"');
+    expect(html).toContain("Why hotels need Monavel");
+    expect(html).toContain("one operating system");
+    expect(html).toContain("Without Monavel");
+    expect(html).toContain("With Monavel");
+    expect(html).toContain("Multiple systems");
+    expect(html).toContain("One workspace");
+    expect(html).toContain("mkt-why-need-grid");
+    expect(html).toContain("mkt-action-card");
+    expect(html).toContain("Monavel in Action");
+    expect(html).toContain("Guest");
+    expect(html).toContain("WhatsApp");
+    expect(html).toContain("AI Reception");
+    expect(html).toContain("Knowledge + PMS");
+    expect(html).toContain("Reply Delivered");
+    expect(html).toContain("Reservation found");
+    expect(html).toContain("PMS updated");
+    expect(html).toContain("Guest notified");
+    expect(html).not.toContain("Executive Dashboard");
+  });
+
+  it("renders who is monavel for section", () => {
+    const html = renderToStaticMarkup(React.createElement(WhoIsMonavelForSection));
+
+    expect(html).toContain('id="who-is-monavel-for"');
+    expect(html).toContain("Boutique Hotels");
+    expect(html).toContain("Hotel Chains");
+    expect(html).toContain("Hostels");
+  });
+
+  it("renders operational scenario section", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(OperationalScenarioSection)
+    );
+
+    expect(html).toContain('id="operational-scenario"');
+    expect(html).toContain("early check-in");
+    expect(html).toContain("Replies automatically");
+    expect(html).toContain("mkt-scenario-flow");
+  });
+
+  it("renders business outcomes section", () => {
+    const html = renderToStaticMarkup(React.createElement(BusinessOutcomesSection));
+
+    expect(html).toContain('id="business-outcomes"');
+    expect(html).toContain("Outcomes, not features");
+    expect(html).toContain("Unify hotel operations");
+  });
+
+  it("renders how monavel works section", () => {
+    const html = renderToStaticMarkup(React.createElement(HowMonavelWorksSection));
+
+    expect(html).toContain('id="how-monavel-works"');
+    expect(html).toContain("Connect PMS");
+    expect(html).toContain("Go Live");
+    expect(html).toContain("AI continuously improves");
+    expect(html).toContain("mkt-how-works-timeline");
+  });
+
+  it("renders platform overview section", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(PlatformOverviewSection)
+    );
+
+    expect(html).toContain('id="platform-overview"');
+    expect(html).toContain("Platform overview");
+    expect(html).toContain("Every channel. One connected system.");
+    expect(html).toContain("/marketing/product/architecture/screenshot.svg");
+    expect(html).toContain("app.monavel.com/integrations");
+  });
+
+  it("renders storytelling flow section", () => {
+    const html = renderToStaticMarkup(React.createElement(StorytellingSection));
+
+    expect(html).toContain('id="connected-intelligence"');
+    expect(html).toContain("Guest");
+    expect(html).toContain("Knowledge");
+  });
+
+  it("renders philosophy section", () => {
+    const html = renderToStaticMarkup(React.createElement(PhilosophySection));
+
+    expect(html).toContain('id="philosophy"');
+    expect(html).toContain("Philosophy");
+    expect(html).toContain("intelligent operating environment");
+  });
+
+  it("renders workspace showcase section", () => {
     const html = renderToStaticMarkup(
       React.createElement(PlatformShowcaseSection)
     );
 
-    expect(html).toContain('id="platform-overview"');
-    expect(html).toContain("Platform");
-    expect(html).toContain("Connected by AI");
+    expect(html).toContain('id="product"');
+    expect(html).toContain("See the product in action");
+    expect(html).toContain("Eight workspaces — one environment");
     expect(html).toContain("Dashboard");
     expect(html).toContain("Reception AI");
-    expect(html).toContain("app.monavel.com/dashboard");
-    expect(html).toContain('role="list"');
+    expect(html).toContain('role="tablist"');
+    expect(html).toContain("mkt-platform-showcase-nav");
+    expect(html).not.toContain("mkt-workspace-switcher");
+    expect(html).not.toContain("mkt-workspace-cards");
   });
 
   it("renders workspace preview with product screenshot", () => {
     const html = renderToStaticMarkup(React.createElement(WorkspacePreview));
 
-    expect(html).toContain('data-workspace="dashboard"');
+    expect(html).toContain('data-workspace="bookings"');
     expect(html).toContain("mkt-browser-frame");
     expect(html).toContain("mkt-browser-shell");
-    expect(html).toContain("app.monavel.com/dashboard");
-    expect(html).toContain("Monavel dashboard");
-    expect(html).toContain("/marketing/product/dashboard/screenshot.svg");
+    expect(html).toContain("app.monavel.com/bookings");
+    expect(html).toContain("Monavel bookings");
+    expect(html).toContain("/marketing/product/bookings/screenshot.svg");
   });
 
   it("renders platform pillars section", () => {
@@ -75,11 +199,11 @@ describe("marketing page rendering", () => {
     );
 
     expect(html).toContain('id="platform-pillars"');
-    expect(html).toContain("One platform. Three pillars.");
+    expect(html).toContain("One platform. Five layers.");
     expect(html).toContain("Run Operations");
     expect(html).toContain("AI Reception");
     expect(html).toContain("Grow Revenue");
-    expect(html).toContain('href="/features"');
+    expect(html).toContain('href="/#product"');
     expect(html).toContain('href="/ai"');
     expect(html).toContain('href="/pricing"');
     expect(html).toContain("Learn more");
@@ -89,7 +213,7 @@ describe("marketing page rendering", () => {
     const html = renderToStaticMarkup(React.createElement(AIExperienceSection));
 
     expect(html).toContain('id="ai-experience"');
-    expect(html).toContain("AI that works before your team asks.");
+    expect(html).toContain("AI that understands context");
     expect(html).toContain("Guest Communication");
     expect(html).toContain("Revenue Intelligence");
     expect(html).toContain("Raise weekend rates");
@@ -105,8 +229,8 @@ describe("marketing page rendering", () => {
     );
 
     expect(html).toContain('id="pricing-preview"');
-    expect(html).toContain("Simple pricing.");
-    expect(html).toContain("Built to grow with your hotel.");
+    expect(html).toContain("Simple pricing");
+    expect(html).toContain("Built to grow with your hotel");
     expect(html).toContain("Most popular");
     expect(html).toContain("Start free trial");
     expect(html).toContain("Contact sales");
@@ -119,7 +243,7 @@ describe("marketing page rendering", () => {
     const html = renderToStaticMarkup(React.createElement(TrustSection));
 
     expect(html).toContain('id="trust"');
-    expect(html).toContain("Why trust Monavel?");
+    expect(html).toContain("Why trust Monavel");
     expect(html).toContain("Built for modern hotels");
     expect(html).toContain("AI-first architecture");
     expect(html).toContain("Secure by design");
@@ -132,18 +256,48 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Learn about our security");
   });
 
+  it("renders homepage faq section", () => {
+    const html = renderToStaticMarkup(React.createElement(HomepageFaqSection));
+
+    expect(html).toContain('id="homepage-faq"');
+    expect(html).toContain("Frequently Asked Questions");
+    expect(html).toContain("Why Monavel instead of another PMS?");
+    expect(html).toContain("Why not just use ChatGPT?");
+    expect(html).toContain("Is my hotel data secure?");
+    expect(html).toContain("mkt-homepage-faq-columns");
+    expect(html).not.toContain("mkt-homepage-faq-closing");
+  });
+
   it("renders final cta section", () => {
     const html = renderToStaticMarkup(React.createElement(FinalCtaSection));
 
     expect(html).toContain('id="final-cta"');
-    expect(html).toContain("Ready to modernize your hotel?");
+    expect(html).toContain("Why now");
+    expect(html).toContain("Hotels already have the tools");
+    expect(html).toContain("They need one operating system");
+    expect(html).toContain("never work together");
+    expect(html).toContain("mkt-final-cta-panel--triad");
+    expect(html).toContain("mkt-final-cta-triad-card--statement");
+    expect(html).toContain("Other software solves individual problems.");
+    expect(html).not.toContain("mkt-final-cta-panel--why-now");
+    expect(html).not.toContain("mkt-ecosystem-illustration");
     expect(html).toContain("Start free trial");
     expect(html).toContain("Book a demo");
     expect(html).toContain("/login?intent=trial");
     expect(html).toContain("/demo");
-    expect(html).toContain("No self-hosting");
-    expect(html).toContain("Telegram &amp; Website Chat");
+    expect(html).toContain("AI Reception");
+    expect(html).toContain("One Workspace");
+    expect(html).toContain("Guest Communication");
     expect(html).toContain("Secure cloud platform");
+  });
+
+  it("renders blog coming soon page", () => {
+    const html = renderToStaticMarkup(React.createElement(BlogComingSoonPage));
+
+    expect(html).toContain("Insights for Modern Hotels");
+    expect(html).toContain("Coming Soon");
+    expect(html).toContain("Notify me");
+    expect(html).toContain("you@hotel.com");
   });
 
   it("renders premium marketing footer", () => {
@@ -153,7 +307,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Product");
     expect(html).toContain("Resources");
     expect(html).toContain("Company");
-    expect(html).toContain('href="/features"');
+    expect(html).toContain('href="/#product"');
     expect(html).toContain('href="/integrations"');
     expect(html).toContain('href="/docs"');
     expect(html).toContain('href="/about"');
@@ -176,10 +330,10 @@ describe("marketing page rendering", () => {
       )
     );
 
-    expect(html).toContain("Возможности");
-    expect(html).toContain("Как это работает");
-    expect(html).toContain("AI-каналы");
-    expect(html).toContain("Тарифы");
+    expect(html).toContain("Features");
+    expect(html).toContain("How it works");
+    expect(html).toContain("AI channels");
+    expect(html).toContain("Pricing");
     expect(html).toContain("FAQ");
     expect(html).toContain("Telegram");
     expect(html).toContain("Analytics");
@@ -198,7 +352,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Guest");
     expect(html).toContain("Workspace");
     expect(html).toContain("Less manual work");
-    expect(html).toContain("Explore the full platform.");
+    expect(html).toContain("Explore the full platform");
     expect(html).toContain("/login?intent=trial");
     expect(html).toContain("/demo");
   });
@@ -218,14 +372,14 @@ describe("marketing page rendering", () => {
     expect(html).toContain("AI handles routine. Staff handles exceptions.");
     expect(html).toContain("Escalation to staff");
     expect(html).toContain("Faster guest responses");
-    expect(html).toContain("Put AI reception to work.");
+    expect(html).toContain("Put AI reception to work");
   });
 
   it("renders legacy features overview content", () => {
     const html = renderToStaticMarkup(React.createElement(FeaturesOverview));
 
-    expect(html).toContain("Возможности Monavel");
-    expect(html).toContain("Записаться на демо");
+    expect(html).toContain("Monavel features");
+    expect(html).toContain("Book a demo");
     expect(html).toContain("mailto:hello@monavel.app");
   });
 
@@ -245,13 +399,13 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Can I cancel anytime?");
     expect(html).toContain('href="/contact"');
     expect(html).toContain("Contact us");
-    expect(html).toContain("Choose a plan and start today.");
+    expect(html).toContain("Choose a plan and start today");
   });
 
   it("renders pricing overview from billing plans", () => {
     const html = renderToStaticMarkup(React.createElement(PricingOverview));
 
-    expect(html).toContain("Тарифы");
+    expect(html).toContain("Pricing");
     expect(html).toContain("Starter");
     expect(html).toContain("Pro");
     expect(html).toContain("Enterprise");
@@ -272,7 +426,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Contact sales");
     expect(html).toContain("Number of rooms");
     expect(html).toContain("How quickly will you reply?");
-    expect(html).toContain("Talk to the Monavel team.");
+    expect(html).toContain("Talk to the Monavel team");
   });
 
   it("renders security page content", () => {
@@ -306,7 +460,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("PMS integrations");
     expect(html).toContain("Hotel Team");
     expect(html).toContain("Unified conversations");
-    expect(html).toContain("Connect your guest channels.");
+    expect(html).toContain("Connect your guest channels");
   });
 
   it("renders demo page content", () => {
@@ -327,7 +481,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Preferred date");
     expect(html).toContain("How long is the demo?");
     expect(html).toContain("What happens after the demo?");
-    expect(html).toContain("See Monavel with your workflows.");
+    expect(html).toContain("See Monavel with your workflows");
   });
 
   it("renders about page content", () => {
@@ -349,7 +503,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("AI-first PMS");
     expect(html).toContain("Hotel intelligence");
     expect(html).toContain("Future platform");
-    expect(html).toContain("Build on one hotel workspace.");
+    expect(html).toContain("Build on one hotel workspace");
   });
 
   it("renders docs landing page content", () => {
@@ -362,7 +516,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("/docs/knowledge-base");
     expect(html).toContain("/docs/billing");
     expect(html).toContain("Getting Started");
-    expect(html).toContain("Start building on Monavel.");
+    expect(html).toContain("Start building on Monavel");
   });
 
   it("renders docs article page content", () => {
@@ -394,7 +548,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Create account");
     expect(html).toContain("Next steps");
     expect(html).toContain("/docs/channels/telegram");
-    expect(html).toContain("Start building on Monavel.");
+    expect(html).toContain("Start building on Monavel");
   });
 
   it("renders privacy policy page content", () => {
@@ -408,7 +562,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Information we collect");
     expect(html).toContain("User rights");
     expect(html).toContain("hello@monavel.app");
-    expect(html).not.toContain("Ready to modernize your hotel?");
+    expect(html).not.toContain("Hotels already have the tools");
   });
 
   it("renders terms of service page content", () => {
@@ -421,6 +575,6 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Acceptable use");
     expect(html).toContain("Limitation of liability");
     expect(html).toContain("hello@monavel.app");
-    expect(html).not.toContain("Ready to modernize your hotel?");
+    expect(html).not.toContain("Hotels already have the tools");
   });
 });

@@ -1,32 +1,35 @@
-import type { PlatformWorkspace } from "@/lib/marketing/platform";
-import { PLATFORM_DEFAULT_WORKSPACE_ID } from "@/lib/marketing/platform";
+import type { PlatformWorkspace, PlatformWorkspaceId } from "@/lib/marketing/platform";
 import { cn } from "@/lib/utils";
 
 type Props = {
   workspaces: PlatformWorkspace[];
+  activeId: PlatformWorkspaceId;
+  onSelect: (id: PlatformWorkspaceId) => void;
 };
 
-export function PlatformWorkspaceNav({ workspaces }: Props) {
+export function PlatformWorkspaceNav({ workspaces, activeId, onSelect }: Props) {
   return (
     <div
-      role="list"
+      role="tablist"
       aria-label="Monavel workspaces"
       className="mkt-workspace-nav"
     >
       {workspaces.map((workspace) => {
-        const isDefault = workspace.id === PLATFORM_DEFAULT_WORKSPACE_ID;
+        const isActive = workspace.id === activeId;
         return (
-          <div
+          <button
             key={workspace.id}
-            role="listitem"
-            aria-current={isDefault ? "true" : undefined}
+            type="button"
+            role="tab"
+            aria-selected={isActive}
             className={cn(
               "mkt-workspace-tab",
-              isDefault && "mkt-workspace-tab-active"
+              isActive && "mkt-workspace-tab-active"
             )}
+            onClick={() => onSelect(workspace.id)}
           >
             {workspace.label}
-          </div>
+          </button>
         );
       })}
     </div>

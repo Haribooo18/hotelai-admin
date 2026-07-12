@@ -13,8 +13,14 @@ export type FinalCtaVariant =
   | "about";
 
 export type FinalCtaContent = {
+  overline?: string;
   headline: string;
-  subhead: string;
+  headlineAccent?: string;
+  body?: readonly string[];
+  statement?: readonly string[];
+  lead?: string;
+  subhead?: string;
+  supporting?: string;
   primaryCtaLabel: string;
   primaryCtaHref: string;
   secondaryCtaLabel: string;
@@ -25,17 +31,26 @@ export type FinalCtaContent = {
 export const FINAL_CTA_SECTION_ID = "final-cta";
 
 const DEFAULT_TRUST_ITEMS = [
-  "No self-hosting",
   "AI Reception",
-  "Telegram & Website Chat",
+  "One Workspace",
+  "Guest Communication",
   "Secure cloud platform",
 ] as const;
 
 export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
   default: {
-    headline: "Ready to modernize your hotel?",
-    subhead:
-      "Start with a trial or book a walkthrough — Monavel connects operations, AI reception, and guest channels in one workspace.",
+    overline: "Why now",
+    statement: [
+      "Other software solves individual problems.",
+      "Monavel connects your entire hotel into one intelligent operating system.",
+    ],
+    headline: "Hotels already have the tools",
+    headlineAccent: "They need one operating system",
+    body: [
+      "Hotels already pay for PMS, channel managers, messaging platforms and revenue software.",
+      "The problem is that these systems never work together.",
+      "Monavel connects them into one intelligent operating system that every department shares.",
+    ],
     primaryCtaLabel: "Start free trial",
     primaryCtaHref: MARKETING_CTA.trial,
     secondaryCtaLabel: "Book a demo",
@@ -43,7 +58,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: DEFAULT_TRUST_ITEMS,
   },
   pricing: {
-    headline: "Choose a plan and start today.",
+    headline: "Choose a plan and start today",
     subhead:
       "Try Starter or Pro free, then upgrade when your hotel is ready to scale.",
     primaryCtaLabel: "Start free trial",
@@ -53,7 +68,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: ["Starter & Pro trials", "Upgrade anytime", "Enterprise available"],
   },
   demo: {
-    headline: "See Monavel with your workflows.",
+    headline: "See Monavel with your workflows",
     subhead:
       "Book a personalized walkthrough — we show operations, AI reception, and administration for your property.",
     primaryCtaLabel: "Book your demo",
@@ -63,7 +78,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: ["30–45 minute session", "Personalized walkthrough", "No obligation"],
   },
   contact: {
-    headline: "Talk to the Monavel team.",
+    headline: "Talk to the Monavel team",
     subhead:
       "Questions about plans, Enterprise, or partnerships — we will point you to the right next step.",
     primaryCtaLabel: "Contact sales",
@@ -83,7 +98,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: ["Tenant isolation", "Role-based access", "Secure infrastructure"],
   },
   docs: {
-    headline: "Start building on Monavel.",
+    headline: "Start building on Monavel",
     subhead:
       "Set up your hotel, connect a channel, and publish knowledge — then evaluate AI reception in your trial.",
     primaryCtaLabel: "Start building",
@@ -93,7 +108,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: ["Setup guides", "Channel docs", "Billing help"],
   },
   features: {
-    headline: "Explore the full platform.",
+    headline: "Explore the full platform",
     subhead:
       "Every workspace shares context — start a trial and connect your first guest channel.",
     primaryCtaLabel: "Start free trial",
@@ -103,7 +118,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: DEFAULT_TRUST_ITEMS,
   },
   ai: {
-    headline: "Put AI reception to work.",
+    headline: "Put AI reception to work",
     subhead:
       "Connect Website Chat or Telegram and let Monavel AI answer guests with your hotel knowledge.",
     primaryCtaLabel: "Start free trial",
@@ -113,7 +128,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: ["Knowledge-backed replies", "Human escalation", "Shared inbox"],
   },
   integrations: {
-    headline: "Connect your guest channels.",
+    headline: "Connect your guest channels",
     subhead:
       "Website Chat and Telegram are available now — start a trial and route messages into one inbox.",
     primaryCtaLabel: "Start free trial",
@@ -123,7 +138,7 @@ export const FINAL_CTA_VARIANTS: Record<FinalCtaVariant, FinalCtaContent> = {
     trustItems: ["Website Chat", "Telegram", "Knowledge Base"],
   },
   about: {
-    headline: "Build on one hotel workspace.",
+    headline: "Build on one hotel workspace",
     subhead:
       "Monavel is designed for operators — start a trial or book a demo to see how it fits your property.",
     primaryCtaLabel: "Start free trial",

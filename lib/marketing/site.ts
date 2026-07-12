@@ -1,6 +1,6 @@
 export const SITE_NAME = "Monavel";
 export const SITE_DESCRIPTION =
-  "AI-ресепшн для отелей: автоматизация гостевых диалогов через Telegram, Website Chat и единую панель администратора.";
+  "AI reception for hotels: automate guest conversations via Telegram, Website Chat, and a unified admin panel.";
 
 export function getSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -13,12 +13,11 @@ export function getSiteUrl(): string {
 }
 
 export const MARKETING_NAV = [
-  { href: "/features", label: "Продукт" },
+  { href: "/#product", label: "Product" },
   { href: "/ai", label: "AI" },
-  { href: "/pricing", label: "Тарифы" },
-  { href: "/docs", label: "Документация" },
-  { href: "/blog", label: "Блог" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/docs", label: "Docs" },
+  { href: "/blog", label: "Blog" },
 ] as const;
 
-export const SITE_TAGLINE =
-  "Операционная система для современного отеля";
+export const SITE_TAGLINE = "The operating system for modern hotels";

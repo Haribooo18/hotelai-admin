@@ -4,7 +4,6 @@ export const MARKETING_CANONICAL_ORIGIN = "https://monavel.app" as const;
 
 export type MarketingSeoPageId =
   | "home"
-  | "features"
   | "ai"
   | "pricing"
   | "contact"
@@ -12,6 +11,7 @@ export type MarketingSeoPageId =
   | "security"
   | "integrations"
   | "about"
+  | "blog"
   | "docs"
   | "privacy"
   | "terms";
@@ -31,13 +31,7 @@ export const MARKETING_SEO_PAGES: Record<MarketingSeoPageId, MarketingSeoPage> =
     description:
       "Monavel combines PMS, AI reception, guest channels, and hotel operations in one connected workspace for modern hotels.",
   },
-  features: {
-    id: "features",
-    path: "/features",
-    title: "Features",
-    description:
-      "Monavel platform overview: PMS, AI reception, guest channels, revenue, knowledge, and connected hotel workspaces.",
-  },
+  
   ai: {
     id: "ai",
     path: "/ai",
@@ -87,6 +81,13 @@ export const MARKETING_SEO_PAGES: Record<MarketingSeoPageId, MarketingSeoPage> =
     description:
       "Learn about Monavel — the mission, vision, and principles behind the hotel operating system.",
   },
+  blog: {
+    id: "blog",
+    path: "/blog",
+    title: "Insights for Modern Hotels",
+    description:
+      "Practical articles about AI, hotel operations, and automation — coming soon from the Monavel team.",
+  },
   docs: {
     id: "docs",
     path: "/docs",
@@ -112,7 +113,6 @@ export const MARKETING_SEO_PAGES: Record<MarketingSeoPageId, MarketingSeoPage> =
 
 export const MARKETING_SEO_SITEMAP_PATHS = [
   "",
-  "/features",
   "/ai",
   "/pricing",
   "/contact",

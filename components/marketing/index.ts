@@ -1,12 +1,31 @@
+export { MonavelMark } from "./brand/MonavelMark";
 export { MarketingShell } from "./shell/MarketingShell";
 export { MarketingHeader } from "./shell/MarketingHeader";
 export { MarketingFooter } from "./shell/MarketingFooter";
 export { HeroSection } from "./landing/HeroSection";
+export { HeroProductStage } from "./landing/HeroProductStage";
+export { PlatformShowcaseInteractive } from "./landing/PlatformShowcaseInteractive";
+export { PlatformWorkspaceCards } from "./landing/PlatformWorkspaceCards";
+export { StorytellingSection } from "./landing/StorytellingSection";
+export { ArchitectureDiagram } from "./ArchitectureDiagram";
+export { ArchitectureDiagramV2 } from "./ArchitectureDiagramV2";
+export { WhatIsMonavelSection } from "./landing/WhatIsMonavelSection";
+export { WhyHotelsNeedSection } from "./landing/WhyHotelsNeedSection";
+export { WhoIsMonavelForSection } from "./landing/WhoIsMonavelForSection";
+export { OperationalScenarioSection } from "./landing/OperationalScenarioSection";
+export { BusinessOutcomesSection } from "./landing/BusinessOutcomesSection";
+export { WhyHotelsChooseSection } from "./landing/WhyHotelsChooseSection";
+export { HowMonavelWorksSection } from "./landing/HowMonavelWorksSection";
+export { EcosystemIllustration } from "./landing/EcosystemIllustration";
+export { PhilosophySection } from "./landing/PhilosophySection";
+export { PlatformOverviewSection } from "./landing/PlatformOverviewSection";
+export { PlatformIllustration } from "./landing/PlatformIllustration";
 export { PlatformShowcaseSection } from "./landing/PlatformShowcaseSection";
 export { PlatformPillarsSection } from "./landing/PlatformPillarsSection";
 export { AIExperienceSection } from "./landing/AIExperienceSection";
 export { PricingPreviewSection } from "./landing/PricingPreviewSection";
 export { TrustSection } from "./landing/TrustSection";
+export { HomepageFaqSection } from "./landing/HomepageFaqSection";
 export { FinalCtaSection } from "./landing/FinalCtaSection";
 export {
   BrowserFrame,
@@ -37,4 +56,5 @@ export { DemoPage } from "./demo/DemoPage";
 export { AboutPage } from "./about/AboutPage";
 export { DocsLandingPage } from "./docs/DocsLandingPage";
 export { DocsArticlePage } from "./docs/DocsArticlePage";
+export { BlogComingSoonPage } from "./blog/BlogComingSoonPage";
 export { LegalPage } from "./legal/LegalPage";

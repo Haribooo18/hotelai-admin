@@ -1,29 +1,37 @@
 import Image from "next/image";
 
 import { BrowserFrame } from "@/components/marketing/product/BrowserFrame";
-import { HERO_CONTENT } from "@/lib/marketing/hero";
+import {
+  mktProductShowcaseClass,
+  mktProductShowcaseLandingClass,
+} from "@/lib/marketing/design";
 import {
   PRODUCT_SCREENSHOT_HEIGHT,
   PRODUCT_SCREENSHOT_WIDTH,
 } from "@/lib/marketing/product-media";
 import { getProductPresentation } from "@/lib/marketing/product-presentation";
+import { cn } from "@/lib/utils";
 
-type Props = {
-  className?: string;
-};
-
-export function ProductBrowserFrame({ className }: Props) {
+export function ProductBrowserFrame() {
   const presentation = getProductPresentation("landingHero");
 
   return (
-    <figure className={className} aria-hidden>
+    <figure
+      className={cn(
+        mktProductShowcaseClass,
+        "mkt-product-showcase--hero",
+        "mkt-product-showcase--unified",
+        mktProductShowcaseLandingClass
+      )}
+      aria-hidden
+    >
       <BrowserFrame
-        productUrl={HERO_CONTENT.productUrl}
+        productUrl="app.monavel.com/dashboard"
         size={presentation.size}
         contentClassName="mkt-browser-content--media"
       >
         <Image
-          src="/marketing/hero-ai-inbox.svg"
+          src="/marketing/hero-live-workspace.svg"
           alt=""
           width={PRODUCT_SCREENSHOT_WIDTH}
           height={PRODUCT_SCREENSHOT_HEIGHT}

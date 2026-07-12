@@ -73,7 +73,6 @@ describe("marketing seo", () => {
     expect(ROBOTS_DISALLOW_PATHS).toContain("/login");
     expect(ROBOTS_DISALLOW_PATHS).toContain("/dashboard");
     expect(ROBOTS_DISALLOW_PATHS).not.toContain("/ai");
-    expect(ROBOTS_DISALLOW_PATHS).not.toContain("/features");
   });
 });
 

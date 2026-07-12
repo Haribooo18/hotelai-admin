@@ -14,12 +14,11 @@ export type PlatformWorkspace = {
 };
 
 export const PLATFORM_SHOWCASE_CONTENT = {
-  sectionId: "platform-overview",
-  overline: "Platform",
-  headline: "Everything your hotel runs on.",
-  headlineAccent: "Connected by AI.",
+  sectionId: "product",
+  headline: "See the product in action",
+  headlineAccent: "Eight workspaces — one environment",
   supporting:
-    "One operating system for reception, rooms, revenue, and guest service — without switching between disconnected tools.",
+    "Switch between reservations, operations, revenue, and guest communication — each workspace reflects live hotel data.",
 } as const;
 
 export const PLATFORM_WORKSPACES: PlatformWorkspace[] = [
@@ -33,4 +32,4 @@ export const PLATFORM_WORKSPACES: PlatformWorkspace[] = [
   { id: "reception-ai", label: "Reception AI" },
 ];
 
-export const PLATFORM_DEFAULT_WORKSPACE_ID: PlatformWorkspaceId = "dashboard";
+export const PLATFORM_DEFAULT_WORKSPACE_ID: PlatformWorkspaceId = "bookings";

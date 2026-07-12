@@ -3,29 +3,29 @@ import type { BillingPlan } from "@/types/subscription";
 
 const MARKETING_FEATURES: Record<BillingPlan, string[]> = {
   starter: [
-    "AI-ресепшн для одного отеля",
-    "Website Chat и Telegram",
-    "База знаний",
-    "До 500 AI-ответов в месяц",
+    "AI reception for one hotel",
+    "Website Chat and Telegram",
+    "Knowledge base",
+    "Up to 500 AI responses per month",
   ],
   pro: [
-    "Всё из Starter",
-    "Расширенная аналитика AI",
-    "Приоритетная поддержка",
-    "До 5 000 AI-ответов в месяц",
+    "Everything in Starter",
+    "Advanced AI analytics",
+    "Priority support",
+    "Up to 5,000 AI responses per month",
   ],
   enterprise: [
-    "Всё из Pro",
-    "Несколько объектов",
-    "SLA и выделенный менеджер",
-    "Безлимитные AI-ответы",
+    "Everything in Pro",
+    "Multiple properties",
+    "SLA and dedicated manager",
+    "Unlimited AI responses",
   ],
 };
 
 const MARKETING_PRICE_LABELS: Record<BillingPlan, string> = {
   starter: "€49",
   pro: "€149",
-  enterprise: "По запросу",
+  enterprise: "Contact us",
 };
 
 export type MarketingPlan = {

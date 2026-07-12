@@ -6,7 +6,6 @@ export const MARKETING_PUBLIC_PATHS = [
   "/login",
   "/auth",
   "/ai",
-  "/features",
   "/pricing",
   "/contact",
   "/security",
@@ -15,6 +14,7 @@ export const MARKETING_PUBLIC_PATHS = [
   "/terms",
   "/demo",
   "/about",
+  "/blog",
   "/docs",
   "/api/channels/telegram/webhook",
   "/api/channels/website/stream",
@@ -23,7 +23,6 @@ export const MARKETING_PUBLIC_PATHS = [
 
 export const MARKETING_SITEMAP_PATHS = [
   "",
-  "/features",
   "/ai",
   "/pricing",
   "/contact",
@@ -31,6 +30,7 @@ export const MARKETING_SITEMAP_PATHS = [
   "/integrations",
   "/demo",
   "/about",
+  "/blog",
   "/docs",
   "/docs/getting-started",
   "/docs/channels/telegram",

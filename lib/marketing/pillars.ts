@@ -13,10 +13,10 @@ export type PlatformPillar = {
 
 export const PLATFORM_PILLARS_CONTENT = {
   sectionId: "platform-pillars",
-  overline: "Platform pillars",
-  headline: "One platform. Three pillars.",
+  overline: "Five connected layers",
+  headline: "One platform. Five layers.",
   subhead:
-    "Monavel connects hotel operations, guest communication, and revenue growth in a single system.",
+    "Operations, guest communication, knowledge, revenue, and automation — connected in a single operating environment.",
 } as const;
 
 export const PLATFORM_PILLARS: PlatformPillar[] = [
@@ -26,7 +26,7 @@ export const PLATFORM_PILLARS: PlatformPillar[] = [
     title: "Run Operations",
     description: "One connected operating system.",
     features: ["Calendar", "Bookings", "Guests", "Rooms"],
-    href: "/features",
+    href: "/#product",
     ctaLabel: "Learn more",
   },
   {

@@ -1,15 +1,21 @@
 export const HERO_CONTENT = {
-  overline: "AI-платформа для отелей",
-  headline: "Операционная система для современного отеля",
-  subhead:
-    "Monavel объединяет PMS, AI-ресепшн и гостевые каналы в одной панели — чтобы команда тратила меньше времени на рутину, а гости получали ответы мгновенно.",
-  trustLine:
-    "Без отдельного сервера · Telegram и Website Chat · Пробный период",
-  primaryCta: "Начать пробный период",
-  secondaryCta: "Записаться на демо",
+  headline: "Everything your hotel needs",
+  headlineAccent: "One intelligent operating system",
+  lead: "Monavel is the AI Operating System for hotels.",
+  body:
+    "Instead of managing disconnected software, your entire hotel works through one intelligent platform.",
+  features: [
+    "One Workspace",
+    "AI Reception",
+    "Guest Communication",
+    "Revenue",
+    "Knowledge",
+    "Automation",
+  ] as const,
+  primaryCta: "Start free trial",
+  secondaryCta: "Book a demo",
   screenReaderSummary:
-    "Анимированный предпросмотр панели Monavel: AI-ответы гостям, календарь бронирований и метрики отеля.",
-  productUrl: "app.monavel.com/ai",
-  skipLinkLabel: "Перейти к обзору платформы",
-  skipLinkTarget: "platform-overview",
+    "Monavel ecosystem: guest channels connect through Monavel to AI Reception, PMS, revenue, knowledge, rooms, automation, analytics, and staff.",
+  skipLinkLabel: "Skip to why hotels need Monavel",
+  skipLinkTarget: "why-hotels-need",
 } as const;

@@ -221,6 +221,7 @@ export function ProductScreenshot({
       className={cn(
         mktProductShowcaseClass,
         `mkt-product-showcase--${resolved.size}`,
+        "mkt-product-showcase--unified",
         showEmphasis && mktProductShowcaseEmphasisClass,
         showOverlap && mktProductShowcaseOverlapClass,
         className

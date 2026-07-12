@@ -1,7 +1,6 @@
 import { PricingPreviewCard } from "@/components/marketing/landing/PricingPreviewCard";
 import { PricingPreviewFaq } from "@/components/marketing/landing/PricingPreviewFaq";
 import {
-  mktOverlineClass,
   mktSectionBodyClass,
   mktSectionHeadlineClass,
   mktSectionHeaderClass,
@@ -21,8 +20,7 @@ export function PricingPreviewSection() {
       aria-labelledby="pricing-preview-heading"
     >
       <div className="mkt-container-wide">
-        <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>{PRICING_PREVIEW_CONTENT.overline}</p>
+        <header className={cn(mktSectionHeaderClass, "mkt-section-header--centered mkt-section-header--wide")}>
           <h2
             id="pricing-preview-heading"
             className={mktSectionHeadlineClass}

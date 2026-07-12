@@ -127,7 +127,9 @@ export function DemoBookingFormSection() {
                   <input
                     id={DEMO_PAGE_FORM.fields.date.id}
                     name="preferred-date"
-                    type="date"
+                    type="text"
+                    placeholder="DD.MM.YYYY"
+                    inputMode="numeric"
                     className="mkt-contact-input"
                   />
                 </div>

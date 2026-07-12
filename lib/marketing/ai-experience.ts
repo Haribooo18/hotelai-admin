@@ -15,10 +15,9 @@ export type AIExperienceCapability = {
 
 export const AI_EXPERIENCE_CONTENT = {
   sectionId: "ai-experience",
-  overline: "AI Experience",
-  headline: "AI that works before your team asks.",
+  headline: "AI that understands context",
   subhead:
-    "Monavel doesn't just answer guests — it understands context across knowledge, bookings, rooms, and revenue to recommend the next best action for your hotel.",
+    "Monavel AI doesn't just reply to messages — it reads bookings, rooms, revenue, and knowledge to recommend what your hotel should do next.",
   previewProductUrl: "app.monavel.com/ai",
   preview: {
     recommendation:

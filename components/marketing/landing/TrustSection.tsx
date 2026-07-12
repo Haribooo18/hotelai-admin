@@ -4,7 +4,6 @@ import { ArrowRight } from "lucide-react";
 import { TrustCard } from "@/components/marketing/landing/TrustCard";
 import { TrustMetricsStrip } from "@/components/marketing/landing/TrustMetricsStrip";
 import {
-  mktOverlineClass,
   mktSectionBodyClass,
   mktSectionHeadlineClass,
   mktSectionHeaderClass,
@@ -24,8 +23,7 @@ export function TrustSection() {
       aria-labelledby="trust-heading"
     >
       <div className="mkt-container-wide">
-        <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>{TRUST_SECTION_CONTENT.overline}</p>
+        <header className={cn(mktSectionHeaderClass, "mkt-section-header--split")}>
           <h2
             id="trust-heading"
             className={mktSectionHeadlineClass}

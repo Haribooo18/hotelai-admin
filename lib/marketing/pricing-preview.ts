@@ -16,9 +16,8 @@ export type PricingPreviewPlan = {
 
 export const PRICING_PREVIEW_CONTENT = {
   sectionId: "pricing-preview",
-  overline: "Pricing",
-  headline: "Simple pricing.",
-  headlineAccent: "Built to grow with your hotel.",
+  headline: "Simple pricing",
+  headlineAccent: "Built to grow with your hotel",
   subhead:
     "Start with a free trial on Starter or Pro. Scale to Enterprise when you need multi-property support and dedicated onboarding.",
   faqLinkLabel: "View all pricing details",

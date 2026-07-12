@@ -4,25 +4,26 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { MonavelMark } from "@/components/marketing/brand/MonavelMark";
 import { MarketingButton } from "@/components/marketing/shared/MarketingButton";
+import {
+  mktBrandLockupClass,
+  mktBrandNameClass,
+  mktNavActionsClass,
+  mktNavLinkClass,
+  mktNavLinksClass,
+  mktNavLogoClass,
+} from "@/lib/marketing/design";
 import { MARKETING_CTA } from "@/lib/marketing/routes";
 import { MARKETING_NAV, SITE_NAME } from "@/lib/marketing/site";
 import { cn } from "@/lib/utils";
 
 function MarketingLogo() {
   return (
-    <Link
-      href="/"
-      className="flex items-center gap-2.5 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-[var(--mkt-accent-ring)]"
-    >
-      <span
-        aria-hidden
-        className="flex size-8 items-center justify-center rounded-[var(--mkt-radius-md)] bg-[var(--mkt-accent)] text-sm font-semibold text-[var(--mkt-accent-foreground)]"
-      >
-        M
-      </span>
-      <span className="text-base font-semibold tracking-tight text-[var(--mkt-text)]">
-        {SITE_NAME}
+    <Link href="/" className={mktNavLogoClass}>
+      <span className={mktBrandLockupClass}>
+        <MonavelMark />
+        <span className={mktBrandNameClass}>{SITE_NAME}</span>
       </span>
     </Link>
   );
@@ -43,58 +44,55 @@ export function MarketingHeader() {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
+    if (!menuOpen) {
+      return;
+    }
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenuOpen(false);
+      }
     };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [menuOpen]);
 
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 h-[var(--mkt-nav-height)] transition-[background-color,border-color,box-shadow] duration-200 ease-out",
+        "mkt-nav sticky top-0 z-50 h-[var(--mkt-nav-height)] transition-[background-color,border-color] duration-200 ease-out",
         scrolled
           ? "mkt-nav-scrolled"
           : "border-b border-transparent bg-transparent"
       )}
     >
-      <div className="mkt-container-wide flex h-full items-center justify-between gap-4">
+      <div className="mkt-container-wide mkt-nav-inner">
         <MarketingLogo />
 
-        <nav
-          aria-label="Основная навигация"
-          className="hidden items-center gap-6 lg:flex"
-        >
+        <nav aria-label="Main navigation" className={mktNavLinksClass}>
           {MARKETING_NAV.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-[var(--mkt-text-muted)] transition-colors duration-150 hover:text-[var(--mkt-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mkt-accent-ring)]"
-            >
+            <Link key={item.href} href={item.href} className={mktNavLinkClass}>
               {item.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className={mktNavActionsClass}>
           <MarketingButton href={MARKETING_CTA.signIn} variant="ghost" size="sm">
-            Войти
+            Sign in
           </MarketingButton>
-          <MarketingButton
-            href={MARKETING_CTA.trial}
-            variant="primary"
-            size="sm"
-          >
-            Начать пробный период
+          <MarketingButton href={MARKETING_CTA.trial} variant="primary" size="sm">
+            Start free trial
           </MarketingButton>
         </div>
 
         <button
           type="button"
-          className="inline-flex size-10 items-center justify-center rounded-[var(--mkt-radius-md)] text-[var(--mkt-text)] hover:bg-[var(--mkt-surface-1)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--mkt-accent-ring)] lg:hidden"
+          className="mkt-nav-menu-toggle lg:hidden"
           aria-expanded={menuOpen}
           aria-controls="marketing-mobile-menu"
-          aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+          aria-label={menuOpen ? "Close menu" : "Open menu"}
           onClick={() => setMenuOpen((open) => !open)}
         >
           {menuOpen ? <X className="size-5" aria-hidden /> : <Menu className="size-5" aria-hidden />}
@@ -102,45 +100,55 @@ export function MarketingHeader() {
       </div>
 
       {menuOpen ? (
-        <div
-          id="marketing-mobile-menu"
-          className="fixed inset-0 top-[var(--mkt-nav-height)] z-40 flex flex-col bg-[var(--mkt-surface-3)] px-6 py-6 lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Мобильное меню"
-        >
-          <nav className="flex flex-col gap-4" aria-label="Мобильная навигация">
-            {MARKETING_NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="text-lg text-[var(--mkt-text)]"
+        <>
+          <button
+            type="button"
+            className="mkt-nav-mobile-backdrop lg:hidden"
+            aria-label="Close menu"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div
+            id="marketing-mobile-menu"
+            className="mkt-nav-mobile-panel lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile menu"
+          >
+            <nav className="mkt-nav-mobile-links" aria-label="Mobile navigation">
+              {MARKETING_NAV.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="mkt-nav-mobile-link"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+
+            <div className="mkt-nav-mobile-actions">
+              <MarketingButton
+                href={MARKETING_CTA.trial}
+                variant="primary"
+                size="sm"
+                mobileFull
                 onClick={() => setMenuOpen(false)}
               >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-
-          <div className="mt-auto flex flex-col gap-3 pt-8">
-            <MarketingButton
-              href={MARKETING_CTA.trial}
-              variant="primary"
-              mobileFull
-              onClick={() => setMenuOpen(false)}
-            >
-              Начать пробный период
-            </MarketingButton>
-            <MarketingButton
-              href={MARKETING_CTA.signIn}
-              variant="ghost"
-              mobileFull
-              onClick={() => setMenuOpen(false)}
-            >
-              Войти
-            </MarketingButton>
+                Start free trial
+              </MarketingButton>
+              <MarketingButton
+                href={MARKETING_CTA.signIn}
+                variant="ghost"
+                size="sm"
+                mobileFull
+                onClick={() => setMenuOpen(false)}
+              >
+                Sign in
+              </MarketingButton>
+            </div>
           </div>
-        </div>
+        </>
       ) : null}
     </header>
   );

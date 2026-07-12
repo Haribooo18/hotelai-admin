@@ -15,8 +15,7 @@ export type TrustMetric = {
 
 export const TRUST_SECTION_CONTENT = {
   sectionId: "trust",
-  overline: "Trust",
-  headline: "Why trust Monavel?",
+  headline: "Why trust Monavel",
   subhead:
     "Monavel is built as a hotel operating platform — with AI woven into operations, security at the foundation, and onboarding designed for real teams.",
   securityLinkLabel: "Learn about our security",

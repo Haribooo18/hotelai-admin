@@ -15,7 +15,7 @@ export function AIExperiencePreview() {
 
   return (
     <figure
-      className="mkt-ai-preview mkt-product-showcase mkt-product-showcase--section"
+      className="mkt-ai-preview mkt-product-showcase mkt-product-showcase--section mkt-product-showcase--unified"
       aria-label={preview.label}
     >
       <BrowserFrame

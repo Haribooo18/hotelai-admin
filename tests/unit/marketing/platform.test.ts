@@ -20,14 +20,14 @@ describe("marketing platform showcase", () => {
     expect(ids).toContain("reception-ai");
   });
 
-  it("defaults to dashboard workspace", () => {
-    expect(PLATFORM_DEFAULT_WORKSPACE_ID).toBe("dashboard");
+  it("defaults to bookings workspace", () => {
+    expect(PLATFORM_DEFAULT_WORKSPACE_ID).toBe("bookings");
   });
 
-  it("exposes platform section copy", () => {
-    expect(PLATFORM_SHOWCASE_CONTENT.sectionId).toBe("platform-overview");
-    expect(PLATFORM_SHOWCASE_CONTENT.overline).toBe("Platform");
-    expect(PLATFORM_SHOWCASE_CONTENT.headlineAccent).toContain("AI");
+  it("exposes workspace showcase copy", () => {
+    expect(PLATFORM_SHOWCASE_CONTENT.sectionId).toBe("product");
+    expect(PLATFORM_SHOWCASE_CONTENT.headline).toMatch(/product in action/i);
+    expect(PLATFORM_SHOWCASE_CONTENT.headlineAccent).toContain("workspace");
   });
 
   it("uses english workspace labels", () => {

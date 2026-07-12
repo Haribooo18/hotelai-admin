@@ -14,9 +14,9 @@ export function FeaturesSection() {
   return (
     <section className="border-t border-zinc-800 bg-zinc-900/30 py-20">
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-bold">Возможности</h2>
+        <h2 className="text-3xl font-bold">Features</h2>
         <p className="mt-2 text-zinc-400">
-          Всё необходимое для современного гостевого сервиса
+          Everything you need for modern guest service
         </p>
         <div className="mt-10 grid gap-6 md:grid-cols-2">
           {LANDING_FEATURES.map((feature) => (
@@ -38,7 +38,7 @@ export function HowItWorksSection() {
   return (
     <section className="py-20">
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-bold">Как это работает</h2>
+        <h2 className="text-3xl font-bold">How it works</h2>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {HOW_IT_WORKS.map((item) => (
             <div
@@ -60,8 +60,8 @@ export function AIChannelsSection() {
   return (
     <section className="border-t border-zinc-800 bg-zinc-900/30 py-20">
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-bold">AI-каналы</h2>
-        <p className="mt-2 text-zinc-400">Telegram, Website Chat и база знаний</p>
+        <h2 className="text-3xl font-bold">AI channels</h2>
+        <p className="mt-2 text-zinc-400">Telegram, Website Chat, and knowledge base</p>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {AI_CHANNELS.map((channel) => (
             <div
@@ -84,8 +84,8 @@ export function PricingSection() {
   return (
     <section className="py-20" id="pricing">
       <div className="mx-auto max-w-6xl px-6">
-        <h2 className="text-3xl font-bold">Тарифы</h2>
-        <p className="mt-2 text-zinc-400">Starter, Pro и Enterprise</p>
+        <h2 className="text-3xl font-bold">Pricing</h2>
+        <p className="mt-2 text-zinc-400">Starter, Pro, and Enterprise</p>
         <div className="mt-10 grid gap-6 md:grid-cols-3">
           {plans.map((plan) => (
             <div
@@ -113,7 +113,7 @@ export function PricingSection() {
                   "mt-6 w-full"
                 )}
               >
-                Начать пробный период
+                Start free trial
               </Link>
             </div>
           ))}

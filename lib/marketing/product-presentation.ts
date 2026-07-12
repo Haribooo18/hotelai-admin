@@ -5,12 +5,12 @@ export type ProductScreenshotCrop = {
 };
 
 export const PRODUCT_CROP_PRESETS = {
-  dashboardOverview: { objectPosition: "0% 0%" },
-  dashboardAdmin: { objectPosition: "58% 0%" },
-  receptionInbox: { objectPosition: "0% 0%" },
-  receptionChannels: { objectPosition: "22% 0%" },
-  revenueDashboard: { objectPosition: "0% 6%" },
-  calendarTimeline: { objectPosition: "0% 12%" },
+  dashboardOverview: { objectPosition: "4% 2%" },
+  dashboardAdmin: { objectPosition: "60% 2%" },
+  receptionInbox: { objectPosition: "14% 6%" },
+  receptionChannels: { objectPosition: "20% 4%" },
+  revenueDashboard: { objectPosition: "10% 6%" },
+  calendarTimeline: { objectPosition: "8% 10%" },
   knowledgeArticles: { objectPosition: "0% 0%" },
   bookingsOperations: { objectPosition: "0% 0%" },
 } as const satisfies Record<string, ProductScreenshotCrop>;
@@ -49,7 +49,6 @@ export const PRODUCT_PRESENTATIONS: Record<
   landingHero: {
     size: "hero",
     crop: PRODUCT_CROP_PRESETS.receptionInbox,
-    emphasis: true,
   },
   featuresHero: {
     size: "hero",
@@ -101,6 +100,7 @@ export const PRODUCT_PRESENTATIONS: Record<
   aiWorkflow: {
     size: "section",
     crop: PRODUCT_CROP_PRESETS.receptionInbox,
+    emphasis: true,
   },
   demoPreview: {
     size: "section",
@@ -110,10 +110,12 @@ export const PRODUCT_PRESENTATIONS: Record<
   demoProcess: {
     size: "section",
     crop: PRODUCT_CROP_PRESETS.bookingsOperations,
+    emphasis: true,
   },
   securityArchitecture: {
     size: "section",
     crop: PRODUCT_CROP_PRESETS.dashboardAdmin,
+    emphasis: true,
   },
   integrationsArchitecture: {
     size: "section",
@@ -123,10 +125,11 @@ export const PRODUCT_PRESENTATIONS: Record<
   aboutRoadmap: {
     size: "section",
     crop: PRODUCT_CROP_PRESETS.calendarTimeline,
+    emphasis: true,
   },
   platformShowcase: {
     size: "hero",
-    crop: PRODUCT_CROP_PRESETS.dashboardOverview,
+    crop: { objectPosition: "0% 0%" },
     emphasis: true,
   },
   aiExperience: {

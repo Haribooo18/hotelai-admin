@@ -9,9 +9,9 @@ export function PricingOverview() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="text-4xl font-bold">Тарифы</h1>
+      <h1 className="text-4xl font-bold">Pricing</h1>
       <p className="mt-4 text-lg text-zinc-400">
-        Выберите план и оформите подписку в панели администратора.
+        Choose a plan and subscribe from the admin panel.
       </p>
 
       <div className="mt-12 grid gap-6 md:grid-cols-3">
@@ -41,7 +41,7 @@ export function PricingOverview() {
                 "mt-8 w-full"
               )}
             >
-              Начать пробный период
+              Start free trial
             </Link>
           </div>
         ))}

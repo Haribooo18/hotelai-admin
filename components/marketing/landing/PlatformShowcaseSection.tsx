@@ -1,7 +1,5 @@
-import { WorkspacePreview } from "@/components/marketing/product/WorkspacePreview";
-import { PlatformWorkspaceNav } from "@/components/marketing/landing/PlatformWorkspaceNav";
+import { PlatformShowcaseInteractive } from "@/components/marketing/landing/PlatformShowcaseInteractive";
 import {
-  mktOverlineClass,
   mktSectionBodyClass,
   mktSectionHeadlineClass,
   mktSectionHeaderClass,
@@ -9,8 +7,9 @@ import {
 } from "@/lib/marketing/design";
 import {
   PLATFORM_SHOWCASE_CONTENT,
-  PLATFORM_WORKSPACES,
 } from "@/lib/marketing/platform";
+
+import { cn } from "@/lib/utils";
 
 export function PlatformShowcaseSection() {
   return (
@@ -20,8 +19,7 @@ export function PlatformShowcaseSection() {
       aria-labelledby="platform-showcase-heading"
     >
       <div className="mkt-container-wide">
-        <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>{PLATFORM_SHOWCASE_CONTENT.overline}</p>
+        <header className={cn(mktSectionHeaderClass, "mkt-section-header--centered")}>
           <h2
             id="platform-showcase-heading"
             className={mktSectionHeadlineClass}
@@ -37,11 +35,7 @@ export function PlatformShowcaseSection() {
         </header>
 
         <div className={mktSectionBodyClass}>
-          <PlatformWorkspaceNav workspaces={PLATFORM_WORKSPACES} />
-
-          <div className="mkt-platform-showcase-visual">
-            <WorkspacePreview presentation="platformShowcase" />
-          </div>
+          <PlatformShowcaseInteractive />
         </div>
       </div>
     </section>

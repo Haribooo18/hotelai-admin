@@ -28,7 +28,7 @@ describe("footer content", () => {
     const company = FOOTER_COLUMNS.find((column) => column.id === "company");
 
     expect(product?.links.map((link) => link.label)).toEqual([
-      "Features",
+      "Product",
       "AI",
       "Pricing",
       "Integrations",

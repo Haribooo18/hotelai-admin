@@ -25,8 +25,6 @@ describe("ai experience content", () => {
 
   it("exposes section heading copy", () => {
     expect(AI_EXPERIENCE_CONTENT.sectionId).toBe("ai-experience");
-    expect(AI_EXPERIENCE_CONTENT.headline).toContain(
-      "before your team asks"
-    );
+    expect(AI_EXPERIENCE_CONTENT.headline).toContain("understands context");
   });
 });

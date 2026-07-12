@@ -32,7 +32,7 @@ describe("trust section content", () => {
 
   it("links to security page", () => {
     expect(TRUST_SECTION_CONTENT.securityLinkHref).toBe("/security");
-    expect(TRUST_SECTION_CONTENT.headline).toBe("Why trust Monavel?");
+    expect(TRUST_SECTION_CONTENT.headline).toBe("Why trust Monavel");
   });
 
   it("describes tenant isolation and rbac in secure card", () => {

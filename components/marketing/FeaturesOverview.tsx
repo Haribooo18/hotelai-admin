@@ -7,10 +7,10 @@ import { cn } from "@/lib/utils";
 export function FeaturesOverview() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="text-4xl font-bold">Возможности Monavel</h1>
+      <h1 className="text-4xl font-bold">Monavel features</h1>
       <p className="mt-4 max-w-2xl text-lg text-zinc-400">
-        Полный набор инструментов для AI-ресепшна и управления отелем — от
-        каналов связи до аналитики и биллинга.
+        A complete toolkit for AI reception and hotel operations — from guest
+        channels to analytics and billing.
       </p>
 
       <div className="mt-12 grid gap-6 md:grid-cols-2">
@@ -30,13 +30,13 @@ export function FeaturesOverview() {
           href="/settings?tab=billing"
           className={cn(buttonVariants())}
         >
-          Начать пробный период
+          Start free trial
         </Link>
         <a
           href="mailto:hello@monavel.app?subject=Monavel Demo"
           className={cn(buttonVariants({ variant: "outline" }))}
         >
-          Записаться на демо
+          Book a demo
         </a>
       </div>
     </div>

@@ -17,9 +17,9 @@ export function ContactForm() {
   if (submitted) {
     return (
       <div className="rounded-2xl border border-emerald-800 bg-emerald-950/30 p-6 text-center">
-        <p className="font-medium text-emerald-300">Спасибо за обращение!</p>
+        <p className="font-medium text-emerald-300">Thank you for reaching out!</p>
         <p className="mt-2 text-sm text-zinc-400">
-          Мы свяжемся с вами в ближайшее время.
+          We will get back to you shortly.
         </p>
       </div>
     );
@@ -29,7 +29,7 @@ export function ContactForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <label htmlFor="name" className="text-sm text-zinc-400">
-          Имя
+          Name
         </label>
         <Input id="name" name="name" required className="mt-1" />
       </div>
@@ -41,18 +41,18 @@ export function ContactForm() {
       </div>
       <div>
         <label htmlFor="hotel" className="text-sm text-zinc-400">
-          Отель
+          Hotel
         </label>
         <Input id="hotel" name="hotel" className="mt-1" />
       </div>
       <div>
         <label htmlFor="message" className="text-sm text-zinc-400">
-          Сообщение
+          Message
         </label>
         <Textarea id="message" name="message" required rows={4} className="mt-1" />
       </div>
       <Button type="submit" className="w-full">
-        Отправить
+        Send
       </Button>
     </form>
   );

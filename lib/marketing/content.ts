@@ -1,101 +1,102 @@
 export const LANDING_FEATURES = [
   {
-    title: "AI-ресепшн 24/7",
+    title: "24/7 AI reception",
     description:
-      "Мгновенные ответы гостям на русском языке с учётом политик отеля и базы знаний.",
+      "Instant guest answers with hotel policies and knowledge base context.",
   },
   {
-    title: "Единый inbox",
+    title: "Unified inbox",
     description:
-      "Telegram, Website Chat и другие каналы в одной панели для команды ресепшна.",
+      "Telegram, Website Chat, and other channels in one panel for your front desk team.",
   },
   {
-    title: "База знаний",
+    title: "Knowledge base",
     description:
-      "Публикуйте статьи для AI — ответы всегда согласованы с актуальной информацией отеля.",
+      "Publish articles for AI — answers stay aligned with current hotel information.",
   },
   {
-    title: "Аналитика",
+    title: "Analytics",
     description:
-      "Статус диалогов, журнал AI-действий и диагностика в настройках отеля.",
+      "Conversation status, AI action logs, and diagnostics in hotel settings.",
   },
 ] as const;
 
 export const HOW_IT_WORKS = [
   {
-    step: "1",
-    title: "Подключите каналы",
-    description: "Настройте Telegram-бота и виджет Website Chat за несколько минут.",
+    step: 1,
+    title: "Connect channels",
+    description: "Set up Telegram bot and Website Chat widget in minutes.",
   },
   {
-    step: "2",
-    title: "Заполните базу знаний",
-    description: "Добавьте FAQ, правила и услуги отеля для точных ответов AI.",
+    step: 2,
+    title: "Build knowledge base",
+    description: "Add FAQ, policies, and hotel services for accurate AI answers.",
   },
   {
-    step: "3",
-    title: "AI отвечает гостям",
-    description: "Гости получают ответы в реальном времени, команда видит всё в inbox.",
+    step: 3,
+    title: "AI responds to guests",
+    description:
+      "Guests get real-time answers while your team sees everything in the inbox.",
   },
 ] as const;
 
 export const AI_CHANNELS = [
   {
     title: "Telegram",
-    description: "Входящие сообщения гостей через Bot API с автоответом AI.",
+    description: "Guest messages via Bot API with AI auto-replies.",
   },
   {
     title: "Website Chat",
-    description: "Виджет на сайте отеля с потоковой SSE-перепиской.",
+    description: "On-site widget with streaming SSE conversation.",
   },
   {
     title: "Knowledge Base",
-    description: "Контекст для AI из опубликованных статей базы знаний.",
+    description: "AI context from published knowledge articles.",
   },
   {
     title: "Analytics",
-    description: "Метрики диалогов, журнал AI-действий и диагностика платформы.",
+    description: "Conversation metrics, AI action logs, and platform diagnostics.",
   },
 ] as const;
 
 export const FAQ_ITEMS = [
   {
-    question: "Нужен ли отдельный сервер?",
+    question: "Do I need a separate server?",
     answer:
-      "Нет. Monavel разворачивается на Vercel, данные хранятся в Supabase с изоляцией по отелю.",
+      "No. Monavel runs on Vercel with data stored in Supabase, isolated per hotel.",
   },
   {
-    question: "Какие каналы поддерживаются?",
+    question: "Which channels are supported?",
     answer:
-      "Сейчас Telegram и Website Chat. Архитектура готова к добавлению WhatsApp и email.",
+      "Telegram and Website Chat today. Architecture is ready for WhatsApp and email.",
   },
   {
-    question: "Как начать пробный период?",
+    question: "How do I start a free trial?",
     answer:
-      "Нажмите «Начать пробный период», войдите в панель и оформите подписку в разделе Биллинг.",
+      "Click Start free trial, sign in to the panel, and subscribe in Billing.",
   },
   {
-    question: "Можно ли отключить AI?",
+    question: "Can AI be disabled?",
     answer:
-      "Да. AI-ресепшн включается и настраивается в панели администратора для каждого отеля.",
+      "Yes. AI reception can be enabled and configured per hotel in the admin panel.",
   },
 ] as const;
 
 export const FEATURE_SECTIONS = [
   {
-    title: "Управление бронированиями",
-    description: "Бронирования, номера, календарь и гости в единой PMS-панели.",
+    title: "Booking management",
+    description: "Bookings, rooms, calendar, and guests in one PMS panel.",
   },
   {
-    title: "AI Receptionist",
-    description: "Inbox диалогов, streaming-ответы, инструменты и observability.",
+    title: "AI reception",
+    description: "Conversation inbox, streaming responses, tools, and observability.",
   },
   {
-    title: "Мультитенантность",
-    description: "Каждый отель изолирован через hotel_id и Row Level Security.",
+    title: "Multi-tenancy",
+    description: "Each hotel isolated via hotel_id and Row Level Security.",
   },
   {
-    title: "Биллинг Stripe",
-    description: "Тарифы Starter, Pro и Enterprise с Checkout и Billing Portal.",
+    title: "Stripe billing",
+    description: "Starter, Pro, and Enterprise plans with Checkout and Billing Portal.",
   },
 ] as const;

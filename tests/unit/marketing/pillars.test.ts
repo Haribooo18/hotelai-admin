@@ -22,7 +22,7 @@ describe("platform pillars content", () => {
 
     expect(operations.title).toBe("Run Operations");
     expect(operations.features).toContain("Calendar");
-    expect(operations.href).toBe("/features");
+    expect(operations.href).toBe("/#product");
 
     expect(ai.title).toBe("AI Reception");
     expect(ai.features).toContain("Telegram");
@@ -35,6 +35,6 @@ describe("platform pillars content", () => {
 
   it("exposes section heading copy", () => {
     expect(PLATFORM_PILLARS_CONTENT.sectionId).toBe("platform-pillars");
-    expect(PLATFORM_PILLARS_CONTENT.headline).toContain("Three pillars");
+    expect(PLATFORM_PILLARS_CONTENT.headline).toContain("Five layers");
   });
 });
