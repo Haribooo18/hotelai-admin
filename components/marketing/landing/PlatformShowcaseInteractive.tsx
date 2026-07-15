@@ -1,5 +1,6 @@
 "use client";
 
+import { Pause, Play, Sparkles } from "lucide-react";
 import { useId, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
@@ -11,22 +12,75 @@ import type {
 import {
   PLATFORM_AUTOMATION_READINESS,
   PLATFORM_DEFAULT_PERSPECTIVE_ID,
-  PLATFORM_HOTEL_CONTEXT,
   PLATFORM_PERSPECTIVES,
   PLATFORM_SHOWCASE_CONTENT,
   getPlatformPerspective,
 } from "@/lib/marketing/platform";
+import {
+  setMockHotelRuntimePaused,
+  useMockHotelRuntime,
+} from "@/lib/marketing/mock-hotel-runtime";
 import { cn } from "@/lib/utils";
 
+function getRuntimeWorkspace(
+  runtimeType: ReturnType<typeof useMockHotelRuntime>["event"]["type"]
+): PlatformWorkspaceId {
+  switch (runtimeType) {
+    case "message":
+    case "upsell":
+      return "reception-ai";
+
+    case "knowledge":
+      return "knowledge";
+
+    case "booking":
+    case "payment":
+      return "bookings";
+
+    case "room":
+    case "housekeeping":
+      return "rooms";
+
+    case "sync":
+      return "dashboard";
+
+    default:
+      return "dashboard";
+  }
+}
+
+function getPerspectiveForWorkspace(
+  workspaceId: PlatformWorkspaceId
+): PlatformPerspectiveId {
+  if (workspaceId === "revenue") return "revenue";
+  if (workspaceId === "knowledge") return "knowledge";
+  if (workspaceId === "reception-ai") return "automation";
+
+  return "operations";
+}
+
 export function PlatformShowcaseInteractive() {
-  const [activePerspectiveId, setActivePerspectiveId] =
+  const runtime = useMockHotelRuntime();
+
+  const [manualPerspectiveId, setManualPerspectiveId] =
     useState<PlatformPerspectiveId>(PLATFORM_DEFAULT_PERSPECTIVE_ID);
 
-  const [activeViewId, setActiveViewId] = useState<PlatformWorkspaceId>(
+  const [manualViewId, setManualViewId] = useState<PlatformWorkspaceId>(
     getPlatformPerspective(PLATFORM_DEFAULT_PERSPECTIVE_ID).defaultViewId
   );
 
+  const [storyMode, setStoryMode] = useState(true);
+  const [paused, setPaused] = useState(false);
+
   const baseId = useId();
+
+  const runtimeViewId = getRuntimeWorkspace(runtime.event.type);
+  const runtimePerspectiveId = getPerspectiveForWorkspace(runtimeViewId);
+
+  const activeViewId = storyMode ? runtimeViewId : manualViewId;
+  const activePerspectiveId = storyMode
+    ? runtimePerspectiveId
+    : manualPerspectiveId;
 
   const activePerspective = getPlatformPerspective(activePerspectiveId);
   const showSecondaryNav = activePerspective.views.length > 1;
@@ -35,8 +89,23 @@ export function PlatformShowcaseInteractive() {
   function selectPerspective(perspectiveId: PlatformPerspectiveId) {
     const nextPerspective = getPlatformPerspective(perspectiveId);
 
-    setActivePerspectiveId(perspectiveId);
-    setActiveViewId(nextPerspective.defaultViewId);
+    setStoryMode(false);
+    setManualPerspectiveId(perspectiveId);
+    setManualViewId(nextPerspective.defaultViewId);
+  }
+
+  function selectView(viewId: PlatformWorkspaceId) {
+    setStoryMode(false);
+    setManualPerspectiveId(getPerspectiveForWorkspace(viewId));
+    setManualViewId(viewId);
+  }
+
+  function togglePaused() {
+    setPaused((current) => {
+      const next = !current;
+      setMockHotelRuntimePaused(next);
+      return next;
+    });
   }
 
   return (
@@ -48,7 +117,6 @@ export function PlatformShowcaseInteractive() {
         <header className="mkt-runtime-identity">
           <p className="mkt-runtime-status" role="status">
             <span className="mkt-runtime-status-dot" aria-hidden="true" />
-
             <span className="mkt-runtime-status-label">
               {PLATFORM_SHOWCASE_CONTENT.runtimeStatus}
             </span>
@@ -56,19 +124,76 @@ export function PlatformShowcaseInteractive() {
 
           <div
             className="mkt-runtime-shared-context"
-            aria-label={`${PLATFORM_SHOWCASE_CONTENT.sharedContext}. ${PLATFORM_HOTEL_CONTEXT.guestName}. ${PLATFORM_HOTEL_CONTEXT.reservation}. ${PLATFORM_HOTEL_CONTEXT.room}.`}
+            aria-label={`${runtime.hotel.name}. ${runtime.guest.name}. Reservation ${runtime.guest.reservation}. ${runtime.guest.room}.`}
           >
             <span className="mkt-runtime-hotel-live" aria-hidden="true">
-              {PLATFORM_SHOWCASE_CONTENT.sharedContext}
+              {runtime.hotel.name} • Live
             </span>
 
             <span className="mkt-runtime-hotel-identity" aria-hidden="true">
-              <span>{PLATFORM_HOTEL_CONTEXT.guestName}</span>
-              <span>{PLATFORM_HOTEL_CONTEXT.reservation}</span>
-              <span>{PLATFORM_HOTEL_CONTEXT.room}</span>
+              <span>{runtime.guest.name}</span>
+              <span>Reservation #{runtime.guest.reservation}</span>
+              <span>{runtime.guest.room}</span>
             </span>
           </div>
         </header>
+
+        <div className="mku-story-rail">
+          <div className="mku-story-copy">
+            <div className="mku-story-kicker">
+              <Sparkles size={12} aria-hidden />
+              Live scenario
+            </div>
+
+            <p className="mku-story-title">{runtime.story.title}</p>
+            <p className="mku-story-summary">{runtime.story.summary}</p>
+          </div>
+
+          <div className="mku-story-controls">
+            <div
+              className="mku-story-progress"
+              aria-label={`Step ${runtime.story.step} of ${runtime.story.totalSteps}`}
+            >
+              {Array.from({ length: runtime.story.totalSteps }).map(
+                (_, index) => (
+                  <span
+                    key={index}
+                    className={cn(
+                      "mku-story-progress-step",
+                      index < runtime.story.step &&
+                        "mku-story-progress-step-active"
+                    )}
+                  />
+                )
+              )}
+            </div>
+
+            <button
+              type="button"
+              className={cn(
+                "mku-story-mode-button",
+                storyMode && "mku-story-mode-button-active"
+              )}
+              aria-pressed={storyMode}
+              onClick={() => setStoryMode((current) => !current)}
+            >
+              Story mode
+            </button>
+
+            <button
+              type="button"
+              className="mku-story-icon-button"
+              aria-label={paused ? "Resume runtime" : "Pause runtime"}
+              onClick={togglePaused}
+            >
+              {paused ? (
+                <Play size={12} aria-hidden />
+              ) : (
+                <Pause size={12} aria-hidden />
+              )}
+            </button>
+          </div>
+        </div>
 
         <PerspectiveNav
           activeId={activePerspectiveId}
@@ -82,7 +207,7 @@ export function PlatformShowcaseInteractive() {
               <ViewNav
                 views={activePerspective.views}
                 activeId={activeViewId}
-                onSelect={setActiveViewId}
+                onSelect={selectView}
                 perspectiveLabel={activePerspective.label}
               />
             ) : null}
@@ -109,7 +234,7 @@ export function PlatformShowcaseInteractive() {
           <div className="mkt-workspace-preview-stage" aria-live="polite">
             <div
               key={`${activePerspectiveId}-${activeViewId}`}
-              className="mkt-workspace-preview-transition"
+              className="mkt-workspace-preview-transition mku-workspace-enter"
             >
               <WorkspacePreview
                 workspaceId={activeViewId}
@@ -190,7 +315,6 @@ function PerspectiveNav({
     event.preventDefault();
 
     const nextPerspective = PLATFORM_PERSPECTIVES[nextIndex];
-
     if (!nextPerspective) return;
 
     const nextButton = listRef.current?.querySelector<HTMLButtonElement>(
@@ -198,11 +322,7 @@ function PerspectiveNav({
     );
 
     onSelect(nextPerspective.id);
-
-    nextButton?.focus({
-      preventScroll: true,
-    });
-
+    nextButton?.focus({ preventScroll: true });
     scrollTabIntoView(nextButton ?? null);
   }
 

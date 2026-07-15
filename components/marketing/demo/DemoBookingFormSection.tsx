@@ -1,7 +1,5 @@
 "use client";
 
-import { useState } from "react";
-
 import {
   mktOverlineClass,
   mktSectionBodyClass,
@@ -10,13 +8,15 @@ import {
   mktSectionSubheadClass,
 } from "@/lib/marketing/design";
 import { DEMO_PAGE_FORM } from "@/lib/marketing/demo-page";
+import { useMarketingLead } from "@/components/marketing/hooks/useMarketingLead";
 
 export function DemoBookingFormSection() {
-  const [submitted, setSubmitted] = useState(false);
+  const { submit, error, isSubmitting, isSuccess } =
+    useMarketingLead("demo");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setSubmitted(true);
+    await submit(event.currentTarget);
   }
 
   return (
@@ -35,7 +35,7 @@ export function DemoBookingFormSection() {
         </header>
 
         <div className={mktSectionBodyClass}>
-          {submitted ? (
+          {isSuccess ? (
             <div
               className="mkt-contact-form-success"
               role="status"
@@ -49,7 +49,18 @@ export function DemoBookingFormSection() {
               </p>
             </div>
           ) : (
-            <form className="mkt-contact-form" onSubmit={handleSubmit} noValidate>
+            <form className="mkt-contact-form" onSubmit={handleSubmit}>
+              <div aria-hidden="true" className="hidden">
+                <label htmlFor="demo-website">Website</label>
+                <input
+                  id="demo-website"
+                  name="website"
+                  type="text"
+                  tabIndex={-1}
+                  autoComplete="off"
+                />
+              </div>
+
               <div className="mkt-contact-form-grid">
                 <div className="mkt-contact-field">
                   <label htmlFor={DEMO_PAGE_FORM.fields.name.id}>
@@ -114,7 +125,9 @@ export function DemoBookingFormSection() {
                   <input
                     id={DEMO_PAGE_FORM.fields.rooms.id}
                     name="rooms"
-                    type="text"
+                    type="number"
+                    min={1}
+                    step={1}
                     inputMode="numeric"
                     className="mkt-contact-input"
                   />
@@ -147,8 +160,18 @@ export function DemoBookingFormSection() {
                 />
               </div>
 
-              <button type="submit" className="mkt-btn mkt-btn-primary mkt-btn-form mkt-btn-mobile-full">
-                {DEMO_PAGE_FORM.submitLabel}
+              {error ? (
+                <p role="alert" className="text-sm text-red-400">
+                  {error}
+                </p>
+              ) : null}
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="mkt-btn mkt-btn-primary mkt-btn-form mkt-btn-mobile-full"
+              >
+                {isSubmitting ? "Sending..." : DEMO_PAGE_FORM.submitLabel}
               </button>
             </form>
           )}

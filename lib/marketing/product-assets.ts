@@ -1,8 +1,7 @@
 import type { PlatformWorkspaceId } from "@/lib/marketing/platform";
-import type { ProductImageMedia, ProductMedia } from "@/lib/marketing/product-media";
+import type { ProductComponentMedia, ProductImageMedia, ProductMedia } from "@/lib/marketing/product-media";
 
 export const PRODUCT_ASSET_ROOT = "/marketing/product";
-
 export const PRODUCT_SCREENSHOT_FILENAME = "screenshot.svg";
 
 export const PRODUCT_WORKSPACE_DIRS: Record<PlatformWorkspaceId, string> = {
@@ -16,34 +15,22 @@ export const PRODUCT_WORKSPACE_DIRS: Record<PlatformWorkspaceId, string> = {
   "reception-ai": `${PRODUCT_ASSET_ROOT}/reception-ai`,
 };
 
-export function getProductScreenshotPath(
-  workspace: PlatformWorkspaceId,
-  filename: string = PRODUCT_SCREENSHOT_FILENAME
-): string {
+export function getProductScreenshotPath(workspace: PlatformWorkspaceId, filename: string = PRODUCT_SCREENSHOT_FILENAME): string {
   return `${PRODUCT_WORKSPACE_DIRS[workspace]}/${filename}`;
 }
 
-export function productImageMedia(
-  workspace: PlatformWorkspaceId,
-  filename: string = PRODUCT_SCREENSHOT_FILENAME
-): ProductImageMedia {
-  return {
-    type: "image",
-    src: getProductScreenshotPath(workspace, filename),
-  };
+export function productImageMedia(workspace: PlatformWorkspaceId, filename: string = PRODUCT_SCREENSHOT_FILENAME): ProductImageMedia {
+  return { type: "image", src: getProductScreenshotPath(workspace, filename) };
+}
+
+export function productComponentMedia(workspace: PlatformWorkspaceId): ProductComponentMedia {
+  return { type: "component", component: workspace };
 }
 
 export function productPlaceholderMedia(): ProductMedia {
   return { type: "placeholder" };
 }
 
-/**
- * Registry entries use image media when the canonical screenshot asset exists.
- * Swap filename to e.g. screenshot.webp without changing page components.
- */
-export function resolveWorkspaceMedia(
-  workspace: PlatformWorkspaceId,
-  filename: string = PRODUCT_SCREENSHOT_FILENAME
-): ProductMedia {
-  return productImageMedia(workspace, filename);
+export function resolveWorkspaceMedia(workspace: PlatformWorkspaceId): ProductMedia {
+  return productComponentMedia(workspace);
 }

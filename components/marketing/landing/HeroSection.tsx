@@ -21,7 +21,10 @@ export function HeroSection() {
       <div className="mkt-container-wide">
         <div className={cn(mktHeroGridClass, "mkt-hero-grid--concept")}>
           <div className={mktHeroCopyClass}>
-            <p className={cn(mktOverlineClass, mktMotionRevealClass)} data-order="0">
+            <p
+              className={cn(mktOverlineClass, mktMotionRevealClass)}
+              data-order="0"
+            >
               {HERO_CONTENT.overline}
             </p>
 
@@ -31,18 +34,27 @@ export function HeroSection() {
               data-order="1"
             >
               {HERO_CONTENT.headline}
+
               <span className="mkt-hero-headline-accent">
                 {HERO_CONTENT.headlineAccent}
               </span>
             </h1>
 
-            <p className="sr-only">{HERO_CONTENT.screenReaderSummary}</p>
+            <p className="sr-only">
+              {HERO_CONTENT.screenReaderSummary}
+            </p>
 
-            <p className={cn(mktHeroSubheadClass, mktMotionRevealClass)} data-order="2">
+            <p
+              className={cn(mktHeroSubheadClass, mktMotionRevealClass)}
+              data-order="2"
+            >
               {HERO_CONTENT.supportingCopy}
             </p>
 
-            <div className={cn(mktHeroActionsClass, mktMotionRevealClass)} data-order="3">
+            <div
+              className={cn(mktHeroActionsClass, mktMotionRevealClass)}
+              data-order="3"
+            >
               <MarketingButton
                 href={MARKETING_CTA.trial}
                 variant="primary"
@@ -51,6 +63,7 @@ export function HeroSection() {
               >
                 {HERO_CONTENT.primaryCta}
               </MarketingButton>
+
               <MarketingButton
                 href={MARKETING_CTA.demo}
                 variant="secondary"
@@ -61,14 +74,27 @@ export function HeroSection() {
               </MarketingButton>
             </div>
 
-            <ul className={cn("mkt-hero-benefits", mktMotionRevealClass)} data-order="4">
+            <ul
+              className={cn(
+                "mkt-hero-benefits",
+                mktMotionRevealClass
+              )}
+              data-order="4"
+            >
               {HERO_CONTENT.benefits.map((benefit) => (
                 <li key={benefit}>{benefit}</li>
               ))}
             </ul>
           </div>
 
-          <div className={cn(mktHeroVisualClass, "mkt-hero-visual--diagram", mktMotionRevealClass)} data-order="5">
+          <div
+            className={cn(
+              mktHeroVisualClass,
+              "mkt-hero-visual--diagram",
+              mktMotionRevealClass
+            )}
+            data-order="5"
+          >
             <div className="mkt-hero-visual-float">
               <ArchitectureDiagramV2 />
             </div>

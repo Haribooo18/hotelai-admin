@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
+import type { CSSProperties } from "react";
 
 import { useHeroRuntimeTimeline } from "@/components/marketing/useHeroRuntimeTimeline";
 import { ARCHITECTURE_DIAGRAM_V2_BASE_HEIGHT } from "@/lib/marketing/architecture-diagram-v2-geometry";
@@ -9,40 +10,37 @@ import {
   type HeroRuntimeNodeId,
 } from "@/lib/marketing/hero-runtime-events";
 
-/* ArchitectureDiagramV2 — compressed vertical geometry (v2.1). */
+/* ArchitectureDiagramV2 — premium animated hero architecture (v3). */
 
 const BASE_WIDTH = 806;
-/** Was 524; ~17% shorter for desktop copy alignment. */
 const BASE_HEIGHT = ARCHITECTURE_DIAGRAM_V2_BASE_HEIGHT;
 const VIEWBOX_X = -72;
 const VIEWBOX_Y = 0;
 const VIEWBOX_WIDTH = 1060;
-/** Was 716; matches BASE_HEIGHT compression. */
 const VIEWBOX_HEIGHT = 596;
 const DIAGRAM_SCALE = 1.394;
 const DIAGRAM_OFFSET_X = -70.18;
 const DIAGRAM_OFFSET_Y = 4;
 
-const ACCENT = "#00C389";
-/** Dormant channel color — green reserved for active event routes. */
+const ACCENT = "#c8a25a";
+const ACTIVE = "#d9bb78";
 const LINE = "#74808c";
-const LINE_OPACITY = 0.32;
-const CARD_FILL = "#040608";
-const SOURCE_STROKE = "rgba(255,255,255,0.06)";
-const DEST_STROKE = "rgba(255,255,255,0.09)";
-const RUNTIME_STROKE = "rgba(255,255,255,0.16)";
-const META_STROKE = "rgba(255,255,255,0.06)";
+const LINE_OPACITY = 0.42;
+const CARD_FILL = "rgba(255,255,255,0.022)";
+const SOURCE_STROKE = "rgba(255,255,255,0.07)";
+const DEST_STROKE = "rgba(255,255,255,0.08)";
+const RUNTIME_STROKE = "rgba(200,162,90,0.34)";
+const META_STROKE = "rgba(255,255,255,0.045)";
 const JUNCTION = "#6b7280";
 
 const RUNTIME_X = 296.6;
 const RUNTIME_Y = 172;
 const RUNTIME_W = 212.8;
-/** Was 89.6; ~4% shorter. */
 const RUNTIME_H = 86;
 const RUNTIME_CY = 215;
 const RUNTIME_LEFT = 296.6;
 const RUNTIME_RIGHT = 509.4;
-const NODE_H = 46;
+const NODE_H = 42;
 
 const INBOUND_PATHS: ReadonlyArray<{
   id: string;
@@ -60,7 +58,6 @@ const INBOUND_PATHS: ReadonlyArray<{
 const OUTBOUND_PATHS: ReadonlyArray<{
   id: string;
   d: string;
-  /** Runtime → destination travel direction */
   travelD: string;
 }> = [
   {
@@ -104,7 +101,14 @@ type ChannelCard = {
   id: HeroRuntimeNodeId;
   label: string;
   y: number;
-  icon: "website" | "booking" | "telegram" | "whatsapp" | "email" | "phone" | "walk-in";
+  icon:
+    | "website"
+    | "booking"
+    | "telegram"
+    | "whatsapp"
+    | "email"
+    | "phone"
+    | "walk-in";
 };
 
 type OperationCard = {
@@ -150,6 +154,7 @@ function ChannelIcon({ icon }: { icon: ChannelCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "booking") {
     return (
       <g className="mkt-arch-icon" stroke="currentColor" strokeWidth={1.1} fill="none">
@@ -158,6 +163,7 @@ function ChannelIcon({ icon }: { icon: ChannelCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "telegram") {
     return (
       <g
@@ -171,6 +177,7 @@ function ChannelIcon({ icon }: { icon: ChannelCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "whatsapp") {
     return (
       <g className="mkt-arch-icon" stroke="currentColor" strokeWidth={1.1} fill="none">
@@ -178,6 +185,7 @@ function ChannelIcon({ icon }: { icon: ChannelCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "email") {
     return (
       <g
@@ -192,6 +200,7 @@ function ChannelIcon({ icon }: { icon: ChannelCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "phone") {
     return (
       <g
@@ -207,6 +216,7 @@ function ChannelIcon({ icon }: { icon: ChannelCard["icon"] }) {
       </g>
     );
   }
+
   return (
     <g
       className="mkt-arch-icon"
@@ -230,6 +240,7 @@ function OperationIcon({ icon }: { icon: OperationCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "pms") {
     return (
       <g className="mkt-arch-icon" stroke="currentColor" strokeWidth={1.1} fill="none">
@@ -238,6 +249,7 @@ function OperationIcon({ icon }: { icon: OperationCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "revenue") {
     return (
       <g
@@ -252,6 +264,7 @@ function OperationIcon({ icon }: { icon: OperationCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "rooms") {
     return (
       <g className="mkt-arch-icon" stroke="currentColor" strokeWidth={1.1} fill="none">
@@ -260,6 +273,7 @@ function OperationIcon({ icon }: { icon: OperationCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "staff") {
     return (
       <g className="mkt-arch-icon" stroke="currentColor" strokeWidth={1.1} fill="none">
@@ -270,6 +284,7 @@ function OperationIcon({ icon }: { icon: OperationCard["icon"] }) {
       </g>
     );
   }
+
   if (icon === "analytics") {
     return (
       <g
@@ -284,6 +299,7 @@ function OperationIcon({ icon }: { icon: OperationCard["icon"] }) {
       </g>
     );
   }
+
   return (
     <g
       className="mkt-arch-icon"
@@ -303,14 +319,20 @@ export function ArchitectureDiagramV2() {
   const rootRef = useRef<HTMLElement | null>(null);
   const playback = useHeroRuntimeTimeline(rootRef);
   const runtimeActive = isRuntimeHighlighted(playback.phase);
+  const [hoveredNode, setHoveredNode] = useState<HeroRuntimeNodeId | null>(null);
+
+  const hoveredInboundPath = hoveredNode ? `path-${hoveredNode}` : null;
+  const hoveredOutboundPath = hoveredNode ? `path-${hoveredNode}` : null;
 
   return (
     <figure
       ref={rootRef}
-      className="mkt-architecture-diagram-v2"
+      className="mkt-architecture-diagram-v2 mkt-architecture-diagram-v2--hero"
       data-runtime-phase={playback.phase}
+      data-runtime-active={runtimeActive ? "true" : undefined}
       data-entrance={playback.entrance}
       data-reduced-motion={playback.reducedMotion ? "true" : undefined}
+      data-hovering={hoveredNode ? "true" : undefined}
       aria-hidden
     >
       <svg
@@ -336,16 +358,30 @@ export function ArchitectureDiagramV2() {
                 strokeWidth="0.5"
               />
             </pattern>
+
             <radialGradient
               id="architecture-diagram-v2-runtime-depth"
               cx="50%"
               cy="38%"
               r="78%"
             >
-              <stop offset="0%" stopColor="#121a1a" />
-              <stop offset="42%" stopColor="#080c0e" />
+              <stop offset="0%" stopColor="#1c1912" />
+              <stop offset="34%" stopColor="#0f0d09" />
+              <stop offset="70%" stopColor="#070707" />
               <stop offset="100%" stopColor="#010203" />
             </radialGradient>
+
+            <radialGradient
+              id="architecture-diagram-v2-runtime-glow"
+              cx="50%"
+              cy="50%"
+              r="50%"
+            >
+              <stop offset="0%" stopColor={ACTIVE} stopOpacity="0.28" />
+              <stop offset="44%" stopColor={ACCENT} stopOpacity="0.11" />
+              <stop offset="100%" stopColor={ACCENT} stopOpacity="0" />
+            </radialGradient>
+
             <linearGradient
               id="architecture-diagram-v2-runtime-sheen"
               x1="0"
@@ -353,10 +389,11 @@ export function ArchitectureDiagramV2() {
               x2="0"
               y2="1"
             >
-              <stop offset="0%" stopColor="rgba(255,255,255,0.028)" />
+              <stop offset="0%" stopColor="rgba(255,255,255,0.038)" />
               <stop offset="40%" stopColor="rgba(255,255,255,0)" />
               <stop offset="100%" stopColor="rgba(0,0,0,0.42)" />
             </linearGradient>
+
             <linearGradient
               id="architecture-diagram-v2-runtime-ack"
               x1="0"
@@ -368,6 +405,7 @@ export function ArchitectureDiagramV2() {
               <stop offset="50%" stopColor="rgba(0,0,0,0)" />
               <stop offset="100%" stopColor="rgba(0,0,0,0.5)" />
             </linearGradient>
+
             <linearGradient
               id="architecture-diagram-v2-runtime-sweep"
               x1="0"
@@ -376,17 +414,60 @@ export function ArchitectureDiagramV2() {
               y2="0"
             >
               <stop offset="0%" stopColor="rgba(255,255,255,0)" />
-              <stop offset="45%" stopColor="rgba(255,255,255,0.045)" />
+              <stop offset="45%" stopColor="rgba(255,255,255,0.055)" />
               <stop offset="100%" stopColor="rgba(255,255,255,0)" />
             </linearGradient>
+
+            <filter
+              id="architecture-diagram-v2-soft-glow"
+              x="-80%"
+              y="-80%"
+              width="260%"
+              height="260%"
+            >
+              <feGaussianBlur stdDeviation="18" />
+            </filter>
+
+            <filter
+              id="architecture-diagram-v2-line-glow"
+              x="-100%"
+              y="-100%"
+              width="300%"
+              height="300%"
+            >
+              <feGaussianBlur stdDeviation="2.4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
           </defs>
+
           <rect
             width={BASE_WIDTH}
             height={BASE_HEIGHT}
             fill="url(#architecture-diagram-v2-grid)"
           />
 
-          {/* Base connectors — dormant infrastructure */}
+          <ellipse
+            className="mkt-arch-runtime-glow mkt-arch-runtime-glow--outer"
+            cx={403}
+            cy={RUNTIME_CY}
+            rx={154}
+            ry={118}
+            fill="url(#architecture-diagram-v2-runtime-glow)"
+            filter="url(#architecture-diagram-v2-soft-glow)"
+          />
+
+          <ellipse
+            className="mkt-arch-runtime-glow mkt-arch-runtime-glow--inner"
+            cx={403}
+            cy={RUNTIME_CY}
+            rx={112}
+            ry={82}
+            fill="url(#architecture-diagram-v2-runtime-glow)"
+          />
+
           <g
             className="mkt-arch-connectors-base"
             aria-hidden
@@ -405,6 +486,7 @@ export function ArchitectureDiagramV2() {
                 strokeOpacity={0.28 + (index % 3) * 0.04}
               />
             ))}
+
             {OUTBOUND_PATHS.map((path, index) => (
               <path
                 key={path.id}
@@ -414,11 +496,13 @@ export function ArchitectureDiagramV2() {
                 strokeOpacity={0.32 + (index % 3) * 0.04}
               />
             ))}
+
             <path
               className="mkt-arch-connector mkt-arch-connector--spine"
               d={`M403,132 C415,144 391,160 403,${RUNTIME_Y}`}
               strokeOpacity={0.22}
             />
+
             <path
               className="mkt-arch-connector mkt-arch-connector--spine"
               d={`M403,${RUNTIME_Y + RUNTIME_H} C415,${RUNTIME_Y + RUNTIME_H + 12} 391,264 403,276`}
@@ -426,14 +510,83 @@ export function ArchitectureDiagramV2() {
             />
           </g>
 
-          {/* Travel highlights — decorative only */}
+          <g
+            className="mkt-arch-connectors-ambient"
+            aria-hidden
+            stroke={ACCENT}
+            strokeWidth={1}
+            strokeLinecap="round"
+            fill="none"
+            filter="url(#architecture-diagram-v2-line-glow)"
+          >
+            {INBOUND_PATHS.map((path, index) => (
+              <path
+                key={`ambient-${path.id}`}
+                className="mkt-arch-path-ambient"
+                d={path.d}
+                pathLength={100}
+                style={{ animationDelay: `${index * 0.62}s` }}
+              />
+            ))}
+
+            {OUTBOUND_PATHS.map((path, index) => (
+              <path
+                key={`ambient-${path.id}`}
+                className="mkt-arch-path-ambient mkt-arch-path-ambient--outbound"
+                d={path.travelD}
+                pathLength={100}
+                style={{ animationDelay: `${4.5 + index * 0.62}s` }}
+              />
+            ))}
+          </g>
+
+          {/* Full active route — the entire connection glows softly. */}
+          <g
+            className="mkt-arch-connectors-route"
+            aria-hidden
+            stroke={ACTIVE}
+            strokeWidth={1.15}
+            strokeLinecap="round"
+            fill="none"
+          >
+            {INBOUND_PATHS.map((path) => (
+              <path
+                key={`route-${path.id}`}
+                className="mkt-arch-path-route"
+                d={path.d}
+                data-path={path.id}
+                data-active={
+                  playback.inboundPathId === path.id ? "true" : undefined
+                }
+                data-hovered={hoveredInboundPath === path.id ? "true" : undefined}
+                pathLength={100}
+              />
+            ))}
+
+            {OUTBOUND_PATHS.map((path) => (
+              <path
+                key={`route-${path.id}`}
+                className="mkt-arch-path-route mkt-arch-path-route--outbound"
+                d={path.travelD}
+                data-path={path.id}
+                data-active={
+                  playback.outboundPathId === path.id ? "true" : undefined
+                }
+                data-hovered={hoveredOutboundPath === path.id ? "true" : undefined}
+                pathLength={100}
+              />
+            ))}
+          </g>
+
+          {/* Bright data pulse travelling above the fully illuminated route. */}
           <g
             className="mkt-arch-connectors-travel"
             aria-hidden
-            stroke={ACCENT}
-            strokeWidth={1.1}
+            stroke={ACTIVE}
+            strokeWidth={1.65}
             strokeLinecap="round"
             fill="none"
+            filter="url(#architecture-diagram-v2-line-glow)"
           >
             {INBOUND_PATHS.map((path) => (
               <path
@@ -447,6 +600,7 @@ export function ArchitectureDiagramV2() {
                 pathLength={100}
               />
             ))}
+
             {OUTBOUND_PATHS.map((path) => (
               <path
                 key={`travel-${path.id}`}
@@ -461,7 +615,6 @@ export function ArchitectureDiagramV2() {
             ))}
           </g>
 
-          {/* Junction dots — neutral dormant markers */}
           <g
             className="mkt-arch-junctions"
             aria-hidden
@@ -471,9 +624,11 @@ export function ArchitectureDiagramV2() {
             {[35, 95, 155, 215, 275, 335, 395].map((cy) => (
               <circle key={`src-j-${cy}`} cx={202} cy={cy} r={2} />
             ))}
+
             {[35, 95, 155, 215, 275, 335, 395].map((cy) => (
-              <circle key={`dst-j-${cy}`} cx={604} cy={cy} r={2} />
+              <circle key={`dst-j-${cy}`} cx={609} cy={cy} r={2} />
             ))}
+
             <circle cx={RUNTIME_LEFT} cy={RUNTIME_CY} r={2.2} fillOpacity={0.35} />
             <circle cx={RUNTIME_RIGHT} cy={RUNTIME_CY} r={2.2} fillOpacity={0.35} />
             <circle cx={403} cy={RUNTIME_Y} r={1.8} fillOpacity={0.22} />
@@ -487,7 +642,7 @@ export function ArchitectureDiagramV2() {
             x={127}
             y={6}
             textAnchor="middle"
-            fill="#4b5563"
+            fill="#3f4752"
             fontFamily="system-ui, sans-serif"
             fontSize={8.625}
             fontWeight="600"
@@ -495,12 +650,13 @@ export function ArchitectureDiagramV2() {
           >
             GUEST CHANNELS
           </text>
+
           <text
             className="mkt-arch-column-label"
             x={679}
             y={6}
             textAnchor="middle"
-            fill="#4b5563"
+            fill="#3f4752"
             fontFamily="system-ui, sans-serif"
             fontSize={8.625}
             fontWeight="600"
@@ -530,7 +686,7 @@ export function ArchitectureDiagramV2() {
               }
               x={286}
               y={119}
-              fill="#6b7280"
+              fill="#5d6570"
               fontFamily="system-ui, sans-serif"
               fontSize={10.4}
               fontWeight="500"
@@ -544,7 +700,7 @@ export function ArchitectureDiagramV2() {
               data-active={playback.metadataId === "one-ai" ? "true" : undefined}
               x={402}
               y={119}
-              fill="#6b7280"
+              fill="#5d6570"
               fontFamily="system-ui, sans-serif"
               fontSize={10.4}
               fontWeight="500"
@@ -560,7 +716,7 @@ export function ArchitectureDiagramV2() {
               }
               x={481}
               y={119}
-              fill="#6b7280"
+              fill="#5d6570"
               fontFamily="system-ui, sans-serif"
               fontSize={10.4}
               fontWeight="500"
@@ -569,7 +725,6 @@ export function ArchitectureDiagramV2() {
             </text>
           </g>
 
-          {/* MONAVEL hub — dense infrastructural center */}
           <g
             className="mkt-arch-runtime"
             data-active={runtimeActive ? "true" : undefined}
@@ -626,6 +781,25 @@ export function ArchitectureDiagramV2() {
               fill="url(#architecture-diagram-v2-runtime-sweep)"
               opacity={0}
             />
+            <circle
+              className="mkt-arch-runtime-ripple mkt-arch-runtime-ripple--one"
+              cx={403}
+              cy={RUNTIME_CY}
+              r={56}
+              data-active={runtimeActive ? "true" : undefined}
+            />
+            <circle
+              className="mkt-arch-runtime-ripple mkt-arch-runtime-ripple--two"
+              cx={403}
+              cy={RUNTIME_CY}
+              r={62}
+              data-active={runtimeActive ? "true" : undefined}
+            />
+            <g className="mkt-arch-runtime-orbit" data-active={runtimeActive ? "true" : undefined}>
+              <circle cx={403} cy={RUNTIME_CY} r={48} />
+              <circle className="mkt-arch-runtime-orbit-dot" cx={451} cy={RUNTIME_CY} r={1.6} />
+            </g>
+
             <text
               className="mkt-arch-runtime-title"
               x={403}
@@ -646,7 +820,7 @@ export function ArchitectureDiagramV2() {
               y={RUNTIME_CY + 14}
               dominantBaseline="central"
               textAnchor="middle"
-              fill="#9ca3af"
+              fill="#a7a095"
               fontFamily="system-ui, sans-serif"
               fontSize={9.8}
               fontWeight="400"
@@ -699,13 +873,14 @@ export function ArchitectureDiagramV2() {
               x={276.42}
               y={294}
               dominantBaseline="central"
-              fill="#6b7280"
+              fill="#5d6570"
               fontFamily="system-ui, sans-serif"
               fontSize={9.6}
               fontWeight="500"
             >
               Security
             </text>
+
             <rect
               x={345.32}
               y={282.5}
@@ -742,13 +917,14 @@ export function ArchitectureDiagramV2() {
               x={382.24}
               y={294}
               dominantBaseline="central"
-              fill="#6b7280"
+              fill="#5d6570"
               fontFamily="system-ui, sans-serif"
               fontSize={9.6}
               fontWeight="500"
             >
               Real-time
             </text>
+
             <rect
               x={462.42}
               y={282.5}
@@ -782,7 +958,7 @@ export function ArchitectureDiagramV2() {
               x={495.25}
               y={294}
               dominantBaseline="central"
-              fill="#6b7280"
+              fill="#5d6570"
               fontFamily="system-ui, sans-serif"
               fontSize={9.6}
               fontWeight="500"
@@ -791,53 +967,61 @@ export function ArchitectureDiagramV2() {
             </text>
           </g>
 
-          {CHANNEL_CARDS.map((card) => {
+          {CHANNEL_CARDS.map((card, index) => {
             const active = playback.sourceId === card.id;
             const showStatus =
               active &&
               Boolean(playback.sourceStatus) &&
               !playback.reducedMotion;
+
             return (
               <g
                 key={card.id}
                 className="mkt-arch-node mkt-arch-node--source"
                 data-node={card.id}
                 data-active={active ? "true" : undefined}
+                data-hovered={hoveredNode === card.id ? "true" : undefined}
+                onMouseEnter={() => setHoveredNode(card.id)}
+                onMouseLeave={() => setHoveredNode(null)}
+                style={{ "--mkt-arch-node-index": index } as CSSProperties}
               >
                 <rect
                   className="mkt-arch-node-shell"
-                  x={52}
+                  x={57}
                   y={card.y}
-                  width={150}
+                  width={140}
                   height={NODE_H}
                   rx={8}
                   fill={CARD_FILL}
                   fillOpacity={0.55}
                   stroke={SOURCE_STROKE}
-                  strokeWidth={1}
+                  strokeWidth={0.8}
                 />
-                <g transform={`translate(62 ${card.y + (showStatus ? 10 : 15)})`}>
+
+                <g transform={`translate(67 ${card.y + (showStatus ? 8 : 13)})`}>
                   <g className="mkt-arch-source-icon">
                     <ChannelIcon icon={card.icon} />
                   </g>
                 </g>
+
                 <text
                   className="mkt-arch-node-label"
-                  x={82}
-                  y={showStatus ? card.y + 20 : card.y + 27}
-                  fill="#c4c9d1"
+                  x={87}
+                  y={showStatus ? card.y + 18 : card.y + 25}
+                  fill="#c8ced6"
                   fontFamily="system-ui, sans-serif"
                   fontSize={13}
                   fontWeight="500"
                 >
                   {card.label}
                 </text>
+
                 {showStatus ? (
                   <text
                     className="mkt-arch-source-status"
-                    x={82}
-                    y={card.y + 34}
-                    fill={ACCENT}
+                    x={87}
+                    y={card.y + 31}
+                    fill={ACTIVE}
                     fontFamily="system-ui, sans-serif"
                     fontSize={8}
                     fontWeight="600"
@@ -850,7 +1034,7 @@ export function ArchitectureDiagramV2() {
             );
           })}
 
-          {OPERATION_CARDS.map((card) => {
+          {OPERATION_CARDS.map((card, index) => {
             const active = playback.destinationId === card.id;
             const secondary =
               playback.secondaryId === card.id && !playback.reducedMotion;
@@ -858,6 +1042,7 @@ export function ArchitectureDiagramV2() {
               active &&
               Boolean(playback.outcome) &&
               playback.phase === "destinationActive";
+
             return (
               <g
                 key={card.id}
@@ -865,39 +1050,50 @@ export function ArchitectureDiagramV2() {
                 data-node={card.id}
                 data-active={active ? "true" : undefined}
                 data-secondary={secondary ? "true" : undefined}
+                data-hovered={hoveredNode === card.id ? "true" : undefined}
+                onMouseEnter={() => setHoveredNode(card.id)}
+                onMouseLeave={() => setHoveredNode(null)}
+                style={
+                  {
+                    "--mkt-arch-node-index": CHANNEL_CARDS.length + index,
+                  } as CSSProperties
+                }
               >
                 <rect
                   className="mkt-arch-node-shell"
-                  x={604}
+                  x={609}
                   y={card.y}
-                  width={150}
+                  width={140}
                   height={NODE_H}
                   rx={8}
                   fill={CARD_FILL}
                   fillOpacity={0.72}
                   stroke={DEST_STROKE}
-                  strokeWidth={1}
+                  strokeWidth={0.8}
                 />
-                <g transform={`translate(614 ${card.y + 15})`}>
+
+                <g transform={`translate(619 ${card.y + 13})`}>
                   <OperationIcon icon={card.icon} />
                 </g>
+
                 <text
                   className="mkt-arch-node-label"
-                  x={634}
-                  y={showOutcome ? card.y + 20 : card.y + 27}
-                  fill="#d8dce2"
+                  x={639}
+                  y={showOutcome ? card.y + 18 : card.y + 25}
+                  fill="#d7dbe1"
                   fontFamily="system-ui, sans-serif"
                   fontSize={13}
                   fontWeight="500"
                 >
                   {card.label}
                 </text>
+
                 {showOutcome ? (
                   <text
                     className="mkt-arch-outcome"
-                    x={634}
-                    y={card.y + 36}
-                    fill={ACCENT}
+                    x={639}
+                    y={card.y + 33}
+                    fill={ACTIVE}
                     fontFamily="system-ui, sans-serif"
                     fontSize={8.5}
                     fontWeight="600"

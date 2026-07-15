@@ -1,6 +1,11 @@
 import type { PlatformWorkspaceId } from "@/lib/marketing/platform";
 
-export type ProductMediaType = "placeholder" | "image" | "video" | "interactive";
+export type ProductMediaType =
+  | "placeholder"
+  | "image"
+  | "video"
+  | "interactive"
+  | "component";
 
 export type ProductPlaceholderMedia = {
   type: "placeholder";
@@ -22,11 +27,17 @@ export type ProductInteractiveMedia = {
   src: string;
 };
 
+export type ProductComponentMedia = {
+  type: "component";
+  component: PlatformWorkspaceId;
+};
+
 export type ProductMedia =
   | ProductPlaceholderMedia
   | ProductImageMedia
   | ProductVideoMedia
-  | ProductInteractiveMedia;
+  | ProductInteractiveMedia
+  | ProductComponentMedia;
 
 export type WorkspacePreviewConfig = {
   workspace: PlatformWorkspaceId;

@@ -1161,37 +1161,47 @@ html[data-shell-theme="gray"] {
 /* ── Marketing surface (isolated from admin shell theme) ───────────────── */
 
 [data-surface="marketing"] {
-  --mkt-bg-0: oklch(0.12 0.008 260);
-  --mkt-bg-1: oklch(0.15 0.008 260);
-  --mkt-bg-2: oklch(0.18 0.008 260);
-  --mkt-bg-inverse: oklch(0.98 0.004 260);
+  /* Monavel visual foundation — same layout and components, premium finish only. */
 
-  --mkt-surface-1: oklch(0.16 0.008 260);
-  --mkt-surface-2: oklch(0.19 0.01 260);
-  --mkt-surface-3: oklch(0.22 0.01 260);
-  --mkt-surface-inset: oklch(0.14 0.008 260);
-  --mkt-surface-glass: oklch(0.2 0.01 260 / 72%);
+  /* Brand palette */
+  --mkt-bg-0: #090b0e;
+  --mkt-bg-1: #0d1014;
+  --mkt-bg-2: #12161b;
+  --mkt-bg-inverse: #f3efe6;
 
-  --mkt-text: oklch(0.96 0.004 260);
-  --mkt-text-muted: oklch(0.68 0.01 260);
-  --mkt-text-subtle: oklch(0.52 0.01 260);
+  --mkt-surface-1: #101419;
+  --mkt-surface-2: #151a20;
+  --mkt-surface-3: #1a2027;
+  --mkt-surface-inset: #0c0f13;
+  --mkt-surface-glass: rgb(16 20 25 / 78%);
 
-  --mkt-border-subtle: oklch(1 0 0 / 10%);
-  --mkt-border-default: oklch(1 0 0 / 16%);
-  --mkt-border-strong: oklch(1 0 0 / 24%);
+  --mkt-text: #f3f0e8;
+  --mkt-text-muted: #aaa79f;
+  --mkt-text-subtle: #74777c;
 
-  --mkt-accent: oklch(0.62 0.14 165);
-  --mkt-accent-hover: oklch(0.68 0.14 165);
-  --mkt-accent-muted: oklch(0.62 0.14 165 / 14%);
-  --mkt-accent-foreground: oklch(0.12 0.02 165);
-  --mkt-accent-ring: oklch(0.62 0.14 165 / 35%);
+  --mkt-border-subtle: rgb(243 240 232 / 8%);
+  --mkt-border-default: rgb(243 240 232 / 13%);
+  --mkt-border-strong: rgb(200 162 90 / 30%);
 
+  /* Gold is the primary brand accent; emerald remains semantic/operational. */
+  --mkt-accent: #c8a25a;
+  --mkt-accent-hover: #d8b46e;
+  --mkt-accent-muted: rgb(200 162 90 / 12%);
+  --mkt-accent-foreground: #15120c;
+  --mkt-accent-ring: rgb(200 162 90 / 36%);
+
+  --mkt-emerald: #173b32;
+  --mkt-emerald-hover: #1d493d;
+  --mkt-emerald-muted: rgb(23 59 50 / 34%);
+  --mkt-emerald-soft: #244e43;
+
+  /* Radius system */
   --mkt-radius-xs: 6px;
-  --mkt-radius-sm: 8px;
-  --mkt-radius-md: 12px;
-  --mkt-radius-lg: 16px;
-  --mkt-radius-xl: 20px;
-  --mkt-radius-2xl: 24px;
+  --mkt-radius-sm: 9px;
+  --mkt-radius-md: 14px;
+  --mkt-radius-lg: 18px;
+  --mkt-radius-xl: 24px;
+  --mkt-radius-2xl: 30px;
   --mkt-radius-full: 9999px;
   --mkt-radius-circle: 50%;
   --mkt-radius-none: 0;
@@ -1199,10 +1209,10 @@ html[data-shell-theme="gray"] {
 
   /* Border system */
   --mkt-border-width: 1px;
-  --mkt-border-width-strong: 2px;
+  --mkt-border-width-strong: 1px;
   --mkt-divider: var(--mkt-border-width) solid var(--mkt-border-subtle);
   --mkt-divider-strong: var(--mkt-border-width) solid var(--mkt-border-default);
-  --mkt-overlay-scrim: oklch(0 0 0 / 28%);
+  --mkt-overlay-scrim: rgb(0 0 0 / 42%);
 
   /* Opacity scale */
   --mkt-opacity-0: 0;
@@ -1242,7 +1252,7 @@ html[data-shell-theme="gray"] {
   --mkt-z-popover: 40;
   --mkt-z-skip: 100;
 
-  /* Spacing scale: 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96 */
+  /* Spacing scale — unchanged to preserve every composition. */
   --mkt-space-1: 0.5rem;
   --mkt-space-2: 0.75rem;
   --mkt-space-3: 1rem;
@@ -1252,19 +1262,27 @@ html[data-shell-theme="gray"] {
   --mkt-space-7: 4rem;
   --mkt-space-8: 6rem;
 
+  /* Cards */
   --mkt-card-padding: var(--mkt-space-4);
   --mkt-card-padding-sm: var(--mkt-space-3);
   --mkt-card-padding-xs: var(--mkt-space-2);
   --mkt-card-radius: var(--mkt-radius-lg);
   --mkt-card-border: var(--mkt-border-width) solid var(--mkt-border-default);
   --mkt-card-border-quiet: var(--mkt-border-width) solid var(--mkt-border-subtle);
-  --mkt-card-bg: var(--mkt-surface-1);
-  --mkt-card-shadow: var(--mkt-elevation-flat);
-  --mkt-card-hover-border: var(--mkt-border-strong);
-  --mkt-card-hover-shadow: var(--mkt-elevation-raised);
+  --mkt-card-bg: linear-gradient(145deg, rgb(21 26 32 / 96%), rgb(14 18 23 / 98%));
+  --mkt-card-shadow:
+    0 1px 0 rgb(255 255 255 / 3%),
+    0 18px 55px rgb(0 0 0 / 22%);
+  --mkt-card-hover-border: rgb(200 162 90 / 30%);
+  --mkt-card-hover-shadow:
+    0 1px 0 rgb(255 255 255 / 4%),
+    0 22px 70px rgb(0 0 0 / 32%),
+    0 0 0 1px rgb(200 162 90 / 5%),
+    0 0 34px rgb(200 162 90 / 7%);
   --mkt-card-transition:
     border-color var(--mkt-duration) var(--mkt-ease),
     box-shadow var(--mkt-duration) var(--mkt-ease),
+    background-color var(--mkt-duration) var(--mkt-ease),
     transform var(--mkt-duration) var(--mkt-ease);
   --mkt-card-icon-size: 2.25rem;
   --mkt-card-icon-radius: var(--mkt-radius-md);
@@ -1272,11 +1290,11 @@ html[data-shell-theme="gray"] {
   --mkt-card-title-gap: var(--mkt-space-2);
   --mkt-card-desc-gap: var(--mkt-space-1);
 
-  /* Buttons — one height language (sm + default) */
-  --mkt-btn-height: 2.75rem;
+  /* Buttons */
+  --mkt-btn-height: 2.875rem;
   --mkt-btn-height-sm: 2.5rem;
   --mkt-btn-radius: var(--mkt-radius-md);
-  --mkt-btn-padding-x: 1.125rem;
+  --mkt-btn-padding-x: 1.25rem;
   --mkt-btn-padding-x-sm: 1rem;
   --mkt-btn-gap: var(--mkt-space-1);
   --mkt-btn-min-width: 10.5rem;
@@ -1289,21 +1307,21 @@ html[data-shell-theme="gray"] {
     opacity var(--mkt-duration) var(--mkt-ease);
 
   /* Badges / chips */
-  --mkt-badge-height: 1.25rem;
+  --mkt-badge-height: 1.375rem;
   --mkt-badge-padding-y: 0.125rem;
   --mkt-badge-padding-x: var(--mkt-space-1);
   --mkt-badge-radius: var(--mkt-radius-full);
   --mkt-badge-gap: 0.375rem;
   --mkt-badge-font-size: var(--mkt-type-overline);
-  --mkt-badge-font-weight: 500;
-  --mkt-badge-tracking: 0.04em;
+  --mkt-badge-font-weight: 600;
+  --mkt-badge-tracking: 0.1em;
 
   /* Status indicators */
   --mkt-status-dot-size: 0.375rem;
   --mkt-status-gap: 0.375rem;
-  --mkt-status-success: oklch(0.58 0.12 145);
-  --mkt-status-warning: oklch(0.72 0.12 75);
-  --mkt-status-error: oklch(0.58 0.16 25);
+  --mkt-status-success: #5f947e;
+  --mkt-status-warning: #c8a25a;
+  --mkt-status-error: #bd6b62;
   --mkt-status-info: var(--mkt-accent);
   --mkt-status-neutral: var(--mkt-text-subtle);
 
@@ -1325,28 +1343,30 @@ html[data-shell-theme="gray"] {
   --mkt-icon-size-sm: 1rem;
   --mkt-icon-size-md: 1.25rem;
   --mkt-icon-size-lg: var(--mkt-card-icon-size);
-  --mkt-icon-stroke: 1.5;
+  --mkt-icon-stroke: 1.35;
 
-  /* Chat / conversation (page chrome; AI aliases below) */
+  /* Chat / conversation */
   --mkt-chat-bubble-radius: var(--mkt-radius-md);
   --mkt-chat-bubble-padding: var(--mkt-space-2) var(--mkt-space-3);
-  --mkt-chat-bubble-border: var(--mkt-border-width) solid color-mix(in oklch, var(--mkt-border-subtle) 60%, transparent);
+  --mkt-chat-bubble-border: var(--mkt-border-width) solid var(--mkt-border-subtle);
 
-  --mkt-browser-radius: var(--mkt-radius-lg);
+  /* Product preview */
+  --mkt-browser-radius: var(--mkt-radius-xl);
   --mkt-browser-chrome-height: 2rem;
   --mkt-browser-chrome-height-hero: 2.125rem;
   --mkt-browser-traffic-width: 3rem;
   --mkt-browser-shadow:
-    0 1px 0 oklch(1 0 0 / 4%),
-    0 1px 2px oklch(0 0 0 / 6%),
-    0 12px 32px oklch(0 0 0 / 8%);
+    0 1px 0 rgb(255 255 255 / 4%),
+    0 1px 2px rgb(0 0 0 / 16%),
+    0 22px 70px rgb(0 0 0 / 36%);
 
-  --mkt-shadow-sm: 0 1px 2px oklch(0 0 0 / 8%);
-  --mkt-shadow-md: 0 4px 12px oklch(0 0 0 / 12%);
-  --mkt-shadow-lg: 0 12px 32px oklch(0 0 0 / 16%);
+  /* Elevation */
+  --mkt-shadow-sm: 0 2px 8px rgb(0 0 0 / 18%);
+  --mkt-shadow-md: 0 12px 36px rgb(0 0 0 / 24%);
+  --mkt-shadow-lg: 0 24px 70px rgb(0 0 0 / 34%);
   --mkt-shadow-glow:
-    0 0 0 1px color-mix(in oklch, var(--mkt-accent) 25%, transparent),
-    0 8px 32px color-mix(in oklch, var(--mkt-accent) 12%, transparent);
+    0 0 0 1px rgb(200 162 90 / 14%),
+    0 12px 48px rgb(200 162 90 / 10%);
 
   --mkt-elevation-flat: none;
   --mkt-elevation-raised: var(--mkt-shadow-sm);
@@ -1357,6 +1377,7 @@ html[data-shell-theme="gray"] {
   --mkt-focus-ring: 0 0 0 2px var(--mkt-bg-0), 0 0 0 4px var(--mkt-accent-ring);
   --mkt-focus-ring-soft: 0 0 0 2px var(--mkt-accent-ring);
 
+  /* Layout values retained — concept and composition remain unchanged. */
   --mkt-nav-height: 56px;
   --mkt-container: 1160px;
   --mkt-container-wide: 1320px;
@@ -1377,21 +1398,38 @@ html[data-shell-theme="gray"] {
   --mkt-stack-xl: var(--mkt-space-5);
   --mkt-hero-min-h: 0;
 
-  /* Typography scale */
-  --mkt-type-display: clamp(2.75rem, 6vw, 4.5rem);
-  --mkt-type-h1: clamp(2.5rem, 5.2vw, 4rem);
-  --mkt-type-h2: clamp(2rem, 4.2vw, 3.25rem);
-  --mkt-type-h3: clamp(1.75rem, 3vw, 2.5rem);
-  --mkt-type-h4: clamp(1.375rem, 2.2vw, 1.75rem);
+  /* Typography families */
+  --mkt-font-display:
+    var(--font-monavel-display),
+    "Cormorant Garamond",
+    Georgia,
+    serif;
+  --mkt-font-body:
+    var(--font-geist-sans),
+    Geist,
+    ui-sans-serif,
+    system-ui,
+    sans-serif;
+  --mkt-font-mono:
+    var(--font-geist-mono),
+    ui-monospace,
+    SFMono-Regular,
+    monospace;
+
+  /* Typography scale — same hierarchy, more distinctive brand character. */
+  --mkt-type-display: clamp(3.25rem, 7vw, 6rem);
+  --mkt-type-h1: clamp(2.875rem, 5.8vw, 5rem);
+  --mkt-type-h2: clamp(2.375rem, 4.7vw, 4rem);
+  --mkt-type-h3: clamp(1.875rem, 3.2vw, 2.75rem);
+  --mkt-type-h4: clamp(1.375rem, 2.2vw, 1.875rem);
   --mkt-type-body-lg: 1.125rem;
   --mkt-type-body: 1rem;
   --mkt-type-small: 0.875rem;
   --mkt-type-caption: 0.75rem;
-  --mkt-type-overline: 0.75rem;
-  --mkt-type-metric: clamp(1.5rem, 2.5vw, 1.875rem);
+  --mkt-type-overline: 0.6875rem;
+  --mkt-type-metric: clamp(1.625rem, 2.8vw, 2.125rem);
   --mkt-type-metric-label: var(--mkt-type-caption);
 
-  /* Product-mock miniatures (do not use for page chrome) */
   --mkt-type-mock-xs: 0.5rem;
   --mkt-type-mock-sm: 0.5625rem;
   --mkt-type-mock-md: 0.625rem;
@@ -1399,41 +1437,40 @@ html[data-shell-theme="gray"] {
   --mkt-weight-regular: 400;
   --mkt-weight-medium: 500;
   --mkt-weight-semibold: 600;
-  --mkt-display-weight: 620;
+  --mkt-display-weight: 500;
   --mkt-weight-display: var(--mkt-display-weight);
 
-  --mkt-tracking-display: -0.038em;
-  --mkt-tracking-headline: -0.034em;
-  --mkt-tracking-body: -0.011em;
-  --mkt-tracking-overline: 0.08em;
-  --mkt-tracking-metric: -0.04em;
+  --mkt-tracking-display: -0.026em;
+  --mkt-tracking-headline: -0.018em;
+  --mkt-tracking-body: -0.006em;
+  --mkt-tracking-overline: 0.16em;
+  --mkt-tracking-metric: -0.025em;
   --mkt-headline-tracking: var(--mkt-tracking-headline);
 
-  --mkt-leading-display: 1.0;
-  --mkt-leading-h1: 1.05;
-  --mkt-leading-h2: 1.14;
+  --mkt-leading-display: 0.96;
+  --mkt-leading-h1: 1;
+  --mkt-leading-h2: 1.04;
   --mkt-leading-headline: var(--mkt-leading-h1);
-  --mkt-leading-body: 1.55;
-  --mkt-leading-ui: 1.35;
+  --mkt-leading-body: 1.62;
+  --mkt-leading-ui: 1.4;
   --mkt-leading-tight: 1.08;
   --mkt-headline-leading: var(--mkt-leading-display);
   --mkt-body-leading: var(--mkt-leading-body);
 
-  --mkt-prose-max: 58ch;
+  --mkt-prose-max: 60ch;
   --mkt-body-max: 64ch;
   --mkt-headline-max: 14em;
   --mkt-section-headline-max: 16em;
 
-  /* Motion language: Instant / Fast / Normal / Slow / Cycle — one ease-out curve */
+  /* Motion — calmer, without changing behavior or animation choreography. */
   --mkt-duration-instant: 0ms;
-  --mkt-duration-micro: 100ms;
-  --mkt-duration-fast: 150ms;
-  --mkt-duration: 200ms;
-  --mkt-duration-slow: 250ms;
+  --mkt-duration-micro: 110ms;
+  --mkt-duration-fast: 180ms;
+  --mkt-duration: 260ms;
+  --mkt-duration-slow: 360ms;
   --mkt-duration-cycle: 12s;
-  /* Aliases map legacy names onto the same scale (no per-component timing) */
-  --mkt-duration-quick: var(--mkt-duration);
-  --mkt-duration-medium: var(--mkt-duration-slow);
+  --mkt-duration-quick: var(--mkt-duration-fast);
+  --mkt-duration-medium: var(--mkt-duration);
   --mkt-duration-emphasis: var(--mkt-duration-slow);
   --mkt-duration-glow: var(--mkt-duration-slow);
   --mkt-duration-typing: 900ms;
@@ -1441,43 +1478,19 @@ html[data-shell-theme="gray"] {
   --mkt-duration-pulse-slow: var(--mkt-duration-cycle);
   --mkt-duration-breathe: var(--mkt-duration-cycle);
   --mkt-duration-breathe-slow: var(--mkt-duration-cycle);
-  --mkt-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --mkt-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --mkt-ease-out: var(--mkt-ease);
-  --mkt-motion-reveal-y: 6px;
+  --mkt-motion-reveal-y: 8px;
   --mkt-motion-hover-y: 2px;
   --mkt-motion-btn-hover-y: 1px;
-  --mkt-motion-stagger: 50ms;
+  --mkt-motion-stagger: 55ms;
 
   background-color: var(--mkt-bg-0);
   color: var(--mkt-text);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--mkt-font-body);
 }
 
-@media (prefers-color-scheme: light) {
-  [data-surface="marketing"] {
-    --mkt-bg-0: oklch(0.99 0.004 260);
-    --mkt-bg-1: oklch(0.97 0.006 260);
-    --mkt-bg-2: oklch(0.95 0.008 260);
 
-    --mkt-surface-1: oklch(1 0 0);
-    --mkt-surface-2: oklch(0.99 0.004 260);
-    --mkt-surface-3: oklch(0.98 0.006 260);
-    --mkt-surface-inset: oklch(0.96 0.006 260);
-    --mkt-surface-glass: oklch(1 0 0 / 80%);
-
-    --mkt-text: oklch(0.18 0.02 260);
-    --mkt-text-muted: oklch(0.45 0.02 260);
-    --mkt-text-subtle: oklch(0.58 0.02 260);
-
-    --mkt-border-subtle: oklch(0 0 0 / 9%);
-    --mkt-border-default: oklch(0 0 0 / 13%);
-    --mkt-border-strong: oklch(0 0 0 / 19%);
-
-    --mkt-shadow-sm: 0 1px 2px oklch(0 0 0 / 5%);
-    --mkt-shadow-md: 0 4px 12px oklch(0 0 0 / 8%);
-    --mkt-shadow-lg: 0 12px 32px oklch(0 0 0 / 10%);
-  }
-}
 
 [data-surface="marketing"] .mkt-container {
   width: 100%;
@@ -1865,7 +1878,7 @@ html[data-shell-theme="gray"] {
   letter-spacing: var(--mkt-tracking-overline);
   line-height: var(--mkt-leading-ui);
   text-transform: uppercase;
-  color: var(--mkt-text-muted);
+  color: color-mix(in oklch, var(--mkt-accent) 78%, var(--mkt-text-muted));
 }
 
 [data-surface="marketing"] .mkt-section-header .mkt-overline {
@@ -1879,6 +1892,7 @@ html[data-shell-theme="gray"] {
 [data-surface="marketing"] .mkt-page-hero-headline,
 [data-surface="marketing"] .mkt-section-headline,
 [data-surface="marketing"] .mkt-platform-headline {
+  font-family: var(--mkt-font-display);
   text-wrap: balance;
 }
 
@@ -14089,4 +14103,3200 @@ html[data-shell-theme="gray"] {
 
 [data-surface="marketing"] .mkt-brand-book-checklist li span {
   color: var(--bb-accent);
+}
+
+/* ── Monavel Visual Polish V2: Hero only ───────────────────────────────
+   No layout, content, section order, or product logic changes.
+   This layer only improves contrast, light, depth, and micro-interaction.
+   --------------------------------------------------------------------- */
+
+[data-surface="marketing"] .mkt-hero {
+  isolation: isolate;
+  background:
+    radial-gradient(
+      52rem 38rem at 76% 43%,
+      color-mix(in srgb, var(--brand-gold) 7%, transparent),
+      transparent 68%
+    ),
+    radial-gradient(
+      44rem 32rem at 91% 20%,
+      color-mix(in srgb, var(--brand-green) 18%, transparent),
+      transparent 72%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--mkt-bg-0) 98%, #000),
+      var(--mkt-bg-0)
+    );
+}
+
+[data-surface="marketing"] .mkt-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      90deg,
+      rgb(255 255 255 / 1.3%) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      rgb(255 255 255 / 1.3%) 1px,
+      transparent 1px
+    );
+  background-size: 56px 56px;
+  mask-image: radial-gradient(circle at 72% 44%, #000 0%, transparent 72%);
+  opacity: 0.28;
+}
+
+[data-surface="marketing"] .mkt-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    transparent 68%,
+    var(--mkt-bg-0) 100%
+  );
+}
+
+[data-surface="marketing"] .mkt-hero-copy {
+  position: relative;
+  z-index: var(--mkt-z-raised);
+}
+
+[data-surface="marketing"] .mkt-hero-headline {
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  text-wrap: balance;
+  text-shadow: 0 1px 24px rgb(0 0 0 / 18%);
+}
+
+[data-surface="marketing"] .mkt-hero-headline-accent {
+  color: #d8b66f;
+  text-shadow:
+    0 0 22px rgb(200 162 90 / 10%),
+    0 0 48px rgb(200 162 90 / 5%);
+}
+
+[data-surface="marketing"] .mkt-hero-subhead {
+  color: color-mix(in srgb, var(--mkt-text) 80%, var(--mkt-text-muted));
+  opacity: 1;
+  line-height: 1.68;
+}
+
+[data-surface="marketing"] .mkt-hero .mkt-overline {
+  color: #d8b66f;
+  letter-spacing: 0.18em;
+}
+
+[data-surface="marketing"] .mkt-hero-actions .mkt-btn-primary {
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 16%),
+    0 0 0 1px rgb(200 162 90 / 20%),
+    0 12px 34px rgb(200 162 90 / 11%),
+    0 8px 22px rgb(0 0 0 / 24%);
+}
+
+[data-surface="marketing"] .mkt-hero-actions .mkt-btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 20%),
+    0 0 0 1px rgb(216 182 111 / 30%),
+    0 16px 42px rgb(200 162 90 / 15%),
+    0 10px 28px rgb(0 0 0 / 28%);
+}
+
+[data-surface="marketing"] .mkt-hero-actions .mkt-btn-secondary {
+  background: color-mix(in srgb, var(--mkt-surface-glass) 78%, transparent);
+  border-color: color-mix(in srgb, var(--mkt-border-default) 82%, transparent);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+[data-surface="marketing"] .mkt-hero-actions .mkt-btn-secondary:hover {
+  border-color: rgb(216 182 111 / 24%);
+  background: color-mix(in srgb, var(--mkt-surface-2) 72%, transparent);
+  color: var(--mkt-text);
+}
+
+[data-surface="marketing"] .mkt-hero-trust,
+[data-surface="marketing"] .mkt-hero-benefits,
+[data-surface="marketing"] .mkt-hero-principles {
+  color: color-mix(in srgb, var(--mkt-text-muted) 88%, var(--mkt-text));
+}
+
+/* Diagram halo: stronger at the runtime, restrained at the perimeter. */
+[data-surface="marketing"] .mkt-hero-visual--diagram::before {
+  inset: -12% -8% -14% -6%;
+  background:
+    radial-gradient(
+      ellipse at 59% 48%,
+      rgb(200 162 90 / 12%) 0%,
+      rgb(200 162 90 / 5%) 30%,
+      rgb(11 31 27 / 10%) 52%,
+      transparent 74%
+    );
+  filter: blur(40px);
+  opacity: 0.94;
+}
+
+[data-surface="marketing"] .mkt-hero-visual--diagram::after {
+  content: "";
+  position: absolute;
+  inset: 7% 7% 9%;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 32px;
+  background:
+    radial-gradient(
+      circle at 57% 48%,
+      rgb(216 182 111 / 6%),
+      transparent 34%
+    ),
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 1.8%),
+      transparent 38%,
+      rgb(11 31 27 / 4%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 2.5%),
+    0 42px 120px rgb(0 0 0 / 16%);
+  opacity: 0.88;
+}
+
+[data-surface="marketing"] .mkt-hero-visual-float {
+  transition:
+    filter 420ms var(--mkt-ease),
+    transform 420ms var(--mkt-ease);
+  filter: drop-shadow(0 28px 48px rgb(0 0 0 / 16%));
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-surface="marketing"] .mkt-hero-visual:hover .mkt-hero-visual-float {
+    transform: translateY(-2px);
+    filter:
+      drop-shadow(0 34px 64px rgb(0 0 0 / 22%))
+      drop-shadow(0 0 28px rgb(200 162 90 / 5%));
+  }
+}
+
+/* Idle diagram hierarchy: improve readability without flattening depth. */
+[data-surface="marketing"] .mkt-arch-connectors-base {
+  opacity: 0.43;
+}
+
+[data-surface="marketing"] .mkt-arch-junctions {
+  opacity: 0.5;
+}
+
+[data-surface="marketing"] .mkt-arch-meta {
+  color: #87909d;
+  opacity: 0.8;
+}
+
+[data-surface="marketing"] .mkt-arch-column-label {
+  opacity: 0.9;
+}
+
+[data-surface="marketing"] .mkt-arch-node--source {
+  color: #949ca9;
+  opacity: 0.72;
+}
+
+[data-surface="marketing"] .mkt-arch-node--destination {
+  color: #a1a8b3;
+  opacity: 0.76;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime {
+  opacity: 1;
+  filter:
+    drop-shadow(0 0 18px rgb(200 162 90 / 8%))
+    drop-shadow(0 18px 32px rgb(0 0 0 / 18%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-shell {
+  stroke: color-mix(in srgb, #d8b66f 34%, transparent);
+  stroke-opacity: 0.92;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-inset {
+  stroke: color-mix(in srgb, var(--brand-green) 48%, #d8b66f);
+  stroke-opacity: 0.5;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-title {
+  fill: #f6f1e7;
+  filter: drop-shadow(0 0 10px rgb(216 182 111 / 8%));
+}
+
+[data-surface="marketing"] .mkt-arch-node-shell {
+  stroke-opacity: 0.62;
+  fill-opacity: 0.94;
+}
+
+[data-surface="marketing"] .mkt-arch-node-label {
+  fill: #c1c6ce;
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"] {
+  color: color-mix(in srgb, #d8b66f 38%, #b5c8c0);
+  filter: drop-shadow(0 0 14px rgb(200 162 90 / 8%));
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"] .mkt-arch-node-shell {
+  stroke: color-mix(in srgb, #d8b66f 48%, var(--brand-green));
+  stroke-opacity: 1;
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"] .mkt-arch-node-label {
+  fill: #f6f3ec;
+}
+
+[data-surface="marketing"] .mkt-arch-path-travel[data-active="true"] {
+  opacity: 0.92;
+  filter:
+    drop-shadow(0 0 4px rgb(126 231 190 / 42%))
+    drop-shadow(0 0 9px rgb(200 162 90 / 12%));
+}
+
+/* Preserve focus and reduced-motion behavior. */
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-hero-visual-float,
+  [data-surface="marketing"] .mkt-hero-visual:hover .mkt-hero-visual-float {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-surface="marketing"] .mkt-hero {
+    background:
+      radial-gradient(
+        32rem 24rem at 58% 67%,
+        rgb(11 31 27 / 15%),
+        transparent 72%
+      ),
+      var(--mkt-bg-0);
+  }
+
+  [data-surface="marketing"] .mkt-hero::before {
+    opacity: 0.16;
+  }
+
+  [data-surface="marketing"] .mkt-hero-visual--diagram::before {
+    inset: -8% -4% -10%;
+    filter: blur(28px);
+    opacity: 0.72;
+  }
+
+  [data-surface="marketing"] .mkt-hero-visual--diagram::after {
+    inset: 10% 2% 10%;
+    opacity: 0.58;
+  }
+
+  [data-surface="marketing"] .mkt-hero-subhead {
+    line-height: 1.6;
+  }
+}
+
+/* ── Monavel Visual Polish V3: Pricing only ─────────────────────────────
+   No pricing content, hierarchy, card order, plan logic, or CTA behavior changes.
+   This layer only improves contrast, emphasis, surfaces, and interaction.
+   --------------------------------------------------------------------- */
+
+[data-surface="marketing"] .mkt-pricing-preview-section,
+[data-surface="marketing"] .mkt-pricing-page {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-section::before,
+[data-surface="marketing"] .mkt-pricing-page::before {
+  content: "";
+  position: absolute;
+  inset: 8% 0 auto;
+  height: 34rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 50% 28%,
+      rgb(200 162 90 / 5%),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse at 74% 52%,
+      rgb(11 31 27 / 9%),
+      transparent 66%
+    );
+  filter: blur(20px);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-grid,
+[data-surface="marketing"] .mkt-pricing-plans-grid {
+  align-items: stretch;
+}
+
+/* Base pricing card: quieter than the featured plan, but still premium. */
+[data-surface="marketing"] .mkt-pricing-preview-card,
+[data-surface="marketing"] .mkt-pricing-plan-card {
+  position: relative;
+  overflow: hidden;
+  border-color: rgb(243 240 232 / 10%);
+  background:
+    linear-gradient(
+      155deg,
+      rgb(22 27 33 / 97%),
+      rgb(13 17 22 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 2.5%),
+    0 20px 56px rgb(0 0 0 / 18%);
+  transition:
+    border-color 360ms var(--mkt-ease),
+    box-shadow 360ms var(--mkt-ease),
+    background-color 360ms var(--mkt-ease),
+    transform 360ms var(--mkt-ease),
+    opacity 360ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card::before,
+[data-surface="marketing"] .mkt-pricing-plan-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      135deg,
+      rgb(255 255 255 / 2.6%),
+      transparent 26%,
+      transparent 72%,
+      rgb(200 162 90 / 1.6%)
+    );
+  opacity: 0.76;
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card::after,
+[data-surface="marketing"] .mkt-pricing-plan-card::after {
+  content: "";
+  position: absolute;
+  inset: auto 12% 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(243 240 232 / 6%),
+    transparent
+  );
+}
+
+/* Featured / recommended plan: stronger hierarchy without changing dimensions. */
+[data-surface="marketing"] .mkt-pricing-preview-card--featured,
+[data-surface="marketing"] .mkt-pricing-plan-card--featured {
+  border-color: rgb(216 182 111 / 38%);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgb(200 162 90 / 9%),
+      transparent 34%
+    ),
+    linear-gradient(
+      155deg,
+      rgb(26 29 32 / 99%),
+      rgb(14 17 20 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 5%),
+    0 0 0 1px rgb(200 162 90 / 5%),
+    0 28px 76px rgb(0 0 0 / 30%),
+    0 0 52px rgb(200 162 90 / 7%);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card--featured::after,
+[data-surface="marketing"] .mkt-pricing-plan-card--featured::after {
+  inset: 0 14% auto;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(216 182 111 / 70%),
+    transparent
+  );
+  box-shadow: 0 0 18px rgb(200 162 90 / 18%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-surface="marketing"] .mkt-pricing-preview-card:hover,
+  [data-surface="marketing"] .mkt-pricing-plan-card:hover {
+    transform: translateY(-2px);
+    border-color: rgb(243 240 232 / 17%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 4%),
+      0 28px 72px rgb(0 0 0 / 26%);
+  }
+
+  [data-surface="marketing"] .mkt-pricing-preview-card--featured:hover,
+  [data-surface="marketing"] .mkt-pricing-plan-card--featured:hover {
+    border-color: rgb(216 182 111 / 52%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 7%),
+      0 0 0 1px rgb(200 162 90 / 8%),
+      0 34px 88px rgb(0 0 0 / 34%),
+      0 0 64px rgb(200 162 90 / 10%);
+  }
+}
+
+/* Plan badge / recommended label. */
+[data-surface="marketing"] .mkt-pricing-preview-badge,
+[data-surface="marketing"] .mkt-pricing-plan-badge {
+  color: #d8b66f;
+  font-weight: 650;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 16px rgb(200 162 90 / 10%);
+}
+
+/* Plan name and description. */
+[data-surface="marketing"] .mkt-pricing-preview-name,
+[data-surface="marketing"] .mkt-pricing-plan-card-name {
+  color: #f7f3eb;
+  font-weight: 650;
+  letter-spacing: -0.018em;
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-desc,
+[data-surface="marketing"] .mkt-pricing-plan-card-desc {
+  color: color-mix(in srgb, var(--mkt-text-muted) 82%, var(--mkt-text));
+  line-height: 1.55;
+}
+
+/* Price hierarchy. */
+[data-surface="marketing"] .mkt-pricing-preview-amount,
+[data-surface="marketing"] .mkt-pricing-plan-card-amount {
+  font-family: var(--mkt-font-display);
+  font-weight: 500;
+  letter-spacing: -0.024em;
+  color: #f8f4ec;
+  text-shadow: 0 1px 20px rgb(0 0 0 / 16%);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card--featured
+  .mkt-pricing-preview-amount,
+[data-surface="marketing"] .mkt-pricing-plan-card--featured
+  .mkt-pricing-plan-card-amount {
+  color: #dfc180;
+  text-shadow:
+    0 0 22px rgb(200 162 90 / 10%),
+    0 1px 20px rgb(0 0 0 / 16%);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-note,
+[data-surface="marketing"] .mkt-pricing-plan-card-note {
+  color: #8f969f;
+}
+
+/* Feature lists: lift readability, retain calm hierarchy. */
+[data-surface="marketing"] .mkt-pricing-preview-features,
+[data-surface="marketing"] .mkt-pricing-plan-card-features {
+  color: #cfd2d5;
+  line-height: 1.52;
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-features li::before,
+[data-surface="marketing"] .mkt-pricing-plan-card-features li::before {
+  background: #b99b61;
+  box-shadow: 0 0 8px rgb(200 162 90 / 12%);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card:not(.mkt-pricing-preview-card--featured)
+  .mkt-pricing-preview-features,
+[data-surface="marketing"] .mkt-pricing-plan-card:not(.mkt-pricing-plan-card--featured)
+  .mkt-pricing-plan-card-features {
+  color: #b9bec4;
+}
+
+/* CTA hierarchy. */
+[data-surface="marketing"] .mkt-pricing-preview-card--featured .mkt-btn-primary,
+[data-surface="marketing"] .mkt-pricing-plan-card--featured .mkt-btn-primary {
+  background:
+    linear-gradient(
+      180deg,
+      #d8b66f 0%,
+      #c59d50 100%
+    );
+  border-color: rgb(234 204 139 / 66%);
+  color: #17130d;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 24%),
+    0 0 0 1px rgb(200 162 90 / 18%),
+    0 14px 34px rgb(200 162 90 / 14%),
+    0 8px 22px rgb(0 0 0 / 24%);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card--featured .mkt-btn-primary:hover,
+[data-surface="marketing"] .mkt-pricing-plan-card--featured .mkt-btn-primary:hover {
+  background:
+    linear-gradient(
+      180deg,
+      #e1c27d 0%,
+      #cda65c 100%
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 28%),
+    0 0 0 1px rgb(216 182 111 / 24%),
+    0 18px 42px rgb(200 162 90 / 18%),
+    0 10px 28px rgb(0 0 0 / 28%);
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card:not(.mkt-pricing-preview-card--featured)
+  .mkt-btn,
+[data-surface="marketing"] .mkt-pricing-plan-card:not(.mkt-pricing-plan-card--featured)
+  .mkt-btn {
+  background: rgb(255 255 255 / 2.8%);
+  border-color: rgb(243 240 232 / 12%);
+  color: #d8dadd;
+}
+
+[data-surface="marketing"] .mkt-pricing-preview-card:not(.mkt-pricing-preview-card--featured)
+  .mkt-btn:hover,
+[data-surface="marketing"] .mkt-pricing-plan-card:not(.mkt-pricing-plan-card--featured)
+  .mkt-btn:hover {
+  background: rgb(255 255 255 / 4.5%);
+  border-color: rgb(216 182 111 / 22%);
+  color: #f2eee6;
+}
+
+/* Implementation and details strips. */
+[data-surface="marketing"] .mkt-pricing-implementation-strip,
+[data-surface="marketing"] .mkt-pricing-details-section,
+[data-surface="marketing"] .mkt-pricing-comparison-block {
+  border-color: rgb(243 240 232 / 10%);
+  background:
+    linear-gradient(
+      145deg,
+      rgb(20 25 30 / 96%),
+      rgb(12 16 20 / 98%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 2.5%),
+    0 18px 50px rgb(0 0 0 / 17%);
+}
+
+/* FAQ: clearer text, quieter separators, premium open state. */
+[data-surface="marketing"] .mkt-pricing-page-faq-item {
+  border-color: rgb(243 240 232 / 8%);
+}
+
+[data-surface="marketing"] .mkt-pricing-page-faq-trigger {
+  color: #ece9e2;
+  font-weight: 600;
+  transition:
+    color 260ms var(--mkt-ease),
+    opacity 260ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-pricing-page-faq-trigger:hover {
+  color: #dfc180;
+}
+
+[data-surface="marketing"] .mkt-pricing-page-faq-icon::before,
+[data-surface="marketing"] .mkt-pricing-page-faq-icon::after {
+  background: #8f969f;
+}
+
+[data-surface="marketing"] .mkt-pricing-page-faq-item--open
+  .mkt-pricing-page-faq-trigger {
+  color: #f5f1e8;
+}
+
+[data-surface="marketing"] .mkt-pricing-page-faq-item--open
+  .mkt-pricing-page-faq-icon::before,
+[data-surface="marketing"] .mkt-pricing-page-faq-item--open
+  .mkt-pricing-page-faq-icon::after {
+  background: #d8b66f;
+}
+
+[data-surface="marketing"] .mkt-pricing-page-faq-answer {
+  color: #aeb4bb;
+  line-height: 1.58;
+}
+
+/* Mobile: preserve compact rhythm and remove hover-only elevation assumptions. */
+@media (max-width: 767px) {
+  [data-surface="marketing"] .mkt-pricing-preview-card,
+  [data-surface="marketing"] .mkt-pricing-plan-card,
+  [data-surface="marketing"] .mkt-pricing-preview-card--featured,
+  [data-surface="marketing"] .mkt-pricing-plan-card--featured {
+    transform: none;
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 3%),
+      0 18px 48px rgb(0 0 0 / 18%);
+  }
+
+  [data-surface="marketing"] .mkt-pricing-preview-section::before,
+  [data-surface="marketing"] .mkt-pricing-page::before {
+    height: 24rem;
+    opacity: 0.68;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-pricing-preview-card,
+  [data-surface="marketing"] .mkt-pricing-plan-card {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ── Monavel Visual Polish V4: Complete marketing pass ──────────────────
+   Scope: visual treatment only.
+   No content, layout structure, section order, component hierarchy,
+   interaction logic, routing, or product behavior changes.
+   --------------------------------------------------------------------- */
+
+/* Shared premium surface treatment */
+[data-surface="marketing"] :is(
+  .mkt-browser-frame,
+  .mkt-browser-shell,
+  .mkt-platform-showcase-shell,
+  .mkt-ai-hero-canvas,
+  .mkt-ai-status-panel,
+  .mkt-ai-story-panel,
+  .mkt-ai-night-timeline,
+  .mkt-ai-close-inner,
+  .mkt-docs-nav-card,
+  .mkt-docs-search-form,
+  .mkt-docs-callout,
+  .mkt-final-cta-card
+) {
+  border-color: rgb(243 240 232 / 10%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 3%),
+    0 20px 56px rgb(0 0 0 / 18%);
+}
+
+/* Header */
+[data-surface="marketing"] .mkt-nav {
+  border-bottom: 1px solid rgb(243 240 232 / 5%);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(9 11 14 / 82%),
+      rgb(9 11 14 / 62%)
+    );
+  backdrop-filter: blur(20px) saturate(1.12);
+  box-shadow:
+    inset 0 -1px 0 rgb(255 255 255 / 1.5%),
+    0 10px 36px rgb(0 0 0 / 8%);
+}
+
+[data-surface="marketing"] .mkt-nav-scrolled {
+  border-bottom-color: rgb(243 240 232 / 8%);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(9 11 14 / 94%),
+      rgb(9 11 14 / 82%)
+    );
+  box-shadow:
+    inset 0 -1px 0 rgb(255 255 255 / 2.4%),
+    0 14px 42px rgb(0 0 0 / 16%);
+}
+
+[data-surface="marketing"] .mkt-nav-logo {
+  filter: drop-shadow(0 0 18px rgb(200 162 90 / 7%));
+}
+
+[data-surface="marketing"] .mkt-nav-link {
+  color: #999fa7;
+  letter-spacing: 0.005em;
+  transition:
+    color 240ms var(--mkt-ease),
+    opacity 240ms var(--mkt-ease),
+    text-shadow 240ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-nav-link:hover {
+  color: #e0c27f;
+  background: transparent;
+  text-shadow: 0 0 16px rgb(200 162 90 / 8%);
+}
+
+[data-surface="marketing"] .mkt-nav-link:focus-visible {
+  color: #f2eee6;
+}
+
+[data-surface="marketing"] .mkt-nav-menu-toggle {
+  border-color: rgb(243 240 232 / 10%);
+  background: rgb(255 255 255 / 2.5%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 3%);
+}
+
+[data-surface="marketing"] .mkt-nav-mobile-panel {
+  border-color: rgb(243 240 232 / 10%);
+  background:
+    linear-gradient(
+      150deg,
+      rgb(20 24 29 / 98%),
+      rgb(10 13 17 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 26px 70px rgb(0 0 0 / 34%);
+  backdrop-filter: blur(24px) saturate(1.12);
+}
+
+[data-surface="marketing"] .mkt-nav-mobile-link {
+  color: #c3c7cc;
+}
+
+[data-surface="marketing"] .mkt-nav-mobile-link:hover {
+  color: #dfc180;
+  background: rgb(255 255 255 / 2.5%);
+}
+
+/* Footer */
+[data-surface="marketing"] .mkt-footer {
+  position: relative;
+  border-top: 1px solid rgb(243 240 232 / 6%);
+  background:
+    radial-gradient(
+      46rem 24rem at 18% 0%,
+      rgb(200 162 90 / 3.5%),
+      transparent 68%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(10 13 16 / 98%),
+      rgb(7 9 12 / 100%)
+    );
+}
+
+[data-surface="marketing"] .mkt-footer::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(216 182 111 / 22%),
+    transparent
+  );
+}
+
+[data-surface="marketing"] .mkt-footer-signature {
+  color: #c9cdd1;
+}
+
+[data-surface="marketing"] .mkt-footer-column-title {
+  color: #d9d5cc;
+  letter-spacing: 0.1em;
+}
+
+[data-surface="marketing"] .mkt-footer-link {
+  color: #858c94;
+  transition:
+    color 240ms var(--mkt-ease),
+    text-shadow 240ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-footer-link:hover {
+  color: #d8b66f;
+  text-shadow: 0 0 14px rgb(200 162 90 / 7%);
+}
+
+[data-surface="marketing"] .mkt-footer-bottom {
+  border-top-color: rgb(243 240 232 / 5%);
+}
+
+[data-surface="marketing"] .mkt-footer-bottom-inner {
+  color: #6f767e;
+}
+
+[data-surface="marketing"] .mkt-logo-horizontal--footer {
+  filter:
+    brightness(1.08)
+    drop-shadow(0 0 16px rgb(200 162 90 / 6%));
+}
+
+/* Shared buttons and forms */
+[data-surface="marketing"] .mkt-btn {
+  font-weight: 620;
+  letter-spacing: 0.015em;
+}
+
+[data-surface="marketing"] .mkt-btn-primary {
+  background:
+    linear-gradient(
+      180deg,
+      #d8b66f 0%,
+      #c39a4e 100%
+    );
+  border-color: rgb(230 198 129 / 58%);
+  color: #17130d;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 22%),
+    0 0 0 1px rgb(200 162 90 / 16%),
+    0 12px 30px rgb(200 162 90 / 11%),
+    0 7px 18px rgb(0 0 0 / 22%);
+}
+
+[data-surface="marketing"] .mkt-btn-primary:hover {
+  background:
+    linear-gradient(
+      180deg,
+      #e2c47f 0%,
+      #cba45a 100%
+    );
+  border-color: rgb(234 204 139 / 72%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 28%),
+    0 0 0 1px rgb(216 182 111 / 22%),
+    0 16px 38px rgb(200 162 90 / 15%),
+    0 9px 24px rgb(0 0 0 / 26%);
+}
+
+[data-surface="marketing"] .mkt-btn-secondary,
+[data-surface="marketing"] .mkt-btn-ghost {
+  background: rgb(255 255 255 / 2.5%);
+  border-color: rgb(243 240 232 / 11%);
+  color: #d3d6da;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 2.5%);
+}
+
+[data-surface="marketing"] :is(.mkt-btn-secondary, .mkt-btn-ghost):hover {
+  background: rgb(255 255 255 / 4.2%);
+  border-color: rgb(216 182 111 / 21%);
+  color: #f1ede5;
+}
+
+[data-surface="marketing"] input,
+[data-surface="marketing"] textarea,
+[data-surface="marketing"] select {
+  border-color: rgb(243 240 232 / 10%);
+  background: rgb(255 255 255 / 2.7%);
+  color: #e9e6df;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 2.4%),
+    0 8px 24px rgb(0 0 0 / 8%);
+}
+
+[data-surface="marketing"] input::placeholder,
+[data-surface="marketing"] textarea::placeholder {
+  color: #747b83;
+}
+
+[data-surface="marketing"] :is(input, textarea, select):focus {
+  border-color: rgb(216 182 111 / 34%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 3%),
+    0 0 0 3px rgb(200 162 90 / 10%),
+    0 10px 28px rgb(0 0 0 / 12%);
+}
+
+/* Product mockups / browser chrome */
+[data-surface="marketing"] .mkt-browser-frame,
+[data-surface="marketing"] .mkt-browser-shell {
+  background:
+    linear-gradient(
+      150deg,
+      rgb(20 25 30 / 98%),
+      rgb(10 14 18 / 99%)
+    );
+  border-color: rgb(243 240 232 / 10%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 28px 82px rgb(0 0 0 / 28%),
+    0 0 0 1px rgb(200 162 90 / 2.5%);
+}
+
+[data-surface="marketing"] .mkt-browser-chrome {
+  border-bottom-color: rgb(243 240 232 / 7%);
+  background:
+    linear-gradient(
+      180deg,
+      rgb(255 255 255 / 3.8%),
+      rgb(255 255 255 / 1.8%)
+    );
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+[data-surface="marketing"] .mkt-browser-url {
+  border-color: rgb(243 240 232 / 7%);
+  background: rgb(0 0 0 / 15%);
+  color: #7f8790;
+}
+
+[data-surface="marketing"] .mkt-browser-content {
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgb(200 162 90 / 2.6%),
+      transparent 34%
+    ),
+    rgb(10 14 18 / 96%);
+}
+
+[data-surface="marketing"] .mkt-browser-traffic-dot {
+  opacity: 0.62;
+}
+
+/* Platform / One Runtime */
+[data-surface="marketing"] .mkt-platform-showcase-shell {
+  border-color: rgb(216 182 111 / 18%);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgb(200 162 90 / 4.5%),
+      transparent 28%
+    ),
+    linear-gradient(
+      150deg,
+      rgb(20 25 30 / 98%),
+      rgb(10 14 18 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 30px 84px rgb(0 0 0 / 30%),
+    0 0 44px rgb(200 162 90 / 4.5%);
+}
+
+[data-surface="marketing"] .mkt-runtime-identity {
+  background: rgb(255 255 255 / 1.8%);
+  border-bottom-color: rgb(243 240 232 / 6%);
+}
+
+[data-surface="marketing"] .mkt-runtime-status {
+  color: #969da5;
+}
+
+[data-surface="marketing"] .mkt-runtime-status-dot {
+  box-shadow:
+    0 0 0 3px rgb(95 148 126 / 10%),
+    0 0 12px rgb(95 148 126 / 20%);
+}
+
+[data-surface="marketing"] .mkt-perspective-nav,
+[data-surface="marketing"] .mkt-workspace-nav {
+  border-color: rgb(243 240 232 / 7%);
+  background: rgb(0 0 0 / 12%);
+}
+
+[data-surface="marketing"] .mkt-perspective-tab,
+[data-surface="marketing"] .mkt-workspace-tab,
+[data-surface="marketing"] .mkt-perspective-view-tab {
+  color: #858d96;
+}
+
+[data-surface="marketing"] .mkt-perspective-tab:hover,
+[data-surface="marketing"] .mkt-workspace-tab:hover,
+[data-surface="marketing"] .mkt-perspective-view-tab:hover {
+  color: #d3d6da;
+  background: rgb(255 255 255 / 2.5%);
+}
+
+[data-surface="marketing"] .mkt-perspective-tab-active,
+[data-surface="marketing"] .mkt-workspace-tab-active,
+[data-surface="marketing"] .mkt-perspective-view-tab-active {
+  color: #f3efe7;
+  background:
+    linear-gradient(
+      180deg,
+      rgb(216 182 111 / 11%),
+      rgb(200 162 90 / 5%)
+    );
+  box-shadow:
+    inset 0 0 0 1px rgb(216 182 111 / 16%),
+    0 0 18px rgb(200 162 90 / 4%);
+}
+
+/* AI page */
+[data-surface="marketing"] .mkt-ai-hero-canvas {
+  border-color: rgb(216 182 111 / 15%);
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      rgb(200 162 90 / 5%),
+      transparent 34%
+    ),
+    linear-gradient(
+      150deg,
+      rgb(20 25 30 / 98%),
+      rgb(10 14 18 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 30px 84px rgb(0 0 0 / 28%);
+}
+
+[data-surface="marketing"] .mkt-ai-hero-chat-bubble {
+  border-color: rgb(243 240 232 / 9%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 2.5%),
+    0 12px 30px rgb(0 0 0 / 14%);
+}
+
+[data-surface="marketing"] .mkt-ai-hero-chat-bubble--guest {
+  background: rgb(255 255 255 / 3%);
+}
+
+[data-surface="marketing"] .mkt-ai-hero-chat-bubble--ai {
+  border-color: rgb(95 148 126 / 18%);
+  background:
+    linear-gradient(
+      145deg,
+      rgb(23 59 50 / 24%),
+      rgb(255 255 255 / 2.5%)
+    );
+}
+
+[data-surface="marketing"] .mkt-ai-hero-chat-text,
+[data-surface="marketing"] .mkt-ai-story-text {
+  color: #d5d8dc;
+}
+
+[data-surface="marketing"] .mkt-ai-hero-chat-role,
+[data-surface="marketing"] .mkt-ai-story-role {
+  color: #8e969f;
+}
+
+[data-surface="marketing"] .mkt-ai-hero-result-revenue,
+[data-surface="marketing"] .mkt-ai-story-money,
+[data-surface="marketing"] .mkt-ai-story-summary-revenue,
+[data-surface="marketing"] .mkt-ai-night-result--money,
+[data-surface="marketing"] .mkt-ai-talks-detail--money {
+  color: #dfc180;
+  text-shadow: 0 0 16px rgb(200 162 90 / 8%);
+}
+
+[data-surface="marketing"] .mkt-ai-hero-live {
+  border-color: rgb(243 240 232 / 8%);
+  background: rgb(0 0 0 / 13%);
+}
+
+[data-surface="marketing"] .mkt-ai-hero-live-item {
+  border-color: rgb(243 240 232 / 6%);
+}
+
+[data-surface="marketing"] .mkt-ai-hero-live-item--active {
+  background:
+    linear-gradient(
+      90deg,
+      rgb(23 59 50 / 17%),
+      rgb(200 162 90 / 3%)
+    );
+  border-color: rgb(95 148 126 / 16%);
+}
+
+[data-surface="marketing"] .mkt-ai-status-panel,
+[data-surface="marketing"] .mkt-ai-story-panel,
+[data-surface="marketing"] .mkt-ai-night-timeline,
+[data-surface="marketing"] .mkt-ai-close-inner {
+  background:
+    linear-gradient(
+      150deg,
+      rgb(20 25 30 / 97%),
+      rgb(11 15 19 / 99%)
+    );
+}
+
+[data-surface="marketing"] .mkt-ai-status-metric-value,
+[data-surface="marketing"] .mkt-ai-night-stat-value {
+  color: #f4f0e8;
+}
+
+[data-surface="marketing"] .mkt-ai-story-panel--with {
+  border-color: rgb(95 148 126 / 20%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 3%),
+    0 24px 64px rgb(0 0 0 / 22%),
+    0 0 36px rgb(23 59 50 / 7%);
+}
+
+[data-surface="marketing"] .mkt-ai-story-panel--without {
+  opacity: 0.88;
+}
+
+[data-surface="marketing"] .mkt-ai-close-stream {
+  border-color: rgb(243 240 232 / 7%);
+  background: rgb(0 0 0 / 12%);
+}
+
+/* Docs */
+[data-surface="marketing"] .mkt-docs-portal,
+[data-surface="marketing"] .mkt-docs-layout {
+  background:
+    radial-gradient(
+      44rem 30rem at 50% 0%,
+      rgb(200 162 90 / 3.5%),
+      transparent 70%
+    ),
+    var(--mkt-bg-0);
+}
+
+[data-surface="marketing"] .mkt-docs-portal-title,
+[data-surface="marketing"] .mkt-docs-page-title {
+  font-family: var(--mkt-font-display);
+  font-weight: 500;
+  letter-spacing: -0.018em;
+}
+
+[data-surface="marketing"] .mkt-docs-search-form {
+  border-color: rgb(216 182 111 / 14%);
+  background:
+    linear-gradient(
+      150deg,
+      rgb(21 26 31 / 97%),
+      rgb(12 16 20 / 99%)
+    );
+}
+
+[data-surface="marketing"] .mkt-docs-search-input {
+  background: transparent;
+  box-shadow: none;
+}
+
+[data-surface="marketing"] .mkt-docs-search-kbd {
+  border-color: rgb(243 240 232 / 9%);
+  background: rgb(255 255 255 / 3%);
+  color: #8c939b;
+}
+
+[data-surface="marketing"] .mkt-docs-search-results {
+  border-color: rgb(243 240 232 / 10%);
+  background:
+    linear-gradient(
+      150deg,
+      rgb(20 25 30 / 99%),
+      rgb(10 14 18 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 28px 76px rgb(0 0 0 / 34%);
+  backdrop-filter: blur(22px);
+}
+
+[data-surface="marketing"] .mkt-docs-search-result {
+  color: #c8ccd1;
+}
+
+[data-surface="marketing"] .mkt-docs-search-result--active {
+  background: rgb(216 182 111 / 7%);
+  color: #f1ede5;
+}
+
+[data-surface="marketing"] .mkt-docs-nav-card {
+  background:
+    linear-gradient(
+      150deg,
+      rgb(20 25 30 / 97%),
+      rgb(11 15 19 / 99%)
+    );
+  transition:
+    transform 320ms var(--mkt-ease),
+    border-color 320ms var(--mkt-ease),
+    box-shadow 320ms var(--mkt-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-surface="marketing"] .mkt-docs-nav-card:hover {
+    transform: translateY(-2px);
+    border-color: rgb(216 182 111 / 22%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 4%),
+      0 26px 68px rgb(0 0 0 / 26%),
+      0 0 28px rgb(200 162 90 / 4%);
+  }
+}
+
+[data-surface="marketing"] .mkt-docs-sidebar {
+  border-color: rgb(243 240 232 / 7%);
+}
+
+[data-surface="marketing"] .mkt-docs-sidebar-link,
+[data-surface="marketing"] .mkt-docs-toc-link {
+  color: #858d96;
+}
+
+[data-surface="marketing"] .mkt-docs-sidebar-link:hover,
+[data-surface="marketing"] .mkt-docs-toc-link:hover {
+  color: #d8b66f;
+}
+
+[data-surface="marketing"] .mkt-docs-sidebar-link-active {
+  color: #f0ece4;
+  background: rgb(216 182 111 / 7%);
+  box-shadow: inset 2px 0 0 #c8a25a;
+}
+
+[data-surface="marketing"] .mkt-docs-inline-link,
+[data-surface="marketing"] .mkt-docs-next-step-link,
+[data-surface="marketing"] .mkt-docs-support-link {
+  color: #d8b66f;
+}
+
+[data-surface="marketing"] .mkt-docs-code {
+  border-color: rgb(243 240 232 / 9%);
+  background: rgb(0 0 0 / 22%);
+}
+
+/* Final CTA */
+[data-surface="marketing"] .mkt-final-cta-card {
+  border-color: rgb(216 182 111 / 16%);
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgb(200 162 90 / 7%),
+      transparent 36%
+    ),
+    linear-gradient(
+      150deg,
+      rgb(22 26 30 / 98%),
+      rgb(11 14 18 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 30px 86px rgb(0 0 0 / 30%),
+    0 0 48px rgb(200 162 90 / 5%);
+}
+
+/* Shared card polish */
+[data-surface="marketing"] :is(
+  .mkt-features-benefit-card,
+  .mkt-features-integration-card,
+  .mkt-features-overview-card,
+  .mkt-features-workspace-card,
+  .mkt-contact-method-card,
+  .mkt-final-cta-triad-card
+) {
+  border-color: rgb(243 240 232 / 9%);
+  background:
+    linear-gradient(
+      150deg,
+      rgb(20 25 30 / 97%),
+      rgb(11 15 19 / 99%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 2.5%),
+    0 18px 50px rgb(0 0 0 / 16%);
+  transition:
+    transform 320ms var(--mkt-ease),
+    border-color 320ms var(--mkt-ease),
+    box-shadow 320ms var(--mkt-ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-surface="marketing"] :is(
+    .mkt-features-benefit-card,
+    .mkt-features-integration-card,
+    .mkt-features-overview-card,
+    .mkt-features-workspace-card,
+    .mkt-contact-method-card,
+    .mkt-final-cta-triad-card
+  ):hover {
+    transform: translateY(-2px);
+    border-color: rgb(216 182 111 / 19%);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 4%),
+      0 26px 70px rgb(0 0 0 / 24%),
+      0 0 28px rgb(200 162 90 / 3.5%);
+  }
+}
+
+/* Motion unification */
+[data-surface="marketing"] {
+  --mkt-duration-fast: 180ms;
+  --mkt-duration: 300ms;
+  --mkt-duration-slow: 420ms;
+  --mkt-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --mkt-motion-hover-y: 2px;
+  --mkt-motion-btn-hover-y: 1px;
+}
+
+[data-surface="marketing"] .mkt-motion-reveal {
+  animation-timing-function: var(--mkt-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] :is(
+    .mkt-nav-link,
+    .mkt-footer-link,
+    .mkt-btn,
+    .mkt-docs-nav-card,
+    .mkt-features-benefit-card,
+    .mkt-features-integration-card,
+    .mkt-features-overview-card,
+    .mkt-features-workspace-card,
+    .mkt-contact-method-card,
+    .mkt-final-cta-triad-card
+  ) {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* ── Monavel Visual Polish V5: visual QA fixes ──────────────────────────
+   1. Reduce homepage Hero headline scale.
+   2. Remove the panel background from the AI closing CTA.
+   3. Prevent AI status metric labels from overlapping numeric values.
+   --------------------------------------------------------------------- */
+
+/* 1. Homepage Hero: preserve composition, reduce only the left headline. */
+[data-surface="marketing"] .mkt-hero .mkt-hero-headline {
+  max-width: 11.6ch;
+  font-size: clamp(3rem, 5.15vw, 5.35rem);
+  line-height: 0.98;
+  letter-spacing: -0.021em;
+}
+
+@media (min-width: 1024px) {
+  [data-surface="marketing"] .mkt-hero-grid--concept {
+    grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr);
+    column-gap: clamp(1rem, 2vw, 2rem);
+  }
+}
+
+@media (max-width: 767px) {
+  [data-surface="marketing"] .mkt-hero .mkt-hero-headline {
+    max-width: 12.5ch;
+    font-size: clamp(2.65rem, 12vw, 4rem);
+    line-height: 1;
+  }
+}
+
+/* 2. AI closing CTA: remove the card/surface treatment entirely. */
+[data-surface="marketing"] .mkt-ai-close-inner {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+[data-surface="marketing"] .mkt-ai-close-inner::before,
+[data-surface="marketing"] .mkt-ai-close-inner::after {
+  content: none !important;
+}
+
+[data-surface="marketing"] .mkt-ai-close {
+  background:
+    radial-gradient(
+      34rem 20rem at 50% 48%,
+      rgb(200 162 90 / 3.5%),
+      transparent 72%
+    ),
+    var(--mkt-bg-0);
+}
+
+/* 3. AI status metrics: stable vertical layout and safe text wrapping. */
+[data-surface="marketing"] .mkt-ai-status-metrics {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+[data-surface="marketing"] .mkt-ai-status-metric {
+  display: grid;
+  grid-template-rows: auto minmax(2.4em, auto);
+  align-content: start;
+  min-width: 0;
+  gap: 0.35rem;
+  overflow: hidden;
+}
+
+[data-surface="marketing"] .mkt-ai-status-metric-value {
+  display: block;
+  position: static;
+  min-width: 0;
+  margin: 0;
+  font-size: clamp(1.4rem, 2.2vw, 1.875rem);
+  line-height: 1;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+[data-surface="marketing"] .mkt-ai-status-metric-label {
+  display: block;
+  position: static;
+  min-width: 0;
+  margin: 0;
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+@media (min-width: 900px) {
+  [data-surface="marketing"] .mkt-ai-status-metrics {
+    grid-template-columns: repeat(2, minmax(8.5rem, 1fr));
+  }
+}
+
+@media (max-width: 520px) {
+  [data-surface="marketing"] .mkt-ai-status-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  [data-surface="marketing"] .mkt-ai-status-metric-value {
+    font-size: 1.65rem;
+  }
+}
+
+/* ── Monavel Marketing Product UI — Motion System V1 ─────────────────── */
+
+@keyframes mku-runtime-swap {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+    filter: blur(1.5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+@keyframes mku-workspace-enter {
+  from {
+    opacity: 0;
+    transform: translateY(7px) scale(0.995);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mku-sparkline-draw {
+  from {
+    opacity: 0.35;
+    transform: scaleX(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes mku-live-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgb(111 165 142 / 0%);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgb(111 165 142 / 8%);
+  }
+}
+
+@keyframes mku-panel-highlight {
+  from {
+    border-color: rgb(216 182 111 / 28%);
+    background-color: rgb(216 182 111 / 7%);
+  }
+  to {
+    border-color: rgb(216 182 111 / 20%);
+    background-color: rgb(216 182 111 / 4%);
+  }
+}
+
+[data-surface="marketing"] .mku-runtime-swap {
+  animation: mku-runtime-swap 420ms var(--mkt-ease) both;
+}
+
+[data-surface="marketing"] .mku-workspace-enter {
+  animation: mku-workspace-enter 440ms var(--mkt-ease) both;
+  transform-origin: center top;
+}
+
+[data-surface="marketing"] .mku-sparkline-draw {
+  animation: mku-sparkline-draw 520ms var(--mkt-ease) both;
+  transform-origin: left center;
+}
+
+[data-surface="marketing"] .mku-panel {
+  transition:
+    border-color 320ms var(--mkt-ease),
+    background-color 320ms var(--mkt-ease),
+    box-shadow 320ms var(--mkt-ease),
+    transform 320ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mku-panel-active {
+  animation: mku-panel-highlight 720ms var(--mkt-ease) both;
+}
+
+[data-surface="marketing"] .mku-badge {
+  transition:
+    border-color 240ms var(--mkt-ease),
+    background-color 240ms var(--mkt-ease),
+    color 240ms var(--mkt-ease),
+    box-shadow 240ms var(--mkt-ease);
+}
+
+[data-surface="marketing"]
+  .mku-runtime-root[data-runtime-phase="thinking"]
+  .mku-badge {
+  animation: mku-live-pulse 1.8s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mku-timeline-item {
+  transition:
+    opacity 320ms var(--mkt-ease),
+    transform 320ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mku-timeline-item-active {
+  transform: translateX(2px);
+}
+
+[data-surface="marketing"] .mku-chat-swap {
+  animation: mku-runtime-swap 460ms var(--mkt-ease) both;
+}
+
+[data-surface="marketing"] .mkt-perspective-tab,
+[data-surface="marketing"] .mkt-perspective-view-tab {
+  transition:
+    color 220ms var(--mkt-ease),
+    background-color 220ms var(--mkt-ease),
+    border-color 220ms var(--mkt-ease),
+    box-shadow 220ms var(--mkt-ease),
+    transform 220ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-perspective-tab-active,
+[data-surface="marketing"] .mkt-perspective-view-tab-active {
+  transform: translateY(-1px);
+}
+
+[data-surface="marketing"] .mkt-runtime-status-dot {
+  animation: mku-live-pulse 2.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mku-runtime-swap,
+  [data-surface="marketing"] .mku-workspace-enter,
+  [data-surface="marketing"] .mku-sparkline-draw,
+  [data-surface="marketing"] .mku-panel-active,
+  [data-surface="marketing"] .mku-badge,
+  [data-surface="marketing"] .mku-chat-swap,
+  [data-surface="marketing"] .mkt-runtime-status-dot {
+    animation: none !important;
+  }
+
+  [data-surface="marketing"] .mku-timeline-item-active,
+  [data-surface="marketing"] .mkt-perspective-tab-active,
+  [data-surface="marketing"] .mkt-perspective-view-tab-active {
+    transform: none !important;
+  }
+}
+
+/* ── Monavel Marketing Experience V3 ─────────────────────────────────── */
+
+@keyframes mku-ambient-drift {
+  0%,
+  100% {
+    transform: translate3d(-1%, 0, 0) scale(1);
+    opacity: 0.46;
+  }
+  50% {
+    transform: translate3d(1%, -1%, 0) scale(1.03);
+    opacity: 0.72;
+  }
+}
+
+@keyframes mku-story-progress {
+  from {
+    transform: scaleX(0.15);
+    opacity: 0.4;
+  }
+  to {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+@keyframes mku-soft-shimmer {
+  from {
+    transform: translateX(-120%);
+  }
+  to {
+    transform: translateX(140%);
+  }
+}
+
+[data-surface="marketing"] .mkt-platform-showcase-shell {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-surface="marketing"] .mkt-platform-showcase-shell::before {
+  content: "";
+  position: absolute;
+  inset: 8% 6% auto;
+  z-index: -1;
+  height: 36%;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, rgb(200 162 90 / 8%), transparent 68%);
+  filter: blur(42px);
+  pointer-events: none;
+  animation: mku-ambient-drift 12s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mku-story-rail {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid rgb(255 255 255 / 3%);
+  border-bottom: 1px solid rgb(255 255 255 / 4%);
+  background:
+    linear-gradient(90deg, rgb(200 162 90 / 4%), transparent 42%),
+    rgb(255 255 255 / 1.2%);
+}
+
+[data-surface="marketing"] .mku-story-copy {
+  min-width: 0;
+}
+
+[data-surface="marketing"] .mku-story-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--mkt-accent);
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+[data-surface="marketing"] .mku-story-title {
+  margin-top: 0.2rem;
+  color: var(--mkt-text);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+[data-surface="marketing"] .mku-story-summary {
+  margin-top: 0.15rem;
+  color: var(--mkt-text-subtle);
+  font-size: 0.68rem;
+}
+
+[data-surface="marketing"] .mku-story-controls {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+[data-surface="marketing"] .mku-story-progress {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+[data-surface="marketing"] .mku-story-progress-step {
+  display: block;
+  width: 1.35rem;
+  height: 0.2rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 6%);
+}
+
+[data-surface="marketing"] .mku-story-progress-step-active {
+  background: var(--mkt-accent);
+  transform-origin: left center;
+  animation: mku-story-progress 420ms var(--mkt-ease) both;
+}
+
+[data-surface="marketing"] .mku-story-mode-button,
+[data-surface="marketing"] .mku-story-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.8rem;
+  border: 1px solid rgb(255 255 255 / 6%);
+  border-radius: 0.55rem;
+  background: rgb(255 255 255 / 2%);
+  color: var(--mkt-text-subtle);
+  font-size: 0.65rem;
+  transition:
+    border-color 220ms var(--mkt-ease),
+    background-color 220ms var(--mkt-ease),
+    color 220ms var(--mkt-ease),
+    transform 220ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mku-story-mode-button {
+  padding-inline: 0.7rem;
+}
+
+[data-surface="marketing"] .mku-story-icon-button {
+  width: 1.8rem;
+}
+
+[data-surface="marketing"] .mku-story-mode-button:hover,
+[data-surface="marketing"] .mku-story-icon-button:hover,
+[data-surface="marketing"] .mku-story-mode-button-active {
+  border-color: rgb(200 162 90 / 18%);
+  background: rgb(200 162 90 / 7%);
+  color: var(--mkt-accent);
+  transform: translateY(-1px);
+}
+
+[data-surface="marketing"] .mku-runtime-root::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -18%;
+  z-index: 8;
+  width: 18%;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, transparent, rgb(255 255 255 / 2.4%), transparent);
+  opacity: 0;
+}
+
+[data-surface="marketing"]
+  .mku-runtime-root[data-runtime-phase="acting"]::after {
+  opacity: 1;
+  animation: mku-soft-shimmer 1.5s var(--mkt-ease) both;
+}
+
+[data-surface="marketing"] .mku-panel:hover {
+  transform: translateY(-1px);
+  border-color: rgb(255 255 255 / 8%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 2%),
+    0 16px 35px rgb(0 0 0 / 14%);
+}
+
+@media (max-width: 760px) {
+  [data-surface="marketing"] .mku-story-rail {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  [data-surface="marketing"] .mku-story-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-platform-showcase-shell::before,
+  [data-surface="marketing"] .mku-story-progress-step-active,
+  [data-surface="marketing"]
+    .mku-runtime-root[data-runtime-phase="acting"]::after {
+    animation: none !important;
+  }
+
+  [data-surface="marketing"] .mku-panel:hover,
+  [data-surface="marketing"] .mku-story-mode-button:hover,
+  [data-surface="marketing"] .mku-story-icon-button:hover {
+    transform: none !important;
+  }
+}
+
+
+[data-surface="marketing"] .mku-hero-runtime-demo {
+  display: grid;
+  gap: 1rem;
+  align-items: center;
+}
+
+[data-surface="marketing"] .mku-hero-runtime-copy {
+  display: none;
+}
+
+[data-surface="marketing"] .mku-hero-runtime-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  color: var(--mkt-accent);
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+[data-surface="marketing"] .mku-hero-runtime-title {
+  margin-top: 0.5rem;
+  color: var(--mkt-text);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+[data-surface="marketing"] .mku-hero-runtime-summary {
+  margin-top: 0.3rem;
+  max-width: 36rem;
+  color: var(--mkt-text-muted);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+[data-surface="marketing"] .mku-hero-runtime-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+  color: #8fc0aa;
+  font-size: 0.72rem;
+}
+
+[data-surface="marketing"] .mku-hero-runtime-preview {
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  [data-surface="marketing"] .mku-hero-runtime-demo {
+    grid-template-columns: minmax(0, 0.36fr) minmax(0, 1fr);
+  }
+
+  [data-surface="marketing"] .mku-hero-runtime-copy {
+    display: block;
+  }
+}
+
+/* ── Hero architecture + runtime composition ─────────────────────────── */
+
+[data-surface="marketing"] .mkt-hero-experience-stack {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  gap: clamp(1rem, 2vw, 1.5rem);
+}
+
+[data-surface="marketing"] .mkt-hero-experience-stack > * {
+  min-width: 0;
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer {
+  position: relative;
+  z-index: var(--mkt-z-float);
+  width: min(100%, 68rem);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer::before {
+  content: "";
+  position: absolute;
+  inset: -8% 7% 12%;
+  z-index: -1;
+  border-radius: var(--mkt-radius-full);
+  background:
+    radial-gradient(
+      circle,
+      rgb(200 162 90 / 9%),
+      rgb(23 59 50 / 4%) 42%,
+      transparent 72%
+    );
+  filter: blur(38px);
+  pointer-events: none;
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-demo {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(0.65rem, 1.4vw, 1rem);
+  border: var(--mkt-border-width) solid rgb(255 255 255 / 6%);
+  border-radius: clamp(1rem, 1.8vw, 1.4rem);
+  background:
+    linear-gradient(
+      145deg,
+      rgb(255 255 255 / 3.2%),
+      transparent 46%
+    ),
+    linear-gradient(
+      180deg,
+      rgb(16 20 25 / 82%),
+      rgb(9 12 16 / 92%)
+    );
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 3.5%),
+    0 28px 80px rgb(0 0 0 / 24%),
+    0 0 0 1px rgb(200 162 90 / 3%);
+  backdrop-filter: blur(18px) saturate(1.08);
+}
+
+[data-surface="marketing"]
+  .mkt-hero-runtime-layer
+  .mku-hero-runtime-demo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      115deg,
+      transparent 14%,
+      rgb(255 255 255 / 2.4%) 35%,
+      transparent 56%
+    );
+  opacity: 0.45;
+  transform: translateX(-100%);
+  animation: mkt-hero-runtime-reflection 10s var(--mkt-ease) infinite;
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-copy,
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-preview {
+  position: relative;
+  z-index: var(--mkt-z-raised);
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-copy {
+  padding: clamp(0.4rem, 1vw, 0.9rem);
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-status {
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-title {
+  font-family: var(--mkt-font-body);
+  letter-spacing: -0.025em;
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-action {
+  width: fit-content;
+  padding: 0.4rem 0.55rem;
+  border: var(--mkt-border-width) solid rgb(95 148 126 / 18%);
+  border-radius: var(--mkt-radius-sm);
+  background: rgb(23 59 50 / 24%);
+}
+
+[data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-preview {
+  overflow: hidden;
+  border-radius: calc(var(--mkt-browser-radius) + 2px);
+}
+
+[data-surface="marketing"]
+  .mkt-hero-runtime-layer
+  .mkt-product-showcase {
+  width: 100%;
+}
+
+[data-surface="marketing"]
+  .mkt-hero-runtime-layer
+  .mkt-browser-frame {
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 4%),
+    0 20px 58px rgb(0 0 0 / 28%);
+}
+
+@keyframes mkt-hero-runtime-reflection {
+  0%,
+  72% {
+    transform: translateX(-110%);
+  }
+
+  88%,
+  100% {
+    transform: translateX(115%);
+  }
+}
+
+@media (min-width: 900px) {
+  [data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-demo {
+    grid-template-columns: minmax(12rem, 0.34fr) minmax(0, 1fr);
+    gap: clamp(0.75rem, 1.5vw, 1.25rem);
+  }
+}
+
+@media (min-width: 1100px) {
+  [data-surface="marketing"] .mkt-hero-runtime-layer {
+    margin-top: -1.25rem;
+  }
+}
+
+@media (max-width: 899px) {
+  [data-surface="marketing"] .mkt-hero-experience-stack {
+    gap: 1.25rem;
+  }
+
+  [data-surface="marketing"] .mkt-hero-runtime-layer {
+    width: 100%;
+  }
+
+  [data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-copy {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  [data-surface="marketing"] .mkt-hero-runtime-layer .mku-hero-runtime-demo {
+    padding: 0.5rem;
+    border-radius: var(--mkt-radius-lg);
+  }
+
+  [data-surface="marketing"] .mkt-hero-runtime-layer::before {
+    inset: -4% 2% 8%;
+    filter: blur(28px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"]
+    .mkt-hero-runtime-layer
+    .mku-hero-runtime-demo::after {
+    animation: none !important;
+    opacity: 0;
+  }
+}
+
+/* ── Architecture Diagram V3 premium motion ─────────────────────────── */
+
+[data-surface="marketing"] .mkt-hero-visual--diagram {
+  overflow: visible;
+}
+
+[data-surface="marketing"] .mkt-hero-visual--diagram .mkt-hero-visual-float {
+  width: 112%;
+  max-width: none;
+  margin-inline: -6%;
+  transform-origin: center center;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero {
+  position: relative;
+  width: 100%;
+  isolation: isolate;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero::before {
+  content: "";
+  position: absolute;
+  inset: 19% 22% 24%;
+  z-index: -1;
+  border-radius: 999px;
+  background:
+    radial-gradient(
+      circle,
+      rgb(200 162 90 / 14%),
+      rgb(200 162 90 / 5%) 38%,
+      transparent 72%
+    );
+  filter: blur(34px);
+  opacity: 0.82;
+  pointer-events: none;
+  animation: mkt-arch-ambient-breathe 12s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mkt-arch-runtime-breathe 10s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-glow {
+  transform-box: fill-box;
+  transform-origin: center;
+  pointer-events: none;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-glow--outer {
+  animation: mkt-arch-glow-outer 12s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-glow--inner {
+  animation: mkt-arch-glow-inner 9s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-shell {
+  transition:
+    stroke 420ms var(--mkt-ease),
+    filter 420ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-runtime[data-active="true"] {
+  animation:
+    mkt-arch-runtime-breathe 10s ease-in-out infinite,
+    mkt-arch-runtime-active 1.25s var(--mkt-ease) both;
+}
+
+[data-surface="marketing"]
+  .mkt-arch-runtime[data-active="true"]
+  .mkt-arch-runtime-shell {
+  stroke: rgb(216 180 110 / 72%);
+  filter: drop-shadow(0 0 8px rgb(200 162 90 / 22%));
+}
+
+[data-surface="marketing"] .mkt-arch-path-ambient {
+  opacity: 0.18;
+  stroke-dasharray: 1 99;
+  stroke-dashoffset: 100;
+  animation: mkt-arch-ambient-flow 13s linear infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-path-ambient--outbound {
+  animation-duration: 15s;
+}
+
+[data-surface="marketing"] .mkt-arch-path-travel {
+  opacity: 0;
+  stroke-dasharray: 0 100;
+  stroke-dashoffset: 100;
+  transition: opacity 180ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-path-travel[data-active="true"] {
+  opacity: 1;
+  stroke-dasharray: 10 90;
+  animation: mkt-arch-active-flow 1.45s linear both;
+}
+
+[data-surface="marketing"] .mkt-arch-node {
+  --mkt-arch-node-delay:
+    calc(var(--mkt-arch-node-index, 0) * 42ms + 170ms);
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation:
+    mkt-arch-node-enter 620ms var(--mkt-ease) var(--mkt-arch-node-delay) both;
+  transition:
+    opacity 320ms var(--mkt-ease),
+    transform 320ms var(--mkt-ease),
+    filter 320ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-meta,
+[data-surface="marketing"] .mkt-arch-column-label,
+[data-surface="marketing"] .mkt-arch-connectors-base,
+[data-surface="marketing"] .mkt-arch-junctions {
+  opacity: 0;
+  animation: mkt-arch-soft-enter 620ms var(--mkt-ease) 120ms both;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime {
+  opacity: 0;
+  animation:
+    mkt-arch-runtime-enter 720ms var(--mkt-ease) 40ms both,
+    mkt-arch-runtime-breathe 10s ease-in-out 900ms infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-node-shell {
+  transition:
+    stroke 300ms var(--mkt-ease),
+    fill-opacity 300ms var(--mkt-ease),
+    filter 300ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-node-label,
+[data-surface="marketing"] .mkt-arch-icon {
+  transition:
+    color 300ms var(--mkt-ease),
+    fill 300ms var(--mkt-ease),
+    opacity 300ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"],
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"] {
+  transform: translateY(-1px) scale(1.018);
+  filter: drop-shadow(0 0 10px rgb(200 162 90 / 10%));
+}
+
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-node-shell {
+  stroke: rgb(200 162 90 / 42%);
+  fill-opacity: 0.88;
+  filter: drop-shadow(0 0 6px rgb(200 162 90 / 12%));
+}
+
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-node-label,
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-icon,
+[data-surface="marketing"]
+  .mkt-arch-node[data-secondary="true"]
+  .mkt-arch-icon {
+  color: var(--mkt-accent);
+  fill: var(--mkt-accent);
+}
+
+[data-surface="marketing"] .mkt-arch-meta-label[data-active="true"] {
+  fill: var(--mkt-accent);
+  filter: drop-shadow(0 0 5px rgb(200 162 90 / 18%));
+}
+
+@keyframes mkt-arch-runtime-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes mkt-arch-node-enter {
+  from {
+    opacity: 0;
+    transform: translateY(7px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes mkt-arch-soft-enter {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes mkt-arch-runtime-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.012);
+  }
+}
+
+@keyframes mkt-arch-runtime-active {
+  0% {
+    transform: scale(1);
+  }
+
+  44% {
+    transform: scale(1.026);
+  }
+
+  100% {
+    transform: scale(1.012);
+  }
+}
+
+@keyframes mkt-arch-glow-outer {
+  0%,
+  100% {
+    opacity: 0.48;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 0.82;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes mkt-arch-glow-inner {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: scale(0.98);
+  }
+
+  50% {
+    opacity: 0.78;
+    transform: scale(1.025);
+  }
+}
+
+@keyframes mkt-arch-ambient-breathe {
+  0%,
+  100% {
+    opacity: 0.52;
+    transform: scale(0.96);
+  }
+
+  50% {
+    opacity: 0.9;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes mkt-arch-ambient-flow {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 100;
+  }
+
+  8% {
+    opacity: 0.14;
+  }
+
+  38% {
+    opacity: 0.24;
+  }
+
+  62% {
+    opacity: 0.12;
+  }
+
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes mkt-arch-active-flow {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (max-width: 1099px) {
+  [data-surface="marketing"] .mkt-hero-visual--diagram .mkt-hero-visual-float {
+    width: 106%;
+    margin-inline: -3%;
+  }
+}
+
+@media (max-width: 767px) {
+  [data-surface="marketing"] .mkt-hero-visual--diagram .mkt-hero-visual-float {
+    width: 100%;
+    margin-inline: 0;
+  }
+
+  [data-surface="marketing"] .mkt-architecture-diagram-v2--hero::before {
+    inset: 20% 16% 24%;
+    filter: blur(24px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-architecture-diagram-v2--hero::before,
+  [data-surface="marketing"] .mkt-arch-runtime,
+  [data-surface="marketing"] .mkt-arch-runtime-glow,
+  [data-surface="marketing"] .mkt-arch-path-ambient,
+  [data-surface="marketing"] .mkt-arch-path-travel,
+  [data-surface="marketing"] .mkt-arch-node,
+  [data-surface="marketing"] .mkt-arch-meta,
+  [data-surface="marketing"] .mkt-arch-column-label,
+  [data-surface="marketing"] .mkt-arch-connectors-base,
+  [data-surface="marketing"] .mkt-arch-junctions {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ── Architecture Diagram V4 lighter hierarchy ─────────────────────── */
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero {
+  opacity: 0.88;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime {
+  opacity: 1;
+  filter:
+    drop-shadow(0 0 10px rgb(200 162 90 / 16%))
+    drop-shadow(0 0 28px rgb(200 162 90 / 8%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-glow--outer {
+  transform: scale(1.24);
+  opacity: 0.66;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-glow--inner {
+  transform: scale(1.12);
+  opacity: 0.58;
+}
+
+[data-surface="marketing"] .mkt-arch-connectors-base {
+  opacity: 0.8;
+}
+
+[data-surface="marketing"] .mkt-arch-node {
+  opacity: 0.72;
+}
+
+[data-surface="marketing"] .mkt-arch-node-shell {
+  fill-opacity: 1;
+  stroke-width: 0.8;
+}
+
+[data-surface="marketing"] .mkt-arch-node-label {
+  opacity: 0.82;
+}
+
+[data-surface="marketing"] .mkt-arch-icon {
+  opacity: 0.72;
+}
+
+[data-surface="marketing"] .mkt-arch-column-label {
+  opacity: 0.42;
+}
+
+[data-surface="marketing"] .mkt-arch-meta {
+  opacity: 0.56;
+}
+
+[data-surface="marketing"] .mkt-arch-meta-label {
+  opacity: 0.72;
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"],
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"] {
+  opacity: 1;
+}
+
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-node-shell {
+  stroke: rgb(200 162 90 / 44%);
+  fill: rgb(200 162 90 / 4%);
+}
+
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-node-label,
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-icon {
+  opacity: 1;
+}
+
+[data-surface="marketing"] .mkt-arch-path-ambient {
+  opacity: 0.12;
+}
+
+[data-surface="marketing"] .mkt-arch-path-travel[data-active="true"] {
+  opacity: 1;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-title {
+  fill: #f4efe5;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-subtitle {
+  fill: #9f988d;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero::after {
+  content: "";
+  position: absolute;
+  inset: 7% 4% 6%;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at center,
+      transparent 34%,
+      rgb(5 7 9 / 10%) 68%,
+      rgb(5 7 9 / 34%) 100%
+    );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-architecture-diagram-v2--hero,
+  [data-surface="marketing"] .mkt-arch-node,
+  [data-surface="marketing"] .mkt-arch-meta,
+  [data-surface="marketing"] .mkt-arch-column-label,
+  [data-surface="marketing"] .mkt-arch-connectors-base {
+    opacity: 1;
+  }
+}
+
+/* ── Architecture Diagram V4.1 route clarity ───────────────────────── */
+
+/* Remove the large transparent/vignette layers behind the whole diagram.
+   The local SVG glow around MONAVEL remains intact. */
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero::before,
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* Entire active route: continuously visible, calm and softly illuminated. */
+[data-surface="marketing"] .mkt-arch-path-route {
+  opacity: 0;
+  transition:
+    opacity 260ms var(--mkt-ease),
+    stroke 260ms var(--mkt-ease),
+    filter 260ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-path-route[data-active="true"] {
+  opacity: 0.82;
+  stroke: rgb(216 182 111 / 92%);
+  filter:
+    drop-shadow(0 0 2px rgb(216 182 111 / 62%))
+    drop-shadow(0 0 7px rgb(200 162 90 / 28%));
+  animation: mkt-arch-route-glow 1.8s ease-in-out both;
+}
+
+/* Moving pulse: brighter, shorter, and layered above the complete route. */
+[data-surface="marketing"] .mkt-arch-path-travel {
+  opacity: 0;
+  stroke-dasharray: 7 93;
+  stroke-dashoffset: 100;
+}
+
+[data-surface="marketing"] .mkt-arch-path-travel[data-active="true"] {
+  opacity: 1;
+  stroke: #f1d69a;
+  stroke-dasharray: 7 93;
+  filter:
+    drop-shadow(0 0 3px rgb(241 214 154 / 82%))
+    drop-shadow(0 0 9px rgb(216 182 111 / 42%));
+  animation: mkt-arch-route-pulse 1.45s linear both;
+}
+
+@keyframes mkt-arch-route-glow {
+  0% {
+    opacity: 0;
+  }
+
+  22% {
+    opacity: 0.9;
+  }
+
+  72% {
+    opacity: 0.82;
+  }
+
+  100% {
+    opacity: 0.3;
+  }
+}
+
+@keyframes mkt-arch-route-pulse {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-arch-path-route,
+  [data-surface="marketing"] .mkt-arch-path-travel {
+    animation: none !important;
+  }
+
+  [data-surface="marketing"] .mkt-arch-path-route[data-active="true"] {
+    opacity: 0.82;
+  }
+
+  [data-surface="marketing"] .mkt-arch-path-travel[data-active="true"] {
+    opacity: 0;
+  }
+}
+
+/* ── Architecture Diagram V4.2 visibility balance ──────────────────── */
+
+/* Features remain light, but no longer dissolve into the background. */
+[data-surface="marketing"] .mkt-arch-node {
+  opacity: 0.84;
+}
+
+[data-surface="marketing"] .mkt-arch-node-shell {
+  fill-opacity: 1;
+  stroke-width: 0.8;
+}
+
+[data-surface="marketing"] .mkt-arch-node-label {
+  opacity: 0.9;
+}
+
+[data-surface="marketing"] .mkt-arch-icon {
+  opacity: 0.84;
+}
+
+/* Keep metadata secondary to the actual product capabilities. */
+[data-surface="marketing"] .mkt-arch-meta {
+  opacity: 0.52;
+}
+
+[data-surface="marketing"] .mkt-arch-meta-label {
+  opacity: 0.68;
+}
+
+/* Preserve the hierarchy: active feature and active route are strongest. */
+[data-surface="marketing"] .mkt-arch-node[data-active="true"],
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"] {
+  opacity: 1;
+}
+
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-node-label,
+[data-surface="marketing"]
+  .mkt-arch-node[data-active="true"]
+  .mkt-arch-icon,
+[data-surface="marketing"]
+  .mkt-arch-node[data-secondary="true"]
+  .mkt-arch-node-label,
+[data-surface="marketing"]
+  .mkt-arch-node[data-secondary="true"]
+  .mkt-arch-icon {
+  opacity: 1;
+}
+
+/* Ambient activity stays restrained so the complete active route remains clear. */
+[data-surface="marketing"] .mkt-arch-path-ambient {
+  opacity: 0.09;
+}
+
+/* Slower, calmer fade for the fully illuminated route. */
+[data-surface="marketing"] .mkt-arch-path-route {
+  transition:
+    opacity 820ms var(--mkt-ease),
+    stroke 260ms var(--mkt-ease),
+    filter 260ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-path-route[data-active="true"] {
+  opacity: 0.84;
+  animation: mkt-arch-route-glow-v42 2.2s ease-in-out both;
+}
+
+/* Central node reacts through glow and border, not visible scaling. */
+[data-surface="marketing"] .mkt-arch-runtime[data-active="true"] {
+  opacity: 1;
+  transform: none;
+}
+
+[data-surface="marketing"]
+  .mkt-arch-runtime[data-active="true"]
+  .mkt-arch-runtime-shell {
+  stroke: rgb(216 182 111 / 76%);
+  filter:
+    drop-shadow(0 0 5px rgb(216 182 111 / 28%))
+    drop-shadow(0 0 13px rgb(200 162 90 / 14%));
+}
+
+@keyframes mkt-arch-route-glow-v42 {
+  0% {
+    opacity: 0;
+  }
+
+  14% {
+    opacity: 0.88;
+  }
+
+  64% {
+    opacity: 0.84;
+  }
+
+  100% {
+    opacity: 0.28;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-arch-node,
+  [data-surface="marketing"] .mkt-arch-node-label,
+  [data-surface="marketing"] .mkt-arch-icon {
+    opacity: 1;
+  }
+
+  [data-surface="marketing"] .mkt-arch-path-route {
+    transition: none !important;
+  }
+}
+
+/* ── Architecture Diagram V5 — final premium polish ───────────────── */
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero {
+  isolation: isolate;
+  overflow: visible;
+  background: transparent !important;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero::before,
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero::after {
+  content: none !important;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2-svg {
+  overflow: visible;
+  filter: saturate(1.04) contrast(1.035);
+}
+
+/* Cards: opaque, material, and clearly separated from the page. */
+[data-surface="marketing"] .mkt-arch-node {
+  opacity: 0.94;
+  cursor: default;
+  transition: opacity 360ms var(--mkt-ease), filter 360ms var(--mkt-ease), transform 360ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-node-shell {
+  fill: #12161b !important;
+  fill-opacity: 0.98 !important;
+  stroke: rgb(243 240 232 / 13%) !important;
+  stroke-width: 1 !important;
+  filter: drop-shadow(0 1px 0 rgb(255 255 255 / 3%)) drop-shadow(0 10px 20px rgb(0 0 0 / 24%));
+  transition: fill 280ms var(--mkt-ease), stroke 280ms var(--mkt-ease), filter 280ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-node-label {
+  fill: #f0eee8 !important;
+  opacity: 0.98;
+}
+
+[data-surface="marketing"] .mkt-arch-icon {
+  color: #b8bec8;
+  opacity: 0.96;
+}
+
+[data-surface="marketing"] .mkt-arch-source-status,
+[data-surface="marketing"] .mkt-arch-outcome {
+  filter: drop-shadow(0 0 5px rgb(200 162 90 / 28%));
+}
+
+[data-surface="marketing"] .mkt-arch-column-label {
+  opacity: 0.88;
+  fill: #aeb3bb !important;
+  letter-spacing: 0.22em;
+}
+
+/* Metadata bars stay secondary, but no longer look disabled. */
+[data-surface="marketing"] .mkt-arch-meta {
+  opacity: 0.7;
+}
+
+[data-surface="marketing"] .mkt-arch-meta > rect {
+  fill: #12161b !important;
+  fill-opacity: 0.88 !important;
+  stroke: rgb(243 240 232 / 10%) !important;
+}
+
+[data-surface="marketing"] .mkt-arch-meta-label {
+  fill: #aeb3bb !important;
+  opacity: 0.9;
+}
+
+/* Ambient network is readable at rest. */
+[data-surface="marketing"] .mkt-arch-connectors-base {
+  opacity: 1;
+}
+
+[data-surface="marketing"] .mkt-arch-connector {
+  stroke: #77828e !important;
+  stroke-width: 1.35 !important;
+  stroke-opacity: 0.54 !important;
+  filter: drop-shadow(0 0 1px rgb(116 128 140 / 20%));
+  transition: opacity 360ms var(--mkt-ease), stroke 360ms var(--mkt-ease), filter 360ms var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-arch-path-ambient {
+  opacity: 0.13;
+  stroke-width: 1.25;
+}
+
+[data-surface="marketing"] .mkt-arch-path-route[data-active="true"],
+[data-surface="marketing"] .mkt-arch-path-route[data-hovered="true"] {
+  opacity: 0.96;
+  stroke: #dfbd76;
+  stroke-width: 1.75;
+  filter: drop-shadow(0 0 3px rgb(223 189 118 / 70%)) drop-shadow(0 0 10px rgb(200 162 90 / 34%));
+}
+
+[data-surface="marketing"] .mkt-arch-path-travel[data-active="true"] {
+  stroke-width: 2.15;
+  stroke-dasharray: 5 95;
+  filter: drop-shadow(0 0 4px rgb(241 214 154 / 88%)) drop-shadow(0 0 12px rgb(216 182 111 / 48%));
+}
+
+/* Connection nodes become visible network junctions. */
+[data-surface="marketing"] .mkt-arch-junctions circle {
+  fill: #a9b0b9;
+  fill-opacity: 0.7;
+  stroke: rgb(9 11 14 / 82%);
+  stroke-width: 1;
+  filter: drop-shadow(0 0 3px rgb(169 176 185 / 25%));
+}
+
+/* Active and hover cards. */
+[data-surface="marketing"] .mkt-arch-node[data-active="true"],
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"],
+[data-surface="marketing"] .mkt-arch-node[data-hovered="true"] {
+  opacity: 1;
+  filter: drop-shadow(0 0 12px rgb(200 162 90 / 10%));
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"] .mkt-arch-node-shell,
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"] .mkt-arch-node-shell,
+[data-surface="marketing"] .mkt-arch-node[data-hovered="true"] .mkt-arch-node-shell {
+  fill: #17160f !important;
+  stroke: rgb(216 180 108 / 62%) !important;
+  filter: drop-shadow(0 0 2px rgb(216 180 108 / 32%)) drop-shadow(0 10px 24px rgb(0 0 0 / 28%));
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"] .mkt-arch-icon,
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"] .mkt-arch-icon,
+[data-surface="marketing"] .mkt-arch-node[data-hovered="true"] .mkt-arch-icon {
+  color: #d7b76f;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-hovering="true"] .mkt-arch-node:not([data-hovered="true"]) {
+  opacity: 0.55;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-hovering="true"] .mkt-arch-connector {
+  opacity: 0.34;
+}
+
+/* Core: tighter halo, stronger edge, subtle breathing. */
+[data-surface="marketing"] .mkt-arch-runtime-glow--outer {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0.42;
+  transform: scale(0.76);
+  animation: mkt-arch-core-halo 6.4s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-glow--inner {
+  opacity: 0.48;
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0.88);
+}
+
+[data-surface="marketing"] .mkt-arch-runtime {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: mkt-arch-core-breathe 6.4s ease-in-out infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-shell {
+  stroke-width: 1.25 !important;
+  filter: drop-shadow(0 0 4px rgb(216 182 111 / 26%)) drop-shadow(0 12px 28px rgb(0 0 0 / 35%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-title {
+  fill: #fffdfa !important;
+  filter: drop-shadow(0 1px 7px rgb(255 255 255 / 8%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-subtitle {
+  fill: #b8afa1 !important;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-sweep {
+  opacity: 0.22 !important;
+  animation: mkt-arch-core-sweep 8s ease-in-out infinite;
+}
+
+/* Processing ripple and orbit. */
+[data-surface="marketing"] .mkt-arch-runtime-ripple {
+  fill: none;
+  stroke: rgb(216 182 111 / 40%);
+  stroke-width: 0.8;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-ripple[data-active="true"] {
+  animation: mkt-arch-ripple 1.5s var(--mkt-ease) both;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-ripple--two[data-active="true"] {
+  animation-delay: 180ms;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-orbit {
+  opacity: 0.12;
+  transform-origin: 403px 215px;
+  animation: mkt-arch-orbit 14s linear infinite;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-orbit circle:first-child {
+  fill: none;
+  stroke: rgb(200 162 90 / 22%);
+  stroke-width: 0.65;
+  stroke-dasharray: 2 8;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-orbit-dot {
+  fill: #d8b46e;
+  filter: drop-shadow(0 0 4px rgb(216 180 110 / 65%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-orbit[data-active="true"] {
+  opacity: 0.5;
+  animation-duration: 2.8s;
+}
+
+@keyframes mkt-arch-core-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.008); }
+}
+
+@keyframes mkt-arch-core-halo {
+  0%, 100% { opacity: 0.32; transform: scale(0.74); }
+  50% { opacity: 0.48; transform: scale(0.8); }
+}
+
+@keyframes mkt-arch-core-sweep {
+  0%, 30%, 100% { transform: translateX(-34%); opacity: 0; }
+  46% { opacity: 0.22; }
+  68% { transform: translateX(34%); opacity: 0; }
+}
+
+@keyframes mkt-arch-ripple {
+  0% { opacity: 0; transform: scale(0.82); }
+  20% { opacity: 0.3; }
+  100% { opacity: 0; transform: scale(1.35); }
+}
+
+@keyframes mkt-arch-orbit {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-arch-runtime,
+  [data-surface="marketing"] .mkt-arch-runtime-glow--outer,
+  [data-surface="marketing"] .mkt-arch-runtime-sweep,
+  [data-surface="marketing"] .mkt-arch-runtime-ripple,
+  [data-surface="marketing"] .mkt-arch-runtime-orbit {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  [data-surface="marketing"] .mkt-arch-runtime-orbit {
+    opacity: 0.12;
+  }
+}
+
+/* ── Architecture Diagram V6 — central hierarchy & final motion polish ── */
+
+/* Peripheral cards stay readable, but remain visually lighter than MONAVEL. */
+[data-surface="marketing"] .mkt-arch-node {
+  opacity: 0.86;
+}
+
+[data-surface="marketing"] .mkt-arch-node-shell {
+  fill: rgb(18 22 27 / 82%) !important;
+  fill-opacity: 1 !important;
+  stroke: rgb(243 240 232 / 11%) !important;
+  stroke-width: 0.9 !important;
+  filter:
+    drop-shadow(0 1px 0 rgb(255 255 255 / 3%))
+    drop-shadow(0 10px 22px rgb(0 0 0 / 20%));
+}
+
+/* Subtle top-edge light gives cards material depth without heavy glassmorphism. */
+[data-surface="marketing"] .mkt-arch-node-shell {
+  paint-order: stroke fill;
+}
+
+[data-surface="marketing"] .mkt-arch-node-label {
+  opacity: 0.9;
+}
+
+[data-surface="marketing"] .mkt-arch-icon {
+  opacity: 0.86;
+}
+
+/* Keep active endpoints fully legible, but still below the core in visual weight. */
+[data-surface="marketing"] .mkt-arch-node[data-active="true"],
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"],
+[data-surface="marketing"] .mkt-arch-node[data-hovered="true"] {
+  opacity: 1;
+  filter: drop-shadow(0 0 11px rgb(200 162 90 / 11%));
+}
+
+[data-surface="marketing"] .mkt-arch-node[data-active="true"] .mkt-arch-node-shell,
+[data-surface="marketing"] .mkt-arch-node[data-secondary="true"] .mkt-arch-node-shell,
+[data-surface="marketing"] .mkt-arch-node[data-hovered="true"] .mkt-arch-node-shell {
+  fill: rgb(24 22 15 / 94%) !important;
+  stroke: rgb(216 180 108 / 58%) !important;
+  filter:
+    drop-shadow(0 1px 0 rgb(255 255 255 / 4%))
+    drop-shadow(0 0 3px rgb(216 180 108 / 26%))
+    drop-shadow(0 12px 26px rgb(0 0 0 / 27%));
+}
+
+/* The network remains present at rest, with two-layer depth. */
+[data-surface="marketing"] .mkt-arch-connector {
+  stroke: #7c8792 !important;
+  stroke-width: 1.45 !important;
+  stroke-opacity: 0.6 !important;
+  filter:
+    drop-shadow(0 0 1px rgb(124 135 146 / 30%))
+    drop-shadow(0 0 4px rgb(73 82 92 / 12%));
+}
+
+[data-surface="marketing"] .mkt-arch-path-ambient {
+  opacity: 0.11;
+  stroke-width: 1.1;
+}
+
+/* Active route is sequential and luminous; travel pulse reads as a light segment. */
+[data-surface="marketing"] .mkt-arch-path-route[data-active="true"],
+[data-surface="marketing"] .mkt-arch-path-route[data-hovered="true"] {
+  opacity: 0.92;
+  stroke-width: 1.8;
+  filter:
+    drop-shadow(0 0 2px rgb(239 208 145 / 72%))
+    drop-shadow(0 0 9px rgb(200 162 90 / 30%));
+}
+
+[data-surface="marketing"] .mkt-arch-path-travel[data-active="true"] {
+  stroke-width: 2.35;
+  stroke-linecap: round;
+  stroke-dasharray: 8 92;
+  filter:
+    drop-shadow(0 0 4px rgb(255 226 166 / 92%))
+    drop-shadow(0 0 12px rgb(216 182 111 / 50%));
+}
+
+/* Network nodes read as small illuminated sockets instead of flat dots. */
+[data-surface="marketing"] .mkt-arch-junctions circle {
+  fill: #b4bbc3;
+  fill-opacity: 0.72;
+  stroke: rgb(9 11 14 / 92%);
+  stroke-width: 1.15;
+  filter:
+    drop-shadow(0 0 2px rgb(180 187 195 / 34%))
+    drop-shadow(0 0 6px rgb(180 187 195 / 12%));
+}
+
+/* MONAVEL is the sole dominant surface. */
+[data-surface="marketing"] .mkt-arch-runtime {
+  opacity: 1;
+  filter:
+    drop-shadow(0 18px 32px rgb(0 0 0 / 38%))
+    drop-shadow(0 0 14px rgb(200 162 90 / 12%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-shell {
+  stroke-width: 1.45 !important;
+  stroke: rgb(216 182 111 / 72%) !important;
+  filter:
+    drop-shadow(0 0 5px rgb(216 182 111 / 30%))
+    drop-shadow(0 0 17px rgb(200 162 90 / 18%))
+    drop-shadow(0 16px 32px rgb(0 0 0 / 42%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-inset {
+  opacity: 0.9;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-title {
+  opacity: 1;
+  filter:
+    drop-shadow(0 1px 8px rgb(255 255 255 / 10%))
+    drop-shadow(0 0 12px rgb(200 162 90 / 9%));
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-subtitle {
+  opacity: 0.92;
+}
+
+/* Tighter environmental illumination: the core lights the space, not every card. */
+[data-surface="marketing"] .mkt-arch-runtime-glow--outer {
+  opacity: 0.34;
+  transform: scale(0.68);
+  animation-name: mkt-arch-core-halo-v6;
+}
+
+[data-surface="marketing"] .mkt-arch-runtime-glow--inner {
+  opacity: 0.54;
+  transform: scale(0.82);
+}
+
+@keyframes mkt-arch-core-halo-v6 {
+  0%, 100% { opacity: 0.28; transform: scale(0.66); }
+  50% { opacity: 0.42; transform: scale(0.72); }
+}
+
+/* Cause and effect: the core acknowledges inbound data before outbound activation. */
+[data-surface="marketing"] .mkt-arch-runtime[data-active="true"] .mkt-arch-runtime-shell {
+  animation: mkt-arch-core-ack-v6 760ms var(--mkt-ease) both;
+}
+
+@keyframes mkt-arch-core-ack-v6 {
+  0% { stroke-opacity: 0.76; }
+  38% { stroke-opacity: 1; filter: drop-shadow(0 0 8px rgb(239 208 145 / 46%)) drop-shadow(0 0 22px rgb(200 162 90 / 24%)) drop-shadow(0 16px 32px rgb(0 0 0 / 42%)); }
+  100% { stroke-opacity: 0.86; }
+}
+
+/* Metadata remains subordinate; Live data and Automation briefly react to activity. */
+[data-surface="marketing"] .mkt-arch-meta {
+  opacity: 0.6;
+}
+
+[data-surface="marketing"] .mkt-arch-meta > rect {
+  fill: rgb(18 22 27 / 74%) !important;
+  stroke: rgb(243 240 232 / 8%) !important;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-runtime-active="true"]
+  .mkt-arch-meta--top .mkt-arch-meta-label:last-of-type,
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-runtime-active="true"]
+  .mkt-arch-meta--bottom .mkt-arch-meta-label:last-of-type {
+  fill: #d8b46e !important;
+  opacity: 1;
+  filter: drop-shadow(0 0 5px rgb(216 180 110 / 34%));
+  animation: mkt-arch-meta-ack-v6 900ms var(--mkt-ease) both;
+}
+
+@keyframes mkt-arch-meta-ack-v6 {
+  0%, 100% { opacity: 0.78; }
+  42% { opacity: 1; }
+}
+
+/* Hover hierarchy: route remains explicit while unrelated features recede. */
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-hovering="true"]
+  .mkt-arch-node:not([data-hovered="true"]) {
+  opacity: 0.48;
+}
+
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-hovering="true"]
+  .mkt-arch-connectors-base .mkt-arch-connector {
+  opacity: 0.28;
+}
+
+/* Keep the core dominant even while hovering peripheral nodes. */
+[data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-hovering="true"]
+  .mkt-arch-runtime {
+  opacity: 1;
+  filter:
+    drop-shadow(0 18px 32px rgb(0 0 0 / 40%))
+    drop-shadow(0 0 18px rgb(200 162 90 / 16%));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-arch-runtime[data-active="true"] .mkt-arch-runtime-shell,
+  [data-surface="marketing"] .mkt-architecture-diagram-v2--hero[data-runtime-active="true"]
+    .mkt-arch-meta-label {
+    animation: none !important;
+  }
 }
