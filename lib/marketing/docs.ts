@@ -1,10 +1,26 @@
 import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
+  Bot,
+  Building2,
+  Calendar,
+  Cable,
+  ChartColumn,
+  CircleHelp,
   CreditCard,
+  Globe,
+  KeyRound,
+  Mail,
+  MessageCircle,
   MessageSquare,
-  PlayCircle,
   Radio,
+  ScrollText,
+  Settings2,
+  Shield,
+  Sparkles,
+  Users,
+  Webhook,
+  Workflow,
 } from "lucide-react";
 
 export type DocsSidebarLink = {
@@ -41,13 +57,25 @@ export type DocsArticle = {
   nextSteps: readonly DocsNextStep[];
 };
 
-export type DocsLandingCard = {
+export type DocsNavCard = {
   id: string;
   href: string;
   title: string;
   description: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
+  meta?: string;
 };
+
+export type DocsSearchEntry = {
+  id: string;
+  title: string;
+  description: string;
+  href: string;
+  group: string;
+};
+
+/** @deprecated Prefer DocsNavCard */
+export type DocsLandingCard = DocsNavCard;
 
 export const DOCS_SIDEBAR_NAV: readonly DocsSidebarEntry[] = [
   {
@@ -73,57 +101,339 @@ export const DOCS_SIDEBAR_NAV: readonly DocsSidebarEntry[] = [
     href: "/docs/billing",
     label: "Billing",
   },
+  {
+    type: "group",
+    label: "Design",
+    items: [{ href: "/brand", label: "Brand Book" }],
+  },
 ] as const;
 
 export const DOCS_LANDING = {
   path: "/docs",
-  overline: "Docs",
   title: "Documentation",
   description:
-    "Essential guides for trial setup — hotel, channels, knowledge, and billing.",
-  cards: [
-    {
-      id: "getting-started",
-      href: "/docs/getting-started",
-      title: "Getting Started",
-      description:
-        "Create your account, configure your hotel workspace, and connect your first channel.",
-      icon: PlayCircle,
-    },
-    {
-      id: "telegram",
-      href: "/docs/channels/telegram",
-      title: "Telegram",
-      description:
-        "Connect a Telegram bot so guest messages flow into Monavel Reception AI.",
-      icon: Radio,
-    },
-    {
-      id: "website-chat",
-      href: "/docs/channels/website-chat",
-      title: "Website Chat",
-      description:
-        "Enable the website chat widget and start receiving guest conversations.",
-      icon: MessageSquare,
-    },
-    {
-      id: "knowledge-base",
-      href: "/docs/knowledge-base",
-      title: "Knowledge Base",
-      description:
-        "Create articles and policies that power consistent AI responses.",
-      icon: BookOpen,
-    },
-    {
-      id: "billing",
-      href: "/docs/billing",
-      title: "Billing",
-      description:
-        "Understand trials, subscriptions, upgrades, and invoices in Monavel.",
-      icon: CreditCard,
-    },
-  ] satisfies DocsLandingCard[],
+    "Everything you need to deploy, configure and operate Monavel.",
+  searchPlaceholder: "Search documentation...",
+  gettingStarted: {
+    id: "getting-started",
+    title: "Getting Started",
+    cards: [
+      {
+        id: "install",
+        href: "/docs/getting-started",
+        title: "Install Monavel",
+        description: "Deploy your first workspace.",
+        meta: "2 min",
+        icon: Sparkles,
+      },
+      {
+        id: "workspace",
+        href: "/docs/getting-started",
+        title: "Create Workspace",
+        description: "Configure your hotel.",
+        meta: "3 min",
+        icon: Building2,
+      },
+      {
+        id: "channels",
+        href: "/docs/channels/telegram",
+        title: "Connect Channels",
+        description: "Telegram, Website, WhatsApp.",
+        meta: "4 min",
+        icon: Radio,
+      },
+      {
+        id: "invite",
+        href: "/docs/getting-started",
+        title: "Invite Team",
+        description: "Invite hotel staff.",
+        meta: "1 min",
+        icon: Users,
+      },
+    ] satisfies DocsNavCard[],
+  },
+  platform: {
+    id: "platform",
+    title: "Platform",
+    cards: [
+      {
+        id: "runtime",
+        href: "/docs/getting-started",
+        title: "Runtime",
+        description: "Shared operating layer for every workspace.",
+        icon: Settings2,
+      },
+      {
+        id: "reception-ai",
+        href: "/docs/getting-started",
+        title: "Reception AI",
+        description: "Guest conversations with hotel context.",
+        icon: Bot,
+      },
+      {
+        id: "knowledge",
+        href: "/docs/knowledge-base",
+        title: "Knowledge Base",
+        description: "Policies and FAQs for consistent answers.",
+        icon: BookOpen,
+      },
+      {
+        id: "guests",
+        href: "/docs/getting-started",
+        title: "Guests",
+        description: "Profiles connected to live operations.",
+        icon: Users,
+      },
+      {
+        id: "reservations",
+        href: "/docs/getting-started",
+        title: "Reservations",
+        description: "Bookings synced with hotel systems.",
+        icon: Calendar,
+      },
+      {
+        id: "operations",
+        href: "/docs/getting-started",
+        title: "Operations",
+        description: "Day-to-day hotel workflows.",
+        icon: Workflow,
+      },
+      {
+        id: "analytics",
+        href: "/docs/getting-started",
+        title: "Analytics",
+        description: "Signals for operational decisions.",
+        icon: ChartColumn,
+      },
+      {
+        id: "automation",
+        href: "/docs/getting-started",
+        title: "Automation",
+        description: "Repeatable Runtime workflows.",
+        icon: Sparkles,
+      },
+    ] satisfies DocsNavCard[],
+  },
+  integrations: {
+    id: "integrations",
+    title: "Integrations",
+    cards: [
+      {
+        id: "telegram",
+        href: "/docs/channels/telegram",
+        title: "Telegram",
+        description: "Route guest messages into Reception AI.",
+        icon: Radio,
+      },
+      {
+        id: "whatsapp",
+        href: "/docs/getting-started",
+        title: "WhatsApp",
+        description: "Connect WhatsApp guest conversations.",
+        icon: MessageCircle,
+      },
+      {
+        id: "website-chat",
+        href: "/docs/channels/website-chat",
+        title: "Website Chat",
+        description: "Embed chat on your hotel website.",
+        icon: MessageSquare,
+      },
+      {
+        id: "email",
+        href: "/docs/getting-started",
+        title: "Email",
+        description: "Bring guest email into one inbox.",
+        icon: Mail,
+      },
+      {
+        id: "pms",
+        href: "/docs/getting-started",
+        title: "PMS",
+        description: "Connect your property management system.",
+        icon: Building2,
+      },
+      {
+        id: "stripe",
+        href: "/docs/billing",
+        title: "Stripe",
+        description: "Billing and subscription payments.",
+        icon: CreditCard,
+      },
+      {
+        id: "google-calendar",
+        href: "/docs/getting-started",
+        title: "Google Calendar",
+        description: "Sync operational calendar events.",
+        icon: Calendar,
+      },
+    ] satisfies DocsNavCard[],
+  },
+  administration: {
+    id: "administration",
+    title: "Administration",
+    cards: [
+      {
+        id: "workspace",
+        href: "/docs/getting-started",
+        title: "Workspace",
+        description: "Configure hotel workspace settings.",
+        icon: Building2,
+      },
+      {
+        id: "users",
+        href: "/docs/getting-started",
+        title: "Users",
+        description: "Manage hotel staff accounts.",
+        icon: Users,
+      },
+      {
+        id: "roles",
+        href: "/docs/getting-started",
+        title: "Roles & Permissions",
+        description: "Control access across the hotel.",
+        icon: KeyRound,
+      },
+      {
+        id: "billing",
+        href: "/docs/billing",
+        title: "Billing",
+        description: "Plans, invoices, and payments.",
+        icon: CreditCard,
+      },
+      {
+        id: "security",
+        href: "/docs/getting-started",
+        title: "Security",
+        description: "Protect hotel data and access.",
+        icon: Shield,
+      },
+      {
+        id: "audit-logs",
+        href: "/docs/getting-started",
+        title: "Audit Logs",
+        description: "Review important account activity.",
+        icon: ScrollText,
+      },
+    ] satisfies DocsNavCard[],
+  },
+  developer: {
+    id: "developer",
+    title: "Developer",
+    cards: [
+      {
+        id: "api",
+        href: "/docs/getting-started",
+        title: "API",
+        description: "Call Monavel from your own services.",
+        icon: Cable,
+      },
+      {
+        id: "authentication",
+        href: "/docs/getting-started",
+        title: "Authentication",
+        description: "Secure access for apps and integrations.",
+        icon: KeyRound,
+      },
+      {
+        id: "webhooks",
+        href: "/docs/getting-started",
+        title: "Webhooks",
+        description: "Receive events when hotel data changes.",
+        icon: Webhook,
+      },
+      {
+        id: "sdk",
+        href: "/docs/getting-started",
+        title: "SDK",
+        description: "Build with Monavel client libraries.",
+        icon: Globe,
+      },
+    ] satisfies DocsNavCard[],
+  },
+  popularArticles: {
+    id: "popular",
+    title: "Popular Articles",
+    items: [
+      { href: "/docs/channels/telegram", label: "Connect Telegram" },
+      { href: "/docs/getting-started", label: "Train Reception AI" },
+      { href: "/docs/knowledge-base", label: "Import Knowledge Base" },
+      { href: "/docs/channels/website-chat", label: "Configure Website Chat" },
+      { href: "/docs/getting-started", label: "Invite Hotel Staff" },
+    ],
+  },
+  support: {
+    id: "support",
+    title: "Need help?",
+    links: [
+      { href: "/contact", label: "Community", icon: Users },
+      { href: "/contact", label: "Support", icon: CircleHelp },
+      { href: "/contact", label: "System Status", icon: Globe },
+    ],
+  },
 } as const;
+
+/** Flat search index for the docs landing search field. */
+export function getDocsSearchEntries(): DocsSearchEntry[] {
+  const entries: DocsSearchEntry[] = [];
+
+  for (const card of DOCS_LANDING.gettingStarted.cards) {
+    entries.push({
+      id: `gs-${card.id}`,
+      title: card.title,
+      description: card.description,
+      href: card.href,
+      group: DOCS_LANDING.gettingStarted.title,
+    });
+  }
+  for (const card of DOCS_LANDING.platform.cards) {
+    entries.push({
+      id: `platform-${card.id}`,
+      title: card.title,
+      description: card.description,
+      href: card.href,
+      group: DOCS_LANDING.platform.title,
+    });
+  }
+  for (const card of DOCS_LANDING.integrations.cards) {
+    entries.push({
+      id: `integrations-${card.id}`,
+      title: card.title,
+      description: card.description,
+      href: card.href,
+      group: DOCS_LANDING.integrations.title,
+    });
+  }
+  for (const card of DOCS_LANDING.administration.cards) {
+    entries.push({
+      id: `administration-${card.id}`,
+      title: card.title,
+      description: card.description,
+      href: card.href,
+      group: DOCS_LANDING.administration.title,
+    });
+  }
+  for (const card of DOCS_LANDING.developer.cards) {
+    entries.push({
+      id: `developer-${card.id}`,
+      title: card.title,
+      description: card.description,
+      href: card.href,
+      group: DOCS_LANDING.developer.title,
+    });
+  }
+  for (const item of DOCS_LANDING.popularArticles.items) {
+    entries.push({
+      id: `popular-${item.label}`,
+      title: item.label,
+      description: DOCS_LANDING.popularArticles.title,
+      href: item.href,
+      group: DOCS_LANDING.popularArticles.title,
+    });
+  }
+
+  return entries;
+}
 
 export const DOCS_GETTING_STARTED: DocsArticle = {
   path: "/docs/getting-started",

@@ -6,7 +6,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build:widget": "esbuild src/widget/embed.ts --bundle --outfile=public/widget.js --format=iife --global-name=HotelAI --loader:.css=text --target=es2017",
     "build": "npm run build:widget && next build",
     "start": "next start",

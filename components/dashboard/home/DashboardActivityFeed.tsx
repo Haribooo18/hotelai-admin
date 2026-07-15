@@ -109,7 +109,7 @@ function buildActivityEntries(
       time: formatRelativeTime(item.createdAt, t, locale),
       title: item.guestName,
       subtitle: item.preview,
-      href: "/ai",
+      href: "/app/ai",
       icon: MessageSquare,
       tone: "accent",
     });

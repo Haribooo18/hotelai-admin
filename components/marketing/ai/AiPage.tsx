@@ -1,23 +1,19 @@
-import { FinalCtaSection } from "@/components/marketing/landing/FinalCtaSection";
-import { AiBenefitsSection } from "@/components/marketing/ai/AiBenefitsSection";
-import { AiCapabilitiesSection } from "@/components/marketing/ai/AiCapabilitiesSection";
-import { AiGuestChannelsSection } from "@/components/marketing/ai/AiGuestChannelsSection";
-import { AiHowItWorksSection } from "@/components/marketing/ai/AiHowItWorksSection";
-import { AiHumanWorkflowSection } from "@/components/marketing/ai/AiHumanWorkflowSection";
-import { AiKnowledgeContextSection } from "@/components/marketing/ai/AiKnowledgeContextSection";
+import { AiClosingSection } from "@/components/marketing/ai/AiClosingSection";
+import { AiCompareSection } from "@/components/marketing/ai/AiCompareSection";
+import { AiConversationsSection } from "@/components/marketing/ai/AiConversationsSection";
+import { AiNightSection } from "@/components/marketing/ai/AiNightSection";
 import { AiPageHero } from "@/components/marketing/ai/AiPageHero";
+import { AiStatusSection } from "@/components/marketing/ai/AiStatusSection";
 
 export function AiPage() {
   return (
     <>
       <AiPageHero />
-      <AiHowItWorksSection />
-      <AiCapabilitiesSection />
-      <AiKnowledgeContextSection />
-      <AiGuestChannelsSection />
-      <AiHumanWorkflowSection />
-      <AiBenefitsSection />
-      <FinalCtaSection variant="ai" />
+      <AiNightSection />
+      <AiCompareSection />
+      <AiConversationsSection />
+      <AiStatusSection />
+      <AiClosingSection />
     </>
   );
 }

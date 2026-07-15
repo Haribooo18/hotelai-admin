@@ -29,7 +29,7 @@ export function PlatformPillarCard({ pillar }: Props) {
       <Link href={pillar.href} className={cn("mkt-pillar-link", "group")}>
         {pillar.ctaLabel}
         <ArrowRight
-          className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+          className="size-4 transition-transform duration-[var(--mkt-duration)] ease-[var(--mkt-ease)] group-hover:translate-x-0.5"
           aria-hidden
         />
       </Link>

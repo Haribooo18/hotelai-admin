@@ -2,7 +2,7 @@ import type { BillingPlan } from "@/types/subscription";
 
 import { MARKETING_CTA } from "@/lib/marketing/routes";
 
-export type PricingComparisonStatus = "included" | "available" | "contact-sales";
+export type PricingComparisonValue = "included" | "dash" | "custom";
 
 export type PricingPagePlan = {
   id: BillingPlan;
@@ -14,45 +14,50 @@ export type PricingPagePlan = {
   ctaLabel: string;
   ctaHref: string;
   featured: boolean;
+  badge?: string;
 };
 
 export type PricingComparisonRow = {
   id: string;
   label: string;
-  starter: PricingComparisonStatus;
-  pro: PricingComparisonStatus;
-  enterprise: PricingComparisonStatus;
+  starter: PricingComparisonValue;
+  pro: PricingComparisonValue;
+  enterprise: PricingComparisonValue;
 };
 
+export type PricingComparisonGroup = {
+  id: string;
+  label: string;
+  rows: readonly PricingComparisonRow[];
+};
+
+export type PricingFaqItem = {
+  id: string;
+  question: string;
+  answer: string;
+};
+
+/** Hero — introduce pricing only. CTAs live on the plan cards. */
 export const PRICING_PAGE_HERO = {
-  overline: "Pricing",
-  headline: "Simple pricing for every hotel.",
-  subhead:
-    "Match your hotel size and growth stage. Free trial on Starter or Pro.",
-  primaryCtaLabel: "Start free trial",
-  primaryCtaHref: MARKETING_CTA.trial,
-  secondaryCtaLabel: "Book a demo",
-  secondaryCtaHref: MARKETING_CTA.demo,
+  headline: "Pricing",
+  lead: "One Runtime. Three plans.",
 } as const;
 
+/** Plans — no section headline; cards carry the section. */
 export const PRICING_PAGE_PLANS_SECTION = {
   sectionId: "pricing-plans",
-  overline: "Plans",
-  headline: "Three plans. One platform.",
-  subhead:
-    "Every plan includes the core Monavel workspace. Upgrade when you need priority support, multi-property management, or dedicated onboarding.",
+  ariaLabel: "Plans",
 } as const;
 
 export const PRICING_PAGE_PLANS: PricingPagePlan[] = [
   {
     id: "starter",
     name: "Starter",
-    description: "For independent hotels getting started with AI reception.",
+    description: "One hotel. Core workspace and AI reception.",
     priceLabel: "€49",
-    priceNote: "per month",
+    priceNote: "/ month",
     features: [
-      "One hotel workspace",
-      "All core workspaces",
+      "Single hotel workspace",
       "AI reception",
       "Website Chat and Telegram",
       "Knowledge base",
@@ -64,23 +69,24 @@ export const PRICING_PAGE_PLANS: PricingPagePlan[] = [
   {
     id: "pro",
     name: "Pro",
-    description: "For growing hotels that need deeper AI and support.",
+    description: "Growing hotels that need deeper insight and support.",
     priceLabel: "€149",
-    priceNote: "per month",
+    priceNote: "/ month",
     features: [
       "Everything in Starter",
+      "Revenue recommendations",
       "Advanced AI analytics",
       "Priority support",
-      "Revenue recommendations",
     ],
     ctaLabel: "Start free trial",
     ctaHref: MARKETING_CTA.trial,
     featured: true,
+    badge: "Most popular",
   },
   {
     id: "enterprise",
     name: "Enterprise",
-    description: "For hotel groups with custom workflows and SLAs.",
+    description: "Hotel groups with multi-property operations.",
     priceLabel: "Custom",
     features: [
       "Everything in Pro",
@@ -94,191 +100,147 @@ export const PRICING_PAGE_PLANS: PricingPagePlan[] = [
   },
 ];
 
+/** Comparison — Platform / AI / Operations / Support. */
 export const PRICING_PAGE_COMPARISON = {
   sectionId: "pricing-comparison",
-  overline: "Compare plans",
-  headline: "Feature comparison.",
-  subhead:
-    "A clear view of what is included in each plan — based on real Monavel capabilities.",
-  statusLabels: {
+  headline: "Compare plans",
+  valueLabels: {
     included: "Included",
-    available: "Available",
-    "contact-sales": "Contact sales",
-  } satisfies Record<PricingComparisonStatus, string>,
-  rows: [
+    dash: "—",
+    custom: "Custom",
+  } satisfies Record<PricingComparisonValue, string>,
+  groups: [
     {
-      id: "dashboard",
-      label: "Dashboard",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
+      id: "platform",
+      label: "Platform",
+      rows: [
+        {
+          id: "workspace",
+          label: "Hotel workspace",
+          starter: "included",
+          pro: "included",
+          enterprise: "included",
+        },
+        {
+          id: "multi-property",
+          label: "Multi-property",
+          starter: "dash",
+          pro: "dash",
+          enterprise: "included",
+        },
+      ],
     },
     {
-      id: "bookings",
-      label: "Bookings",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
+      id: "ai",
+      label: "AI",
+      rows: [
+        {
+          id: "ai-reception",
+          label: "AI reception",
+          starter: "included",
+          pro: "included",
+          enterprise: "included",
+        },
+        {
+          id: "analytics",
+          label: "Advanced analytics",
+          starter: "dash",
+          pro: "included",
+          enterprise: "included",
+        },
+        {
+          id: "revenue",
+          label: "Revenue recommendations",
+          starter: "dash",
+          pro: "included",
+          enterprise: "included",
+        },
+      ],
     },
     {
-      id: "guests",
-      label: "Guests",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
+      id: "operations",
+      label: "Operations",
+      rows: [
+        {
+          id: "channels",
+          label: "Guest channels",
+          starter: "included",
+          pro: "included",
+          enterprise: "included",
+        },
+        {
+          id: "knowledge",
+          label: "Knowledge base",
+          starter: "included",
+          pro: "included",
+          enterprise: "included",
+        },
+      ],
     },
     {
-      id: "rooms",
-      label: "Rooms",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
+      id: "support",
+      label: "Support",
+      rows: [
+        {
+          id: "priority",
+          label: "Priority support",
+          starter: "dash",
+          pro: "included",
+          enterprise: "included",
+        },
+        {
+          id: "onboarding",
+          label: "Custom onboarding",
+          starter: "dash",
+          pro: "dash",
+          enterprise: "included",
+        },
+        {
+          id: "success",
+          label: "Dedicated success",
+          starter: "dash",
+          pro: "dash",
+          enterprise: "custom",
+        },
+      ],
     },
-    {
-      id: "calendar",
-      label: "Calendar",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
-    },
-    {
-      id: "revenue",
-      label: "Revenue",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
-    },
-    {
-      id: "knowledge",
-      label: "Knowledge Base",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
-    },
-    {
-      id: "ai-reception",
-      label: "AI Reception",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
-    },
-    {
-      id: "website-chat",
-      label: "Website Chat",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
-    },
-    {
-      id: "telegram",
-      label: "Telegram",
-      starter: "included",
-      pro: "included",
-      enterprise: "included",
-    },
-    {
-      id: "priority-support",
-      label: "Priority Support",
-      starter: "available",
-      pro: "included",
-      enterprise: "included",
-    },
-    {
-      id: "custom-onboarding",
-      label: "Custom onboarding",
-      starter: "contact-sales",
-      pro: "available",
-      enterprise: "included",
-    },
-    {
-      id: "enterprise-support",
-      label: "Enterprise support",
-      starter: "contact-sales",
-      pro: "contact-sales",
-      enterprise: "included",
-    },
-  ] satisfies PricingComparisonRow[],
+  ] satisfies PricingComparisonGroup[],
 } as const;
 
-export const PRICING_PAGE_AUDIENCE = {
-  sectionId: "pricing-audience",
-  overline: "Who is this plan for?",
-  headline: "Find the right fit.",
-  subhead:
-    "Monavel scales from a single independent hotel to multi-property groups — choose the plan that matches how you operate today.",
-  cards: [
-    {
-      id: "starter",
-      planName: "Starter",
-      audience: "Small hotels",
-      description:
-        "Independent properties starting with AI reception and a unified workspace.",
-    },
-    {
-      id: "pro",
-      planName: "Pro",
-      audience: "Growing hotels",
-      description:
-        "Hotels with higher guest volume that need priority support and deeper AI analytics.",
-    },
-    {
-      id: "enterprise",
-      planName: "Enterprise",
-      audience: "Hotel groups and chains",
-      description:
-        "Multi-property operators that need custom onboarding, SLAs, and dedicated support.",
-    },
-  ],
-} as const;
-
+/** FAQ — purchase questions only. Short answers. */
 export const PRICING_PAGE_FAQ = {
   sectionId: "pricing-faq",
-  overline: "FAQ",
-  headline: "Common pricing questions.",
-  subhead:
-    "Answers to the questions hotels ask most before starting a trial or conversation with our team.",
-  contactLinkLabel: "Contact us",
-  contactLinkHref: "/contact",
+  headline: "Pricing FAQ",
   items: [
     {
-      question: "Can I change plans later?",
-      answer:
-        "Yes. You can upgrade or downgrade from billing settings. Changes take effect on your next billing cycle.",
-    },
-    {
+      id: "trial",
       question: "Is there a free trial?",
       answer:
-        "Starter and Pro include a free trial so you can connect channels and evaluate AI reception before subscribing.",
+        "Yes. Starter and Pro include a free trial so you can evaluate before subscribing.",
     },
     {
+      id: "change-plans",
+      question: "Can I change plans later?",
+      answer:
+        "Yes. Upgrade or downgrade from billing. Changes apply on the next billing cycle.",
+    },
+    {
+      id: "cancel",
       question: "Can I cancel anytime?",
       answer:
-        "You can cancel your subscription from billing settings. Access continues through the end of your current billing period.",
+        "Yes. Cancel from billing settings. Access continues through the current billing period.",
     },
     {
-      question: "Do you offer onboarding?",
-      answer:
-        "Pro includes standard onboarding resources. Enterprise includes custom onboarding tailored to your properties and workflows.",
-    },
-    {
+      id: "multi-hotel",
       question: "Do you support multiple hotels?",
       answer:
-        "Enterprise supports multi-property management. Starter and Pro are designed for a single hotel workspace.",
+        "Enterprise includes multi-property management. Starter and Pro are for a single hotel workspace.",
     },
     {
-      question: "How does AI billing work?",
+      id: "pms",
+      question: "Will this replace our PMS?",
       answer:
-        "AI reception is included in your plan subscription. Billing is per hotel — not per room or per guest message.",
+        "No. Monavel works with your existing PMS. Migration is included in onboarding.",
     },
-    {
-      question: "Is my data secure?",
-      answer:
-        "Monavel uses tenant isolation, role-based access, and secure cloud infrastructure. Each hotel's data stays separate.",
-    },
-    {
-      question: "Can I migrate from another PMS?",
-      answer:
-        "We can help you plan a migration during onboarding. Contact us to discuss your current systems and timeline.",
-    },
-  ],
+  ] satisfies PricingFaqItem[],
 } as const;

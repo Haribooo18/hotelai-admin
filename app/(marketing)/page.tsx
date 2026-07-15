@@ -1,15 +1,12 @@
 import {
-  AIExperienceSection,
-  BusinessOutcomesSection,
   FinalCtaSection,
   HomepageFaqSection,
   HeroSection,
+  HomepageScrollReset,
   HowMonavelWorksSection,
-  OperationalScenarioSection,
   PlatformShowcaseSection,
   PricingPreviewSection,
   TrustSection,
-  WhoIsMonavelForSection,
   WhyHotelsNeedSection,
 } from "@/components/marketing";
 import { MarketingJsonLd } from "@/components/marketing/seo/MarketingJsonLd";
@@ -30,15 +27,12 @@ export default function LandingPage() {
   return (
     <>
       <MarketingJsonLd data={buildHomeJsonLd()} />
+      <HomepageScrollReset />
       <div data-homepage-sections={homepageSections.join(",")}>
         <HeroSection />
         <WhyHotelsNeedSection />
-        <WhoIsMonavelForSection />
         <HowMonavelWorksSection />
-        <OperationalScenarioSection />
-        <BusinessOutcomesSection />
         <PlatformShowcaseSection />
-        <AIExperienceSection />
         <PricingPreviewSection />
         <TrustSection />
         <HomepageFaqSection />

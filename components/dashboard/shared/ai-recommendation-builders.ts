@@ -379,7 +379,7 @@ export function buildAiInboxRecommendations(kpis: AIOpsKpis): AiRecommendation[]
         confidencePercent: 94,
         primaryAction: {
           labelKey: "ai.recommendations.actions.review",
-          href: "/ai",
+          href: "/app/ai",
         },
         secondaryAction: dismissSecondary(),
       },
@@ -398,7 +398,7 @@ export function buildAiInboxRecommendations(kpis: AIOpsKpis): AiRecommendation[]
       confidencePercent: 78,
       primaryAction: {
         labelKey: "ai.recommendations.actions.review",
-        href: "/ai",
+        href: "/app/ai",
       },
       secondaryAction: dismissSecondary(),
     },
@@ -607,7 +607,7 @@ export function buildDashboardRecommendations(
         confidencePercent: insight.confidencePercent,
         primaryAction: {
           labelKey: "ai.recommendations.actions.review",
-          href: "/ai",
+          href: "/app/ai",
         },
         secondaryAction: dismissSecondary(),
       },

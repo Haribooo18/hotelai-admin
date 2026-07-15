@@ -77,7 +77,7 @@ export function DashboardAiActivity({
       <Section
         title={t("pages.messages.title")}
         subtitle={t("dashboard.aiActivitySubtitle")}
-        action={<DashboardCardAction href="/ai" label={t("dashboard.aiInbox")} />}
+        action={<DashboardCardAction href="/app/ai" label={t("dashboard.aiInbox")} />}
       />
 
       {loading ? (
@@ -91,7 +91,7 @@ export function DashboardAiActivity({
       ) : (
         <div className="space-y-2" role="list" aria-label={t("dashboard.aiConversationsAria")}>
           {filteredItems.map((item) => (
-            <Link key={item.id} href="/ai" className="block focus-visible:outline-none">
+            <Link key={item.id} href="/app/ai" className="block focus-visible:outline-none">
               <DashboardListItem
                 as="article"
                 className="group flex items-start gap-3 focus-visible:ring-[3px] focus-visible:ring-[var(--shell-accent-ring)]"

@@ -23,9 +23,9 @@ export const PHILOSOPHY_CONTENT = {
   overline: "Philosophy",
   headline: "Hotels no longer need dozens of disconnected systems.",
   lines: [
-    "They need one intelligent operating environment.",
+    "They need one operating environment.",
     "Everything connected.",
-    "Everything synchronized.",
+    "Everything synced.",
     "Everything understood.",
   ],
 } as const;

@@ -5,45 +5,54 @@ import {
   FOOTER_BRAND,
   FOOTER_COLUMNS,
 } from "@/lib/marketing/footer";
+import { MARKETING_PRODUCT_HREF } from "@/lib/marketing/routes";
 
 describe("footer content", () => {
-  it("defines brand column copy", () => {
+  it("defines brand identity without marketing tagline", () => {
     expect(FOOTER_BRAND.name).toBe("Monavel");
-    expect(FOOTER_BRAND.tagline).toBe(
-      "The AI Operating System for Modern Hotels."
-    );
   });
 
-  it("defines three navigation columns", () => {
-    expect(FOOTER_COLUMNS).toHaveLength(3);
+  it("defines four enterprise navigation columns", () => {
+    expect(FOOTER_COLUMNS).toHaveLength(4);
     expect(FOOTER_COLUMNS.map((column) => column.title)).toEqual([
-      "Product",
+      "Platform",
       "Resources",
       "Company",
+      "Legal",
     ]);
   });
 
-  it("includes product and company links", () => {
-    const product = FOOTER_COLUMNS.find((column) => column.id === "product");
+  it("includes platform, resources, company, and legal links", () => {
+    const platform = FOOTER_COLUMNS.find((column) => column.id === "platform");
+    const resources = FOOTER_COLUMNS.find((column) => column.id === "resources");
     const company = FOOTER_COLUMNS.find((column) => column.id === "company");
+    const legal = FOOTER_COLUMNS.find((column) => column.id === "legal");
 
-    expect(product?.links.map((link) => link.label)).toEqual([
-      "Product",
-      "AI",
-      "Pricing",
+    expect(platform?.links.map((link) => link.label)).toEqual([
+      "Runtime",
+      "AI Reception",
+      "Operations",
       "Integrations",
       "Security",
     ]);
-    expect(company?.links.map((link) => link.label)).toContain("Login");
-    expect(company?.links.map((link) => link.label)).toContain("Privacy");
+    expect(platform?.links[0]?.href).toBe(MARKETING_PRODUCT_HREF);
+    expect(resources?.links.map((link) => link.label)).toEqual([
+      "Documentation",
+      "API",
+      "Status",
+      "Changelog",
+    ]);
+    expect(company?.links.map((link) => link.label)).toEqual([
+      "About",
+      "Contact",
+      "Careers",
+    ]);
+    expect(legal?.links.map((link) => link.label)).toEqual(["Privacy", "Terms"]);
   });
 
-  it("defines bottom bar copy and legal links", () => {
-    expect(FOOTER_BOTTOM.copyright).toBe("© Monavel");
-    expect(FOOTER_BOTTOM.tagline).toBe("Built for modern hotels.");
-    expect(FOOTER_BOTTOM.legalLinks.map((link) => link.label)).toEqual([
-      "Privacy",
-      "Terms",
-    ]);
+  it("defines a quiet final signature", () => {
+    expect(FOOTER_BOTTOM.signature).toBe(
+      "© Monavel — AI Operating System for Hotels"
+    );
   });
 });

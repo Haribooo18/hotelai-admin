@@ -1,3 +1,4 @@
+import { PricingImplementationStrip } from "@/components/marketing/landing/PricingImplementationStrip";
 import { PricingPreviewCard } from "@/components/marketing/landing/PricingPreviewCard";
 import { PricingPreviewFaq } from "@/components/marketing/landing/PricingPreviewFaq";
 import {
@@ -20,7 +21,12 @@ export function PricingPreviewSection() {
       aria-labelledby="pricing-preview-heading"
     >
       <div className="mkt-container-wide">
-        <header className={cn(mktSectionHeaderClass, "mkt-section-header--centered mkt-section-header--wide")}>
+        <header
+          className={cn(
+            mktSectionHeaderClass,
+            "mkt-section-header--centered mkt-section-header--wide"
+          )}
+        >
           <h2
             id="pricing-preview-heading"
             className={mktSectionHeadlineClass}
@@ -35,11 +41,21 @@ export function PricingPreviewSection() {
           </p>
         </header>
 
+        <p className="mkt-pricing-key-message">
+          {PRICING_PREVIEW_CONTENT.keyMessageLines.map((line) => (
+            <span key={line} className="mkt-pricing-key-message-line">
+              {line}
+            </span>
+          ))}
+        </p>
+
         <div className={cn(mktSectionBodyClass, "mkt-pricing-grid")}>
           {PRICING_PREVIEW_PLANS.map((plan) => (
             <PricingPreviewCard key={plan.id} plan={plan} />
           ))}
         </div>
+
+        <PricingImplementationStrip />
 
         <PricingPreviewFaq />
       </div>

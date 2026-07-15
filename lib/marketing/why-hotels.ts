@@ -50,7 +50,7 @@ export const WHY_HOTELS_CARDS: WhyHotelsCard[] = [
     icon: Database,
     title: "One source of truth",
     description:
-      "Bookings, rooms, guests, and knowledge stay synchronized — no more conflicting data across systems.",
+      "Bookings, rooms, guests, and knowledge stay synced — no more conflicting data across systems.",
   },
   {
     id: "security",

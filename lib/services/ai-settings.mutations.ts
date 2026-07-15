@@ -12,7 +12,7 @@ import {
 function revalidateAISettings() {
   revalidatePath("/settings");
   revalidatePath("/settings/ai");
-  revalidatePath("/ai");
+  revalidatePath("/app/ai");
 }
 
 export async function updateHotelAISettings(input: HotelAISettingsInput) {

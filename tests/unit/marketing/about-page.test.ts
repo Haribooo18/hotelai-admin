@@ -21,7 +21,7 @@ describe("about page content", () => {
 
   it("defines mission and vision without fabricated history", () => {
     expect(ABOUT_PAGE_MISSION.headline).toBe("Less complexity for hotel teams.");
-    expect(ABOUT_PAGE_VISION.headline).toContain("One intelligent workspace");
+    expect(ABOUT_PAGE_VISION.headline).toContain("One workspace");
     expect(ABOUT_PAGE_VISION.body.toLowerCase()).toContain("one workspace");
     const narrative = [ABOUT_PAGE_MISSION.body, ABOUT_PAGE_VISION.body].join(" ");
     expect(narrative.toLowerCase()).not.toMatch(

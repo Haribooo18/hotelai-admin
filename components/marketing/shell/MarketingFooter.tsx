@@ -1,11 +1,6 @@
-import Link from "next/link";
-
-import { MonavelMark } from "@/components/marketing/brand/MonavelMark";
-import {
-  FOOTER_BOTTOM,
-  FOOTER_BRAND,
-  FOOTER_COLUMNS,
-} from "@/lib/marketing/footer";
+import { MonavelHorizontal } from "@/components/brand";
+import { HashAwareLink } from "@/components/marketing/shared/HashAwareLink";
+import { FOOTER_BOTTOM, FOOTER_COLUMNS } from "@/lib/marketing/footer";
 
 function FooterNavColumn({
   title,
@@ -24,10 +19,10 @@ function FooterNavColumn({
       <nav aria-labelledby={`footer-${id}-heading`}>
         <ul className="mkt-footer-links">
           {links.map((link) => (
-            <li key={link.href}>
-              <Link href={link.href} className="mkt-footer-link">
+            <li key={`${link.href}-${link.label}`}>
+              <HashAwareLink href={link.href} className="mkt-footer-link">
                 {link.label}
-              </Link>
+              </HashAwareLink>
             </li>
           ))}
         </ul>
@@ -40,42 +35,22 @@ export function MarketingFooter() {
   return (
     <footer className="mkt-footer">
       <div className="mkt-container-wide mkt-footer-main">
-        <div className="mkt-footer-layout">
-          <div className="mkt-footer-brand">
-            <Link href="/" className="mkt-footer-brand-lockup">
-              <MonavelMark className="mkt-footer-brand-mark" />
-              <span className="mkt-footer-brand-name">{FOOTER_BRAND.name}</span>
-            </Link>
-            <p className="mkt-footer-brand-tagline">{FOOTER_BRAND.tagline}</p>
-          </div>
-
-          <div className="mkt-footer-nav">
-            {FOOTER_COLUMNS.map((column) => (
-              <FooterNavColumn
-                key={column.id}
-                id={column.id}
-                title={column.title}
-                links={column.links}
-              />
-            ))}
-          </div>
+        <div className="mkt-footer-nav">
+          {FOOTER_COLUMNS.map((column) => (
+            <FooterNavColumn
+              key={column.id}
+              id={column.id}
+              title={column.title}
+              links={column.links}
+            />
+          ))}
         </div>
       </div>
 
       <div className="mkt-footer-bottom">
         <div className="mkt-container-wide mkt-footer-bottom-inner">
-          <div className="mkt-footer-bottom-meta">
-            <p className="mkt-footer-copyright">{FOOTER_BOTTOM.copyright}</p>
-            <p className="mkt-footer-bottom-tagline">{FOOTER_BOTTOM.tagline}</p>
-          </div>
-
-          <nav aria-label="Legal" className="mkt-footer-legal">
-            {FOOTER_BOTTOM.legalLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="mkt-footer-link">
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+          <MonavelHorizontal decorative className="mkt-logo-horizontal--footer" />
+          <p className="mkt-footer-signature">{FOOTER_BOTTOM.signature}</p>
         </div>
       </div>
     </footer>

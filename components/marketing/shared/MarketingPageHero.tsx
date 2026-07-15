@@ -16,7 +16,7 @@ type Cta = {
 
 type Props = {
   headingId: string;
-  overline: string;
+  overline?: string;
   headline: string;
   headlineAccent?: string;
   subhead: string;
@@ -24,6 +24,7 @@ type Props = {
   secondaryCta: Cta;
   preview: MarketingPageHeroPreview;
   previewPriority?: boolean;
+  className?: string;
 };
 
 export function MarketingPageHero({
@@ -36,15 +37,21 @@ export function MarketingPageHero({
   secondaryCta,
   preview,
   previewPriority = false,
+  className,
 }: Props) {
   return (
-    <section className="mkt-page-hero" aria-labelledby={headingId}>
+    <section
+      className={cn("mkt-page-hero", className)}
+      aria-labelledby={headingId}
+    >
       <div className="mkt-container-wide">
         <div className="mkt-page-hero-grid">
           <div className="mkt-page-hero-copy">
-            <p className={cn(mktOverlineClass, mktMotionRevealClass)} data-order="0">
-              {overline}
-            </p>
+            {overline ? (
+              <p className={cn(mktOverlineClass, mktMotionRevealClass)} data-order="0">
+                {overline}
+              </p>
+            ) : null}
 
             <h1
               id={headingId}

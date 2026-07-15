@@ -1,19 +1,14 @@
+import { MKT_CTA } from "@/lib/marketing/product-language";
+
 export const HERO_CONTENT = {
-  headline: "Everything your hotel needs",
-  headlineAccent: "One intelligent operating system",
-  lead: "Monavel is the AI Operating System for hotels.",
-  body:
-    "Instead of managing disconnected software, your entire hotel works through one intelligent platform.",
-  features: [
-    "One Workspace",
-    "AI Reception",
-    "Guest Communication",
-    "Revenue",
-    "Knowledge",
-    "Automation",
-  ] as const,
-  primaryCta: "Start free trial",
-  secondaryCta: "Book a demo",
+  overline: "AI Operating System for Hotels",
+  headline: "Everything your hotel needs.",
+  headlineAccent: "One operating system.",
+  supportingCopy:
+    "Run reservations, guest communication, hotel operations, and AI reception from one connected workspace.",
+  benefits: ["AI Reception", "Unified Workspace", "Launch in Days"] as const,
+  primaryCta: MKT_CTA.startFreeTrial,
+  secondaryCta: MKT_CTA.bookDemo,
   screenReaderSummary:
     "Monavel ecosystem: guest channels connect through Monavel to AI Reception, PMS, revenue, knowledge, rooms, automation, analytics, and staff.",
   skipLinkLabel: "Skip to why hotels need Monavel",

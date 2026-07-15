@@ -22,8 +22,9 @@ describe("product presentation", () => {
       PRODUCT_CROP_PRESETS.receptionInbox
     );
     expect(getProductPresentation("pricingHero").crop).toEqual(
-      PRODUCT_CROP_PRESETS.revenueDashboard
+      PRODUCT_CROP_PRESETS.receptionConversation
     );
+    expect(getProductPresentation("pricingHero").emphasis).toBeUndefined();
     expect(getProductPresentation("securityHero").crop).toEqual(
       PRODUCT_CROP_PRESETS.dashboardAdmin
     );

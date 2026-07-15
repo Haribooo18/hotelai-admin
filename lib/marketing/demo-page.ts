@@ -123,7 +123,7 @@ export const DEMO_PAGE_FORM = {
   headline: "Schedule your walkthrough.",
   subhead:
     "Tell us about your hotel and preferred date. Our team will confirm your demo by email — no instant booking or availability calendar.",
-  submitLabel: "Book demo",
+  submitLabel: "Book a demo",
   successTitle: "Demo request received.",
   successMessage:
     "Thank you for your interest. Our team will reach out by email to confirm a time for your personalized walkthrough.",

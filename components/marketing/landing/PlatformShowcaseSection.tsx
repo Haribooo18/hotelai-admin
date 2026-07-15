@@ -5,10 +5,7 @@ import {
   mktSectionHeaderClass,
   mktSectionSubheadClass,
 } from "@/lib/marketing/design";
-import {
-  PLATFORM_SHOWCASE_CONTENT,
-} from "@/lib/marketing/platform";
-
+import { PLATFORM_SHOWCASE_CONTENT } from "@/lib/marketing/platform";
 import { cn } from "@/lib/utils";
 
 export function PlatformShowcaseSection() {
@@ -19,7 +16,9 @@ export function PlatformShowcaseSection() {
       aria-labelledby="platform-showcase-heading"
     >
       <div className="mkt-container-wide">
-        <header className={cn(mktSectionHeaderClass, "mkt-section-header--centered")}>
+        <header
+          className={cn(mktSectionHeaderClass, "mkt-section-header--centered")}
+        >
           <h2
             id="platform-showcase-heading"
             className={mktSectionHeadlineClass}

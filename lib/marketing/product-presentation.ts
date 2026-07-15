@@ -8,6 +8,7 @@ export const PRODUCT_CROP_PRESETS = {
   dashboardOverview: { objectPosition: "4% 2%" },
   dashboardAdmin: { objectPosition: "60% 2%" },
   receptionInbox: { objectPosition: "14% 6%" },
+  receptionConversation: { objectPosition: "72% 52%" },
   receptionChannels: { objectPosition: "20% 4%" },
   revenueDashboard: { objectPosition: "10% 6%" },
   calendarTimeline: { objectPosition: "8% 10%" },
@@ -32,8 +33,7 @@ export type ProductPresentationPreset =
   | "securityArchitecture"
   | "integrationsArchitecture"
   | "aboutRoadmap"
-  | "platformShowcase"
-  | "aiExperience";
+  | "platformShowcase";
 
 export type ProductPresentation = {
   size: ProductShowcaseSize;
@@ -63,8 +63,7 @@ export const PRODUCT_PRESENTATIONS: Record<
   },
   pricingHero: {
     size: "hero",
-    crop: PRODUCT_CROP_PRESETS.revenueDashboard,
-    emphasis: true,
+    crop: PRODUCT_CROP_PRESETS.receptionConversation,
   },
   demoHero: {
     size: "hero",
@@ -131,10 +130,6 @@ export const PRODUCT_PRESENTATIONS: Record<
     size: "hero",
     crop: { objectPosition: "0% 0%" },
     emphasis: true,
-  },
-  aiExperience: {
-    size: "section",
-    crop: PRODUCT_CROP_PRESETS.receptionInbox,
   },
 };
 

@@ -1,5 +1,4 @@
 import { LEGAL_CONTACT_EMAIL } from "@/lib/marketing/legal";
-import { PRICING_PAGE_PLANS } from "@/lib/marketing/pricing-page";
 import {
   getCanonicalUrl,
   MARKETING_CANONICAL_ORIGIN,
@@ -18,11 +17,6 @@ function organizationNode(): JsonLdNode {
     url: MARKETING_CANONICAL_ORIGIN,
     email: LEGAL_CONTACT_EMAIL,
   };
-}
-
-function parseMonthlyPrice(priceLabel: string): string | undefined {
-  const match = priceLabel.match(/€(\d+)/);
-  return match?.[1];
 }
 
 export function buildHomeJsonLd(): JsonLdNode[] {
@@ -61,24 +55,20 @@ export function buildHomeJsonLd(): JsonLdNode[] {
 
 export function buildPricingJsonLd(): JsonLdNode[] {
   const pricing = MARKETING_SEO_PAGES.pricing;
-  const offers = PRICING_PAGE_PLANS.flatMap((plan) => {
-    const price = parseMonthlyPrice(plan.priceLabel);
-    if (!price) return [];
-
-    return [
-      {
-        "@type": "Offer",
-        name: plan.name,
-        description: plan.description,
-        price,
-        priceCurrency: "EUR",
-        url: getCanonicalUrl(pricing.path),
-        availability: "https://schema.org/InStock",
-      },
-    ];
-  });
 
   return [
+    {
+      "@context": JSON_LD_CONTEXT,
+      "@type": "WebPage",
+      name: pricing.title,
+      description: pricing.description,
+      url: getCanonicalUrl(pricing.path),
+      isPartOf: {
+        "@type": "WebSite",
+        name: SITE_NAME,
+        url: MARKETING_CANONICAL_ORIGIN,
+      },
+    },
     {
       "@context": JSON_LD_CONTEXT,
       "@type": "Product",
@@ -88,8 +78,22 @@ export function buildPricingJsonLd(): JsonLdNode[] {
         "@type": "Brand",
         name: SITE_NAME,
       },
-      url: getCanonicalUrl(pricing.path),
-      offers,
+      offers: [
+        {
+          "@type": "Offer",
+          name: "Starter",
+          price: "49",
+          priceCurrency: "EUR",
+          url: getCanonicalUrl(pricing.path),
+        },
+        {
+          "@type": "Offer",
+          name: "Pro",
+          price: "149",
+          priceCurrency: "EUR",
+          url: getCanonicalUrl(pricing.path),
+        },
+      ],
     },
   ];
 }

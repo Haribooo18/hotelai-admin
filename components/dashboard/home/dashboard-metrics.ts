@@ -306,7 +306,7 @@ export function buildDashboardAlerts(
       severity: "urgent",
       title: `${newLeads.length} new AI request${newLeads.length === 1 ? "" : "s"}`,
       description: "Guests are waiting for a response in AI Inbox.",
-      href: "/ai",
+      href: "/app/ai",
     });
   }
 

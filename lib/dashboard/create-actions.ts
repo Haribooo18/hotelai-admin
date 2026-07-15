@@ -13,6 +13,6 @@ export const CREATE_ACTION_ROUTES: Record<CreateActionKey, string> = {
   reservation: `/bookings?${CREATE_QUERY_PARAM}=${CREATE_QUERY_VALUE}`,
   guest: `/guests?${CREATE_QUERY_PARAM}=${CREATE_QUERY_VALUE}`,
   room: `/rooms?${CREATE_QUERY_PARAM}=${CREATE_QUERY_VALUE}`,
-  conversation: `/ai?${CREATE_QUERY_PARAM}=${CREATE_QUERY_VALUE}`,
+  conversation: `/app/ai?${CREATE_QUERY_PARAM}=${CREATE_QUERY_VALUE}`,
   article: `/knowledge?${CREATE_QUERY_PARAM}=${CREATE_QUERY_VALUE}`,
 };

@@ -109,11 +109,11 @@ export function AIInboxPage({
   );
 
   function handleSelect(id: string) {
-    router.push(`/ai?conversation=${id}`);
+    router.push(`/app/ai?conversation=${id}`);
   }
 
   function handleBack() {
-    router.push("/ai");
+    router.push("/app/ai");
   }
 
   function handleRefresh() {
@@ -163,7 +163,7 @@ export function AIInboxPage({
         setCreateOpen(false);
         setGuestName("");
         toast.success(t("ai.conversationCreated"));
-        router.push(`/ai?conversation=${id}`);
+        router.push(`/app/ai?conversation=${id}`);
         router.refresh();
       } catch (error) {
         console.error(error);

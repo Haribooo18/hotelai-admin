@@ -1,6 +1,8 @@
+import { MARKETING_PRODUCT_HREF } from "@/lib/marketing/routes";
+
 export const SITE_NAME = "Monavel";
 export const SITE_DESCRIPTION =
-  "AI reception for hotels: automate guest conversations via Telegram, Website Chat, and a unified admin panel.";
+  "Monavel is the AI operating system for hotels — reservations, guest communication, operations, and AI reception in one connected workspace.";
 
 export function getSiteUrl(): string {
   const configured = process.env.NEXT_PUBLIC_SITE_URL?.trim();
@@ -13,11 +15,10 @@ export function getSiteUrl(): string {
 }
 
 export const MARKETING_NAV = [
-  { href: "/#product", label: "Product" },
+  { href: MARKETING_PRODUCT_HREF, label: "Product" },
   { href: "/ai", label: "AI" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
-  { href: "/blog", label: "Blog" },
 ] as const;
 
 export const SITE_TAGLINE = "The operating system for modern hotels";

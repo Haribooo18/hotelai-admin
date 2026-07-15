@@ -16,15 +16,17 @@ export function IntegrationCard({ integration }: Props) {
       </div>
       <div className="mkt-features-integration-header">
         <h3 className="mkt-features-card-title">{integration.title}</h3>
-        <span
-          className={
-            integration.status === "available"
-              ? "mkt-integration-badge-available"
-              : "mkt-features-integration-badge"
-          }
-        >
-          {statusLabel}
-        </span>
+        {statusLabel ? (
+          <span
+            className={
+              integration.status === "available"
+                ? "mkt-integration-badge-available"
+                : "mkt-features-integration-badge"
+            }
+          >
+            {statusLabel}
+          </span>
+        ) : null}
       </div>
       <p className="mkt-features-card-description mt-2">
         {integration.description}

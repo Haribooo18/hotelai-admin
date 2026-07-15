@@ -1,14 +1,15 @@
 import type { BillingPlan } from "@/types/subscription";
 
+import { MKT_CTA } from "@/lib/marketing/product-language";
 import { MARKETING_CTA } from "@/lib/marketing/routes";
 
 export type PricingPreviewPlan = {
   id: BillingPlan;
   name: string;
-  description: string;
-  priceLabel: string;
-  priceNote?: string;
-  features: readonly string[];
+  /** Answers “Who is this for?” — deployment model, not a tier. */
+  audience: string;
+  /** Deployment signals — not a feature checklist. */
+  points: readonly string[];
   ctaLabel: string;
   ctaHref: string;
   featured: boolean;
@@ -16,59 +17,65 @@ export type PricingPreviewPlan = {
 
 export const PRICING_PREVIEW_CONTENT = {
   sectionId: "pricing-preview",
-  headline: "Simple pricing",
-  headlineAccent: "Built to grow with your hotel",
+  headline: "Start with one hotel.",
+  headlineAccent: "Grow without changing platforms.",
   subhead:
-    "Start with a free trial on Starter or Pro. Scale to Enterprise when you need multi-property support and dedicated onboarding.",
-  faqLinkLabel: "View all pricing details",
+    "Every deployment includes the same Monavel Runtime. The only difference is how many properties you operate.",
+  /** Key message — sits above the deployment cards. */
+  keyMessageLines: [
+    "The Runtime never changes.",
+    "Only your operational scale does.",
+  ] as const,
+  deploymentLabel: "Deployment",
+  faqLinkLabel: "View full details",
   faqLinkHref: "/pricing",
 } as const;
+
+/** Deployment guarantees — how Monavel enters the business. */
+export const PRICING_DEPLOYMENT_STRIP = [
+  "Launch in days",
+  "Works with your PMS",
+  "Migration included",
+  "Guided onboarding",
+  "No rip-and-replace",
+] as const;
+
+/** @deprecated Use PRICING_DEPLOYMENT_STRIP */
+export const PRICING_IMPLEMENTATION_STRIP = PRICING_DEPLOYMENT_STRIP;
 
 export const PRICING_PREVIEW_PLANS: PricingPreviewPlan[] = [
   {
     id: "starter",
-    name: "Starter",
-    description: "For independent hotels getting started with AI reception.",
-    priceLabel: "€49",
-    priceNote: "per month",
-    features: [
-      "AI reception for one hotel",
-      "Website Chat and Telegram",
-      "Knowledge base",
-      "Up to 500 AI replies per month",
-    ],
-    ctaLabel: "Start free trial",
+    name: "Independent Hotel",
+    audience: "For one property.",
+    points: ["One Runtime.", "Go live in days."],
+    ctaLabel: MKT_CTA.startFreeTrial,
     ctaHref: MARKETING_CTA.trial,
     featured: false,
   },
   {
     id: "pro",
-    name: "Pro",
-    description: "For growing hotels that need deeper AI and analytics.",
-    priceLabel: "€149",
-    priceNote: "per month",
-    features: [
-      "Everything in Starter",
-      "Advanced AI analytics",
-      "Priority support",
-      "Up to 5,000 AI replies per month",
+    name: "Growing Hotel",
+    audience: "One hotel with deeper insight and support.",
+    points: [
+      "Deeper insight.",
+      "Priority support.",
+      "Same Runtime as you scale.",
     ],
-    ctaLabel: "Start free trial",
-    ctaHref: MARKETING_CTA.trial,
+    ctaLabel: MKT_CTA.bookDemo,
+    ctaHref: MARKETING_CTA.demo,
     featured: true,
   },
   {
     id: "enterprise",
-    name: "Enterprise",
-    description: "For hotel groups with custom workflows and SLAs.",
-    priceLabel: "Custom",
-    features: [
-      "Everything in Pro",
-      "Multi-property management",
-      "Dedicated success manager",
-      "Unlimited AI replies",
+    name: "Hotel Groups",
+    audience: "Enterprise deployment.",
+    points: [
+      "Centralized Runtime.",
+      "Dedicated rollout.",
+      "Priority support.",
     ],
-    ctaLabel: "Contact sales",
+    ctaLabel: MKT_CTA.contactSales,
     ctaHref: "/contact",
     featured: false,
   },
@@ -76,23 +83,23 @@ export const PRICING_PREVIEW_PLANS: PricingPreviewPlan[] = [
 
 export const PRICING_PREVIEW_FAQ = [
   {
-    question: "Is there a free trial?",
+    question: "How do I know which deployment fits?",
     answer:
-      "Yes. Starter and Pro include a free trial so you can connect channels and test AI reception before subscribing.",
+      "Independent Hotel is one property. Growing Hotel adds deeper insight and support for one property. Hotel Groups covers multi-property rollout.",
   },
   {
-    question: "Can I change plans later?",
+    question: "Does the Runtime change between deployments?",
     answer:
-      "You can upgrade or downgrade at any time from billing settings. Changes apply on your next billing cycle.",
+      "No. Every deployment includes the same Monavel Runtime. Only operational scale changes.",
   },
   {
-    question: "What is included in Enterprise?",
+    question: "Can I start with one hotel and grow later?",
     answer:
-      "Enterprise adds multi-property support, custom onboarding, SLA options, and unlimited AI reply volume.",
+      "Yes. Start with a single property and expand when you are ready. You do not change platforms.",
   },
   {
-    question: "Do you charge per room?",
+    question: "Will this replace our PMS?",
     answer:
-      "No. Monavel pricing is per hotel. Choose the plan that matches your channel volume and team size.",
+      "No. Monavel works with your existing PMS. Deployment is designed for migration without rip-and-replace.",
   },
 ] as const;

@@ -35,7 +35,7 @@ export const INTEGRATIONS_PAGE_HERO = {
 
 export const INTEGRATIONS_PAGE_AVAILABLE = {
   sectionId: "integrations-available",
-  overline: "Available integrations",
+  overline: "Integrations",
   headline: "Connect guests today.",
   subhead:
     "These integrations are available now and route into the same Monavel Reception AI inbox and knowledge context.",
@@ -190,6 +190,6 @@ export const INTEGRATIONS_PAGE_BENEFITS = {
 } as const;
 
 export const INTEGRATION_STATUS_LABELS = {
-  available: "Available",
+  available: "",
   planned: "Planned",
 } as const satisfies Record<IntegrationStatus, string>;

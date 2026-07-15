@@ -14,8 +14,8 @@ import { aiOrchestrator } from "@/lib/ai/orchestrator";
 import { createClient } from "@/lib/supabase/server";
 
 function revalidateAI(conversationId?: string) {
-  revalidatePath("/ai");
-  if (conversationId) revalidatePath(`/ai?conversation=${conversationId}`);
+  revalidatePath("/app/ai");
+  if (conversationId) revalidatePath(`/app/ai?conversation=${conversationId}`);
 }
 
 export async function generateAIResponse(conversationId: string) {

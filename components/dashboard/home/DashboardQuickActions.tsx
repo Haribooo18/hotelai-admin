@@ -50,7 +50,7 @@ export function DashboardQuickActions() {
         },
         {
           label: t("dashboard.aiInbox"),
-          href: "/ai",
+          href: "/app/ai",
           icon: MessageSquare,
           primary: false,
         },

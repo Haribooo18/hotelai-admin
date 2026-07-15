@@ -14,9 +14,15 @@ type Props = {
   overline: string;
   title: string;
   description: string;
+  previewPriority?: boolean;
 };
 
-export function MarketingDocsHero({ overline, title, description }: Props) {
+export function MarketingDocsHero({
+  overline,
+  title,
+  description,
+  previewPriority = false,
+}: Props) {
   return (
     <section className="mkt-page-hero" aria-labelledby="docs-landing-heading">
       <div className="mkt-container-wide">
@@ -65,6 +71,7 @@ export function MarketingDocsHero({ overline, title, description }: Props) {
             <WorkspacePreview
               workspaceId={MARKETING_PAGE_HERO_PREVIEWS.docs.workspace}
               presentation={MARKETING_PAGE_HERO_PREVIEWS.docs.presentation}
+              priority={previewPriority}
             />
           </div>
         </div>

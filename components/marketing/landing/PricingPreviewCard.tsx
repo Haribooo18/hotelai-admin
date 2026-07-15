@@ -14,23 +14,12 @@ export function PricingPreviewCard({ plan }: Props) {
         plan.featured && "mkt-pricing-card-featured"
       )}
     >
-      {plan.featured ? (
-        <p className="mkt-pricing-badge">Most popular</p>
-      ) : null}
-
       <h3 className="mkt-pricing-plan-name">{plan.name}</h3>
-      <p className="mkt-pricing-description">{plan.description}</p>
+      <p className="mkt-pricing-description">{plan.audience}</p>
 
-      <div className="mkt-pricing-price-row">
-        <p className="mkt-pricing-price">{plan.priceLabel}</p>
-        {plan.priceNote ? (
-          <p className="mkt-pricing-price-note">{plan.priceNote}</p>
-        ) : null}
-      </div>
-
-      <ul className="mkt-pricing-features">
-        {plan.features.map((feature) => (
-          <li key={feature}>{feature}</li>
+      <ul className="mkt-pricing-maturity">
+        {plan.points.map((point) => (
+          <li key={point}>{point}</li>
         ))}
       </ul>
 

@@ -29,7 +29,7 @@ export const SHELL_NAV_ITEMS: ShellNavItem[] = [
   { labelKey: "nav.calendar", href: "/calendar", icon: Sparkles },
   { labelKey: "nav.revenue", href: "/rates", icon: TrendingUp },
   { labelKey: "nav.reports", href: "/knowledge", icon: FileBarChart },
-  { labelKey: "nav.messages", href: "/ai", icon: MessageSquare },
+  { labelKey: "nav.messages", href: "/app/ai", icon: MessageSquare },
   { labelKey: "nav.receptionAi", href: "/reception-ai", icon: Bot },
   { labelKey: "nav.settings", href: "/settings", icon: Settings },
 ];

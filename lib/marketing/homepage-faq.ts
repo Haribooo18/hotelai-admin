@@ -16,7 +16,7 @@ export const HOMEPAGE_FAQ_ITEMS: HomepageFaqItem[] = [
     id: "why-monavel-not-pms",
     question: "Why Monavel instead of another PMS?",
     answer:
-      "Most PMS platforms manage reservations and room inventory. Monavel sits above the PMS and connects every operational system into one intelligent workspace. It combines PMS, AI Reception, guest communication, knowledge, automation, revenue, and analytics into one operating system.",
+      "Most PMS platforms manage reservations and room inventory. Monavel sits above the PMS and connects guest communication, AI Reception, knowledge, automation, revenue, and analytics into one operating system.",
   },
   {
     id: "why-not-chatgpt",
@@ -28,19 +28,19 @@ export const HOMEPAGE_FAQ_ITEMS: HomepageFaqItem[] = [
     id: "why-not-cloudbeds-whatsapp",
     question: "Why not use Cloudbeds + WhatsApp + Booking.com?",
     answer:
-      "Hotels already use these tools. The problem is they remain disconnected. Employees constantly switch between applications, duplicate work, and manually coordinate operations. Monavel connects every system into one intelligent platform.",
+      "Hotels already use these tools. The problem is they remain disconnected. Staff switch between apps, duplicate work, and manually coordinate operations. Monavel connects those systems into one workspace without constant app-switching.",
   },
   {
     id: "why-not-opera-crm",
     question: "Why not Opera + CRM + other hotel software?",
     answer:
-      "Adding more software usually creates more complexity. Every new tool becomes another source of information. Monavel becomes the intelligent operational layer above your existing software, synchronizing everything into one workspace.",
+      "Adding more software usually creates more complexity. Every new tool becomes another source of information. Monavel becomes the operational layer above your existing software, keeping everything synced in one workspace.",
   },
   {
     id: "replace-pms",
     question: "Do I need to replace my PMS?",
     answer:
-      "No. Monavel integrates with your existing hotel infrastructure. Your PMS remains the system of record while Monavel becomes the intelligent operating layer.",
+      "No. Monavel integrates with your existing hotel infrastructure. Your PMS remains the system of record while Monavel becomes the operating layer above it.",
   },
   {
     id: "large-hotels-only",
@@ -52,12 +52,12 @@ export const HOMEPAGE_FAQ_ITEMS: HomepageFaqItem[] = [
     id: "implementation-time",
     question: "How long does implementation take?",
     answer:
-      "Most hotels can begin using Monavel within days. Connect your PMS, communication channels, and knowledge base. The AI continuously learns your operations over time.",
+      "Most hotels can begin using Monavel within days. Connect your PMS, communication channels, and knowledge base. Then keep channels and knowledge current as you operate.",
   },
   {
     id: "data-security",
     question: "Is my hotel data secure?",
     answer:
-      "Yes. Enterprise-grade security, encrypted infrastructure, role-based permissions, audit logs, and secure cloud architecture protect your operational data.",
+      "Yes. Tenant isolation, role-based permissions, audit logs, and encrypted infrastructure protect hotel data.",
   },
 ];

@@ -24,7 +24,7 @@ export function PricingPreviewFaq() {
       >
         {PRICING_PREVIEW_CONTENT.faqLinkLabel}
         <ArrowRight
-          className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+          className="size-4 transition-transform duration-[var(--mkt-duration)] ease-[var(--mkt-ease)] group-hover:translate-x-0.5"
           aria-hidden
         />
       </Link>

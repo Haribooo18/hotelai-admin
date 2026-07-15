@@ -4,27 +4,23 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { MonavelMark } from "@/components/marketing/brand/MonavelMark";
+import { MonavelHorizontal } from "@/components/brand";
+import { HashAwareLink } from "@/components/marketing/shared/HashAwareLink";
 import { MarketingButton } from "@/components/marketing/shared/MarketingButton";
 import {
-  mktBrandLockupClass,
-  mktBrandNameClass,
   mktNavActionsClass,
   mktNavLinkClass,
   mktNavLinksClass,
   mktNavLogoClass,
 } from "@/lib/marketing/design";
 import { MARKETING_CTA } from "@/lib/marketing/routes";
-import { MARKETING_NAV, SITE_NAME } from "@/lib/marketing/site";
+import { MARKETING_NAV } from "@/lib/marketing/site";
 import { cn } from "@/lib/utils";
 
 function MarketingLogo() {
   return (
-    <Link href="/" className={mktNavLogoClass}>
-      <span className={mktBrandLockupClass}>
-        <MonavelMark />
-        <span className={mktBrandNameClass}>{SITE_NAME}</span>
-      </span>
+    <Link href="/" className={mktNavLogoClass} aria-label="Monavel">
+      <MonavelHorizontal decorative className="mkt-logo-horizontal--nav" />
     </Link>
   );
 }
@@ -61,7 +57,7 @@ export function MarketingHeader() {
   return (
     <header
       className={cn(
-        "mkt-nav sticky top-0 z-50 h-[var(--mkt-nav-height)] transition-[background-color,border-color] duration-200 ease-out",
+        "mkt-nav sticky top-0 z-50 h-[var(--mkt-nav-height)] transition-[background-color,border-color] duration-[var(--mkt-duration)] ease-[var(--mkt-ease)]",
         scrolled
           ? "mkt-nav-scrolled"
           : "border-b border-transparent bg-transparent"
@@ -72,9 +68,13 @@ export function MarketingHeader() {
 
         <nav aria-label="Main navigation" className={mktNavLinksClass}>
           {MARKETING_NAV.map((item) => (
-            <Link key={item.href} href={item.href} className={mktNavLinkClass}>
+            <HashAwareLink
+              key={item.href}
+              href={item.href}
+              className={mktNavLinkClass}
+            >
               {item.label}
-            </Link>
+            </HashAwareLink>
           ))}
         </nav>
 
@@ -116,14 +116,14 @@ export function MarketingHeader() {
           >
             <nav className="mkt-nav-mobile-links" aria-label="Mobile navigation">
               {MARKETING_NAV.map((item) => (
-                <Link
+                <HashAwareLink
                   key={item.href}
                   href={item.href}
                   className="mkt-nav-mobile-link"
                   onClick={() => setMenuOpen(false)}
                 >
                   {item.label}
-                </Link>
+                </HashAwareLink>
               ))}
             </nav>
 

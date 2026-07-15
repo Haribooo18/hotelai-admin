@@ -11,7 +11,6 @@ export type MarketingSeoPageId =
   | "security"
   | "integrations"
   | "about"
-  | "blog"
   | "docs"
   | "privacy"
   | "terms";
@@ -37,14 +36,14 @@ export const MARKETING_SEO_PAGES: Record<MarketingSeoPageId, MarketingSeoPage> =
     path: "/ai",
     title: "AI",
     description:
-      "How Monavel AI works: contextual guest communication, knowledge-backed replies, and human escalation for hotel teams.",
+      "Your hotel never sleeps — Monavel AI answers every guest, protects every booking, and keeps operations running 24/7.",
   },
   pricing: {
     id: "pricing",
     path: "/pricing",
     title: "Pricing",
     description:
-      "Monavel pricing for independent hotels, growing properties, and hotel groups. Starter, Pro, and Enterprise plans with free trial options.",
+      "Monavel pricing — Starter, Pro, and Enterprise plans for hotels of every size.",
   },
   contact: {
     id: "contact",
@@ -79,21 +78,14 @@ export const MARKETING_SEO_PAGES: Record<MarketingSeoPageId, MarketingSeoPage> =
     path: "/about",
     title: "About",
     description:
-      "Learn about Monavel — the mission, vision, and principles behind the hotel operating system.",
-  },
-  blog: {
-    id: "blog",
-    path: "/blog",
-    title: "Insights for Modern Hotels",
-    description:
-      "Practical articles about AI, hotel operations, and automation — coming soon from the Monavel team.",
+      "Monavel — the mission, vision, and principles behind the hotel operating system.",
   },
   docs: {
     id: "docs",
     path: "/docs",
     title: "Documentation",
     description:
-      "Essential Monavel guides for trial users — setup, guest channels, knowledge base, and billing.",
+      "Everything you need to deploy, configure and operate Monavel.",
   },
   privacy: {
     id: "privacy",
@@ -140,6 +132,7 @@ export const ROBOTS_DISALLOW_PATHS = [
   "/settings",
   "/rates",
   "/reception-ai",
+  "/app",
   "/login",
   "/auth",
   "/api/",

@@ -24,49 +24,49 @@ export const WORKSPACE_PREVIEW_CONFIG: Record<
     "dashboard",
     "Dashboard",
     "/dashboard",
-    "Monavel dashboard with operations overview and AI recommendations"
+    "Operations overview of Monavel Grand — live hotel status and recommendations"
   ),
   bookings: preview(
     "bookings",
     "Bookings",
     "/bookings",
-    "Monavel bookings workspace with reservation list and status filters"
+    "Guest reservations at Monavel Grand including Maria Thompson reservation 48291"
   ),
   guests: preview(
     "guests",
     "Guests",
     "/guests",
-    "Monavel guests workspace with CRM profiles and guest history"
+    "Guest profiles for Monavel Grand with Maria Thompson stay context"
   ),
   rooms: preview(
     "rooms",
     "Rooms",
     "/rooms",
-    "Monavel rooms workspace with room status and maintenance overview"
+    "Room status at Monavel Grand including Room 407"
   ),
   calendar: preview(
     "calendar",
     "Calendar",
     "/calendar",
-    "Monavel calendar workspace with booking timeline"
+    "Stay calendar for Monavel Grand with live booking timeline"
   ),
   revenue: preview(
     "revenue",
     "Revenue",
     "/rates",
-    "Monavel revenue workspace with analytics and trend comparison"
+    "Revenue perspective on the same live Monavel Grand hotel"
   ),
   knowledge: preview(
     "knowledge",
     "Knowledge",
     "/knowledge",
-    "Monavel knowledge base workspace with articles for AI context"
+    "Hotel knowledge supporting the same live Monavel Grand operations"
   ),
   "reception-ai": preview(
     "reception-ai",
-    "Reception AI",
+    "Reception",
     "/reception-ai",
-    "Monavel reception AI workspace with guest conversation inbox"
+    "Live guest communication for Monavel Grand — hotel already operating"
   ),
 };
 

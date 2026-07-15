@@ -11,7 +11,7 @@ import { getSiteUrl, MARKETING_NAV, SITE_NAME } from "@/lib/marketing/site";
 describe("marketing site config", () => {
   it("exposes site name and navigation", () => {
     expect(SITE_NAME).toBe("Monavel");
-    expect(MARKETING_NAV.length).toBe(5);
+    expect(MARKETING_NAV.length).toBe(4);
   });
 
   it("resolves site url from env", () => {

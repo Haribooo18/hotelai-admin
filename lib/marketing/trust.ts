@@ -1,5 +1,12 @@
 import type { LucideIcon } from "lucide-react";
-import { Bot, Building2, Rocket, Shield } from "lucide-react";
+import {
+  Database,
+  GitBranch,
+  Rocket,
+  ScrollText,
+  Shield,
+  UserCheck,
+} from "lucide-react";
 
 export type TrustCard = {
   id: string;
@@ -8,54 +15,70 @@ export type TrustCard = {
   description: string;
 };
 
-export type TrustMetric = {
+export type TrustGuarantee = {
   id: string;
   label: string;
 };
 
 export const TRUST_SECTION_CONTENT = {
   sectionId: "trust",
-  headline: "Why trust Monavel",
+  headline: "Built to run a real hotel",
   subhead:
-    "Monavel is built as a hotel operating platform — with AI woven into operations, security at the foundation, and onboarding designed for real teams.",
-  securityLinkLabel: "Learn about our security",
+    "Staff stay in control. Systems stay aligned. Guest data stays protected.",
+  guaranteesLabel: "Runtime Guarantees",
+  securityLinkLabel: "Security details",
   securityLinkHref: "/security",
 } as const;
 
 export const TRUST_CARDS: TrustCard[] = [
   {
-    id: "modern-hotels",
-    icon: Building2,
-    title: "Built for modern hotels",
+    id: "pms",
+    icon: Database,
+    title: "Existing PMS compatibility",
     description:
-      "Designed around how hotels actually run — bookings, guests, rooms, calendar, and revenue in one workspace instead of scattered tools.",
+      "Connect Monavel alongside your current PMS — no rip-and-replace to start.",
   },
   {
-    id: "ai-first",
-    icon: Bot,
-    title: "AI-first architecture",
+    id: "override",
+    icon: UserCheck,
+    title: "Human approval and override",
     description:
-      "AI is embedded across the platform — reception, knowledge, and recommendations share the same context. Not a bolt-on chatbot widget.",
+      "Staff can approve, edit, or take over any AI action before it reaches the guest.",
   },
   {
-    id: "secure",
+    id: "security",
     icon: Shield,
-    title: "Secure by design",
+    title: "Secure hotel data",
     description:
-      "Tenant isolation keeps each hotel's data separate. Role-based access controls who sees what. Infrastructure is built for secure cloud operations.",
+      "Tenant isolation and role-based access keep each property's data separate.",
   },
   {
-    id: "onboarding",
+    id: "deploy",
     icon: Rocket,
-    title: "Fast onboarding",
+    title: "Fast deployment",
     description:
-      "Connect channels, import knowledge, and start testing AI reception in days — not months of custom integration work.",
+      "Connect channels and go live in days, not a months-long integration project.",
+  },
+  {
+    id: "reliability",
+    icon: GitBranch,
+    title: "Workflow reliability",
+    description:
+      "One Runtime keeps guest requests, room state, and team actions in sync.",
+  },
+  {
+    id: "audit",
+    icon: ScrollText,
+    title: "Complete audit trail",
+    description:
+      "Every AI decision and system update is logged for review.",
   },
 ];
 
-export const TRUST_METRICS: TrustMetric[] = [
-  { id: "ai-reception", label: "24/7 AI Reception" },
-  { id: "workspace", label: "Unified Workspace" },
-  { id: "platform", label: "One Platform" },
-  { id: "cloud", label: "Cloud Native" },
+export const TRUST_GUARANTEES: TrustGuarantee[] = [
+  { id: "runtime", label: "One Runtime" },
+  { id: "sync", label: "Live sync" },
+  { id: "oversight", label: "Human oversight" },
+  { id: "encrypted", label: "Encrypted communication" },
+  { id: "connected", label: "Connected systems" },
 ];

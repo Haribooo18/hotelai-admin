@@ -2,42 +2,47 @@ import { describe, expect, it } from "vitest";
 
 import {
   TRUST_CARDS,
-  TRUST_METRICS,
+  TRUST_GUARANTEES,
   TRUST_SECTION_CONTENT,
 } from "@/lib/marketing/trust";
 
 describe("trust section content", () => {
-  it("defines four trust cards", () => {
-    expect(TRUST_CARDS).toHaveLength(4);
+  it("defines six operational readiness pillars", () => {
+    expect(TRUST_CARDS).toHaveLength(6);
     expect(TRUST_CARDS.map((card) => card.title)).toEqual([
-      "Built for modern hotels",
-      "AI-first architecture",
-      "Secure by design",
-      "Fast onboarding",
+      "Existing PMS compatibility",
+      "Human approval and override",
+      "Secure hotel data",
+      "Fast deployment",
+      "Workflow reliability",
+      "Complete audit trail",
     ]);
   });
 
-  it("uses product metrics without customer counts", () => {
-    expect(TRUST_METRICS).toHaveLength(4);
-    expect(TRUST_METRICS.map((metric) => metric.label)).toEqual([
-      "24/7 AI Reception",
-      "Unified Workspace",
-      "One Platform",
-      "Cloud Native",
+  it("defines Runtime Guarantees without customer counts", () => {
+    expect(TRUST_GUARANTEES).toHaveLength(5);
+    expect(TRUST_GUARANTEES.map((guarantee) => guarantee.label)).toEqual([
+      "One Runtime",
+      "Live sync",
+      "Human oversight",
+      "Encrypted communication",
+      "Connected systems",
     ]);
 
-    const labels = TRUST_METRICS.map((metric) => metric.label).join(" ");
+    const labels = TRUST_GUARANTEES.map((guarantee) => guarantee.label).join(" ");
     expect(labels).not.toMatch(/\d+\+?\s*(hotels|customers|users)/i);
   });
 
-  it("links to security page", () => {
+  it("answers operational confidence and links to security", () => {
+    expect(TRUST_SECTION_CONTENT.headline).toBe("Built to run a real hotel");
+    expect(TRUST_SECTION_CONTENT.subhead).toContain("Staff stay in control");
+    expect(TRUST_SECTION_CONTENT.guaranteesLabel).toBe("Runtime Guarantees");
     expect(TRUST_SECTION_CONTENT.securityLinkHref).toBe("/security");
-    expect(TRUST_SECTION_CONTENT.headline).toBe("Why trust Monavel");
   });
 
-  it("describes tenant isolation and rbac in secure card", () => {
-    const secure = TRUST_CARDS.find((card) => card.id === "secure");
+  it("describes tenant isolation and rbac in secure pillar", () => {
+    const secure = TRUST_CARDS.find((card) => card.id === "security");
     expect(secure?.description).toContain("Tenant isolation");
-    expect(secure?.description).toContain("Role-based access");
+    expect(secure?.description).toContain("role-based access");
   });
 });

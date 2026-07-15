@@ -57,7 +57,7 @@ describe("demo page content", () => {
   });
 
   it("defines booking form fields without backend", () => {
-    expect(DEMO_PAGE_FORM.submitLabel).toBe("Book demo");
+    expect(DEMO_PAGE_FORM.submitLabel).toBe("Book a demo");
     expect(DEMO_PAGE_FORM.fields.name.label).toBe("Name");
     expect(DEMO_PAGE_FORM.fields.country.label).toBe("Country");
     expect(DEMO_PAGE_FORM.fields.date.label).toBe("Preferred date");

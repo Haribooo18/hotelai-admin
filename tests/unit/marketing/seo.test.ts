@@ -72,6 +72,7 @@ describe("marketing seo", () => {
   it("disallows authenticated routes in robots config", () => {
     expect(ROBOTS_DISALLOW_PATHS).toContain("/login");
     expect(ROBOTS_DISALLOW_PATHS).toContain("/dashboard");
+    expect(ROBOTS_DISALLOW_PATHS).toContain("/app");
     expect(ROBOTS_DISALLOW_PATHS).not.toContain("/ai");
   });
 });
@@ -90,11 +91,14 @@ describe("marketing jsonld", () => {
 
   it("builds pricing product offers from published plans", () => {
     const schemas = buildPricingJsonLd();
-    expect(schemas[0]?.["@type"]).toBe("Product");
-    const offers = schemas[0]?.offers as Array<Record<string, unknown>>;
+    expect(schemas[0]?.["@type"]).toBe("WebPage");
+    expect(schemas[0]?.name).toBe("Pricing");
+    expect(schemas[1]?.["@type"]).toBe("Product");
+    const offers = schemas[1]?.offers as Array<Record<string, unknown>>;
     expect(offers).toHaveLength(2);
     expect(offers.map((offer) => offer.name)).toEqual(["Starter", "Pro"]);
   });
+
 
   it("builds page-specific schemas", () => {
     expect(buildAboutJsonLd()[0]?.["@type"]).toBe("Organization");

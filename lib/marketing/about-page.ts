@@ -43,7 +43,7 @@ export const ABOUT_PAGE_MISSION = {
 export const ABOUT_PAGE_VISION = {
   sectionId: "about-vision",
   overline: "Vision",
-  headline: "One intelligent workspace for every hotel.",
+  headline: "One workspace for every hotel.",
   body:
     "Hotels should operate from one workspace — operations, AI, guest channels, and knowledge sharing context.",
 } as const;

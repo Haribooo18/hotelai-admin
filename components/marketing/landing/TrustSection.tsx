@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { TrustCard } from "@/components/marketing/landing/TrustCard";
-import { TrustMetricsStrip } from "@/components/marketing/landing/TrustMetricsStrip";
+import { TrustGuaranteesStrip } from "@/components/marketing/landing/TrustGuaranteesStrip";
 import {
   mktSectionBodyClass,
   mktSectionHeadlineClass,
@@ -41,7 +41,7 @@ export function TrustSection() {
           ))}
         </div>
 
-        <TrustMetricsStrip />
+        <TrustGuaranteesStrip />
 
         <Link
           href={TRUST_SECTION_CONTENT.securityLinkHref}
@@ -49,7 +49,7 @@ export function TrustSection() {
         >
           {TRUST_SECTION_CONTENT.securityLinkLabel}
           <ArrowRight
-            className="size-4 transition-transform duration-200 group-hover:translate-x-0.5"
+            className="size-4 transition-transform duration-[var(--mkt-duration)] ease-[var(--mkt-ease)] group-hover:translate-x-0.5"
             aria-hidden
           />
         </Link>

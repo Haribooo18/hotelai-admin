@@ -16,7 +16,7 @@ import {
 
 function revalidateKnowledge() {
   revalidatePath("/knowledge");
-  revalidatePath("/ai");
+  revalidatePath("/app/ai");
 }
 
 function toRow(

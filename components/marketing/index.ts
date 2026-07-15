@@ -1,4 +1,5 @@
 export { MonavelMark } from "./brand/MonavelMark";
+export { MonavelHorizontal, MonavelLockup } from "@/components/brand";
 export { MarketingShell } from "./shell/MarketingShell";
 export { MarketingHeader } from "./shell/MarketingHeader";
 export { MarketingFooter } from "./shell/MarketingFooter";
@@ -12,8 +13,6 @@ export { ArchitectureDiagramV2 } from "./ArchitectureDiagramV2";
 export { WhatIsMonavelSection } from "./landing/WhatIsMonavelSection";
 export { WhyHotelsNeedSection } from "./landing/WhyHotelsNeedSection";
 export { WhoIsMonavelForSection } from "./landing/WhoIsMonavelForSection";
-export { OperationalScenarioSection } from "./landing/OperationalScenarioSection";
-export { BusinessOutcomesSection } from "./landing/BusinessOutcomesSection";
 export { WhyHotelsChooseSection } from "./landing/WhyHotelsChooseSection";
 export { HowMonavelWorksSection } from "./landing/HowMonavelWorksSection";
 export { EcosystemIllustration } from "./landing/EcosystemIllustration";
@@ -22,7 +21,6 @@ export { PlatformOverviewSection } from "./landing/PlatformOverviewSection";
 export { PlatformIllustration } from "./landing/PlatformIllustration";
 export { PlatformShowcaseSection } from "./landing/PlatformShowcaseSection";
 export { PlatformPillarsSection } from "./landing/PlatformPillarsSection";
-export { AIExperienceSection } from "./landing/AIExperienceSection";
 export { PricingPreviewSection } from "./landing/PricingPreviewSection";
 export { TrustSection } from "./landing/TrustSection";
 export { HomepageFaqSection } from "./landing/HomepageFaqSection";
@@ -33,6 +31,8 @@ export {
   WorkspacePreview,
 } from "./product";
 export { ProductBrowserFrame } from "./landing/ProductBrowserFrame";
+export { HashAwareLink } from "./shared/HashAwareLink";
+export { HomepageScrollReset } from "./shared/HomepageScrollReset";
 export { MarketingButton } from "./shared/MarketingButton";
 export { MarketingPageHero } from "./shared/MarketingPageHero";
 export { MarketingDocsHero } from "./shared/MarketingDocsHero";
@@ -56,5 +56,5 @@ export { DemoPage } from "./demo/DemoPage";
 export { AboutPage } from "./about/AboutPage";
 export { DocsLandingPage } from "./docs/DocsLandingPage";
 export { DocsArticlePage } from "./docs/DocsArticlePage";
-export { BlogComingSoonPage } from "./blog/BlogComingSoonPage";
+export { BrandBookPage } from "./brand/BrandBookPage";
 export { LegalPage } from "./legal/LegalPage";

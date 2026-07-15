@@ -10,13 +10,30 @@ const homepageSource = readFileSync(homepagePath, "utf8");
 
 describe("marketing homepage composition", () => {
   it("defines exactly one ordered section registry", () => {
-    expect(MARKETING_HOMEPAGE_SECTIONS).toHaveLength(12);
+    expect(MARKETING_HOMEPAGE_SECTIONS).toHaveLength(8);
     expect(MARKETING_HOMEPAGE_SECTIONS[0]).toBe("HeroSection");
     expect(MARKETING_HOMEPAGE_SECTIONS.at(-1)).toBe("FinalCtaSection");
-    expect(MARKETING_HOMEPAGE_SECTIONS).toContain("HomepageFaqSection");
-    expect(MARKETING_HOMEPAGE_SECTIONS).not.toContain("PlatformOverviewSection");
-    expect(MARKETING_HOMEPAGE_SECTIONS).not.toContain("WhyNowSection");
-    expect(MARKETING_HOMEPAGE_SECTIONS).not.toContain("WhatIsMonavelSection");
+    expect(MARKETING_HOMEPAGE_SECTIONS).toEqual([
+      "HeroSection",
+      "WhyHotelsNeedSection",
+      "HowMonavelWorksSection",
+      "PlatformShowcaseSection",
+      "PricingPreviewSection",
+      "TrustSection",
+      "HomepageFaqSection",
+      "FinalCtaSection",
+    ]);
+    expect(MARKETING_HOMEPAGE_SECTIONS).not.toContain(
+      "OperationalScenarioSection"
+    );
+    expect(MARKETING_HOMEPAGE_SECTIONS).not.toContain("BusinessOutcomesSection");
+    expect(MARKETING_HOMEPAGE_SECTIONS).not.toContain(
+      "RuntimeUnderstandingSection"
+    );
+    expect(MARKETING_HOMEPAGE_SECTIONS).not.toContain("AIExperienceSection");
+    expect(MARKETING_HOMEPAGE_SECTIONS.indexOf("PlatformShowcaseSection")).toBe(
+      MARKETING_HOMEPAGE_SECTIONS.indexOf("HowMonavelWorksSection") + 1
+    );
   });
 
   it("renders a single static homepage without conditional variants", () => {
@@ -24,11 +41,9 @@ describe("marketing homepage composition", () => {
     expect(homepageSource).toContain("data-homepage-sections");
     expect(homepageSource).toContain("MARKETING_HOMEPAGE_SECTIONS");
     expect(homepageSource).not.toMatch(/\bif\s*\(/);
-    expect(homepageSource).not.toContain("HeroProductStage");
-    expect(homepageSource).not.toContain("PlatformOverviewSection");
-    expect(homepageSource).not.toContain("EcosystemIllustration");
-    expect(homepageSource).not.toContain("WhyNowSection");
-    expect(homepageSource).not.toContain("WhatIsMonavelSection");
+    expect(homepageSource).not.toContain("OperationalScenarioSection");
+    expect(homepageSource).not.toContain("BusinessOutcomesSection");
+    expect(homepageSource).not.toContain("RuntimeUnderstandingSection");
   });
 
   it("includes every registered section in the page source", () => {

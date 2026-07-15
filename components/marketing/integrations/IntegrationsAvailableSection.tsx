@@ -32,7 +32,7 @@ export function IntegrationsAvailableSection() {
 
         <ul
           className={cn(mktSectionBodyClass, "mkt-integrations-available-grid")}
-          aria-label="Available integrations"
+          aria-label="Integrations"
         >
           {INTEGRATIONS_PAGE_AVAILABLE.items.map((integration) => (
             <IntegrationCard key={integration.id} integration={integration} />

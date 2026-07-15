@@ -5,6 +5,10 @@ import Script from "next/script";
 import "./globals.css";
 import { Providers } from "./providers";
 import { SHELL_THEME_STORAGE_KEY } from "@/lib/dashboard/shell-theme";
+import {
+  PRODUCT_RELOAD_RESET_SCRIPT_ID,
+  buildProductReloadResetScript,
+} from "@/lib/marketing/product-reload-reset";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -23,6 +27,8 @@ export const metadata: Metadata = {
 
 const shellThemeInitScript = `(function(){try{var k=${JSON.stringify(SHELL_THEME_STORAGE_KEY)};var t=localStorage.getItem(k);if(t==="light"||t==="gray"||t==="dark"){document.documentElement.dataset.shellTheme=t;}else{document.documentElement.dataset.shellTheme="dark";}}catch(e){document.documentElement.dataset.shellTheme="dark";}})();`;
 
+const productReloadResetScript = buildProductReloadResetScript();
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -37,6 +43,9 @@ export default function RootLayout({
       <head>
         <Script id="shell-theme-init" strategy="beforeInteractive">
           {shellThemeInitScript}
+        </Script>
+        <Script id={PRODUCT_RELOAD_RESET_SCRIPT_ID} strategy="beforeInteractive">
+          {productReloadResetScript}
         </Script>
       </head>
       <body

@@ -1,6 +1,8 @@
 import type { LucideIcon } from "lucide-react";
 import { Bot, Layers3, TrendingUp } from "lucide-react";
 
+import { MARKETING_PRODUCT_HREF } from "@/lib/marketing/routes";
+
 export type PlatformPillar = {
   id: string;
   icon: LucideIcon;
@@ -26,14 +28,14 @@ export const PLATFORM_PILLARS: PlatformPillar[] = [
     title: "Run Operations",
     description: "One connected operating system.",
     features: ["Calendar", "Bookings", "Guests", "Rooms"],
-    href: "/#product",
+    href: MARKETING_PRODUCT_HREF,
     ctaLabel: "Learn more",
   },
   {
     id: "ai-reception",
     icon: Bot,
     title: "AI Reception",
-    description: "24/7 guest communication powered by AI.",
+    description: "Guest communication answered 24/7.",
     features: ["Website Chat", "Telegram", "Knowledge"],
     href: "/ai",
     ctaLabel: "Learn more",
@@ -42,7 +44,7 @@ export const PLATFORM_PILLARS: PlatformPillar[] = [
     id: "revenue",
     icon: TrendingUp,
     title: "Grow Revenue",
-    description: "Pricing optimization and revenue intelligence.",
+    description: "Pricing recommendations from live hotel data.",
     features: ["Revenue", "Analytics", "Recommendations", "Pricing optimization"],
     href: "/pricing",
     ctaLabel: "Learn more",

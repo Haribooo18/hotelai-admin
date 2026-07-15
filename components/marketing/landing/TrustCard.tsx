@@ -10,7 +10,7 @@ export function TrustCard({ card }: Props) {
   return (
     <article className="mkt-trust-card">
       <div className="mkt-trust-icon" aria-hidden>
-        <Icon className="size-5" strokeWidth={1.5} />
+        <Icon className="size-4" strokeWidth={1.5} />
       </div>
 
       <h3 className="mkt-trust-title">{card.title}</h3>

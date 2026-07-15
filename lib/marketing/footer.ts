@@ -1,3 +1,5 @@
+import { MARKETING_PRODUCT_HREF } from "@/lib/marketing/routes";
+
 export type FooterLink = {
   href: string;
   label: string;
@@ -11,17 +13,16 @@ export type FooterColumn = {
 
 export const FOOTER_BRAND = {
   name: "Monavel",
-  tagline: "The AI Operating System for Modern Hotels.",
 } as const;
 
 export const FOOTER_COLUMNS: FooterColumn[] = [
   {
-    id: "product",
-    title: "Product",
+    id: "platform",
+    title: "Platform",
     links: [
-      { href: "/#product", label: "Product" },
-      { href: "/ai", label: "AI" },
-      { href: "/pricing", label: "Pricing" },
+      { href: MARKETING_PRODUCT_HREF, label: "Runtime" },
+      { href: "/ai", label: "AI Reception" },
+      { href: MARKETING_PRODUCT_HREF, label: "Operations" },
       { href: "/integrations", label: "Integrations" },
       { href: "/security", label: "Security" },
     ],
@@ -30,10 +31,10 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     id: "resources",
     title: "Resources",
     links: [
-      { href: "/docs", label: "Docs" },
-      { href: "/blog", label: "Blog" },
-      { href: "/contact", label: "Contact" },
-      { href: "/demo", label: "Demo" },
+      { href: "/docs", label: "Documentation" },
+      { href: "/docs", label: "API" },
+      { href: "/security", label: "Status" },
+      { href: "/docs", label: "Changelog" },
     ],
   },
   {
@@ -41,19 +42,20 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     title: "Company",
     links: [
       { href: "/about", label: "About" },
+      { href: "/contact", label: "Contact" },
       { href: "/careers", label: "Careers" },
+    ],
+  },
+  {
+    id: "legal",
+    title: "Legal",
+    links: [
       { href: "/privacy", label: "Privacy" },
       { href: "/terms", label: "Terms" },
-      { href: "/login", label: "Login" },
     ],
   },
 ];
 
 export const FOOTER_BOTTOM = {
-  copyright: "© Monavel",
-  tagline: "Built for modern hotels.",
-  legalLinks: [
-    { href: "/privacy", label: "Privacy" },
-    { href: "/terms", label: "Terms" },
-  ],
+  signature: "© Monavel — AI Operating System for Hotels",
 } as const;

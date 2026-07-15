@@ -19,8 +19,8 @@ import {
 import type { ConversationStatus } from "@/types/conversation";
 
 function revalidateAI(conversationId?: string) {
-  revalidatePath("/ai");
-  if (conversationId) revalidatePath(`/ai?conversation=${conversationId}`);
+  revalidatePath("/app/ai");
+  if (conversationId) revalidatePath(`/app/ai?conversation=${conversationId}`);
 }
 
 export async function createConversation(input: ConversationCreateInput) {

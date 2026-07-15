@@ -5,12 +5,8 @@
 export const MARKETING_HOMEPAGE_SECTIONS = [
   "HeroSection",
   "WhyHotelsNeedSection",
-  "WhoIsMonavelForSection",
   "HowMonavelWorksSection",
-  "OperationalScenarioSection",
-  "BusinessOutcomesSection",
   "PlatformShowcaseSection",
-  "AIExperienceSection",
   "PricingPreviewSection",
   "TrustSection",
   "HomepageFaqSection",

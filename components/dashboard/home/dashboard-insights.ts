@@ -257,7 +257,7 @@ export function buildTodayOperations(
       key: "messages",
       label: "dashboard.todayOps.unreadMessages",
       value: unreadMessages,
-      href: "/ai",
+      href: "/app/ai",
       tone: unreadMessages > 0 ? "urgent" : "default",
     },
     {

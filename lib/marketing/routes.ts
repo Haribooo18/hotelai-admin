@@ -14,8 +14,8 @@ export const MARKETING_PUBLIC_PATHS = [
   "/terms",
   "/demo",
   "/about",
-  "/blog",
   "/docs",
+  "/brand",
   "/api/channels/telegram/webhook",
   "/api/channels/website/stream",
   "/api/billing/webhook",
@@ -30,7 +30,6 @@ export const MARKETING_SITEMAP_PATHS = [
   "/integrations",
   "/demo",
   "/about",
-  "/blog",
   "/docs",
   "/docs/getting-started",
   "/docs/channels/telegram",
@@ -46,6 +45,14 @@ export const MARKETING_CTA = {
   demo: "/demo",
   signIn: "/login",
 } as const;
+
+/**
+ * Canonical Product section anchor. Single source of truth so every nav
+ * entry (desktop, mobile, footer) points at the exact same destination —
+ * never built from the current URL/hash at click time.
+ */
+export const MARKETING_PRODUCT_SECTION_ID = "product";
+export const MARKETING_PRODUCT_HREF = `/#${MARKETING_PRODUCT_SECTION_ID}`;
 
 export function isMarketingPublicPath(pathname: string): boolean {
   if (pathname === "/") return true;
