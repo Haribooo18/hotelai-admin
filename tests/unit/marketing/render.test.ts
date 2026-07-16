@@ -641,14 +641,16 @@ describe("marketing page rendering", () => {
     expect(html).toContain("/demo");
     expect(html).toContain("/login?intent=trial");
     expect(html).toContain("Sales");
+    expect(html).toContain("Recommended");
     expect(html).toContain("Partnerships");
     expect(html).toContain("General inquiries");
     expect(html).toContain("sales@monavel.app");
     expect(html).toContain("hello@monavel.app");
     expect(html).toContain("Contact sales");
     expect(html).toContain("Number of rooms");
+    expect(html).toContain("What would you like to improve?");
     expect(html).toContain("How quickly will you reply?");
-    expect(html).toContain("Talk to the Monavel team");
+    expect(html).not.toContain("Talk to the Monavel team");
   });
 
   it("renders security page content", () => {
@@ -688,22 +690,27 @@ describe("marketing page rendering", () => {
   it("renders demo page content", () => {
     const html = renderToStaticMarkup(React.createElement(DemoPage));
 
-    expect(html).toContain("See Monavel in action.");
+    expect(html).toContain("See how Monavel would run your hotel.");
     expect(html).toContain("Book a demo");
     expect(html).toContain("#demo-booking");
     expect(html).toContain("/login?intent=trial");
-    expect(html).toContain("Hotel Operations");
+    expect(html).toContain("Operations");
     expect(html).toContain("AI Reception");
-    expect(html).toContain("Book a time");
-    expect(html).toContain("Discuss onboarding");
-    expect(html).toContain("Independent hotels");
-    expect(html).toContain("Hotel groups");
-    expect(html).toContain("Growing properties");
-    expect(html).toContain("Book a demo");
-    expect(html).toContain("Preferred date");
+    expect(html).toContain("Revenue");
+    expect(html).toContain("Hotel size");
+    expect(html).toContain("What should we focus on?");
     expect(html).toContain("How long is the demo?");
+    expect(html).toContain("Is it personalized?");
+    expect(html).toContain("Can my team join?");
     expect(html).toContain("What happens after the demo?");
-    expect(html).toContain("See Monavel with your workflows");
+
+    expect(html).not.toContain("Preferred date");
+    expect(html).not.toContain("Book a time");
+    expect(html).not.toContain("Discuss onboarding");
+    expect(html).not.toContain("Independent hotels");
+    expect(html).not.toContain("Hotel groups");
+    expect(html).not.toContain("Growing properties");
+    expect(html).not.toContain("Ready to explore your hotel inside Monavel?");
   });
 
   it("renders about page content", () => {

@@ -66,9 +66,13 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <Script id="shell-theme-init" strategy="beforeInteractive">
-          {shellThemeInitScript}
-        </Script>
+      <Script
+  id="shell-theme-init"
+  strategy="beforeInteractive"
+  dangerouslySetInnerHTML={{
+    __html: shellThemeInitScript,
+  }}
+/>
 
         <Script
           id={PRODUCT_RELOAD_RESET_SCRIPT_ID}

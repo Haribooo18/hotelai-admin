@@ -9,59 +9,89 @@ export type ContactMethod = {
   title: string;
   description: string;
   email: string;
+  highlights: readonly string[];
 };
 
 export const CONTACT_PAGE_HERO = {
   overline: "Contact",
   headline: "Let's talk about your hotel.",
   subhead:
-    "Evaluating Monavel, planning a demo, or exploring a partnership — we will help you find the right next step.",
+    "Tell us about your property. We will tailor the conversation around your existing workflows.",
   primaryCtaLabel: "Book a demo",
   primaryCtaHref: MARKETING_CTA.demo,
   secondaryCtaLabel: "Start free trial",
   secondaryCtaHref: MARKETING_CTA.trial,
 } as const;
 
+export const CONTACT_PAGE_JOURNEY = {
+  steps: [
+    {
+      title: "Your hotel",
+      description: "Property, priorities, and operations.",
+    },
+    {
+      title: "Discovery",
+      description: "Workflows, systems, and friction.",
+    },
+    {
+      title: "Personal demo",
+      description: "Monavel around your hotel.",
+    },
+    {
+      title: "Launch plan",
+      description: "A practical path to value.",
+    },
+  ],
+  meta: ["30-minute walkthrough", "Existing PMS supported", "No obligation"],
+} as const;
+
 export const CONTACT_PAGE_METHODS = {
   sectionId: "contact-methods",
   overline: "Contact methods",
   headline: "Reach the right team.",
-  subhead:
-    "Choose the channel that fits your request. We respond to sales and general inquiries by email.",
+  subhead: "Choose the channel that fits your request.",
   methods: [
     {
       id: "sales",
       icon: MessageSquare,
       title: "Sales",
-      description:
-        "Questions about plans, trials, Enterprise pricing, or getting started with Monavel.",
+      description: "Plans, pricing, demos, trials, and getting started.",
       email: "sales@monavel.app",
+      highlights: ["Enterprise", "Pricing", "Demo"],
     },
     {
       id: "partnerships",
       icon: Handshake,
       title: "Partnerships",
-      description:
-        "Technology partners, integrations, and collaboration opportunities with Monavel.",
+      description: "Technology partners, integrations, and collaboration.",
       email: "hello@monavel.app",
+      highlights: ["Integrations", "API", "Marketplace"],
     },
     {
       id: "general",
       icon: Mail,
       title: "General inquiries",
-      description:
-        "Product questions, press, or anything that does not fit sales or partnerships.",
+      description: "Product questions, press, and company inquiries.",
       email: "hello@monavel.app",
+      highlights: ["Press", "Questions", "Company"],
     },
   ] satisfies ContactMethod[],
 } as const;
+
+export const CONTACT_ROOM_OPTIONS = [
+  { value: "1-20", label: "1–20 rooms" },
+  { value: "21-50", label: "21–50 rooms" },
+  { value: "51-100", label: "51–100 rooms" },
+  { value: "101-250", label: "101–250 rooms" },
+  { value: "251+", label: "251+ rooms" },
+] as const;
 
 export const CONTACT_PAGE_FORM = {
   sectionId: "contact-form",
   overline: "Sales inquiry",
   headline: "Tell us about your hotel.",
   subhead:
-    "Share a few details and our team will follow up about demos, trials, or Enterprise options.",
+    "Share the essentials. We will use them to make the first conversation relevant.",
   submitLabel: "Contact sales",
   successTitle: "Thanks for reaching out.",
   successMessage:
@@ -70,8 +100,16 @@ export const CONTACT_PAGE_FORM = {
     name: { id: "contact-name", label: "Name", required: true },
     hotel: { id: "contact-hotel", label: "Hotel", required: true },
     email: { id: "contact-email", label: "Email", required: true },
-    rooms: { id: "contact-rooms", label: "Number of rooms", required: false },
-    message: { id: "contact-message", label: "Message", required: true },
+    rooms: {
+      id: "contact-rooms",
+      label: "Number of rooms",
+      required: false,
+    },
+    message: {
+      id: "contact-message",
+      label: "What would you like to improve?",
+      required: true,
+    },
   },
 } as const;
 
@@ -79,27 +117,24 @@ export const CONTACT_PAGE_FAQ = {
   sectionId: "contact-faq",
   overline: "FAQ",
   headline: "Before you write.",
-  subhead: "Quick answers to common questions about contacting Monavel.",
+  subhead: "Quick answers to common questions.",
   items: [
     {
       question: "How quickly will you reply?",
-      answer:
-        "We aim to respond to sales and general inquiries within one to two business days.",
+      answer: "Usually within one to two business days.",
     },
     {
       question: "Do you work internationally?",
-      answer:
-        "Yes. Monavel works with hotels internationally. Tell us where you operate and we will confirm availability.",
+      answer: "Yes. Tell us where your hotel operates.",
     },
     {
       question: "Can I schedule a demo?",
-      answer:
-        "Yes. Use Book a demo above or mention your preferred time in the sales inquiry form.",
+      answer: "Yes. Book directly or mention your preferred time.",
     },
     {
       question: "Can I migrate from another PMS?",
       answer:
-        "We can discuss migration during onboarding. Share your current system in the form and we will outline next steps.",
+        "Yes. We will evaluate your current PMS and outline the next step.",
     },
   ],
 } as const;

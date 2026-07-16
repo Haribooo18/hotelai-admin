@@ -1,14 +1,30 @@
 "use client";
 
+import { CheckCircle2, Clock3 } from "lucide-react";
+
+import { useMarketingLead } from "@/components/marketing/hooks/useMarketingLead";
 import {
+  mktCenteredFormBodyClass,
+  mktCenteredFormClass,
+  mktCenteredFormHeaderClass,
+  mktCenteredFormSectionClass,
+  mktFormTrustItemClass,
+  mktFormTrustListClass,
   mktOverlineClass,
   mktSectionBodyClass,
   mktSectionHeadlineClass,
-  mktSectionHeaderClass,
   mktSectionSubheadClass,
 } from "@/lib/marketing/design";
-import { DEMO_PAGE_FORM } from "@/lib/marketing/demo-page";
-import { useMarketingLead } from "@/components/marketing/hooks/useMarketingLead";
+import {
+  DEMO_HOTEL_SIZE_OPTIONS,
+  DEMO_PAGE_FORM,
+} from "@/lib/marketing/demo-page";
+import { cn } from "@/lib/utils";
+
+const trustItems = [
+  { icon: Clock3, label: "30–45 minute walkthrough" },
+  { icon: CheckCircle2, label: "No obligation" },
+] as const;
 
 export function DemoBookingFormSection() {
   const { submit, error, isSubmitting, isSuccess } =
@@ -22,22 +38,31 @@ export function DemoBookingFormSection() {
   return (
     <section
       id={DEMO_PAGE_FORM.sectionId}
-      className="mkt-features-section mkt-features-section-alt"
+      className={mktCenteredFormSectionClass}
       aria-labelledby="demo-booking-heading"
     >
       <div className="mkt-container-wide">
-        <header className={mktSectionHeaderClass}>
+        <header className={mktCenteredFormHeaderClass}>
           <p className={mktOverlineClass}>{DEMO_PAGE_FORM.overline}</p>
-          <h2 id="demo-booking-heading" className={mktSectionHeadlineClass}>
+          <h2
+            id="demo-booking-heading"
+            className={mktSectionHeadlineClass}
+          >
             {DEMO_PAGE_FORM.headline}
           </h2>
-          <p className={mktSectionSubheadClass}>{DEMO_PAGE_FORM.subhead}</p>
+          <p
+            className={mktSectionSubheadClass}
+          >
+            {DEMO_PAGE_FORM.subhead}
+          </p>
         </header>
 
-        <div className={mktSectionBodyClass}>
+        <div
+          className={cn(mktSectionBodyClass, mktCenteredFormBodyClass)}
+        >
           {isSuccess ? (
             <div
-              className="mkt-contact-form-success"
+              className="mkt-contact-form-success text-center"
               role="status"
               aria-live="polite"
             >
@@ -49,7 +74,10 @@ export function DemoBookingFormSection() {
               </p>
             </div>
           ) : (
-            <form className="mkt-contact-form" onSubmit={handleSubmit}>
+            <form
+              className={cn("mkt-contact-form", mktCenteredFormClass)}
+              onSubmit={handleSubmit}
+            >
               <div aria-hidden="true" className="hidden">
                 <label htmlFor="demo-website">Website</label>
                 <input
@@ -70,8 +98,9 @@ export function DemoBookingFormSection() {
                     id={DEMO_PAGE_FORM.fields.name.id}
                     name="name"
                     type="text"
-                    required={DEMO_PAGE_FORM.fields.name.required}
+                    required
                     autoComplete="name"
+                    placeholder="Your name"
                     className="mkt-contact-input"
                   />
                 </div>
@@ -84,8 +113,9 @@ export function DemoBookingFormSection() {
                     id={DEMO_PAGE_FORM.fields.hotel.id}
                     name="hotel"
                     type="text"
-                    required={DEMO_PAGE_FORM.fields.hotel.required}
+                    required
                     autoComplete="organization"
+                    placeholder="Hotel name"
                     className="mkt-contact-input"
                   />
                 </div>
@@ -98,22 +128,9 @@ export function DemoBookingFormSection() {
                     id={DEMO_PAGE_FORM.fields.email.id}
                     name="email"
                     type="email"
-                    required={DEMO_PAGE_FORM.fields.email.required}
+                    required
                     autoComplete="email"
-                    className="mkt-contact-input"
-                  />
-                </div>
-
-                <div className="mkt-contact-field">
-                  <label htmlFor={DEMO_PAGE_FORM.fields.country.id}>
-                    {DEMO_PAGE_FORM.fields.country.label}
-                  </label>
-                  <input
-                    id={DEMO_PAGE_FORM.fields.country.id}
-                    name="country"
-                    type="text"
-                    required={DEMO_PAGE_FORM.fields.country.required}
-                    autoComplete="country-name"
+                    placeholder="you@hotel.com"
                     className="mkt-contact-input"
                   />
                 </div>
@@ -122,29 +139,21 @@ export function DemoBookingFormSection() {
                   <label htmlFor={DEMO_PAGE_FORM.fields.rooms.id}>
                     {DEMO_PAGE_FORM.fields.rooms.label}
                   </label>
-                  <input
+                  <select
                     id={DEMO_PAGE_FORM.fields.rooms.id}
                     name="rooms"
-                    type="number"
-                    min={1}
-                    step={1}
-                    inputMode="numeric"
-                    className="mkt-contact-input"
-                  />
-                </div>
-
-                <div className="mkt-contact-field">
-                  <label htmlFor={DEMO_PAGE_FORM.fields.date.id}>
-                    {DEMO_PAGE_FORM.fields.date.label}
-                  </label>
-                  <input
-                    id={DEMO_PAGE_FORM.fields.date.id}
-                    name="preferred-date"
-                    type="text"
-                    placeholder="DD.MM.YYYY"
-                    inputMode="numeric"
-                    className="mkt-contact-input"
-                  />
+                    defaultValue=""
+                    className="mkt-contact-input appearance-none"
+                  >
+                    <option value="" disabled>
+                      Select hotel size
+                    </option>
+                    {DEMO_HOTEL_SIZE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -155,8 +164,9 @@ export function DemoBookingFormSection() {
                 <textarea
                   id={DEMO_PAGE_FORM.fields.message.id}
                   name="message"
-                  rows={5}
-                  className="mkt-contact-textarea"
+                  rows={4}
+                  placeholder="Tell us about your goals, current PMS, or anything you would like us to focus on during the demo."
+                  className="mkt-contact-textarea min-h-[132px]"
                 />
               </div>
 
@@ -173,6 +183,23 @@ export function DemoBookingFormSection() {
               >
                 {isSubmitting ? "Sending..." : DEMO_PAGE_FORM.submitLabel}
               </button>
+
+              <ul
+                className={mktFormTrustListClass}
+                style={{ "--mkt-form-trust-columns": 2 } as React.CSSProperties}
+              >
+                {trustItems.map(({ icon: Icon, label }) => (
+                  <li
+                    key={label}
+                    className={mktFormTrustItemClass}
+                  >
+                    <Icon
+                      strokeWidth={1.65}
+                    />
+                    <span>{label}</span>
+                  </li>
+                ))}
+              </ul>
             </form>
           )}
         </div>

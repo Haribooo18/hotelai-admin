@@ -42,7 +42,7 @@ describe("contact page content", () => {
     expect(CONTACT_PAGE_FORM.fields.name.label).toBe("Name");
     expect(CONTACT_PAGE_FORM.fields.hotel.label).toBe("Hotel");
     expect(CONTACT_PAGE_FORM.fields.rooms.label).toBe("Number of rooms");
-    expect(CONTACT_PAGE_FORM.fields.message.label).toBe("Message");
+    expect(CONTACT_PAGE_FORM.fields.message.label).toBe("What would you like to improve?");
   });
 
   it("includes up to four faq items", () => {

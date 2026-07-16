@@ -1,4 +1,3 @@
-import { FinalCtaSection } from "@/components/marketing/landing/FinalCtaSection";
 import { ContactFaqSection } from "@/components/marketing/contact/ContactFaqSection";
 import { ContactMethodsSection } from "@/components/marketing/contact/ContactMethodsSection";
 import { ContactPageHero } from "@/components/marketing/contact/ContactPageHero";
@@ -11,7 +10,6 @@ export function ContactPage() {
       <ContactMethodsSection />
       <ContactSalesFormSection />
       <ContactFaqSection />
-      <FinalCtaSection variant="contact" />
     </>
   );
 }
