@@ -26,7 +26,8 @@ export function ProductBrowserFrame() {
       aria-hidden
     >
       <BrowserFrame
-        productUrl="app.monavel.com/dashboard"
+        productUrl="monavel.app/dashboard"
+        tabTitle="Monavel"
         size={presentation.size}
         contentClassName="mkt-browser-content--media"
       >

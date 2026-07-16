@@ -23,6 +23,7 @@ export function WorkspacePreview({
     <ProductScreenshot
       workspace={preview.workspace}
       title={preview.title}
+      tabTitle={preview.tabTitle}
       productUrl={preview.productUrl}
       alt={preview.alt}
       media={preview.media}

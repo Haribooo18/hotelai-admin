@@ -35,9 +35,10 @@ const cormorantDisplay = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://monavel.app"),
   title: {
-    default: "Monavel",
-    template: "%s | Monavel",
+    default: "Monavel — AI Receptionist for Hotels",
+    template: "%s — Monavel",
   },
   description:
     "Monavel — AI operating system for modern hotels.",

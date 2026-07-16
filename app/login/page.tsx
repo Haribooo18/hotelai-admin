@@ -1,8 +1,18 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
 import { getAuthenticatedUser } from "@/lib/tenant/context";
 
 import { LoginPageContent } from "@/components/auth/LoginPageContent";
+
+export const metadata: Metadata = {
+  title: "Login",
+  description: "Sign in to your Monavel hotel workspace.",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 type Props = {
   searchParams?: Promise<Record<string, string | string[] | undefined>>;

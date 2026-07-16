@@ -25,6 +25,7 @@ import { cn } from "@/lib/utils";
 type Props = {
   workspace: PlatformWorkspaceId;
   title: string;
+  tabTitle?: string;
   productUrl: string;
   alt: string;
   media?: ProductMedia;
@@ -101,6 +102,7 @@ function ProductScreenshotMedia({ media, imageSrc, alt, title, priority, crop }:
 export function ProductScreenshot({
   workspace,
   title,
+  tabTitle,
   productUrl,
   alt,
   media,
@@ -115,7 +117,7 @@ export function ProductScreenshot({
   overlap,
 }: Props) {
   const resolved = resolvePresentation({
-    workspace, title, productUrl, alt, media, image, priority, className,
+    workspace, title, tabTitle, productUrl, alt, media, image, priority, className,
     frameAriaHidden, presentation, size, crop, emphasis, overlap,
   });
   const showEmphasis = emphasis ?? resolved.emphasis;
@@ -134,7 +136,13 @@ export function ProductScreenshot({
       data-workspace={workspace}
       aria-label={title}
     >
-      <BrowserFrame productUrl={productUrl} ariaHidden={frameAriaHidden} size={resolved.size} contentClassName="mkt-browser-content--media">
+      <BrowserFrame
+        productUrl={productUrl}
+        tabTitle={tabTitle}
+        ariaHidden={frameAriaHidden}
+        size={resolved.size}
+        contentClassName="mkt-browser-content--media"
+      >
         <ProductScreenshotMedia
           media={media}
           imageSrc={resolveImageSrc(media, image)}

@@ -22,7 +22,7 @@ function buildMarketingMetadata({
   description,
 }: MarketingMetadataInput): Metadata {
   const canonical = getCanonicalUrl(path);
-  const fullTitle = path === "/" ? title : `${title} | ${SITE_NAME}`;
+  const fullTitle = path === "/" ? title : `${title} — ${SITE_NAME}`;
 
   return {
     title: path === "/" ? { absolute: title } : title,
@@ -73,7 +73,7 @@ export const marketingMetadata: Metadata = {
   metadataBase: new URL(MARKETING_CANONICAL_ORIGIN),
   title: {
     default: MARKETING_SEO_PAGES.home.title,
-    template: `%s | ${SITE_NAME}`,
+    template: `%s — ${SITE_NAME}`,
   },
   description: MARKETING_SEO_PAGES.home.description,
   alternates: {

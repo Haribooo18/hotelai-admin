@@ -277,7 +277,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Platform overview");
     expect(html).toContain("Every channel. One connected system.");
     expect(html).toContain("/marketing/product/architecture/screenshot.svg");
-    expect(html).toContain("app.monavel.com/integrations");
+    expect(html).toContain("monavel.app/integrations");
   });
 
   it("renders storytelling flow section", () => {
@@ -342,7 +342,10 @@ describe("marketing page rendering", () => {
     expect(html).toContain('data-workspace="dashboard"');
     expect(html).toContain("mkt-browser-frame");
     expect(html).toContain("mkt-browser-shell");
-    expect(html).toContain("app.monavel.com/dashboard");
+    expect(html).toContain("monavel.app/dashboard");
+    expect(html).toContain("Monavel Dashboard");
+    expect(html).toContain("mkt-browser-favicon");
+    expect(html).toContain("/brand/monavel-mark.svg");
     expect(html).toContain("Dashboard");
     expect(html).toContain("Maria Thompson");
   

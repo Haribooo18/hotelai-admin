@@ -50,6 +50,15 @@ describe("marketing seo", () => {
     expect(metadata.title).toEqual({
       absolute: MARKETING_SEO_PAGES.home.title,
     });
+    expect(MARKETING_SEO_PAGES.home.title).toBe(
+      "Monavel — AI Receptionist for Hotels"
+    );
+  });
+
+  it("uses em dash title template for inner pages", () => {
+    const metadata = generateMarketingMetadata("demo");
+    expect(metadata.openGraph?.title).toBe("Demo — Monavel");
+    expect(metadata.twitter?.title).toBe("Demo — Monavel");
   });
 
   it("generates docs article metadata", () => {

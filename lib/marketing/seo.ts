@@ -26,11 +26,10 @@ export const MARKETING_SEO_PAGES: Record<MarketingSeoPageId, MarketingSeoPage> =
   home: {
     id: "home",
     path: "/",
-    title: `${SITE_NAME} — AI Operating System for Hotels`,
+    title: `${SITE_NAME} — AI Receptionist for Hotels`,
     description:
       "Monavel combines PMS, AI reception, guest channels, and hotel operations in one connected workspace for modern hotels.",
   },
-  
   ai: {
     id: "ai",
     path: "/ai",

@@ -50,6 +50,7 @@ export function PlatformOverviewSection() {
           >
             <BrowserFrame
               productUrl={PLATFORM_OVERVIEW_CONTENT.productUrl}
+              tabTitle={PLATFORM_OVERVIEW_CONTENT.tabTitle}
               size={presentation.size}
               contentClassName="mkt-browser-content--media"
             >

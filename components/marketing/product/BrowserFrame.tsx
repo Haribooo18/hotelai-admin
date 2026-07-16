@@ -1,10 +1,13 @@
 import type { ReactNode } from "react";
 
+import { BRAND_ASSETS } from "@/lib/brand/assets";
 import type { ProductShowcaseSize } from "@/lib/marketing/product-presentation";
+import { SITE_NAME } from "@/lib/marketing/site";
 import { cn } from "@/lib/utils";
 
 type Props = {
   productUrl: string;
+  tabTitle?: string;
   children: ReactNode;
   className?: string;
   contentClassName?: string;
@@ -14,6 +17,7 @@ type Props = {
 
 export function BrowserFrame({
   productUrl,
+  tabTitle = SITE_NAME,
   children,
   className,
   contentClassName,
@@ -27,10 +31,19 @@ export function BrowserFrame({
     >
       <div className="mkt-browser-shell">
         <div className="mkt-browser-chrome">
-          <div className="mkt-browser-traffic" aria-hidden>
-            <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--close" />
-            <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--minimize" />
-            <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--maximize" />
+          <div className="mkt-browser-chrome-start">
+            <div className="mkt-browser-traffic" aria-hidden>
+              <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--close" />
+              <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--minimize" />
+              <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--maximize" />
+            </div>
+            <div className="mkt-browser-tab" aria-hidden>
+              <span
+                className="mkt-browser-favicon"
+                style={{ backgroundImage: `url(${BRAND_ASSETS.mark})` }}
+              />
+              <span className="mkt-browser-tab-title">{tabTitle}</span>
+            </div>
           </div>
           <div className="mkt-browser-url">
             <svg

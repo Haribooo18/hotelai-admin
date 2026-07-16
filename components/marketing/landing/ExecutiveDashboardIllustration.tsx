@@ -106,7 +106,11 @@ function WeeklyPerformanceChart() {
 export function ExecutiveDashboardIllustration() {
   return (
     <figure className="mkt-executive-dashboard" aria-hidden>
-      <BrowserFrame productUrl="app.monavel.com/dashboard" size="compact">
+      <BrowserFrame
+        productUrl="monavel.app/dashboard"
+        tabTitle="Monavel Dashboard"
+        size="compact"
+      >
         <div className="mkt-exec-dash">
           <header className="mkt-exec-dash-header">
             <div>

@@ -25,7 +25,7 @@ export function ContactJourneyPreview() {
           <span className="h-2.5 w-2.5 rounded-full bg-[#5d8276]" />
         </div>
         <div className="mx-auto rounded-full border border-white/[0.055] bg-black/20 px-5 py-1.5 text-[10px] text-white/38">
-          monavel.com/contact
+          monavel.app/contact
         </div>
         <div className="w-[42px]" aria-hidden="true" />
       </div>

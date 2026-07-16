@@ -22,7 +22,7 @@ export function generateMetadata(): Metadata {
       locale: "en_US",
       url: canonical,
       siteName: SITE_NAME,
-      title: `${title} | ${SITE_NAME}`,
+      title: `${title} — ${SITE_NAME}`,
       description: BRAND_BOOK.description,
     },
     robots: {

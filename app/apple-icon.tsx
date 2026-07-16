@@ -1,14 +1,14 @@
 import { ImageResponse } from "next/og";
 
 export const size = {
-  width: 32,
-  height: 32,
+  width: 180,
+  height: 180,
 };
 
 export const contentType = "image/png";
 
-/** Official Monavel mark — three architectural panels. */
-export default function Icon() {
+/** Apple touch icon — official Monavel mark. */
+export default function AppleIcon() {
   return new ImageResponse(
     (
       <div
@@ -19,12 +19,12 @@ export default function Icon() {
           alignItems: "center",
           justifyContent: "center",
           background: "#0D0F12",
-          borderRadius: 7,
+          borderRadius: 36,
         }}
       >
         <svg
-          width="24"
-          height="24"
+          width="128"
+          height="128"
           viewBox="0 0 32 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

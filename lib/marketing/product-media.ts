@@ -42,6 +42,7 @@ export type ProductMedia =
 export type WorkspacePreviewConfig = {
   workspace: PlatformWorkspaceId;
   title: string;
+  tabTitle: string;
   productUrl: string;
   alt: string;
   media: ProductMedia;

@@ -53,7 +53,8 @@ describe("workspace preview config", () => {
 
     expect(preview.workspace).toBe("dashboard");
     expect(preview.title).toBe("Dashboard");
-    expect(preview.productUrl).toBe("app.monavel.com/dashboard");
+    expect(preview.productUrl).toBe("monavel.app/dashboard");
+    expect(preview.tabTitle).toBe("Monavel Dashboard");
     expect(preview.media.type).toBe("component");
     expect(preview.alt.length).toBeGreaterThan(0);
   });
@@ -62,7 +63,8 @@ describe("workspace preview config", () => {
     const preview = getWorkspacePreview("reception-ai");
 
     expect(preview.workspace).toBe("reception-ai");
-    expect(preview.productUrl).toBe("app.monavel.com/reception-ai");
+    expect(preview.productUrl).toBe("monavel.app/reception-ai");
+    expect(preview.tabTitle).toBe("Monavel Reception AI");
     expect(preview.media.type).toBe("component");
     expect(preview.alt.length).toBeGreaterThan(0);
   });
