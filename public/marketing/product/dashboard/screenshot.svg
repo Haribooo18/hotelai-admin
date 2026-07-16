@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="800" viewBox="0 0 1280 800" fill="none">
+  <rect width="1280" height="800" fill="#0f1115"/>
+  <rect x="0" y="0" width="220" height="800" fill="#12151b"/>
+  <rect x="219" y="0" width="1" height="800" fill="#ffffff" opacity="0.08"/>
+  <text x="36" y="39" fill="#e8eaed" font-family="system-ui,sans-serif" font-size="12" font-weight="600">Monavel</text>
+  <text x="32" y="88" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10" letter-spacing="0.08em">WORKSPACES</text>
+  <rect x="24" y="104" width="180" height="24" rx="6" fill="#10b98133"/>
+  <text x="36" y="120" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="11" font-weight="600">Dashboard</text>
+  <rect x="24" y="132" width="180" height="24" rx="6" fill="#141820"/>
+  <text x="36" y="148" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Bookings</text>
+  <rect x="24" y="160" width="180" height="24" rx="6" fill="#141820"/>
+  <text x="36" y="176" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Guests</text>
+  <rect x="24" y="188" width="180" height="24" rx="6" fill="#141820"/>
+  <text x="36" y="204" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Rooms</text>
+  <rect x="24" y="216" width="180" height="24" rx="6" fill="#141820"/>
+  <text x="36" y="232" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Calendar</text>
+  <rect x="24" y="244" width="180" height="24" rx="6" fill="#141820"/>
+  <text x="36" y="260" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Revenue</text>
+  <rect x="24" y="272" width="180" height="24" rx="6" fill="#141820"/>
+  <text x="36" y="288" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Knowledge</text>
+  <rect x="24" y="300" width="180" height="24" rx="6" fill="#141820"/>
+  <text x="36" y="316" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Reception AI</text>
+
+  <rect x="220" y="0" width="1060" height="800" fill="#0f1115"/>
+  <text x="252" y="48" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="20" font-weight="600">Dashboard</text>
+  <text x="252" y="72" fill="#6b7280" font-family="system-ui,sans-serif" font-size="12">app.monavel.com/dashboard</text>
+  <rect x="252" y="88" width="180" height="24" rx="12" fill="#10b98122"/>
+  <text x="264" y="104" fill="#10b981" font-family="system-ui,sans-serif" font-size="11" font-weight="600">Connected by AI</text>
+  <rect x="1140" y="36" width="100" height="32" rx="8" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <circle cx="1158" cy="52" r="10" fill="#1f2937"/>
+  <text x="1174" y="56" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="11">Hotel Aurora</text>
+
+  <!-- KPI Row -->
+  <rect x="252" y="120" width="240" height="108" rx="12" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="268" y="144" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11">Occupancy</text>
+  <text x="268" y="176" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="22" font-weight="600">87%</text>
+  <text x="334" y="176" fill="#10b981" font-family="system-ui,sans-serif" font-size="11" font-weight="600">+5%</text>
+  <polyline points="268,212 288,208 308,214 328,200 348,206 368,194 388,200 408,190 428,196 448,188 468,192" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.65"/>
+
+  <rect x="508" y="120" width="240" height="108" rx="12" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="524" y="144" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11">Revenue</text>
+  <text x="524" y="176" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="22" font-weight="600">$48.2k</text>
+  <text x="614" y="176" fill="#10b981" font-family="system-ui,sans-serif" font-size="11" font-weight="600">+12%</text>
+  <polyline points="524,212 544,206 564,210 584,198 604,202 624,192 644,196 664,186 684,190 704,182 724,188" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.65"/>
+
+  <rect x="764" y="120" width="240" height="108" rx="12" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="780" y="144" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11">Bookings</text>
+  <text x="780" y="176" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="22" font-weight="600">38</text>
+  <text x="828" y="176" fill="#10b981" font-family="system-ui,sans-serif" font-size="11" font-weight="600">+9%</text>
+  <polyline points="780,212 800,216 820,210 840,218 860,204 880,212 900,198 920,206 940,200 960,208 980,196" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.65"/>
+
+  <rect x="1020" y="120" width="240" height="108" rx="12" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="1036" y="144" fill="#6b7280" font-family="system-ui,sans-serif" font-size="11">AI Inbox</text>
+  <text x="1036" y="176" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="22" font-weight="600">6</text>
+  <text x="1072" y="176" fill="#f59e0b" font-family="system-ui,sans-serif" font-size="11" font-weight="600">2 urgent</text>
+  <polyline points="1036,212 1056,208 1076,214 1096,202 1116,210 1136,196 1156,204 1176,198 1196,206 1216,192 1236,200" fill="none" stroke="#10b981" stroke-width="1.5" stroke-opacity="0.65"/>
+
+  <!-- Second Row -->
+  <rect x="252" y="244" width="240" height="300" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="268" y="272" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Calendar</text>
+  <text x="432" y="272" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Jul 2026</text>
+  <text x="268" y="296" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">MON</text>
+  <text x="304" y="296" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">TUE</text>
+  <text x="340" y="296" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">WED</text>
+  <text x="376" y="296" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">THU</text>
+  <text x="412" y="296" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">FRI</text>
+  <text x="448" y="296" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">SAT</text>
+  <text x="484" y="296" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">SUN</text>
+  <rect x="264" y="306" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="276" y="324" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">7</text>
+  <rect x="300" y="306" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="312" y="324" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">8</text>
+  <rect x="336" y="306" width="32" height="28" rx="6" fill="#10b98122" stroke="#10b981" stroke-opacity="0.3"/>
+  <text x="348" y="324" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">9</text>
+  <rect x="372" y="306" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="384" y="324" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">10</text>
+  <rect x="408" y="306" width="32" height="28" rx="6" fill="#10b98133"/>
+  <text x="420" y="324" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">11</text>
+  <rect x="444" y="306" width="32" height="28" rx="6" fill="#10b98133"/>
+  <text x="456" y="324" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">12</text>
+  <rect x="480" y="306" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="492" y="324" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">13</text>
+  <rect x="264" y="342" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="276" y="360" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">14</text>
+  <rect x="300" y="342" width="32" height="28" rx="6" fill="#10b98122"/>
+  <text x="312" y="360" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">15</text>
+  <rect x="336" y="342" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="348" y="360" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">16</text>
+  <rect x="372" y="342" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="384" y="360" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">17</text>
+  <rect x="408" y="342" width="32" height="28" rx="6" fill="#10b98122"/>
+  <text x="420" y="360" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">18</text>
+  <rect x="444" y="342" width="32" height="28" rx="6" fill="#10b98133"/>
+  <text x="456" y="360" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">19</text>
+  <rect x="480" y="342" width="32" height="28" rx="6" fill="#141820"/>
+  <text x="492" y="360" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">20</text>
+  <rect x="268" y="388" width="200" height="20" rx="4" fill="#141820"/>
+  <text x="276" y="402" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">12 bookings this week</text>
+  <rect x="268" y="418" width="88" height="48" rx="6" fill="#141820"/>
+  <text x="276" y="436" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">CHECK-INS</text>
+  <text x="276" y="456" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="16" font-weight="600">14</text>
+  <rect x="368" y="418" width="88" height="48" rx="6" fill="#141820"/>
+  <text x="376" y="436" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">CHECK-OUTS</text>
+  <text x="376" y="456" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="16" font-weight="600">9</text>
+  <rect x="268" y="478" width="200" height="52" rx="6" fill="#141820"/>
+  <text x="276" y="496" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">NEXT EVENT</text>
+  <text x="276" y="514" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11">Group check-in - 18 guests</text>
+  <text x="276" y="528" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">Jul 12, 15:00</text>
+
+  <rect x="508" y="244" width="240" height="300" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="524" y="272" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Today&apos;s Arrivals</text>
+  <text x="688" y="272" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">14 total</text>
+  <rect x="524" y="288" width="208" height="20" rx="4" fill="#141820"/>
+  <text x="532" y="302" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9" font-weight="600">GUEST</text>
+  <text x="600" y="302" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9" font-weight="600">RM</text>
+  <text x="636" y="302" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9" font-weight="600">ETA</text>
+  <text x="684" y="302" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9" font-weight="600">STATUS</text>
+  <line x1="524" y1="316" x2="732" y2="316" stroke="#ffffff" stroke-opacity="0.06"/>
+  <text x="532" y="334" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">James Morales</text>
+  <text x="600" y="334" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">201</text>
+  <text x="636" y="334" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">14:00</text>
+  <rect x="676" y="322" width="52" height="16" rx="4" fill="#1a2e28"/>
+  <text x="684" y="333" fill="#10b981" font-family="system-ui,sans-serif" font-size="9">Expected</text>
+  <line x1="524" y1="344" x2="732" y2="344" stroke="#ffffff" stroke-opacity="0.04"/>
+  <text x="532" y="362" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">Sarah Chen</text>
+  <text x="600" y="362" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">305</text>
+  <text x="636" y="362" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">15:30</text>
+  <rect x="676" y="350" width="52" height="16" rx="4" fill="#10b98122"/>
+  <text x="682" y="361" fill="#10b981" font-family="system-ui,sans-serif" font-size="9">Checked in</text>
+  <line x1="524" y1="372" x2="732" y2="372" stroke="#ffffff" stroke-opacity="0.04"/>
+  <text x="532" y="390" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">Robert Kim</text>
+  <text x="600" y="390" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">112</text>
+  <text x="636" y="390" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">16:00</text>
+  <rect x="676" y="378" width="52" height="16" rx="4" fill="#1a2e28"/>
+  <text x="684" y="389" fill="#10b981" font-family="system-ui,sans-serif" font-size="9">Expected</text>
+  <line x1="524" y1="400" x2="732" y2="400" stroke="#ffffff" stroke-opacity="0.04"/>
+  <text x="532" y="418" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">Elena Popov</text>
+  <text x="600" y="418" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">408</text>
+  <text x="636" y="418" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">17:00</text>
+  <rect x="676" y="406" width="44" height="16" rx="4" fill="#422006"/>
+  <text x="682" y="417" fill="#f59e0b" font-family="system-ui,sans-serif" font-size="9">Delayed</text>
+  <line x1="524" y1="428" x2="732" y2="428" stroke="#ffffff" stroke-opacity="0.04"/>
+  <text x="532" y="446" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">Michael Wong</text>
+  <text x="600" y="446" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">210</text>
+  <text x="636" y="446" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">18:30</text>
+  <rect x="676" y="434" width="52" height="16" rx="4" fill="#1a2e28"/>
+  <text x="684" y="445" fill="#10b981" font-family="system-ui,sans-serif" font-size="9">Expected</text>
+  <line x1="524" y1="456" x2="732" y2="456" stroke="#ffffff" stroke-opacity="0.04"/>
+  <text x="532" y="474" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">Lisa Hartmann</text>
+  <text x="600" y="474" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">402</text>
+  <text x="636" y="474" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">19:00</text>
+  <rect x="676" y="462" width="52" height="16" rx="4" fill="#1a2e28"/>
+  <text x="684" y="473" fill="#10b981" font-family="system-ui,sans-serif" font-size="9">Expected</text>
+  <line x1="524" y1="484" x2="732" y2="484" stroke="#ffffff" stroke-opacity="0.04"/>
+  <text x="532" y="502" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10">David Novak</text>
+  <text x="600" y="502" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">118</text>
+  <text x="636" y="502" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">20:15</text>
+  <rect x="676" y="490" width="52" height="16" rx="4" fill="#1a2e28"/>
+  <text x="684" y="501" fill="#10b981" font-family="system-ui,sans-serif" font-size="9">Expected</text>
+
+  <rect x="764" y="244" width="240" height="300" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="780" y="272" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Recent Activity</text>
+  <text x="944" y="272" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">View all</text>
+  <line x1="780" y1="284" x2="988" y2="284" stroke="#ffffff" stroke-opacity="0.06"/>
+  <circle cx="786" cy="304" r="3" fill="#10b981"/>
+  <text x="798" y="308" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11">New booking - Anna K.</text>
+  <text x="798" y="324" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Booking.com - 2m ago</text>
+  <circle cx="786" cy="348" r="3" fill="#6b7280"/>
+  <text x="798" y="352" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11">Check-in completed - Rm 204</text>
+  <text x="798" y="368" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Front desk - 14m ago</text>
+  <circle cx="786" cy="392" r="3" fill="#10b981"/>
+  <text x="798" y="396" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11">AI replied to guest inquiry</text>
+  <text x="798" y="412" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Reception AI - 32m ago</text>
+  <circle cx="786" cy="436" r="3" fill="#6b7280"/>
+  <text x="798" y="440" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11">Rate updated for weekend</text>
+  <text x="798" y="456" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Revenue - 1h ago</text>
+  <circle cx="786" cy="480" r="3" fill="#6b7280"/>
+  <text x="798" y="484" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11">Room 112 marked clean</text>
+  <text x="798" y="500" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Housekeeping - 2h ago</text>
+  <circle cx="786" cy="524" r="3" fill="#6b7280"/>
+  <text x="798" y="528" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11">Invoice sent to corporate</text>
+  <text x="798" y="544" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Billing - 3h ago</text>
+
+  <rect x="1020" y="244" width="240" height="300" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="1036" y="272" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Knowledge</text>
+  <text x="1188" y="272" fill="#10b981" font-family="system-ui,sans-serif" font-size="10">Synced</text>
+  <rect x="1036" y="292" width="208" height="56" rx="8" fill="#141820"/>
+  <text x="1048" y="312" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">ARTICLES</text>
+  <text x="1048" y="332" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="18" font-weight="600">24</text>
+  <text x="1088" y="332" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">policies &amp; FAQs</text>
+  <rect x="1036" y="360" width="208" height="56" rx="8" fill="#141820"/>
+  <text x="1048" y="380" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">FAQ COVERAGE</text>
+  <text x="1048" y="400" fill="#f9fafb" font-family="system-ui,sans-serif" font-size="18" font-weight="600">92%</text>
+  <rect x="1100" y="388" width="132" height="6" rx="3" fill="#1f2937"/>
+  <rect x="1100" y="388" width="121" height="6" rx="3" fill="#10b981"/>
+  <rect x="1036" y="428" width="208" height="56" rx="8" fill="#141820"/>
+  <text x="1048" y="448" fill="#6b7280" font-family="system-ui,sans-serif" font-size="9">LAST UPDATED</text>
+  <text x="1048" y="468" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="12">2 hours ago</text>
+  <rect x="1036" y="496" width="208" height="36" rx="6" fill="#141820"/>
+  <circle cx="1050" cy="514" r="3" fill="#10b981"/>
+  <text x="1060" y="518" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="10">Check-in policy refreshed</text>
+
+  <!-- Bottom row -->
+  <rect x="252" y="564" width="496" height="200" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="268" y="592" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Occupancy by Room Type</text>
+  <text x="268" y="610" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Current week</text>
+  <rect x="268" y="632" width="80" height="100" rx="4" fill="#141820"/>
+  <rect x="268" y="672" width="80" height="60" rx="4" fill="#10b981" opacity="0.5"/>
+  <text x="284" y="748" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="9">Standard</text>
+  <text x="292" y="662" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">91%</text>
+  <rect x="364" y="632" width="80" height="100" rx="4" fill="#141820"/>
+  <rect x="364" y="688" width="80" height="44" rx="4" fill="#10b981" opacity="0.5"/>
+  <text x="384" y="748" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="9">Deluxe</text>
+  <text x="392" y="678" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">78%</text>
+  <rect x="460" y="632" width="80" height="100" rx="4" fill="#141820"/>
+  <rect x="460" y="652" width="80" height="80" rx="4" fill="#10b981" opacity="0.5"/>
+  <text x="476" y="748" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="9">Suite</text>
+  <text x="488" y="642" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">96%</text>
+  <rect x="556" y="632" width="80" height="100" rx="4" fill="#141820"/>
+  <rect x="556" y="708" width="80" height="24" rx="4" fill="#10b981" opacity="0.5"/>
+  <text x="572" y="748" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="9">Family</text>
+  <text x="584" y="698" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">62%</text>
+  <rect x="652" y="632" width="80" height="100" rx="4" fill="#141820"/>
+  <rect x="652" y="664" width="80" height="68" rx="4" fill="#10b981" opacity="0.5"/>
+  <text x="668" y="748" fill="#9ca3af" font-family="system-ui,sans-serif" font-size="9">Penthouse</text>
+  <text x="676" y="654" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="10" font-weight="600">85%</text>
+
+  <rect x="764" y="564" width="496" height="200" rx="14" fill="#171b22" stroke="#ffffff" stroke-opacity="0.08"/>
+  <text x="780" y="592" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="13" font-weight="600">AI Inbox Preview</text>
+  <text x="780" y="610" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">6 open conversations</text>
+  <rect x="780" y="624" width="464" height="52" rx="8" fill="#141820"/>
+  <rect x="780" y="624" width="3" height="52" rx="1.5" fill="#f59e0b"/>
+  <text x="796" y="644" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11" font-weight="500">Anna K. - What time is check-in?</text>
+  <text x="796" y="662" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Telegram - AI draft ready</text>
+  <rect x="1180" y="636" width="52" height="18" rx="9" fill="#422006"/>
+  <text x="1190" y="649" fill="#f59e0b" font-family="system-ui,sans-serif" font-size="9">Urgent</text>
+  <rect x="780" y="686" width="464" height="52" rx="8" fill="#141820"/>
+  <text x="796" y="706" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11" font-weight="500">Mikhail R. - Is parking available?</text>
+  <text x="796" y="724" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">WhatsApp - awaiting review</text>
+  <rect x="780" y="748" width="464" height="52" rx="8" fill="#141820"/>
+  <text x="796" y="768" fill="#e5e7eb" font-family="system-ui,sans-serif" font-size="11" font-weight="500">Elena V. - Late checkout request</text>
+  <text x="796" y="786" fill="#6b7280" font-family="system-ui,sans-serif" font-size="10">Email - AI handled</text>
+</svg>

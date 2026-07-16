@@ -1,0 +1,19 @@
+---
+description: Canonical HotelAI architecture guidance
+alwaysApply: true
+---
+
+# HotelAI Architecture
+
+`docs/ARCHITECTURE.md` is the source of truth. Read it before changing routes, feature structure, services, mutations, shared types, or reusable UI patterns.
+
+Keep this rule short. Do not copy architecture details here.
+
+## Non-Negotiables
+
+- `app/**/page.tsx` stays thin: fetch data, wrap in `AppShell`, pass props.
+- Feature UI lives under `components/dashboard/<feature>/`.
+- Reads go in `lib/services/*.service.ts`; writes go in `lib/services/*.mutations.ts`.
+- Domain types live in `types/`.
+- `components/ui/` remains generic UI primitives only.
+- Auth + tenant context comes from `lib/tenant.ts` (`getCurrentHotelId`, `requireUser`); `/login` is the only public route (guarded by `proxy.ts`).

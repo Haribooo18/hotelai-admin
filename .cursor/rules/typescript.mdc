@@ -1,0 +1,23 @@
+---
+description: TypeScript guidance entrypoint for HotelAI
+globs: **/*.{ts,tsx}
+alwaysApply: false
+---
+
+# TypeScript Guidance
+
+Read these before changing TypeScript:
+
+- `docs/CODING_STANDARDS.md` for type rules, imports, exports, and validation.
+- `docs/DATABASE.md` for current table shapes, nullable fields, status values, and RPCs.
+- `docs/ARCHITECTURE.md` for where shared types and service types belong.
+
+Keep this rule short. Do not copy TypeScript examples here.
+
+## Non-Negotiables
+
+- No `any`; use explicit types or `unknown` with narrowing.
+- No TypeScript `enum`; use string unions.
+- Nullable database fields are `T | null`.
+- Shared domain entity types live in `types/`.
+- Server Action inputs are typed objects.

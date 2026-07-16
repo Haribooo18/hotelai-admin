@@ -1,6 +1,6 @@
 "use client";
 
-import { Toaster } from "sonner";
+import { AppToaster } from "@/components/motion/AppToaster";
 
 type Props = {
   children: React.ReactNode;
@@ -10,12 +10,7 @@ export function Providers({ children }: Props) {
   return (
     <>
       {children}
-      <Toaster
-        position="top-right"
-        richColors
-        closeButton
-        duration={5000}
-      />
+      <AppToaster />
     </>
   );
 }

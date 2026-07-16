@@ -1,142 +1,175 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
 
-import { supabase } from "@/lib/supabase";
+import { subscribeLeadsChanges } from "@/lib/realtime/leads";
+import type { Booking } from "@/types/booking";
+import type { Lead } from "@/types/lead";
+import type { Room } from "@/types/room";
 
-import { DashboardStats } from "@/components/dashboard/DashboardStats";
-import { DashboardCharts } from "@/components/dashboard/DashboardCharts";
-import { LeadsTable } from "@/components/dashboard/LeadsTable";
+import {
+  buildAiActivity,
+  buildDashboardAlerts,
+  buildOccupancyTrend,
+  buildRevenueTrend,
+  buildTimeline,
+  getAiConversationCount,
+  getLatestBookings,
+  DashboardActivityFeed,
+  DashboardAiInsights,
+  DashboardExecutiveKpis,
+  DashboardHero,
+  DashboardTodayOperations,
+  DashboardToolbar,
+} from "@/components/dashboard/home";
+import {
+  buildDashboardAiInsights,
+  buildDashboardHeroInsight,
+  buildHeroExecutiveStatus,
+  buildTodayOperations,
+} from "@/components/dashboard/home/dashboard-insights";
+import type { DashboardMetrics } from "@/components/dashboard/home/dashboard-metrics";
+import { DashboardPageLayout } from "@/components/dashboard/home/DashboardPageLayout";
+import { WorkspaceAiRecommendations } from "@/components/dashboard/shared/WorkspaceAiRecommendations";
+import { buildDashboardRecommendations } from "@/components/dashboard/shared/ai-recommendation-builders";
+import { WorkspaceChartSkeleton } from "@/components/dashboard/shared/skeleton";
 
-import { LeadSearch } from "@/app/LeadSearch";
-import { LeadFilters } from "@/app/LeadFilters";
-
-export type Lead = {
-  lead_id: string;
-  created_at: string;
-  guest_name: string | null;
-  phone: string |null;
-  email: string | null;
-  room_type: string | null;
-  check_in: string | null;
-  check_out: string | null;
-  guests: number | null;
-  status: string | null;
-  comment: string | null;
-};
+const DashboardRevenueTrend = dynamic(
+  () =>
+    import("@/components/dashboard/home/DashboardRevenueTrend").then((mod) => ({
+      default: mod.DashboardRevenueTrend,
+    })),
+  { loading: () => <WorkspaceChartSkeleton className="h-72" /> }
+);
 
 type Props = {
   initialLeads: Lead[];
+  bookings: Booking[];
+  rooms: Room[];
+  initialMetrics: DashboardMetrics;
+  hotelId: string;
+  hotelName: string;
 };
 
-export function DashboardPage({ initialLeads }: Props) {
+export function DashboardPage({
+  initialLeads,
+  bookings,
+  rooms,
+  initialMetrics,
+  hotelId,
+  hotelName,
+}: Props) {
   const [leads, setLeads] = useState(initialLeads);
-
   const [search, setSearch] = useState("");
 
-  const [status, setStatus] = useState("all");
-
   useEffect(() => {
-    const channel = supabase
-      .channel("hotel-leads")
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "leads",
-        },
-        async () => {
-          const { data, error } = await supabase.rpc("list_hotel_leads", {
-            p_hotel_id: "hotel_aurora",
-            p_limit: 50,
-          });
+    return subscribeLeadsChanges(hotelId, setLeads);
+  }, [hotelId]);
 
-          if (!error && data) {
-            setLeads(data as Lead[]);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const counts = useMemo(
+  const metrics = useMemo(
     () => ({
-      all: leads.length,
-      new: leads.filter((l) => l.status === "new").length,
-      contacted: leads.filter((l) => l.status === "contacted").length,
-      confirmed: leads.filter((l) => l.status === "confirmed").length,
-      cancelled: leads.filter((l) => l.status === "cancelled").length,
+      ...initialMetrics,
+      openRequests: leads.filter((lead) => lead.status === "new").length,
     }),
+    [initialMetrics, leads]
+  );
+
+  const aiConversations = useMemo(
+    () => getAiConversationCount(leads),
     [leads]
   );
 
-  const visibleLeads = useMemo(() => {
-    let items = leads;
+  const revenueTrend = useMemo(
+    () => buildRevenueTrend(bookings),
+    [bookings]
+  );
 
-    if (status !== "all") {
-      items = items.filter((lead) => lead.status === status);
-    }
+  const occupancyTrend = useMemo(
+    () => buildOccupancyTrend(bookings, rooms.length),
+    [bookings, rooms.length]
+  );
 
-    if (search.trim()) {
-      const q = search.toLowerCase();
+  const timeline = useMemo(
+    () => buildTimeline(bookings, leads),
+    [bookings, leads]
+  );
 
-      items = items.filter((lead) =>
-        [
-          lead.guest_name,
-          lead.phone,
-          lead.email,
-          lead.room_type,
-          lead.comment,
-          lead.check_in,
-          lead.check_out,
-        ]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase()
-          .includes(q)
-      );
-    }
+  const latestBookings = useMemo(
+    () => getLatestBookings(bookings),
+    [bookings]
+  );
 
-    return items;
-  }, [leads, status, search]);
+  const aiActivity = useMemo(() => buildAiActivity(leads), [leads]);
+
+  const alerts = useMemo(
+    () => buildDashboardAlerts(bookings, rooms, leads),
+    [bookings, rooms, leads]
+  );
+
+  const heroInsight = useMemo(
+    () => buildDashboardHeroInsight(metrics, occupancyTrend),
+    [metrics, occupancyTrend]
+  );
+
+  const heroStatus = useMemo(
+    () => buildHeroExecutiveStatus(metrics, alerts, leads, bookings),
+    [metrics, alerts, leads, bookings]
+  );
+
+  const aiInsights = useMemo(
+    () => buildDashboardAiInsights(metrics, alerts, leads, rooms, bookings),
+    [metrics, alerts, leads, rooms, bookings]
+  );
+
+  const todayOperations = useMemo(
+    () => buildTodayOperations(metrics, leads, rooms, bookings),
+    [metrics, leads, rooms, bookings]
+  );
+
+  const aiRecommendations = useMemo(
+    () => buildDashboardRecommendations(metrics, alerts, leads, rooms, bookings),
+    [metrics, alerts, leads, rooms, bookings]
+  );
 
   return (
-    <>
-      <div className="mb-8">
-        <p className="text-sm uppercase tracking-[0.25em] text-zinc-500">
-          HOTELAI ADMIN
-        </p>
-
-        <h1 className="mt-2 text-4xl font-bold">
-          Заявки на бронирование
-        </h1>
-
-        <p className="mt-2 text-zinc-500">
-          Управление входящими заявками Aurora Hotel
-        </p>
-      </div>
-
-      <DashboardStats counts={counts} />
-
-      <DashboardCharts />
-
-      <LeadSearch
-        value={search}
-        onChange={setSearch}
-      />
-
-      <LeadFilters
-        active={status}
-        setActive={setStatus}
-        counts={counts}
-      />
-
-      <LeadsTable leads={visibleLeads} />
-    </>
+    <DashboardPageLayout
+      toolbar={
+        <DashboardToolbar search={search} onSearchChange={setSearch} />
+      }
+      hero={
+        <DashboardHero
+          hotelName={hotelName}
+          insight={heroInsight}
+          status={heroStatus}
+        />
+      }
+      kpis={
+        <DashboardExecutiveKpis
+          metrics={metrics}
+          aiConversations={aiConversations}
+          loading={false}
+          revenueTrend={revenueTrend}
+          occupancyTrend={occupancyTrend}
+        />
+      }
+      recommendations={
+        <WorkspaceAiRecommendations recommendations={aiRecommendations} />
+      }
+      aiInsights={<DashboardAiInsights insight={aiInsights} />}
+      todayOps={<DashboardTodayOperations items={todayOperations} />}
+      revenue={
+        <DashboardRevenueTrend data={revenueTrend} loading={false} />
+      }
+      activity={
+        <DashboardActivityFeed
+          timeline={timeline}
+          aiActivity={aiActivity}
+          latestBookings={latestBookings}
+          loading={false}
+          searchQuery={search}
+        />
+      }
+    />
   );
 }

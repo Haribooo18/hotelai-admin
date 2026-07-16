@@ -1,0 +1,22 @@
+---
+description: React guidance entrypoint for HotelAI components
+globs: **/*.tsx
+alwaysApply: false
+---
+
+# React Guidance
+
+Read these before changing React components:
+
+- `docs/CODING_STANDARDS.md` for React, hooks, Server/Client components, forms, and error handling.
+- `docs/ARCHITECTURE.md` for feature module boundaries and data flow.
+- `docs/UI_GUIDELINES.md` for layout, tables, dialogs, and visual patterns.
+
+Keep this rule short. Do not copy React patterns here.
+
+## Non-Negotiables
+
+- Use functional components with `type Props`.
+- Add `"use client"` only when hooks, events, browser APIs, realtime, or toasts are needed.
+- Forms call Server Actions, show toast feedback, and refresh server data.
+- Clean up subscriptions in `useEffect` return.

@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 120" role="img" aria-labelledby="title desc">
+  <title id="title">Monavel horizontal lockup</title>
+  <desc id="desc">Official Monavel mark beside the Monavel wordmark for product chrome.</desc>
+  <defs>
+    <linearGradient id="hz-gold-mark" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F4D07B"/>
+      <stop offset="0.48" stop-color="#C8A25A"/>
+      <stop offset="1" stop-color="#7A4F18"/>
+    </linearGradient>
+    <linearGradient id="hz-charcoal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2B2F35"/>
+      <stop offset="1" stop-color="#0D0F12"/>
+    </linearGradient>
+    <linearGradient id="hz-green" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1F5B4C"/>
+      <stop offset="1" stop-color="#0B1F1B"/>
+    </linearGradient>
+    <linearGradient id="hz-gold-word" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#F4D07B"/>
+      <stop offset="0.55" stop-color="#C8A25A"/>
+      <stop offset="1" stop-color="#8A5B22"/>
+    </linearGradient>
+    <filter id="hz-softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#000" flood-opacity=".35"/>
+    </filter>
+  </defs>
+
+  <g transform="translate(-30.411 -16.137) scale(0.342466)">
+    <g filter="url(#hz-softShadow)">
+      <polygon points="118,92 202,144 202,378 118,324" fill="url(#hz-gold-mark)" stroke="#F5D788" stroke-opacity=".35" stroke-width="2"/>
+      <polygon points="220,174 284,214 284,378 220,338" fill="url(#hz-charcoal)" stroke="#4C5158" stroke-opacity=".35" stroke-width="2"/>
+      <polygon points="304,144 394,88 394,324 304,380" fill="url(#hz-green)" stroke="#3A7A68" stroke-opacity=".35" stroke-width="2"/>
+    </g>
+  </g>
+
+  <text x="139" y="87.3" text-anchor="start"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="78" letter-spacing="22.75"
+        fill="url(#hz-gold-word)">MONAVEL</text>
+</svg>

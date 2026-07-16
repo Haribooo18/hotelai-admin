@@ -1,0 +1,21 @@
+---
+description: UI guidance entrypoint for HotelAI components
+globs: components/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# UI Guidance
+
+`docs/UI_GUIDELINES.md` is the source of truth for spacing, typography, radius, colors, buttons, inputs, tables, dialogs, animations, and responsive behavior.
+
+Also read `docs/ARCHITECTURE.md` before moving domain logic into shared UI.
+
+Keep this rule short. Do not copy UI tokens or component recipes here.
+
+## Non-Negotiables
+
+- Use `@/components/ui/*` primitives for generic controls.
+- Keep domain components under `components/dashboard/<feature>/`.
+- Use lucide-react icons and sonner toasts.
+- User-facing admin copy is Russian unless product docs say otherwise.
+- Do not put domain logic in `components/ui/`.

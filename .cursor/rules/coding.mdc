@@ -1,0 +1,18 @@
+---
+description: Canonical HotelAI coding standards
+alwaysApply: true
+---
+
+# HotelAI Coding Standards
+
+`docs/CODING_STANDARDS.md` is the source of truth for TypeScript, React, imports, exports, Server/Client boundaries, error handling, forms, validation, linting, env, and git hygiene.
+
+Keep this rule short. Do not copy coding standards here.
+
+## Non-Negotiables
+
+- `strict` TypeScript, no `any`, no TypeScript `enum`.
+- Named exports for components/functions; default exports only for Next route pages.
+- `import type` for type-only imports.
+- User-facing messages are Russian.
+- Never commit `.env`, secrets, zip artifacts, or generated build output.

@@ -14,20 +14,20 @@ export function LeadSearch({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Поиск по имени, телефону, email, номеру..."
+        placeholder="Search by name, phone, email, room..."
         className="
           h-12
           w-full
-          rounded-xl
+          rounded-[var(--ds-radius)]
           border
-          border-zinc-800
-          bg-zinc-900
+          border-[var(--shell-border)]
+          bg-[var(--shell-surface-raised)]
           px-5
           text-sm
           text-white
           outline-none
           transition
-          placeholder:text-zinc-500
+          placeholder:text-[var(--shell-muted)]
           focus:border-emerald-500
         "
       />

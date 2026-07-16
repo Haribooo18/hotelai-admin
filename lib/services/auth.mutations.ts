@@ -1,0 +1,47 @@
+"use server";
+
+import { redirect } from "next/navigation";
+
+import { createClient } from "@/lib/supabase/server";
+
+export type SignInState = {
+  error?: string;
+};
+
+export async function signIn(
+  _prevState: SignInState,
+  formData: FormData
+): Promise<SignInState> {
+  const email = String(formData.get("email") ?? "").trim();
+  const password = String(formData.get("password") ?? "");
+  const redirectedFrom = String(formData.get("redirectedFrom") ?? "");
+
+  if (!email || !password) {
+    return { error: "Enter email and password" };
+  }
+
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (error) {
+    console.error("Sign in failed:", error.message);
+    return { error: "Invalid email or password" };
+  }
+
+  const destination =
+    redirectedFrom && redirectedFrom.startsWith("/")
+      ? redirectedFrom
+      : "/dashboard";
+
+  redirect(destination);
+}
+
+export async function signOut() {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  redirect("/login");
+}

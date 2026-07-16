@@ -1,0 +1,264 @@
+"use client";
+
+import { useMemo } from "react";
+import { BookOpen } from "lucide-react";
+
+import { DataCard } from "@/components/ui/data/DataCard";
+import { Metric } from "@/components/ui/display/Metric";
+import { SkeletonGroup } from "@/components/ui/display/Skeleton";
+import { WorkspaceEmptyState } from "@/components/dashboard/shared/WorkspaceEmptyState";
+import { Section } from "@/components/ui/primitives/Section";
+import { formatPercent } from "@/lib/dashboard/format";
+import { formatTranslation, useI18n } from "@/lib/i18n";
+
+import type {
+  KnowledgeArticleModel,
+  KnowledgeOperationsSnapshot,
+} from "./knowledge-ops-metrics";
+import { formatKnowledgeDate } from "./knowledge-ops-metrics";
+import { KnowledgeOpsListItem } from "./knowledge-ui";
+
+type Props = {
+  snapshot: KnowledgeOperationsSnapshot;
+  loading?: boolean;
+  onSelect?: (model: KnowledgeArticleModel) => void;
+};
+
+function ArticleOpsList({
+  items,
+  emptyTitle,
+  emptyDescription,
+  onSelect,
+  openArticleAria,
+}: {
+  items: Array<{
+    model: KnowledgeArticleModel;
+    secondary: string;
+  }>;
+  emptyTitle: string;
+  emptyDescription: string;
+  onSelect?: (model: KnowledgeArticleModel) => void;
+  openArticleAria: (title: string) => string;
+}) {
+  if (items.length === 0) {
+    return (
+      <WorkspaceEmptyState
+        title={emptyTitle}
+        description={emptyDescription}
+        icon={<BookOpen size={16} />}
+      />
+    );
+  }
+
+  return (
+    <div className="space-y-2" role="list">
+      {items.slice(0, 5).map(({ model, secondary }) => (
+        <KnowledgeOpsListItem
+          key={model.article.id}
+          role="listitem"
+          aria-label={openArticleAria(model.article.title)}
+          onClick={() => onSelect?.(model)}
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-medium text-[var(--shell-text)]">
+                {model.article.title}
+              </p>
+              <p className="mt-0.5 text-[11px] text-[var(--shell-muted)]">
+                {secondary}
+              </p>
+            </div>
+          </div>
+        </KnowledgeOpsListItem>
+      ))}
+    </div>
+  );
+}
+
+export function KnowledgeOperations({ snapshot, loading = false, onSelect }: Props) {
+  const { t } = useI18n();
+
+  const openArticleAria = useMemo(
+    () => (title: string) =>
+      formatTranslation(t("knowledge.openArticleAria"), { title }),
+    [t]
+  );
+
+  const indexedPercent = useMemo(() => {
+    const total = snapshot.indexedCount + snapshot.pendingIndexCount;
+    return total > 0 ? Math.round((snapshot.indexedCount / total) * 100) : 0;
+  }, [snapshot.indexedCount, snapshot.pendingIndexCount]);
+
+  if (loading) {
+    return (
+      <Section
+        title={t("knowledge.operationsTitle")}
+        subtitle={t("knowledge.operationsSubtitle")}
+      >
+        <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <DataCard key={index} title={t("common.loading")}>
+              <SkeletonGroup />
+            </DataCard>
+          ))}
+        </div>
+      </Section>
+    );
+  }
+
+  return (
+    <Section
+      title={t("knowledge.operationsTitle")}
+      subtitle={t("knowledge.operationsSubtitle")}
+    >
+      <div className="grid gap-4 lg:grid-cols-2 2xl:grid-cols-3">
+        <DataCard interactive title={t("knowledge.recentlyUpdated")}>
+          <ArticleOpsList
+            items={snapshot.recentlyUpdated.map((model) => ({
+              model,
+              secondary: formatKnowledgeDate(model.article.updated_at),
+            }))}
+            emptyTitle={t("knowledge.noRecentUpdates")}
+            emptyDescription={t("knowledge.noRecentUpdatesDesc")}
+            onSelect={onSelect}
+            openArticleAria={openArticleAria}
+          />
+        </DataCard>
+
+        <DataCard interactive title={t("knowledge.topUsage")}>
+          <ArticleOpsList
+            items={snapshot.mostUsed.map((model) => ({
+              model,
+              secondary: formatTranslation(t("knowledge.usageCount"), {
+                count: model.usageCount,
+              }),
+            }))}
+            emptyTitle={t("knowledge.noUsageData")}
+            emptyDescription={t("knowledge.noUsageDataDesc")}
+            onSelect={onSelect}
+            openArticleAria={openArticleAria}
+          />
+        </DataCard>
+
+        <DataCard
+          interactive
+          title={t("knowledge.lowQuality")}
+          subtitle={t("knowledge.lowQualitySubtitle")}
+        >
+          <ArticleOpsList
+            items={snapshot.lowQuality.map((model) => ({
+              model,
+              secondary: formatTranslation(t("knowledge.qualityScore"), {
+                score: model.qualityScore,
+              }),
+            }))}
+            emptyTitle={t("knowledge.allArticlesOk")}
+            emptyDescription={t("knowledge.lowQualityDesc")}
+            onSelect={onSelect}
+            openArticleAria={openArticleAria}
+          />
+        </DataCard>
+
+        <DataCard
+          interactive
+          title={t("knowledge.draftQueue")}
+          subtitle={t("knowledge.draftQueueSubtitle")}
+        >
+          <ArticleOpsList
+            items={snapshot.draftQueue.map((model) => ({
+              model,
+              secondary: model.article.category ?? t("common.noCategory"),
+            }))}
+            emptyTitle={t("knowledge.noDrafts")}
+            emptyDescription={t("knowledge.noDraftsDesc")}
+            onSelect={onSelect}
+            openArticleAria={openArticleAria}
+          />
+        </DataCard>
+
+        <DataCard interactive title={t("knowledge.categoryDistribution")}>
+          {snapshot.categoryDistribution.length === 0 ? (
+            <WorkspaceEmptyState
+              title={t("knowledge.noCategories")}
+              description={t("knowledge.noCategoriesDesc")}
+              icon={<BookOpen size={16} />}
+            />
+          ) : (
+            <CategoryDistribution snapshot={snapshot} />
+          )}
+        </DataCard>
+
+        <DataCard
+          interactive
+          title={t("knowledge.aiIndexStatus")}
+          subtitle={t("knowledge.aiIndexSubtitle")}
+        >
+          <div className="space-y-3">
+            <div className="flex items-end justify-between">
+              <p className="text-[var(--type-kpi-size)] font-[var(--type-kpi-weight)] text-[var(--shell-text)]">
+                <Metric value={indexedPercent} formatter={formatPercent} />
+              </p>
+              <p className="text-[11px] text-[var(--shell-muted)]">
+                {t("knowledge.indexCoverage")}
+              </p>
+            </div>
+            <div className="h-2 overflow-hidden rounded-full bg-[var(--shell-surface-raised)]">
+              <div
+                className="h-full rounded-full bg-emerald-500 transition-[width] duration-[var(--ds-duration)] ease-[var(--ds-ease)]"
+                style={{ width: `${indexedPercent}%` }}
+              />
+            </div>
+            <dl className="grid gap-2 text-[12px]">
+              <div className="flex justify-between gap-2">
+                <span className="text-[var(--shell-muted)]">
+                  {t("knowledge.indexed")}
+                </span>
+                <span className="font-medium text-[var(--shell-text)]">
+                  <Metric value={snapshot.indexedCount} />
+                </span>
+              </div>
+              <div className="flex justify-between gap-2">
+                <span className="text-[var(--shell-muted)]">
+                  {t("knowledge.awaiting")}
+                </span>
+                <span className="font-medium text-[var(--shell-text)]">
+                  <Metric value={snapshot.pendingIndexCount} />
+                </span>
+              </div>
+            </dl>
+          </div>
+        </DataCard>
+      </div>
+    </Section>
+  );
+}
+
+function CategoryDistribution({ snapshot }: { snapshot: KnowledgeOperationsSnapshot }) {
+  const total = snapshot.categoryDistribution.reduce(
+    (sum, item) => sum + item.count,
+    0
+  );
+
+  return (
+    <ul className="space-y-2" role="list">
+      {snapshot.categoryDistribution.slice(0, 5).map((item) => {
+        const percent = total > 0 ? Math.round((item.count / total) * 100) : 0;
+
+        return (
+          <li key={item.label} role="listitem">
+            <div className="mb-1 flex items-center justify-between text-[11px]">
+              <span className="text-[var(--shell-text)]">{item.label}</span>
+              <span className="text-[var(--shell-muted)]">{percent}%</span>
+            </div>
+            <div className="h-1.5 overflow-hidden rounded-full bg-[var(--shell-surface-raised)]">
+              <div
+                className="h-full rounded-full bg-[var(--shell-accent)] transition-[width] duration-[var(--ds-duration)] ease-[var(--ds-ease)]"
+                style={{ width: `${percent}%` }}
+              />
+            </div>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}

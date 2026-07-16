@@ -1,0 +1,75 @@
+"use client";
+
+import { useState } from "react";
+import { X } from "lucide-react";
+
+import { Input } from "@/components/ui/input";
+import { useI18n } from "@/lib/i18n";
+
+type Props = {
+  value: string[];
+  onChange: (tags: string[]) => void;
+  id?: string;
+};
+
+export function GuestTagsInput({ value, onChange, id }: Props) {
+  const { t } = useI18n();
+  const [draft, setDraft] = useState("");
+
+  function addTag(raw: string) {
+    const tag = raw.trim();
+    if (!tag) return;
+    if (value.includes(tag)) {
+      setDraft("");
+      return;
+    }
+    onChange([...value, tag]);
+    setDraft("");
+  }
+
+  function removeTag(tag: string) {
+    onChange(value.filter((item) => item !== tag));
+  }
+
+  return (
+    <div className="space-y-2">
+      {value.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {value.map((tag) => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1 rounded-full border border-[var(--shell-border)] bg-[var(--shell-surface-raised)] px-2 py-0.5 text-xs text-[var(--shell-text)]"
+            >
+              {tag}
+              <button
+                type="button"
+                aria-label={tag}
+                onClick={() => removeTag(tag)}
+                className="text-[var(--shell-muted)] transition hover:text-[var(--shell-text)]"
+              >
+                <X size={12} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      <Input
+        id={id}
+        value={draft}
+        placeholder={t("guests.addTagPlaceholder")}
+        aria-label={t("guests.addTagAria")}
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === ",") {
+            e.preventDefault();
+            addTag(draft);
+          } else if (e.key === "Backspace" && draft === "" && value.length > 0) {
+            removeTag(value[value.length - 1]);
+          }
+        }}
+        onBlur={() => addTag(draft)}
+      />
+    </div>
+  );
+}

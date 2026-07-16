@@ -1,23 +1,19 @@
-import { supabase } from "@/lib/supabase";
+import { createRoomsRepository } from "@/repositories/rooms.repository.server";
+import { getRepositoryContext } from "@/lib/tenant/repository-context";
 
-export type Room = {
-  id: string;
-  hotel_id: string;
-  room_type: string;
-  capacity: number;
-  price: number;
-};
+import type { Room } from "@/types/room";
 
 export async function getRooms(): Promise<Room[]> {
-  const { data, error } = await supabase
-    .from("rooms")
-    .select("*")
-    .order("room_type", { ascending: true });
+  const ctx = await getRepositoryContext();
+  return createRoomsRepository(ctx).getAll();
+}
 
-  if (error) {
-    console.error("Failed to load rooms:", error);
-    return [];
-  }
+export async function getRoom(id: string): Promise<Room | null> {
+  const ctx = await getRepositoryContext();
+  return createRoomsRepository(ctx).getById(id);
+}
 
-  return (data ?? []) as Room[];
+export async function getAvailableRooms() {
+  const ctx = await getRepositoryContext();
+  return createRoomsRepository(ctx).getAvailableSummaries();
 }
