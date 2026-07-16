@@ -347,6 +347,7 @@ describe("marketing page rendering", () => {
     expect(html).toContain("mkt-browser-favicon");
     expect(html).toContain('viewBox="0 0 16 16"');
     expect(html).toContain("#C8A25A");
+    expect(html).toContain("#2B2F35");
     expect(html).toContain("#1F5B4C");
     expect(html).toContain("Dashboard");
     expect(html).toContain("Maria Thompson");

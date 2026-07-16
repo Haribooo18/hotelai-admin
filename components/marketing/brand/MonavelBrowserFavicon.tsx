@@ -5,8 +5,8 @@ type Props = {
 };
 
 /**
- * Dedicated 14px browser-tab micro-mark.
- * Two mirrored wings forming one balanced M — gold left, green right.
+ * Browser-tab micro-mark derived from public/brand/monavel-mark.svg.
+ * Three architectural panels, simplified for 10–14px (no tile, strokes, or gradients).
  */
 export function MonavelBrowserFavicon({ className }: Props) {
   return (
@@ -19,15 +19,9 @@ export function MonavelBrowserFavicon({ className }: Props) {
       aria-hidden
       focusable="false"
     >
-      {/* Mirrored wings; shared center edge keeps the notch gapless */}
-      <polygon
-        points="1.5,2.5 6.5,2.5 8,7.5 8,10.5 6.5,13.5 1.5,13.5"
-        fill="#C8A25A"
-      />
-      <polygon
-        points="9.5,2.5 14.5,2.5 14.5,13.5 9.5,13.5 8,10.5 8,7.5"
-        fill="#1F5B4C"
-      />
+      <polygon points="2,2.5 6,5.5 6,13.5 2,11" fill="#C8A25A" />
+      <polygon points="6,6.5 9.5,8 9.5,13.5 6,11.5" fill="#2B2F35" />
+      <polygon points="9.5,5.5 14,2.5 14,11 9.5,13.5" fill="#1F5B4C" />
     </svg>
   );
 }
