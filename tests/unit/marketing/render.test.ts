@@ -347,7 +347,11 @@ describe("marketing page rendering", () => {
     expect(html).toContain("mkt-browser-favicon");
     expect(html).toContain('viewBox="0 0 16 16"');
     expect(html).toContain("#C8A25A");
+    expect(html).toContain("#2B2F35");
+    expect(html).toContain("#1F5B4C");
+    expect(html).toContain("<polygon");
     expect(html).not.toContain("/brand/monavel-mark.svg");
+    expect(html).not.toMatch(/<img[^>]*mkt-browser-favicon/);
     expect(html).toContain("Dashboard");
     expect(html).toContain("Maria Thompson");
     expect(html).not.toContain("vercel.svg");

@@ -5,8 +5,9 @@ type Props = {
 };
 
 /**
- * Dedicated browser-tab monogram — a single geometric M for small UI chrome.
- * Not a substitute for the official full-size brand mark.
+ * Optically corrected small-size Monavel mark for browser-mockup tabs.
+ * Same three-panel architecture as public/brand/monavel-mark.svg;
+ * geometry nudged for 12–16px readability (no gradients/strokes/shadow).
  */
 export function MonavelBrowserFavicon({ className }: Props) {
   return (
@@ -18,11 +19,11 @@ export function MonavelBrowserFavicon({ className }: Props) {
       fill="none"
       aria-hidden
       focusable="false"
+      shapeRendering="geometricPrecision"
     >
-      <path
-        fill="#C8A25A"
-        d="M2 2.5h3L8 7.5 11 2.5h3V13.5h-3V7L8 10.5 5 7v6.5H2V2.5Z"
-      />
+      <polygon points="2,2.5 6,5.5 6,13.5 2,11" fill="#C8A25A" />
+      <polygon points="6.5,6.5 9.5,8 9.5,13.5 6.5,11.5" fill="#2B2F35" />
+      <polygon points="10,5.5 14,2.5 14,11 10,13.5" fill="#1F5B4C" />
     </svg>
   );
 }
