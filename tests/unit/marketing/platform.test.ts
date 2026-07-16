@@ -13,7 +13,9 @@ import {
 describe("marketing platform showcase", () => {
   it("preserves eight existing product views", () => {
     expect(PLATFORM_WORKSPACES).toHaveLength(8);
+
     const ids = PLATFORM_WORKSPACES.map((workspace) => workspace.id);
+
     expect(ids).toEqual([
       "dashboard",
       "bookings",
@@ -26,17 +28,21 @@ describe("marketing platform showcase", () => {
     ]);
   });
 
-  it("groups product views into five operational perspectives", () => {
-    expect(PLATFORM_PERSPECTIVES).toHaveLength(5);
-    expect(PLATFORM_PERSPECTIVES.map((perspective) => perspective.id)).toEqual([
-      "guest",
+  it("groups product views into four operational perspectives", () => {
+    expect(PLATFORM_PERSPECTIVES).toHaveLength(4);
+
+    expect(
+      PLATFORM_PERSPECTIVES.map((perspective) => perspective.id)
+    ).toEqual([
       "operations",
       "revenue",
       "knowledge",
       "automation",
     ]);
-    expect(PLATFORM_PERSPECTIVES.map((perspective) => perspective.label)).toEqual([
-      "Guest Perspective",
+
+    expect(
+      PLATFORM_PERSPECTIVES.map((perspective) => perspective.label)
+    ).toEqual([
       "Operations Perspective",
       "Revenue Perspective",
       "Knowledge Perspective",
@@ -50,18 +56,21 @@ describe("marketing platform showcase", () => {
         perspective.views.map((view) => view.id)
       )
     );
+
     for (const workspace of PLATFORM_WORKSPACES) {
       expect(reachable.has(workspace.id)).toBe(true);
     }
   });
 
-  it("defaults to the guest perspective with bookings view", () => {
-    expect(PLATFORM_DEFAULT_PERSPECTIVE_ID).toBe("guest");
-    expect(PLATFORM_DEFAULT_WORKSPACE_ID).toBe("bookings");
+  it("defaults to the operations perspective with dashboard view", () => {
+    expect(PLATFORM_DEFAULT_PERSPECTIVE_ID).toBe("operations");
+    expect(PLATFORM_DEFAULT_WORKSPACE_ID).toBe("dashboard");
+
     expect(
-      PLATFORM_PERSPECTIVES.find((perspective) => perspective.id === "guest")
-        ?.defaultViewId
-    ).toBe("bookings");
+      PLATFORM_PERSPECTIVES.find(
+        (perspective) => perspective.id === "operations"
+      )?.defaultViewId
+    ).toBe("dashboard");
   });
 
   it("keeps one living hotel identity across perspectives", () => {
@@ -89,15 +98,18 @@ describe("marketing platform showcase", () => {
       "Every perspective reflects the same live hotel in real time."
     );
     expect(PLATFORM_SHOWCASE_CONTENT.runtimeStatus).toBe("Online");
+
     expect([...PLATFORM_SHOWCASE_CONTENT.closingLines]).toEqual([
       "One living hotel.",
       "Different perspectives.",
     ]);
-    expect(PLATFORM_SHOWCASE_CONTENT.headlineAccent.toLowerCase()).not.toContain(
-      "workspace"
-    );
-    expect(PLATFORM_SHOWCASE_CONTENT.supporting.toLowerCase()).not.toContain(
-      "workspace"
-    );
+
+    expect(
+      PLATFORM_SHOWCASE_CONTENT.headlineAccent.toLowerCase()
+    ).not.toContain("workspace");
+
+    expect(
+      PLATFORM_SHOWCASE_CONTENT.supporting.toLowerCase()
+    ).not.toContain("workspace");
   });
 });

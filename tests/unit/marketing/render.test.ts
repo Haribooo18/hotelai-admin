@@ -300,7 +300,7 @@ describe("marketing page rendering", () => {
     const html = renderToStaticMarkup(
       React.createElement(PlatformShowcaseSection)
     );
-
+  
     expect(html).toContain('id="product"');
     expect(html).toContain("One Runtime.");
     expect(html).toContain("Every operational perspective.");
@@ -308,21 +308,25 @@ describe("marketing page rendering", () => {
       "Every perspective reflects the same live hotel in real time."
     );
     expect(html).toContain("Online");
-    expect(html).toContain("Guest Perspective");
+  
     expect(html).toContain("Operations Perspective");
     expect(html).toContain("Revenue Perspective");
     expect(html).toContain("Knowledge Perspective");
     expect(html).toContain("Automation Perspective");
+    expect(html).not.toContain("Guest Perspective");
+  
     expect(html).toContain("Monavel Grand • Live");
     expect(html).toContain("Maria Thompson");
     expect(html).toContain("Reservation #48291");
-    expect(html).toContain("Room 407");
+    expect(html).toContain("Deluxe 407");
     expect(html).toContain("One living hotel.");
     expect(html).toContain("Different perspectives.");
+  
     expect(html).toContain("mkt-runtime-identity");
     expect(html).toContain('role="tablist"');
     expect(html).toContain("mkt-perspective-nav");
     expect(html).toContain("mkt-platform-showcase-shell");
+  
     expect(html).not.toContain("mkt-runtime-toolbar");
     expect(html).not.toContain("Eight connected workspaces");
     expect(html).not.toContain("See the product in action");
@@ -330,16 +334,21 @@ describe("marketing page rendering", () => {
     expect(html).not.toContain("mkt-workspace-cards");
   });
 
-  it("renders workspace preview with product screenshot", () => {
-    const html = renderToStaticMarkup(React.createElement(WorkspacePreview));
-
-    expect(html).toContain('data-workspace="bookings"');
+  it("renders workspace preview with runtime component", () => {
+    const html = renderToStaticMarkup(
+      React.createElement(WorkspacePreview)
+    );
+  
+    expect(html).toContain('data-workspace="dashboard"');
     expect(html).toContain("mkt-browser-frame");
     expect(html).toContain("mkt-browser-shell");
-    expect(html).toContain("app.monavel.com/bookings");
-    expect(html).toContain("Bookings");
+    expect(html).toContain("app.monavel.com/dashboard");
+    expect(html).toContain("Dashboard");
     expect(html).toContain("Maria Thompson");
-    expect(html).toContain("/marketing/product/bookings/screenshot.svg");
+  
+    expect(html).not.toContain(
+      "/marketing/product/bookings/screenshot.svg"
+    );
   });
 
   it("renders platform pillars section", () => {
