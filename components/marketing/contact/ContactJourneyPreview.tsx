@@ -7,7 +7,7 @@ import {
   Rocket,
 } from "lucide-react";
 
-import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { MonavelBrowserFavicon } from "@/components/marketing/brand/MonavelBrowserFavicon";
 import { CONTACT_PAGE_JOURNEY } from "@/lib/marketing/contact-page";
 
 const ICONS = [Building2, Compass, Presentation, Rocket] as const;
@@ -26,11 +26,7 @@ export function ContactJourneyPreview() {
           <span className="h-2.5 w-2.5 rounded-full bg-[#5d8276]" />
         </div>
         <div className="mx-auto inline-flex items-center gap-1.5 rounded-full border border-white/[0.055] bg-black/20 px-4 py-1.5 text-[10px] text-white/38">
-          <span
-            aria-hidden
-            className="size-3 shrink-0 bg-contain bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${BRAND_ASSETS.mark})` }}
-          />
+          <MonavelBrowserFavicon className="size-3" />
           monavel.app/contact
         </div>
         <div className="w-[42px]" aria-hidden="true" />

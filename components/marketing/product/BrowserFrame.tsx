@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { BRAND_ASSETS } from "@/lib/brand/assets";
+import { MonavelBrowserFavicon } from "@/components/marketing/brand/MonavelBrowserFavicon";
 import type { ProductShowcaseSize } from "@/lib/marketing/product-presentation";
 import { SITE_NAME } from "@/lib/marketing/site";
 import { cn } from "@/lib/utils";
@@ -38,10 +38,7 @@ export function BrowserFrame({
               <span className="mkt-browser-traffic-dot mkt-browser-traffic-dot--maximize" />
             </div>
             <div className="mkt-browser-tab" aria-hidden>
-              <span
-                className="mkt-browser-favicon"
-                style={{ backgroundImage: `url(${BRAND_ASSETS.mark})` }}
-              />
+              <MonavelBrowserFavicon />
               <span className="mkt-browser-tab-title">{tabTitle}</span>
             </div>
           </div>

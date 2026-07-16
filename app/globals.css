@@ -2865,8 +2865,12 @@ html[data-shell-theme="gray"] {
   }
 }
 
-[data-surface="marketing"] .mkt-hero .mkt-browser-frame--hero .mkt-browser-shell {
+[data-surface="marketing"] .mkt-hero .mkt-browser-frame--hero {
   box-shadow: var(--mkt-elevation-browser);
+}
+
+[data-surface="marketing"] .mkt-hero .mkt-browser-frame--hero .mkt-browser-shell {
+  box-shadow: none;
 }
 
 [data-surface="marketing"] .mkt-product-halo {
@@ -8184,18 +8188,35 @@ html[data-shell-theme="gray"] {
   }
 }
 
+/*
+ * Browser window clipping model (matches real Safari/macOS chrome):
+ * 1. Outer frame owns radius + elevation shadow (never clip the frame).
+ * 2. Shell owns explicit radius + overflow/mask clipping for nested paint.
+ * 3. Chrome rounds and clips its top corners to the inner radius.
+ */
 [data-surface="marketing"] .mkt-browser-frame {
+  --mkt-browser-clip-radius: var(--mkt-browser-radius);
+  --mkt-browser-inner-radius: calc(
+    var(--mkt-browser-clip-radius) - var(--mkt-border-width)
+  );
   width: 100%;
-  overflow: hidden;
-  border-radius: var(--mkt-browser-radius);
+  /* Frame owns elevation only — do not clip here or the shadow dies. */
+  border-radius: var(--mkt-browser-clip-radius);
+  isolation: isolate;
+  box-shadow: var(--mkt-elevation-browser);
 }
 
 [data-surface="marketing"] .mkt-browser-shell {
+  position: relative;
+  isolation: isolate;
   overflow: hidden;
-  border-radius: inherit;
+  border-radius: var(--mkt-browser-clip-radius);
   border: var(--mkt-border-width) solid var(--mkt-border-default);
   background: var(--mkt-surface-2);
-  box-shadow: var(--mkt-elevation-browser);
+  /* Elevation lives on the frame so the shell can clip children cleanly. */
+  box-shadow: none;
+  /* Forces compositing so overflow:hidden clips descendant backgrounds. */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
 }
 
 [data-surface="marketing"] .mkt-browser-chrome {
@@ -8205,7 +8226,10 @@ html[data-shell-theme="gray"] {
   gap: 0.5rem;
   height: var(--mkt-browser-chrome-height);
   padding: 0 0.625rem;
+  overflow: hidden;
   border-bottom: var(--mkt-border-width) solid var(--mkt-border-subtle);
+  border-top-left-radius: var(--mkt-browser-inner-radius);
+  border-top-right-radius: var(--mkt-browser-inner-radius);
   background: var(--mkt-surface-1);
 }
 
@@ -8231,12 +8255,10 @@ html[data-shell-theme="gray"] {
 }
 
 [data-surface="marketing"] .mkt-browser-favicon {
-  width: 0.75rem;
-  height: 0.75rem;
+  display: block;
+  width: 0.875rem;
+  height: 0.875rem;
   flex-shrink: 0;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: contain;
 }
 
 [data-surface="marketing"] .mkt-browser-tab-title {
@@ -8338,6 +8360,7 @@ html[data-shell-theme="gray"] {
 }
 
 [data-surface="marketing"] .mkt-browser-content {
+  overflow: hidden;
   background: var(--mkt-surface-inset);
 }
 
@@ -8589,8 +8612,12 @@ html[data-shell-theme="gray"] {
 }
 
 [data-surface="marketing"] .mkt-product-showcase--unified .mkt-browser-shell {
-  border-radius: inherit;
+  border-radius: var(--mkt-browser-clip-radius);
   border: var(--mkt-border-width) solid var(--mkt-border-default);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
+}
+
+[data-surface="marketing"] .mkt-product-showcase--unified .mkt-browser-frame {
   box-shadow: var(--mkt-elevation-browser);
 }
 
@@ -14967,9 +14994,10 @@ html[data-shell-theme="gray"] {
    interaction logic, routing, or product behavior changes.
    --------------------------------------------------------------------- */
 
-/* Shared premium surface treatment */
+/* Shared premium surface treatment
+   Browser elevation lives on .mkt-browser-frame only — never on the shell —
+   so nested chrome can clip cleanly to the rounded window. */
 [data-surface="marketing"] :is(
-  .mkt-browser-shell,
   .mkt-platform-showcase-shell,
   .mkt-ai-hero-canvas,
   .mkt-ai-status-panel,
@@ -15211,15 +15239,22 @@ html[data-shell-theme="gray"] {
 }
 
 /* Product mockups / browser chrome
-   Keep paint/shadow on the rounded shell only — the outer frame
-   clips with the same radius so nested layers never show square corners. */
+   Frame owns elevation; shell + chrome own paint and must stay clipped.
+   Do not override overflow, radius, mask, or isolation here. */
 [data-surface="marketing"] .mkt-browser-frame {
   background: transparent;
   border-color: transparent;
-  box-shadow: none;
+  box-shadow:
+    0 28px 82px rgb(0 0 0 / 28%),
+    0 0 0 1px rgb(200 162 90 / 2.5%);
 }
 
 [data-surface="marketing"] .mkt-browser-shell {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--mkt-browser-clip-radius);
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
   background:
     linear-gradient(
       150deg,
@@ -15227,21 +15262,21 @@ html[data-shell-theme="gray"] {
       rgb(10 14 18 / 99%)
     );
   border-color: rgb(243 240 232 / 10%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 4%),
-    0 28px 82px rgb(0 0 0 / 28%),
-    0 0 0 1px rgb(200 162 90 / 2.5%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 4%);
 }
 
 [data-surface="marketing"] .mkt-browser-chrome {
+  overflow: hidden;
   border-bottom-color: rgb(243 240 232 / 7%);
+  border-top-left-radius: var(--mkt-browser-inner-radius);
+  border-top-right-radius: var(--mkt-browser-inner-radius);
   background:
     linear-gradient(
       180deg,
       rgb(255 255 255 / 3.8%),
       rgb(255 255 255 / 1.8%)
     );
-  backdrop-filter: blur(18px) saturate(1.08);
+  /* No backdrop-filter: it breaks overflow clipping at rounded corners. */
 }
 
 [data-surface="marketing"] .mkt-browser-url {
