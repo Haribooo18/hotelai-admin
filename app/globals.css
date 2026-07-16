@@ -8256,9 +8256,12 @@ html[data-shell-theme="gray"] {
 
 [data-surface="marketing"] .mkt-browser-favicon {
   display: block;
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 1rem;
+  height: 1rem;
   flex-shrink: 0;
+  object-fit: contain;
+  object-position: center;
+  background: transparent;
 }
 
 [data-surface="marketing"] .mkt-browser-tab-title {
