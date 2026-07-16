@@ -7232,22 +7232,38 @@ html[data-shell-theme="gray"] {
   position: relative;
   overflow: hidden;
   border-radius: var(--mkt-radius-lg);
+  border: 1px solid color-mix(in oklch, var(--mkt-border-default) 78%, transparent);
+  background: var(--mkt-surface-1);
+  transition:
+    border-color var(--mkt-docs-motion) var(--mkt-ease),
+    background-color var(--mkt-docs-motion) var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-docs-search-form:focus-within {
+  border-color: color-mix(in oklch, var(--mkt-accent) 72%, var(--mkt-border-default));
+  background: color-mix(in oklch, var(--mkt-surface-1) 82%, white);
 }
 
 [data-surface="marketing"] .mkt-docs-search-input {
   width: 100%;
   height: 3.625rem;
   padding: 0 4.5rem 0 1.25rem;
-  border-radius: inherit;
-  border: 1px solid color-mix(in oklch, var(--mkt-border-default) 78%, transparent);
-  background: var(--mkt-surface-1);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   color: var(--mkt-text);
   font-size: var(--mkt-type-body);
   line-height: 1.4;
   outline: none;
-  transition:
-    border-color var(--mkt-docs-motion) var(--mkt-ease),
-    background-color var(--mkt-docs-motion) var(--mkt-ease);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+[data-surface="marketing"] .mkt-docs-search-input::-webkit-search-decoration,
+[data-surface="marketing"] .mkt-docs-search-input::-webkit-search-cancel-button,
+[data-surface="marketing"] .mkt-docs-search-input::-webkit-search-results-button,
+[data-surface="marketing"] .mkt-docs-search-input::-webkit-search-results-decoration {
+  display: none;
 }
 
 [data-surface="marketing"] .mkt-docs-search--compact .mkt-docs-search-input {
@@ -7262,17 +7278,11 @@ html[data-shell-theme="gray"] {
   transition: opacity var(--mkt-docs-motion) var(--mkt-ease);
 }
 
-[data-surface="marketing"] .mkt-docs-search-input:focus {
-  border-color: color-mix(in oklch, var(--mkt-accent) 72%, var(--mkt-border-default));
-  background: color-mix(in oklch, var(--mkt-surface-1) 82%, white);
-}
-
-[data-surface="marketing"] .mkt-docs-search-input:focus::placeholder {
+[data-surface="marketing"] .mkt-docs-search-form:focus-within .mkt-docs-search-input::placeholder {
   opacity: var(--mkt-opacity-42);
 }
 
-[data-surface="marketing"] .mkt-docs-search-input:focus-visible {
-  outline: none;
+[data-surface="marketing"] .mkt-docs-search-form:focus-within:has(.mkt-docs-search-input:focus-visible) {
   box-shadow: var(--mkt-focus-ring);
 }
 
@@ -8176,11 +8186,13 @@ html[data-shell-theme="gray"] {
 
 [data-surface="marketing"] .mkt-browser-frame {
   width: 100%;
+  overflow: hidden;
+  border-radius: var(--mkt-browser-radius);
 }
 
 [data-surface="marketing"] .mkt-browser-shell {
   overflow: hidden;
-  border-radius: var(--mkt-browser-radius);
+  border-radius: inherit;
   border: var(--mkt-border-width) solid var(--mkt-border-default);
   background: var(--mkt-surface-2);
   box-shadow: var(--mkt-elevation-browser);
@@ -8577,7 +8589,7 @@ html[data-shell-theme="gray"] {
 }
 
 [data-surface="marketing"] .mkt-product-showcase--unified .mkt-browser-shell {
-  border-radius: var(--mkt-browser-radius);
+  border-radius: inherit;
   border: var(--mkt-border-width) solid var(--mkt-border-default);
   box-shadow: var(--mkt-elevation-browser);
 }
@@ -14957,7 +14969,6 @@ html[data-shell-theme="gray"] {
 
 /* Shared premium surface treatment */
 [data-surface="marketing"] :is(
-  .mkt-browser-frame,
   .mkt-browser-shell,
   .mkt-platform-showcase-shell,
   .mkt-ai-hero-canvas,
@@ -15199,8 +15210,15 @@ html[data-shell-theme="gray"] {
     0 10px 28px rgb(0 0 0 / 12%);
 }
 
-/* Product mockups / browser chrome */
-[data-surface="marketing"] .mkt-browser-frame,
+/* Product mockups / browser chrome
+   Keep paint/shadow on the rounded shell only — the outer frame
+   clips with the same radius so nested layers never show square corners. */
+[data-surface="marketing"] .mkt-browser-frame {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
 [data-surface="marketing"] .mkt-browser-shell {
   background:
     linear-gradient(
@@ -15465,9 +15483,20 @@ html[data-shell-theme="gray"] {
     );
 }
 
+[data-surface="marketing"] .mkt-docs-search-form:focus-within {
+  border-color: rgb(216 182 111 / 28%);
+  background:
+    linear-gradient(
+      150deg,
+      rgb(24 30 36 / 98%),
+      rgb(14 18 22 / 99%)
+    );
+}
+
 [data-surface="marketing"] .mkt-docs-search-input {
   background: transparent;
   box-shadow: none;
+  border: 0;
 }
 
 [data-surface="marketing"] .mkt-docs-search-kbd {
