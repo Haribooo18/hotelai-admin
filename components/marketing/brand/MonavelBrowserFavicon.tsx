@@ -1,4 +1,3 @@
-import { BRAND_ASSETS } from "@/lib/brand/assets";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -6,20 +5,24 @@ type Props = {
 };
 
 /**
- * Decorative browser-tab mark — official asset, unmodified geometry.
+ * Dedicated browser-tab monogram — a single geometric M for small UI chrome.
+ * Not a substitute for the official full-size brand mark.
  */
 export function MonavelBrowserFavicon({ className }: Props) {
   return (
-    // Plain <img> avoids Next/Image layout + preload side effects.
-    // eslint-disable-next-line @next/next/no-img-element -- decorative tab chrome; must stay a plain img
-    <img
-      src={BRAND_ASSETS.mark}
-      alt=""
-      aria-hidden="true"
-      width={16}
-      height={16}
-      draggable={false}
+    <svg
       className={cn("mkt-browser-favicon", className)}
-    />
+      viewBox="0 0 16 16"
+      width={14}
+      height={14}
+      fill="none"
+      aria-hidden
+      focusable="false"
+    >
+      <path
+        fill="#C8A25A"
+        d="M2 2.5h3L8 7.5 11 2.5h3V13.5h-3V7L8 10.5 5 7v6.5H2V2.5Z"
+      />
+    </svg>
   );
 }

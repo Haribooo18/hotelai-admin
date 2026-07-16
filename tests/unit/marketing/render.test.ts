@@ -345,7 +345,9 @@ describe("marketing page rendering", () => {
     expect(html).toContain("monavel.app/dashboard");
     expect(html).toContain("Monavel Dashboard");
     expect(html).toContain("mkt-browser-favicon");
-    expect(html).toContain("/brand/monavel-mark.svg");
+    expect(html).toContain('viewBox="0 0 16 16"');
+    expect(html).toContain("#C8A25A");
+    expect(html).not.toContain("/brand/monavel-mark.svg");
     expect(html).toContain("Dashboard");
     expect(html).toContain("Maria Thompson");
     expect(html).not.toContain("vercel.svg");
@@ -722,11 +724,8 @@ describe("marketing page rendering", () => {
     const html = renderToStaticMarkup(React.createElement(AboutPage));
 
     // Guards against marking unrelated hero screenshots as priority —
-    // only the Docs landing hero should preload product screenshots.
-    // Browser-tab favicons may preload /brand/monavel-mark.svg via <img>.
-    expect(html).not.toMatch(
-      /<link rel="preload" as="image" href="\/marketing\//
-    );
+    // only the Docs landing hero should preload its image.
+    expect(html).not.toContain('<link rel="preload" as="image"');
     expect(html).toContain("Building the future operating system for hotels.");
     expect(html).toContain("/login?intent=trial");
     expect(html).toContain("/demo");
