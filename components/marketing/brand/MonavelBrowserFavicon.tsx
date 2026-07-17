@@ -5,25 +5,28 @@ type Props = {
 };
 
 /**
- * Optically corrected small-size Monavel mark for browser-mockup tabs.
- * Same three-panel architecture as public/brand/monavel-mark.svg;
- * geometry nudged for 12–16px readability (no gradients/strokes/shadow).
+ * Optically corrected Monavel mark for browser-mockup tabs (18×18).
+ * Same three-panel architecture as public/brand/monavel-mark.svg —
+ * wider panels, ~1px gaps, taller center, minimal viewBox padding.
  */
 export function MonavelBrowserFavicon({ className }: Props) {
   return (
     <svg
       className={cn("mkt-browser-favicon", className)}
-      viewBox="0 0 16 16"
-      width={14}
-      height={14}
+      viewBox="0 0 18 18"
+      width={18}
+      height={18}
       fill="none"
       aria-hidden
       focusable="false"
       shapeRendering="geometricPrecision"
     >
-      <polygon points="2,2.5 6,5.5 6,13.5 2,11" fill="#C8A25A" />
-      <polygon points="6.5,6.5 9.5,8 9.5,13.5 6.5,11.5" fill="#2B2F35" />
-      <polygon points="10,5.5 14,2.5 14,11 10,13.5" fill="#1F5B4C" />
+      {/* Gold left — mirrors green; shared bottom y=17.5 */}
+      <polygon points="0.5,1.5 6,4.5 6,17.5 0.5,14.5" fill="#C8A25A" />
+      {/* Graphite center — wider/taller so it holds at tab scale; 1-unit gaps */}
+      <polygon points="7,4 11,5.5 11,17.5 7,16" fill="#2B2F35" />
+      {/* Green right — symmetric to gold */}
+      <polygon points="12,4.5 17.5,1.5 17.5,14.5 12,17.5" fill="#1F5B4C" />
     </svg>
   );
 }
