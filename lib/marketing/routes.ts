@@ -16,6 +16,8 @@ export const MARKETING_PUBLIC_PATHS = [
   "/about",
   "/docs",
   "/brand",
+  "/robots.txt",
+  "/sitemap.xml",
   "/api/marketing/leads",
   "/api/channels/telegram/webhook",
   "/api/channels/website/stream",
