@@ -1,14 +1,16 @@
 import { ImageResponse } from "next/og";
 
 export const size = {
-  width: 32,
-  height: 32,
+  width: 16,
+  height: 16,
 };
 
 export const contentType = "image/png";
 
 /** Official Monavel mark — three architectural panels. */
 export default function Icon() {
+  // Same composition as the prior icon: mark at 90% of canvas, centered.
+  // 48×48 → 16×16: mark 43.2 → 14.4, radius 10.5 → 3.5.
   return new ImageResponse(
     (
       <div
@@ -19,12 +21,12 @@ export default function Icon() {
           alignItems: "center",
           justifyContent: "center",
           background: "#0D0F12",
-          borderRadius: 7,
+          borderRadius: 3.5,
         }}
       >
         <svg
-          width="24"
-          height="24"
+          width="14.4"
+          height="14.4"
           viewBox="0 0 32 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"

@@ -8256,9 +8256,9 @@ html[data-shell-theme="gray"] {
 
 [data-surface="marketing"] .mkt-browser-favicon {
   display: block;
-  /* 19.6px: prior +2px bump from 18px, reduced by ~20% */
-  width: 1.225rem;
-  height: 1.225rem;
+  /* 10.976px = prior 0.98rem × 0.7 — geometry stays in the 18×18 viewBox */
+  width: 0.686rem;
+  height: 0.686rem;
   flex-shrink: 0;
 }
 
