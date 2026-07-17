@@ -5,17 +5,16 @@ type Props = {
 };
 
 /**
- * Optically corrected Monavel mark for browser-mockup tabs (18×18).
- * Same three-panel architecture as public/brand/monavel-mark.svg —
- * wider panels, ~1px gaps, taller center, minimal viewBox padding.
+ * Optically corrected Monavel mark for browser-mockup tabs.
+ * Geometry lives in an 18×18 viewBox; rendered slightly larger for tab chrome.
  */
 export function MonavelBrowserFavicon({ className }: Props) {
   return (
     <svg
       className={cn("mkt-browser-favicon", className)}
       viewBox="0 0 18 18"
-      width={18}
-      height={18}
+      width={20}
+      height={20}
       fill="none"
       aria-hidden
       focusable="false"
