@@ -27,6 +27,7 @@ import { createAbortDeadline, getErrorType, withTimeout } from "./retry";
 import { getConversation, getMessages } from "@/lib/services/ai.service";
 import { getHotelAISettings } from "@/lib/services/ai-settings.service";
 import { getCurrentHotel } from "@/lib/tenant";
+import { resolveConversationLanguage } from "./language";
 
 export type OrchestratorInput = {
   hotel: { id: string; name: string };
@@ -293,6 +294,7 @@ export class AIOrchestrator {
 
     try {
       let fullText = "";
+      const bufferedDeltas: string[] = [];
       let loopResult: CompletionLoopResult | null = null;
 
       if (provider.stream && !conversationDeadline.signal.aborted) {
@@ -318,7 +320,7 @@ export class AIOrchestrator {
 
           if (event.type === "text_delta") {
             fullText += event.delta;
-            yield { type: "text_delta", delta: event.delta };
+            bufferedDeltas.push(event.delta);
           }
 
           if (event.type === "completed") {
@@ -356,6 +358,10 @@ export class AIOrchestrator {
           fullText = loopResult.content;
           yield { type: "text_final", content: fullText };
         } else if (streamedResponse) {
+          for (const delta of bufferedDeltas) {
+            yield { type: "text_delta", delta };
+          }
+
           const usage =
             (streamedResponse.metadata.usage as AITokenUsage) ??
             EMPTY_TOKEN_USAGE;
@@ -533,6 +539,17 @@ export class AIOrchestrator {
       throw new Error("AI-ресепшн отключён в настройках отеля.");
     }
 
+    if (
+      input.conversation.status === "handoff_requested" ||
+      input.conversation.status === "assigned" ||
+      input.conversation.status === "resolved" ||
+      input.conversation.status === "archived"
+    ) {
+      throw new Error(
+        "AI отключён для диалога, переданного сотруднику или закрытого.",
+      );
+    }
+
     const rate = hotelRateLimiter.check(
       input.hotel.id,
       input.settings.rate_limit_per_minute,
@@ -561,7 +578,7 @@ export class AIOrchestrator {
       conversation: input.conversation,
       messages: input.messages,
       retrievalQuery: input.retrievalQuery,
-      language: opts.language,
+      language: resolveConversationLanguage(input.messages, opts.language),
       instructions: [
         ...ANTI_HALLUCINATION,
         ...(input.settings.extra_instructions
@@ -668,16 +685,26 @@ export class AIOrchestrator {
 
       toolRounds++;
 
-      response = await provider.completeWithToolOutputs(aiRequest, toolOutputs, {
-        model: opts.model,
-        maxOutputTokens: opts.maxOutputTokens,
-        temperature: opts.temperature,
-        topP: opts.topP,
-        toolChoice: opts.toolChoice,
-        timeoutMs: opts.timeoutMs,
-        maxRetries: opts.maxRetries,
-        signal,
-      });
+      const previousResponseId = String(response.metadata.request_id ?? "");
+      if (!previousResponseId) {
+        throw new Error("AI provider did not return a response ID for tool continuation");
+      }
+
+      response = await provider.completeWithToolOutputs(
+        aiRequest,
+        previousResponseId,
+        toolOutputs,
+        {
+          model: opts.model,
+          maxOutputTokens: opts.maxOutputTokens,
+          temperature: opts.temperature,
+          topP: opts.topP,
+          toolChoice: opts.toolChoice,
+          timeoutMs: opts.timeoutMs,
+          maxRetries: opts.maxRetries,
+          signal,
+        }
+      );
 
       usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);
       totalCost += estimateCostUsd(
@@ -687,6 +714,12 @@ export class AIOrchestrator {
       requestId = String(response.metadata.request_id ?? requestId);
       retryCount += Number(response.metadata.retry_count ?? 0);
       finishReason = response.metadata.finish_reason as string | undefined;
+    }
+
+    if (response.toolCalls.length > 0) {
+      throw new Error(
+        `AI exceeded the maximum number of tool rounds (${input.settings.max_tool_rounds})`
+      );
     }
 
     const content = response.content?.trim() || FALLBACK_CONTENT;

@@ -21,6 +21,7 @@ const echoTool: AITool = {
     "Echo input text",
     echoInputSchema
   ),
+  risk: "read",
   permission: "knowledge:read",
   inputSchema: echoInputSchema,
   outputSchema: echoOutputSchema,
@@ -83,6 +84,24 @@ describe("PromptAssembler", () => {
     expect(request.transcript).toContain("Гость: Какой WiFi пароль?");
     expect(request.promptVersion).toBeTruthy();
     expect(request.systemPromptHash).toHaveLength(16);
+  });
+
+  it("preserves default instructions when runtime instructions are provided", async () => {
+    const assembler = new PromptAssembler({
+      knowledgeRetriever: createRetriever([]),
+      toolRegistry: new ToolRegistry([]),
+    });
+
+    const request = await assembler.build({
+      hotel: TEST_HOTEL,
+      conversation,
+      messages,
+      language: "ru",
+      instructions: ["Не выдумывайте цены."],
+    });
+
+    expect(request.systemPrompt).toContain("Вы — AI-ресепшн отеля");
+    expect(request.systemPrompt).toContain("Не выдумывайте цены.");
   });
 
   it("handles empty knowledge retrieval", async () => {

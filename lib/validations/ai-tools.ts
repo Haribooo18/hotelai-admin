@@ -11,7 +11,6 @@ export const checkAvailabilityOutputSchema = z.object({
   conflicts: z.array(
     z.object({
       id: z.string(),
-      guest_name: z.string(),
       check_in: z.string(),
       check_out: z.string(),
     })
@@ -115,4 +114,18 @@ export const getRoomToolOutputSchema = z.object({
       capacity: z.number().nullable(),
     })
   ),
+});
+
+
+export const requestHumanHandoffInputSchema = z.object({
+  reason: z.string().trim().min(3).max(1000),
+  urgency: z.enum(["normal", "high", "urgent"]).default("normal"),
+  guest_message: z.string().trim().max(2000).optional(),
+});
+
+export const requestHumanHandoffOutputSchema = z.object({
+  handoff_requested: z.literal(true),
+  conversation_id: z.string().uuid(),
+  status: z.literal("handoff_requested"),
+  priority: z.enum(["normal", "high", "urgent"]),
 });

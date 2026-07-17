@@ -18,6 +18,8 @@ export { getRepositoryContext } from "./tenant/repository-context";
 export type CurrentHotel = {
   id: string;
   name: string;
+  timezone?: string;
+  language?: string;
 };
 
 /** @deprecated Prefer `getAuthenticatedUser()` or `getTenantContext()` */
@@ -41,9 +43,20 @@ export async function getCurrentHotelId(): Promise<string> {
 /** @deprecated Prefer `getTenantContext()` */
 export async function getCurrentHotel(): Promise<CurrentHotel> {
   const tenant = await getTenantContext();
+  const supabase = await import("@/lib/supabase/server").then((module) =>
+    module.createClient(),
+  );
+  const { data } = await supabase
+    .from("hotels")
+    .select("name, timezone, language")
+    .eq("id", tenant.hotelId)
+    .maybeSingle();
+
   return {
     id: tenant.hotelId,
-    name: tenant.hotelName,
+    name: (data?.name as string | undefined) ?? tenant.hotelName,
+    timezone: (data?.timezone as string | undefined) ?? "UTC",
+    language: (data?.language as string | undefined) ?? "ru",
   };
 }
 

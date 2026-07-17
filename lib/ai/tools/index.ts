@@ -5,6 +5,7 @@ import { getGuestTool } from "./get-guest";
 import { getRoomTool } from "./get-room";
 import { searchKnowledgeTool } from "./search-knowledge";
 import { updateBookingTool } from "./update-booking";
+import { requestHumanHandoffTool } from "./request-human-handoff";
 
 import type { AITool } from "../tools";
 
@@ -17,6 +18,7 @@ export const discoveredTools: AITool[] = [
   searchKnowledgeTool,
   getGuestTool,
   getRoomTool,
+  requestHumanHandoffTool,
 ];
 
 export {
@@ -27,4 +29,5 @@ export {
   searchKnowledgeTool,
   getGuestTool,
   getRoomTool,
+  requestHumanHandoffTool,
 };

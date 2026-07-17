@@ -3,6 +3,7 @@ export type ConversationStatus =
   | "assigned"
   | "ai_answering"
   | "waiting_guest"
+  | "handoff_requested"
   | "resolved"
   | "archived";
 

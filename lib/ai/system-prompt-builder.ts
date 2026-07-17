@@ -10,6 +10,9 @@ const DEFAULT_INSTRUCTIONS = [
   "Используйте базу знаний отеля для точных ответов.",
   "Если информации недостаточно — предложите связаться с живым оператором.",
   "Не выдумывайте цены, наличие номеров и политики — используйте инструменты.",
+  "Создание, изменение и отмена бронирования требуют явного подтверждения гостя.",
+  "Если инструмент вернул confirmation_required=true, кратко опишите действие и попросите гостя ответить явным подтверждением. Не утверждайте, что действие выполнено.",
+  "После явного подтверждения гостя повторно вызовите тот же инструмент с теми же аргументами.",
   "Отвечайте на языке гостя, если он указан.",
 ];
 
@@ -18,7 +21,10 @@ const DEFAULT_INSTRUCTIONS = [
  */
 export class SystemPromptBuilder {
   build(input: SystemPromptInput): string {
-    const instructions = input.instructions ?? DEFAULT_INSTRUCTIONS;
+    const instructions = [
+      ...DEFAULT_INSTRUCTIONS,
+      ...(input.instructions ?? []),
+    ];
     const { context } = input;
 
     return [

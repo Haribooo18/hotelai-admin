@@ -2,12 +2,15 @@ import { z } from "zod";
 
 import type { AIRequest } from "./types";
 
+export type ToolRisk = "read" | "write" | "destructive" | "system";
+
 export type ToolPermission =
   | "bookings:read"
   | "bookings:write"
   | "guests:read"
   | "rooms:read"
-  | "knowledge:read";
+  | "knowledge:read"
+  | "conversations:handoff";
 
 export type ToolContext = {
   hotelId: string;
@@ -31,6 +34,8 @@ export type AITool = {
     parameters: Record<string, unknown>;
   };
   permission: ToolPermission;
+  risk: ToolRisk;
+  confirmationSummary?: (args: Record<string, unknown>) => string;
   inputSchema: z.ZodType;
   outputSchema: z.ZodType;
   execute(ctx: ToolContext, args: Record<string, unknown>): Promise<ToolResult>;

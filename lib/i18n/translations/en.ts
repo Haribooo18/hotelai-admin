@@ -1219,6 +1219,7 @@ export const EN: AdminTranslations = {
       assigned: "Assigned",
       ai_answering: "AI responding",
       waiting_guest: "Waiting for guest",
+      handoff_requested: "Waiting for staff",
       resolved: "Resolved",
       archived: "Archived",
     },

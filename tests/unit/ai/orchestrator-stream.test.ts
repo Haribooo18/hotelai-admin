@@ -20,6 +20,7 @@ import {
 
 const updateMock = vi.fn();
 const insertMock = vi.fn();
+const completeWithToolOutputsMock = vi.fn();
 
 type MockCall = { table: string; data?: Record<string, unknown> };
 
@@ -111,7 +112,8 @@ function createStreamProvider(
         yield event;
       }
     },
-    async completeWithToolOutputs() {
+    async completeWithToolOutputs(...args) {
+      completeWithToolOutputsMock(...args);
       return {
         content: "after tools",
         toolCalls: [],
@@ -141,6 +143,7 @@ describe("AIOrchestrator.stream", () => {
   beforeEach(() => {
     updateMock.mockClear();
     insertMock.mockClear();
+    completeWithToolOutputsMock.mockClear();
     vi.restoreAllMocks();
 
     const assembler = new PromptAssembler({
@@ -378,6 +381,7 @@ describe("AIOrchestrator.stream", () => {
 
     configureAIServices({
       provider: createStreamProvider([
+        { type: "text_delta", delta: "Номер точно свободен" },
         {
           type: "completed",
           response: toolResponse,
@@ -392,9 +396,19 @@ describe("AIOrchestrator.stream", () => {
     const events = await collectStream(orchestrator.stream(baseInput()));
 
     expect(events).toContainEqual({ type: "status", status: "tool_calls" });
+    expect(events).not.toContainEqual({
+      type: "text_delta",
+      delta: "Номер точно свободен",
+    });
     expect(events).toContainEqual({
       type: "text_final",
       content: "after tools",
     });
+    expect(completeWithToolOutputsMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      "req-tools",
+      expect.any(Array),
+      expect.any(Object)
+    );
   });
 });

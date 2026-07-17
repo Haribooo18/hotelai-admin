@@ -13,7 +13,10 @@ export const cancelBookingTool: AITool = {
     "Отменить бронирование",
     cancelBookingToolInputSchema
   ),
+  risk: "destructive",
   permission: "bookings:write",
+  confirmationSummary: (args) =>
+    `Отменить бронирование ${String(args.booking_id ?? "")}`,
   inputSchema: cancelBookingToolInputSchema,
   outputSchema: cancelBookingToolOutputSchema,
   async execute(ctx, args) {

@@ -20,6 +20,7 @@ const testTool: AITool = {
     "Lookup test data",
     inputSchema
   ),
+  risk: "read",
   permission: "knowledge:read",
   inputSchema,
   outputSchema,

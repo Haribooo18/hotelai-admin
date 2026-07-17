@@ -256,7 +256,7 @@ describe("streamAIResponseForHotel", () => {
     expect(events).toHaveLength(2);
     expect(orchestratorStreamMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        hotel: { id: "hotel_test", name: "Test Hotel" },
+        hotel: expect.objectContaining({ id: "hotel_test", name: "Test Hotel" }),
         conversation: expect.objectContaining({ id: "conv-1" }),
       })
     );

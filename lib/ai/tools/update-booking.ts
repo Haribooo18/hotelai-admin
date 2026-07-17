@@ -14,7 +14,10 @@ export const updateBookingTool: AITool = {
     "Обновить существующее бронирование",
     updateBookingToolInputSchema
   ),
+  risk: "write",
   permission: "bookings:write",
+  confirmationSummary: (args) =>
+    `Изменить бронирование ${String(args.booking_id ?? "")}`,
   inputSchema: updateBookingToolInputSchema,
   outputSchema: updateBookingToolOutputSchema,
   async execute(ctx, args) {

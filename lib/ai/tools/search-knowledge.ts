@@ -13,6 +13,7 @@ export const searchKnowledgeTool: AITool = {
     "Найти релевантные статьи в базе знаний отеля",
     searchKnowledgeToolInputSchema
   ),
+  risk: "read",
   permission: "knowledge:read",
   inputSchema: searchKnowledgeToolInputSchema,
   outputSchema: searchKnowledgeToolOutputSchema,

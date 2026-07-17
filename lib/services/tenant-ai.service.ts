@@ -18,21 +18,24 @@ export type GenerateAIResponseForHotelOptions = {
   throwIfDisabled?: boolean;
 };
 
-async function resolveHotelName(
+async function resolveHotelProfile(
   hotelId: string,
   supabase: SupabaseClient,
-  provided?: string
-): Promise<string> {
-  if (provided) return provided;
-
+  providedName?: string,
+): Promise<{ id: string; name: string; timezone?: string; language?: string }> {
   const { data, error } = await supabase
     .from("hotels")
-    .select("name")
+    .select("name, timezone, language")
     .eq("id", hotelId)
     .maybeSingle();
 
   if (error) throw error;
-  return (data?.name as string | undefined) ?? "Hotel";
+  return {
+    id: hotelId,
+    name: providedName ?? (data?.name as string | undefined) ?? "Hotel",
+    timezone: (data?.timezone as string | undefined) ?? "UTC",
+    language: (data?.language as string | undefined) ?? "ru",
+  };
 }
 
 async function getHotelAISettingsForHotel(
@@ -191,8 +194,8 @@ export async function generateAIResponseForHotel(
     return null;
   }
 
-  const [hotelName, conversation, messages] = await Promise.all([
-    resolveHotelName(hotelId, supabase, options.hotelName),
+  const [hotel, conversation, messages] = await Promise.all([
+    resolveHotelProfile(hotelId, supabase, options.hotelName),
     getConversationForHotel(hotelId, conversationId, supabase),
     getMessagesForHotel(hotelId, conversationId, supabase),
   ]);
@@ -212,7 +215,7 @@ export async function generateAIResponseForHotel(
 
   try {
     const result = await aiOrchestrator.run({
-      hotel: { id: hotelId, name: hotelName },
+      hotel,
       conversation,
       messages,
       settings,
@@ -261,8 +264,8 @@ export async function* streamAIResponseForHotel(
     return;
   }
 
-  const [hotelName, conversation, messages] = await Promise.all([
-    resolveHotelName(hotelId, supabase),
+  const [hotel, conversation, messages] = await Promise.all([
+    resolveHotelProfile(hotelId, supabase),
     getConversationForHotel(hotelId, conversationId, supabase),
     getMessagesForHotel(hotelId, conversationId, supabase),
   ]);
@@ -272,7 +275,7 @@ export async function* streamAIResponseForHotel(
   }
 
   yield* aiOrchestrator.stream({
-    hotel: { id: hotelId, name: hotelName },
+    hotel,
     conversation,
     messages,
     settings,

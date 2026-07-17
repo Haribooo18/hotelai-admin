@@ -1218,6 +1218,7 @@ export const RU: AdminTranslations = {
       assigned: "Назначен",
       ai_answering: "AI отвечает",
       waiting_guest: "Ожидание гостя",
+      handoff_requested: "Ожидает сотрудника",
       resolved: "Решён",
       archived: "В архиве",
     },

@@ -43,6 +43,11 @@ export const CONVERSATION_STATUSES: StatusMeta[] = [
     badgeClassName: "bg-amber-500/15 text-amber-400 border border-amber-500/30",
   },
   {
+    value: "handoff_requested",
+    label: "Waiting for staff",
+    badgeClassName: "bg-orange-500/15 text-orange-400 border border-orange-500/30",
+  },
+  {
     value: "resolved",
     label: "Resolved",
     badgeClassName: "bg-zinc-500/15 text-zinc-300 border border-zinc-500/30",

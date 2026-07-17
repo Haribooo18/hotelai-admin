@@ -123,6 +123,7 @@ function parseToolCalls(output: unknown[]): AIToolCall[] {
 export type OpenAIProvider = AIProvider & {
   completeWithToolOutputs: (
     request: AIRequest,
+    previousResponseId: string,
     toolOutputs: { call_id: string; output: string }[],
     options?: AIProviderOptions
   ) => Promise<AIResponse>;
@@ -145,7 +146,7 @@ export function createOpenAIProvider(
   async function callResponsesApi(
     request: AIRequest,
     options: AIProviderOptions | undefined,
-    extra?: { input?: ResponseInputItem[] }
+    extra?: { input?: ResponseInputItem[]; previousResponseId?: string }
   ) {
     const client = await getClient();
     const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
@@ -164,6 +165,9 @@ export function createOpenAIProvider(
                 model,
                 ...resolveRequestParams(request, options),
                 ...(extra?.input ? { input: extra.input } : {}),
+                ...(extra?.previousResponseId
+                  ? { previous_response_id: extra.previousResponseId }
+                  : {}),
               },
               { signal: deadline.signal }
             );
@@ -348,18 +352,21 @@ export function createOpenAIProvider(
 
     async completeWithToolOutputs(
       request: AIRequest,
+      previousResponseId: string,
       toolOutputs: { call_id: string; output: string }[],
       options?: AIProviderOptions
     ): Promise<AIResponse> {
+      if (!previousResponseId) {
+        throw new Error("Missing previous response ID for tool continuation");
+      }
+
       const { response, model, retryCount } = await callResponsesApi(request, options, {
-        input: [
-          ...buildInput(request),
-          ...toolOutputs.map((t) => ({
-            type: "function_call_output" as const,
-            call_id: t.call_id,
-            output: t.output,
-          })),
-        ],
+        previousResponseId,
+        input: toolOutputs.map((t) => ({
+          type: "function_call_output" as const,
+          call_id: t.call_id,
+          output: t.output,
+        })),
       });
 
       const output = (response.output ?? []) as unknown[];

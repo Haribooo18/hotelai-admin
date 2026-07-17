@@ -13,6 +13,7 @@ export const getRoomTool: AITool = {
     "Получить информацию о номере по ID или типу",
     getRoomToolInputSchema
   ),
+  risk: "read",
   permission: "rooms:read",
   inputSchema: getRoomToolInputSchema,
   outputSchema: getRoomToolOutputSchema,

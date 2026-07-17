@@ -13,6 +13,7 @@ export const checkAvailabilityTool: AITool = {
     "Проверить доступность номера на указанные даты заезда и выезда",
     checkAvailabilityInputSchema
   ),
+  risk: "read",
   permission: "bookings:read",
   inputSchema: checkAvailabilityInputSchema,
   outputSchema: checkAvailabilityOutputSchema,
@@ -22,7 +23,7 @@ export const checkAvailabilityTool: AITool = {
 
     const { data, error } = await supabase
       .from("bookings")
-      .select("id, guest_name, check_in, check_out")
+      .select("id, check_in, check_out")
       .eq("hotel_id", ctx.hotelId)
       .eq("room_id", input.room_id)
       .neq("status", "cancelled");

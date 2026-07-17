@@ -1,4 +1,9 @@
 import type { AITool, ToolContext, ToolResult } from "./tools";
+import {
+  completeToolSafetyAction,
+  evaluateToolSafety,
+  failToolSafetyAction,
+} from "./tool-safety";
 
 export type ToolExecutionResult =
   | { ok: true; result: ToolResult }
@@ -62,6 +67,7 @@ export class ToolExecutor {
       "guests:read",
       "rooms:read",
       "knowledge:read",
+      "conversations:handoff",
     ])
   ) {}
 
@@ -110,10 +116,31 @@ export class ToolExecutor {
         };
       }
 
-      const result = await tool.execute(ctx, parsed.data as Record<string, unknown>);
-      tool.outputSchema.parse(result.output);
+      const safeArgs = parsed.data as Record<string, unknown>;
+      const safety = await evaluateToolSafety(tool, ctx, safeArgs);
 
-      return { ok: true, result };
+      if (safety.kind !== "execute") {
+        return { ok: true, result: safety.result };
+      }
+
+      try {
+        const result = await tool.execute(ctx, safeArgs);
+        tool.outputSchema.parse(result.output);
+        await completeToolSafetyAction({
+          actionId: safety.actionId,
+          hotelId: ctx.hotelId,
+          confirmationMessageId: safety.confirmationMessageId,
+          result,
+        });
+        return { ok: true, result };
+      } catch (error) {
+        await failToolSafetyAction({
+          actionId: safety.actionId,
+          hotelId: ctx.hotelId,
+          error,
+        });
+        throw error;
+      }
     } catch (err) {
       const message =
         err instanceof Error ? err.message : "Неизвестная ошибка инструмента";

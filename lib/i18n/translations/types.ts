@@ -1181,6 +1181,7 @@ export type AdminTranslations = {
       assigned: string;
       ai_answering: string;
       waiting_guest: string;
+      handoff_requested: string;
       resolved: string;
       archived: string;
     };

@@ -13,6 +13,7 @@ export const getGuestTool: AITool = {
     "Получить информацию о госте по ID, email или телефону",
     getGuestToolInputSchema
   ),
+  risk: "read",
   permission: "guests:read",
   inputSchema: getGuestToolInputSchema,
   outputSchema: getGuestToolOutputSchema,
