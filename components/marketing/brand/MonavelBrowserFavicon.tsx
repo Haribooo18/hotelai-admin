@@ -6,15 +6,15 @@ type Props = {
 
 /**
  * Optically corrected Monavel mark for browser-mockup tabs.
- * Geometry lives in an 18×18 viewBox; rendered slightly larger for tab chrome.
+ * Geometry lives in an 18×18 viewBox; CSS sets the final rendered size.
  */
 export function MonavelBrowserFavicon({ className }: Props) {
   return (
     <svg
       className={cn("mkt-browser-favicon", className)}
       viewBox="0 0 18 18"
-      width={20}
-      height={20}
+      width={18}
+      height={18}
       fill="none"
       aria-hidden
       focusable="false"
