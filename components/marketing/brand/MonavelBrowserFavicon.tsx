@@ -13,8 +13,8 @@ export function MonavelBrowserFavicon({ className }: Props) {
     <svg
       className={cn("mkt-browser-favicon", className)}
       viewBox="0 0 18 18"
-      width={20}
-      height={20}
+      width={24}
+      height={24}
       fill="none"
       aria-hidden
       focusable="false"
