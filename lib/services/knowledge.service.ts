@@ -99,19 +99,6 @@ export async function searchKnowledgeArticlesForHotel(
     query,
   });
 
-  console.info("[Knowledge retrieval diagnostic]", {
-    hotelId,
-    query,
-    filters,
-    totalArticles: articles.length,
-    publishedArticles: articles.filter((article) => article.status === "published").length,
-    articleStatuses: articles.reduce<Record<string, number>>((counts, article) => {
-      counts[article.status] = (counts[article.status] ?? 0) + 1;
-      return counts;
-    }, {}),
-    rankedResults: ranked.length,
-    rankedTitles: ranked.map((result) => result.title),
-  });
 
   return ranked;
 }
