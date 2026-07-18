@@ -8,6 +8,7 @@ import Script from "next/script";
 
 import "./globals.css";
 import { Providers } from "./providers";
+import { WebsiteChatWidget } from "@/components/website-chat-widget";
 import { SHELL_THEME_STORAGE_KEY } from "@/lib/dashboard/shell-theme";
 import {
   PRODUCT_RELOAD_RESET_SCRIPT_ID,
@@ -84,8 +85,9 @@ export default function RootLayout({
       </head>
 
       <body className="min-h-screen bg-[var(--shell-bg)] font-sans text-[var(--shell-text)]">
-        <Providers>{children}</Providers>
-      </body>
+  <Providers>{children}</Providers>
+  <WebsiteChatWidget />
+</body>
     </html>
   );
 }
