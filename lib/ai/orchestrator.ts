@@ -27,6 +27,7 @@ import { createAbortDeadline, getErrorType, withTimeout } from "./retry";
 import { getConversation, getMessages } from "@/lib/services/ai.service";
 import { getHotelAISettings } from "@/lib/services/ai-settings.service";
 import { getCurrentHotel } from "@/lib/tenant";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { resolveConversationLanguage } from "./language";
 
 export type OrchestratorInput = {
@@ -781,8 +782,7 @@ async function setConversationAIActive(
   conversationId: string,
   hotelId: string
 ): Promise<void> {
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   await supabase
     .from("conversations")
@@ -795,8 +795,7 @@ async function clearConversationAITyping(
   conversationId: string,
   hotelId: string
 ): Promise<void> {
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   await supabase
     .from("conversations")
@@ -811,8 +810,7 @@ async function persistAIMessage(input: {
   body: string;
   metadata: Record<string, unknown>;
 }): Promise<string> {
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("messages")
@@ -848,8 +846,7 @@ async function logAIActionStart(input: {
   request: AIRequest;
   model: string;
 }) {
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data, error } = await supabase
     .from("ai_actions")
@@ -884,8 +881,7 @@ async function logAIActionComplete(input: {
   durationMs: number;
   requestId: string;
 }) {
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   await supabase
     .from("ai_actions")
@@ -906,8 +902,7 @@ async function logAIActionFailed(input: {
   actionId: string;
   errorMessage: string;
 }) {
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   await supabase
     .from("ai_actions")
@@ -927,8 +922,7 @@ async function logAIActionTool(input: {
   output: Record<string, unknown>;
   model: string;
 }) {
-  const { createClient } = await import("@/lib/supabase/server");
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   await supabase.from("ai_actions").insert({
     hotel_id: input.hotelId,

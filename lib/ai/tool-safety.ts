@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { Message } from "@/types/message";
 
@@ -56,7 +56,7 @@ export async function evaluateToolSafety(
 
   const latestGuest = getLatestGuestMessage(ctx.request.messages);
   const fingerprint = createFingerprint(tool.definition.name, args);
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: actions, error } = await supabase
     .from("ai_actions")
@@ -202,7 +202,7 @@ export async function completeToolSafetyAction(input: {
 }): Promise<void> {
   if (!input.actionId) return;
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const output: StoredToolOutput = {
     tool_output: input.result.output,
     summary: input.result.summary,
@@ -229,7 +229,7 @@ export async function failToolSafetyAction(input: {
 }): Promise<void> {
   if (!input.actionId) return;
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const message = input.error instanceof Error ? input.error.message : "TOOL_EXECUTION_FAILED";
   await supabase
     .from("ai_actions")

@@ -33,8 +33,8 @@ function isMockCall(arg: unknown): arg is MockCall {
   );
 }
 
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(async () => ({
+function createSupabaseClientMock() {
+  return {
     from: (table: string) => ({
       update: (data: unknown) => {
         updateMock({ table, data });
@@ -64,7 +64,15 @@ vi.mock("@/lib/supabase/server", () => ({
         };
       },
     }),
-  })),
+  };
+}
+
+vi.mock("@/lib/supabase/server", () => ({
+  createClient: vi.fn(async () => createSupabaseClientMock()),
+}));
+
+vi.mock("@/lib/supabase/admin", () => ({
+  createAdminClient: vi.fn(() => createSupabaseClientMock()),
 }));
 
 function makeAISettings(

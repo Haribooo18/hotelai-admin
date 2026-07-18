@@ -1,6 +1,6 @@
 import type { AITokenUsage } from "@/types/ai-settings";
 
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export type LogLevel = "debug" | "info" | "warn" | "error";
 
@@ -31,16 +31,26 @@ export type AICompletionMetrics = {
 
 export async function logAIObservability(input: ObservabilityEvent) {
   try {
-    const supabase = await createClient();
-    await supabase.from("ai_observability_logs").insert({
+    const supabase = createAdminClient();
+
+    const { error } = await supabase.from("ai_observability_logs").insert({
       hotel_id: input.hotelId,
       level: input.level,
       event: input.event,
       conversation_id: input.conversationId ?? null,
       payload: input.payload ?? {},
     });
-  } catch {
-    console.error("[ai-observability]", input.event, input.payload);
+
+    if (error) {
+      throw error;
+    }
+  } catch (error) {
+    console.error(
+      "[ai-observability]",
+      input.event,
+      input.payload,
+      error
+    );
   }
 }
 
