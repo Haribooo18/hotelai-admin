@@ -232,15 +232,19 @@ export async function handleWebsiteStream(
 ): Promise<void> {
   try {
     await processWebsiteGuestMessage(frame, send, signal);
-  } catch {
+  } catch (error) {
     if (signal?.aborted) {
       return;
     }
+
+    console.error("[Website Chat processing error]", error);
+
     logWebsiteWidget("disconnect", {
       session_id: frame.session_id,
       hotel_id: frame.hotel_id,
       reason: "processing_error",
     });
+
     sendWebsiteError(send, PUBLIC_WEBSITE_ERROR_MESSAGE);
   }
 }
