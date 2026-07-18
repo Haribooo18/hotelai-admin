@@ -110,9 +110,13 @@ function parseToolCalls(output: unknown[]): AIToolCall[] {
       args = {};
     }
 
+    const callId = String(row.call_id ?? "").trim();
+    const name = String(row.name ?? "").trim();
+    if (!callId || !name) continue;
+
     calls.push({
-      id: String(row.call_id ?? row.id ?? crypto.randomUUID()),
-      name: String(row.name ?? ""),
+      id: callId,
+      name,
       arguments: args,
     });
   }
@@ -146,7 +150,10 @@ export function createOpenAIProvider(
   async function callResponsesApi(
     request: AIRequest,
     options: AIProviderOptions | undefined,
-    extra?: { input?: ResponseInputItem[]; previousResponseId?: string }
+    extra?: {
+      input?: ResponseInputItem[];
+      previousResponseId?: string;
+    }
   ) {
     const client = await getClient();
     const model = options?.model ?? config.defaultModel ?? "gpt-4o-mini";
@@ -257,7 +264,10 @@ export function createOpenAIProvider(
         let modelUsed = model;
         let finishReason: string | undefined;
         const toolCalls: AIToolCall[] = [];
-        const toolArgs = new Map<string, { name: string; args: string }>();
+        const toolArgs = new Map<
+          string,
+          { callId: string; name: string; args: string }
+        >();
 
         for await (const event of stream) {
           if (options?.signal?.aborted || streamDeadline.signal.aborted) {
@@ -282,38 +292,49 @@ export function createOpenAIProvider(
           if (ev.type === "response.output_item.added") {
             const item = ev.item as Record<string, unknown> | undefined;
             if (item?.type === "function_call") {
-              const id = String(item.call_id ?? item.id ?? "");
-              toolArgs.set(id, {
-                name: String(item.name ?? ""),
-                args: String(item.arguments ?? ""),
-              });
+              const itemId = String(item.id ?? "").trim();
+              if (itemId) {
+                toolArgs.set(itemId, {
+                  callId: String(item.call_id ?? "").trim(),
+                  name: String(item.name ?? "").trim(),
+                  args: String(item.arguments ?? ""),
+                });
+              }
             }
           }
 
           if (ev.type === "response.function_call_arguments.delta") {
-            const itemId = String(ev.item_id ?? "");
-            const existing = toolArgs.get(itemId) ?? { name: "", args: "" };
-            existing.args += String(ev.delta ?? "");
-            toolArgs.set(itemId, existing);
+            const itemId = String(ev.item_id ?? "").trim();
+            if (itemId) {
+              const existing = toolArgs.get(itemId) ?? {
+                callId: "",
+                name: "",
+                args: "",
+              };
+              existing.args += String(ev.delta ?? "");
+              toolArgs.set(itemId, existing);
+            }
           }
 
           if (ev.type === "response.function_call_arguments.done") {
-            const item = ev.item as Record<string, unknown> | undefined;
-            const id = String(item?.call_id ?? item?.id ?? "");
-            let args: Record<string, unknown> = {};
-            try {
-              args = JSON.parse(String(item?.arguments ?? "{}")) as Record<
-                string,
-                unknown
-              >;
-            } catch {
-              args = {};
+            const itemId = String(ev.item_id ?? "").trim();
+            const existing = toolArgs.get(itemId);
+            const callId = existing?.callId.trim() ?? "";
+            const name = String(ev.name ?? existing?.name ?? "").trim();
+            const rawArguments = String(ev.arguments ?? existing?.args ?? "{}");
+
+            // The Responses API sends the original function call identifier as
+            // item.call_id on response.output_item.added. item_id is a separate
+            // output-item identifier and must not be returned as call_id.
+            if (callId && name) {
+              let args: Record<string, unknown> = {};
+              try {
+                args = JSON.parse(rawArguments) as Record<string, unknown>;
+              } catch {
+                args = {};
+              }
+              toolCalls.push({ id: callId, name, arguments: args });
             }
-            toolCalls.push({
-              id,
-              name: String(item?.name ?? ""),
-              arguments: args,
-            });
           }
 
           if (ev.type === "response.completed") {
@@ -356,18 +377,26 @@ export function createOpenAIProvider(
       toolOutputs: { call_id: string; output: string }[],
       options?: AIProviderOptions
     ): Promise<AIResponse> {
-      if (!previousResponseId) {
-        throw new Error("Missing previous response ID for tool continuation");
+      const validToolOutputs = toolOutputs.filter(
+        (item) => item.call_id.trim().length > 0
+      );
+
+      if (validToolOutputs.length !== toolOutputs.length) {
+        throw new Error("AI provider received a tool output with an empty call_id");
       }
 
-      const { response, model, retryCount } = await callResponsesApi(request, options, {
-        previousResponseId,
-        input: toolOutputs.map((t) => ({
-          type: "function_call_output" as const,
-          call_id: t.call_id,
-          output: t.output,
-        })),
-      });
+      const { response, model, retryCount } = await callResponsesApi(
+        request,
+        options,
+        {
+          previousResponseId,
+          input: validToolOutputs.map((item) => ({
+            type: "function_call_output" as const,
+            call_id: item.call_id,
+            output: item.output,
+          })),
+        }
+      );
 
       const output = (response.output ?? []) as unknown[];
       const toolCalls = parseToolCalls(output);
