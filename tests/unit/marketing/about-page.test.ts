@@ -13,54 +13,68 @@ import { MARKETING_CTA } from "@/lib/marketing/routes";
 describe("about page content", () => {
   it("defines hero copy and ctas", () => {
     expect(ABOUT_PAGE_HERO.headline).toBe(
-      "Building the future operating system for hotels."
+      "Building the operating system for modern hotels."
     );
     expect(ABOUT_PAGE_HERO.primaryCtaHref).toBe(MARKETING_CTA.trial);
     expect(ABOUT_PAGE_HERO.secondaryCtaHref).toBe(MARKETING_CTA.demo);
   });
 
-  it("defines mission and vision without fabricated history", () => {
-    expect(ABOUT_PAGE_MISSION.headline).toBe("Less complexity for hotel teams.");
-    expect(ABOUT_PAGE_VISION.headline).toContain("One workspace");
-    expect(ABOUT_PAGE_VISION.body.toLowerCase()).toContain("one workspace");
-    const narrative = [ABOUT_PAGE_MISSION.body, ABOUT_PAGE_VISION.body].join(" ");
+  it("explains why Monavel exists without fabricated company history", () => {
+    expect(ABOUT_PAGE_MISSION.headline).toContain("ten systems");
+    expect(ABOUT_PAGE_MISSION.paragraphs).toHaveLength(2);
+
+    const narrative = [
+      ...ABOUT_PAGE_MISSION.paragraphs,
+      ABOUT_PAGE_MISSION.conclusion,
+      ABOUT_PAGE_VISION.subhead,
+    ].join(" ");
+
     expect(narrative.toLowerCase()).not.toMatch(
       /founded in|our team|investor|funding|customers|offices/
     );
   });
 
-  it("defines four core principles", () => {
-    expect(ABOUT_PAGE_PRINCIPLES.items).toHaveLength(4);
-    expect(ABOUT_PAGE_PRINCIPLES.items.map((item) => item.title)).toEqual([
-      "AI-first",
-      "Simple by default",
-      "Built for operators",
-      "Continuous improvement",
-    ]);
-  });
-
-  it("defines product philosophy pillars", () => {
-    expect(ABOUT_PAGE_PHILOSOPHY.items).toHaveLength(3);
-    expect(ABOUT_PAGE_PHILOSOPHY.items.map((item) => item.title)).toEqual([
+  it("defines the three connected-product pillars", () => {
+    expect(ABOUT_PAGE_VISION.pillars).toHaveLength(3);
+    expect(ABOUT_PAGE_VISION.pillars.map((pillar) => pillar.title)).toEqual([
       "One workspace",
       "One AI",
       "One source of truth",
     ]);
   });
 
-  it("defines roadmap without dates", () => {
-    expect(ABOUT_PAGE_ROADMAP.steps.map((step) => step.label)).toEqual([
-      "Today",
-      "AI-first PMS",
-      "Automation",
-      "Hotel intelligence",
-      "Future platform",
+  it("defines four core principles", () => {
+    expect(ABOUT_PAGE_PRINCIPLES.items).toHaveLength(4);
+    expect(ABOUT_PAGE_PRINCIPLES.items.map((item) => item.title)).toEqual([
+      "AI-native, not AI-added",
+      "Simple by default",
+      "Built around real work",
+      "Improve continuously",
     ]);
+  });
+
+  it("defines the connected platform inputs and outcomes", () => {
+    expect(ABOUT_PAGE_PHILOSOPHY.inputs).toHaveLength(4);
+    expect(ABOUT_PAGE_PHILOSOPHY.outputs).toHaveLength(3);
+    expect(ABOUT_PAGE_PHILOSOPHY.statement.toLowerCase()).toContain(
+      "same hotel context"
+    );
+  });
+
+  it("defines a directional roadmap without dates", () => {
+    expect(ABOUT_PAGE_ROADMAP.steps.map((step) => step.title)).toEqual([
+      "Connected operations",
+      "AI-first PMS",
+      "Operational automation",
+      "Hotel intelligence",
+    ]);
+
     const roadmapCopy = [
       ABOUT_PAGE_ROADMAP.subhead,
       ...ABOUT_PAGE_ROADMAP.steps.map((step) => step.description),
     ].join(" ");
+
     expect(roadmapCopy).not.toMatch(/\b20\d{2}\b|Q[1-4]/);
-    expect(roadmapCopy.toLowerCase()).toMatch(/direction|no dates|no guarantees/);
+    expect(roadmapCopy.toLowerCase()).toContain("direction");
   });
 });

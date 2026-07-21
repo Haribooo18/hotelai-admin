@@ -1,21 +1,19 @@
-import { FinalCtaSection } from "@/components/marketing/landing/FinalCtaSection";
-import { AboutMissionSection } from "@/components/marketing/about/AboutMissionSection";
-import { AboutPageHero } from "@/components/marketing/about/AboutPageHero";
-import { AboutPhilosophySection } from "@/components/marketing/about/AboutPhilosophySection";
-import { AboutPrinciplesSection } from "@/components/marketing/about/AboutPrinciplesSection";
-import { AboutRoadmapSection } from "@/components/marketing/about/AboutRoadmapSection";
-import { AboutVisionSection } from "@/components/marketing/about/AboutVisionSection";
+import { AboutMissionSection } from "./AboutMissionSection";
+import { AboutPageHero } from "./AboutPageHero";
+import { AboutPhilosophySection } from "./AboutPhilosophySection";
+import { AboutPrinciplesSection } from "./AboutPrinciplesSection";
+import { AboutRoadmapSection } from "./AboutRoadmapSection";
+import { AboutVisionSection } from "./AboutVisionSection";
 
 export function AboutPage() {
   return (
-    <>
+    <main className="overflow-x-hidden">
       <AboutPageHero />
       <AboutMissionSection />
       <AboutVisionSection />
       <AboutPrinciplesSection />
       <AboutPhilosophySection />
       <AboutRoadmapSection />
-      <FinalCtaSection variant="about" />
-    </>
+    </main>
   );
 }
