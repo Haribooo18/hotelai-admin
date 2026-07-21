@@ -18,6 +18,7 @@ import { serializeWebsiteEvent } from "@/lib/channels/website/sender";
 import type { WebsiteOutboundEvent } from "@/lib/channels/website/types";
 import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
 import { opsMetrics } from "@/lib/ops/metrics";
+import { readJsonBody } from "@/lib/http/json-body";
 
 export const runtime = "nodejs";
 
@@ -47,7 +48,7 @@ export async function POST(request: Request) {
     async () => {
       let body: unknown;
       try {
-        body = await request.json();
+        body = await readJsonBody(request, { maxBytes: 16 * 1024 });
       } catch {
         const corsHeaders = buildWebsiteWidgetCorsHeaders(
           evaluateWebsiteWidgetOrigin(request.headers.get("origin")).allowed
@@ -139,8 +140,10 @@ export async function POST(request: Request) {
         headers: {
           ...corsHeaders,
           "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
+          "Cache-Control": "no-cache, no-transform",
           Connection: "keep-alive",
+          "X-Content-Type-Options": "nosniff",
+          "X-Accel-Buffering": "no",
         },
       });
     }

@@ -3,6 +3,7 @@ import { isStripeConfigured } from "@/lib/billing/stripe";
 import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
 import { ProviderError, ValidationError } from "@/lib/ops/errors";
 import { requireBillingTenant } from "@/lib/billing/access";
+import { readJsonBody } from "@/lib/http/json-body";
 
 export const runtime = "nodejs";
 
@@ -33,12 +34,7 @@ export async function POST(request: Request) {
         );
       }
 
-      let body: unknown;
-      try {
-        body = await request.json();
-      } catch {
-        throw new ValidationError("Некорректный JSON");
-      }
+      const body = await readJsonBody(request, { maxBytes: 4 * 1024 });
 
       const plan = parseCheckoutPlan(body);
       if (!plan) {

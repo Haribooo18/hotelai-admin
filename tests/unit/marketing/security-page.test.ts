@@ -12,7 +12,7 @@ import { MARKETING_CTA } from "@/lib/marketing/routes";
 describe("security page content", () => {
   it("defines hero copy and ctas", () => {
     expect(SECURITY_PAGE_HERO.headline).toBe(
-      "Security built into every workspace."
+      "Security by design."
     );
     expect(SECURITY_PAGE_HERO.primaryCtaHref).toBe("/contact");
     expect(SECURITY_PAGE_HERO.secondaryCtaHref).toBe(MARKETING_CTA.trial);
@@ -51,7 +51,7 @@ describe("security page content", () => {
     const joined = SECURITY_PAGE_FAQ.items.map((item) => item.answer).join(" ");
     expect(joined).not.toMatch(/\bISO\s*27001\b|\bSOC\s*2\b|GDPR compliant|HIPAA certified/i);
     expect(SECURITY_PAGE_FAQ.items.map((item) => item.question)).toContain(
-      "Where is data stored?"
+      "Where is hotel data stored?"
     );
   });
 });

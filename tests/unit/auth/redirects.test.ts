@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { resolvePostSignInDestination } from "@/lib/services/auth.mutations";
+import { resolvePostSignInDestination } from "@/lib/services/auth.redirects";
 
 describe("resolvePostSignInDestination", () => {
   it("keeps an internal path with query and hash", () => {

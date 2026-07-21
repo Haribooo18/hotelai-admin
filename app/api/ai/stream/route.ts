@@ -8,6 +8,7 @@ import { normalizeError } from "@/lib/ops/errors";
 import { aiRespondSchema } from "@/lib/validations/ai-settings";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHotelId } from "@/lib/tenant";
+import { readJsonBody } from "@/lib/http/json-body";
 
 export async function POST(request: Request) {
   return runApiRoute(
@@ -31,12 +32,7 @@ export async function POST(request: Request) {
       const hotelId = await getCurrentHotelId();
       bindApiContext({ userId: user.id, hotelId, provider: "openai" });
 
-      let body: unknown;
-      try {
-        body = await request.json();
-      } catch {
-        throw new ValidationError("Некорректный JSON");
-      }
+      const body = await readJsonBody(request, { maxBytes: 8 * 1024 });
 
       const parsed = aiRespondSchema.safeParse(body);
       if (!parsed.success) {
@@ -96,8 +92,10 @@ export async function POST(request: Request) {
       return new Response(stream, {
         headers: {
           "Content-Type": "text/event-stream",
-          "Cache-Control": "no-cache",
+          "Cache-Control": "no-cache, no-transform",
           Connection: "keep-alive",
+          "X-Content-Type-Options": "nosniff",
+          "X-Accel-Buffering": "no",
         },
       });
     }

@@ -1,3 +1,4 @@
+import { readJsonBody } from "@/lib/http/json-body";
 import { generateAIResponseForHotel } from "@/lib/services/tenant-ai.service";
 import type { ChannelInboundMessage } from "@/lib/channels/types";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -194,7 +195,7 @@ export async function handleTelegramWebhook(request: Request): Promise<Response>
 
   let update: TelegramUpdate;
   try {
-    update = (await request.json()) as TelegramUpdate;
+    update = (await readJsonBody(request, { maxBytes: 256 * 1024 })) as TelegramUpdate;
   } catch {
     return new Response(JSON.stringify({ error: "Некорректный JSON" }), {
       status: 400,

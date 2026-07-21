@@ -669,18 +669,18 @@ describe("marketing page rendering", () => {
   it("renders security page content", () => {
     const html = renderToStaticMarkup(React.createElement(SecurityPage));
 
-    expect(html).toContain("Security built into every workspace.");
+    expect(html).toContain("Security by design.");
     expect(html).toContain("Contact sales");
     expect(html).toContain('href="/contact"');
     expect(html).toContain("Tenant isolation");
     expect(html).toContain("Role-based access");
     expect(html).toContain("Monavel Platform");
-    expect(html).toContain("Secure infrastructure");
+    expect(html).toContain("Infrastructure practices");
     expect(html).toContain("Workspace isolation");
     expect(html).toContain("Encrypted connections");
-    expect(html).toContain("Where is data stored?");
-    expect(html).toContain("certifications");
-    expect(html).toContain("Questions about platform security?");
+    expect(html).toContain("Where is hotel data stored?");
+    expect(html).not.toMatch(/ISO 27001|SOC 2|GDPR compliant|HIPAA certified/i);
+    expect(html).toContain("Common security questions.");
   });
 
   it("renders integrations page content", () => {
@@ -697,7 +697,9 @@ describe("marketing page rendering", () => {
     expect(html).toContain("PMS integrations");
     expect(html).toContain("Hotel Team");
     expect(html).toContain("Unified conversations");
-    expect(html).toContain("Connect your guest channels");
+    expect(html).toContain("Website Chat / Telegram");
+    expect(html).toContain("Monavel AI");
+    expect(html).toContain("Workspace");
   });
 
   it("renders demo page content", () => {
@@ -732,23 +734,23 @@ describe("marketing page rendering", () => {
     // Guards against marking unrelated hero screenshots as priority —
     // only the Docs landing hero should preload its image.
     expect(html).not.toContain('<link rel="preload" as="image"');
-    expect(html).toContain("Building the future operating system for hotels.");
+    expect(html).toContain("Building the operating system for modern hotels.");
     expect(html).toContain("/login?intent=trial");
     expect(html).toContain("/demo");
-    expect(html).toContain("Less complexity for hotel teams.");
+    expect(html).toContain("Hotels should not need ten systems to run one property.");
     expect(html).toContain("One workspace");
-    expect(html).toContain("AI-first");
+    expect(html).toContain("AI-native, not AI-added");
     expect(html).toContain("Simple by default");
-    expect(html).toContain("Built for operators");
-    expect(html).toContain("Continuous improvement");
+    expect(html).toContain("Built around real work");
+    expect(html).toContain("Improve continuously");
     expect(html).toContain("One workspace");
     expect(html).toContain("One AI");
     expect(html).toContain("One source of truth");
-    expect(html).toContain("Today");
+    expect(html).toContain("Now");
     expect(html).toContain("AI-first PMS");
     expect(html).toContain("Hotel intelligence");
-    expect(html).toContain("Future platform");
-    expect(html).toContain("Build on one hotel workspace");
+    expect(html).toContain("Operational automation");
+    expect(html).toContain("The direction stays consistent");
   });
 
   it("renders docs landing page content", () => {

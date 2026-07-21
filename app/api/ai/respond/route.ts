@@ -6,6 +6,7 @@ import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
 import { AuthenticationError, ValidationError } from "@/lib/ops/errors";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentHotelId } from "@/lib/tenant";
+import { readJsonBody } from "@/lib/http/json-body";
 
 export async function POST(request: Request) {
   return runApiRoute(
@@ -29,12 +30,7 @@ export async function POST(request: Request) {
       const hotelId = await getCurrentHotelId();
       bindApiContext({ userId: user.id, hotelId });
 
-      let body: unknown;
-      try {
-        body = await request.json();
-      } catch {
-        throw new ValidationError("Некорректный JSON");
-      }
+      const body = await readJsonBody(request, { maxBytes: 8 * 1024 });
 
       const parsed = aiRespondSchema.safeParse(body);
       if (!parsed.success) {
