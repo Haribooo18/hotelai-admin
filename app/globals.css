@@ -5186,7 +5186,6 @@ html[data-shell-theme="gray"] {
     display: none;
   }
 }
-
 /* AI page — living confidence story */
 
 [data-surface="marketing"] {
@@ -5202,7 +5201,6 @@ html[data-shell-theme="gray"] {
   --mkt-ai-border: 1px solid color-mix(in oklch, var(--mkt-border-subtle) 55%, transparent);
 }
 
-
 [data-surface="marketing"] .mkt-ai-hero-grid {
   display: grid;
   gap: var(--mkt-gap-lg);
@@ -5214,6 +5212,270 @@ html[data-shell-theme="gray"] {
     grid-template-columns: minmax(0, 0.58fr) minmax(0, 1.42fr);
     gap: var(--mkt-gap-lg) var(--mkt-gap-lg);
     align-items: center;
+  }
+}
+
+/* Integrations — guest communication flow */
+
+[data-surface="marketing"] .mkt-integration-flow {
+  padding: var(--mkt-space-3);
+  border: var(--mkt-card-border);
+  border-radius: var(--mkt-card-radius);
+  background: var(--mkt-card-bg);
+  box-shadow: var(--mkt-card-shadow);
+}
+
+[data-surface="marketing"] .mkt-integration-flow-list {
+  display: grid;
+  gap: var(--mkt-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-surface="marketing"] .mkt-integration-flow-step {
+  display: grid;
+  gap: var(--mkt-space-2);
+}
+
+[data-surface="marketing"] .mkt-integration-flow-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--mkt-space-3);
+  min-height: 7rem;
+  padding: var(--mkt-card-padding-sm);
+  border: var(--mkt-border-width) solid var(--mkt-border-subtle);
+  border-radius: var(--mkt-radius-lg);
+  background: var(--mkt-surface-2);
+  transition: var(--mkt-card-transition);
+}
+
+[data-surface="marketing"] .mkt-integration-flow-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mkt-space-2);
+}
+
+[data-surface="marketing"] .mkt-integration-flow-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex-shrink: 0;
+  border: var(--mkt-border-width) solid var(--mkt-border-subtle);
+  border-radius: var(--mkt-card-icon-radius);
+  background: var(--mkt-accent-muted);
+  color: var(--mkt-accent);
+}
+
+[data-surface="marketing"] .mkt-integration-flow-index {
+  font-size: var(--mkt-type-overline);
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  line-height: 1;
+  color: var(--mkt-text-subtle);
+}
+
+[data-surface="marketing"] .mkt-integration-flow-label {
+  max-width: 12rem;
+  margin: 0;
+  font-size: var(--mkt-type-body);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.32;
+  color: var(--mkt-text);
+  text-wrap: balance;
+}
+
+[data-surface="marketing"] .mkt-integration-flow-connector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mkt-text-muted);
+}
+
+[data-surface="marketing"] .mkt-integration-flow-arrow {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+[data-surface="marketing"] .mkt-integration-flow-arrow-horizontal {
+  display: none;
+}
+
+[data-surface="marketing"] .mkt-integration-flow-arrow-vertical {
+  display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-surface="marketing"] .mkt-integration-flow-card:hover {
+    border-color: var(--mkt-card-hover-border);
+    box-shadow: var(--mkt-card-hover-shadow);
+    transform: translateY(calc(var(--mkt-motion-hover-y) * -1));
+  }
+}
+
+@media (min-width: 1024px) {
+  [data-surface="marketing"] .mkt-integration-flow {
+    padding: var(--mkt-space-4);
+  }
+
+  [data-surface="marketing"] .mkt-integration-flow-list {
+    grid-template-columns:
+      minmax(0, 1fr)
+      auto
+      minmax(0, 1fr)
+      auto
+      minmax(0, 1fr)
+      auto
+      minmax(0, 1fr)
+      auto
+      minmax(0, 1fr);
+    align-items: stretch;
+    gap: var(--mkt-space-2);
+  }
+
+  [data-surface="marketing"] .mkt-integration-flow-step {
+    display: contents;
+  }
+
+  [data-surface="marketing"] .mkt-integration-flow-card {
+    min-width: 0;
+    min-height: 7.5rem;
+  }
+
+  [data-surface="marketing"] .mkt-integration-flow-label {
+    max-width: 100%;
+  }
+
+  [data-surface="marketing"] .mkt-integration-flow-arrow-horizontal {
+    display: block;
+  }
+
+  [data-surface="marketing"] .mkt-integration-flow-arrow-vertical {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-integration-flow-card {
+    transition: none;
+  }
+
+  [data-surface="marketing"] .mkt-integration-flow-card:hover {
+    transform: none;
+  }
+}
+
+/* Integrations — benefits */
+
+[data-surface="marketing"] .mkt-integrations-benefits-grid {
+  display: grid;
+  gap: var(--mkt-gap);
+  margin-bottom: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-surface="marketing"] .mkt-features-benefit-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+[data-surface="marketing"] .mkt-features-benefit-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      circle at top right,
+      var(--mkt-accent-muted),
+      transparent 58%
+    );
+  opacity: 0;
+  transition: opacity var(--mkt-duration) var(--mkt-ease);
+}
+
+[data-surface="marketing"] .mkt-features-benefit-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+[data-surface="marketing"] .mkt-integrations-benefit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mkt-space-2);
+}
+
+[data-surface="marketing"] .mkt-integrations-benefit-eyebrow {
+  font-size: var(--mkt-type-overline);
+  font-weight: 650;
+  letter-spacing: 0.16em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--mkt-accent);
+}
+
+[data-surface="marketing"] .mkt-integrations-benefit-index {
+  font-size: var(--mkt-type-small);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  line-height: 1;
+  color: var(--mkt-text-subtle);
+}
+
+[data-surface="marketing"] .mkt-integrations-benefit-title {
+  margin: var(--mkt-space-4) 0 0;
+  max-width: 13ch;
+  font-size: clamp(
+    1.75rem,
+    1.35rem + 0.65vw,
+    2.25rem
+  );
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: var(--mkt-text);
+  text-wrap: balance;
+}
+
+[data-surface="marketing"] .mkt-integrations-benefit-description {
+  margin: var(--mkt-space-3) 0 0;
+  font-size: var(--mkt-type-body);
+  line-height: 1.55;
+  color: var(--mkt-text-muted);
+  text-wrap: pretty;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [data-surface="marketing"] .mkt-features-benefit-card:hover::before {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  [data-surface="marketing"] .mkt-integrations-benefits-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  [data-surface="marketing"] .mkt-integrations-benefits-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-surface="marketing"] .mkt-features-benefit-card::before {
+    transition: none;
   }
 }
 
@@ -15663,25 +15925,7 @@ html[data-shell-theme="gray"] {
     border-color 320ms var(--mkt-ease),
     box-shadow 320ms var(--mkt-ease);
 }
-
-@media (hover: hover) and (pointer: fine) {
-  [data-surface="marketing"] :is(
-    .mkt-features-benefit-card,
-    .mkt-features-integration-card,
-    .mkt-features-overview-card,
-    .mkt-features-workspace-card,
-    .mkt-contact-method-card,
-    .mkt-final-cta-triad-card
-  ):hover {
-    transform: translateY(-2px);
-    border-color: rgb(216 182 111 / 19%);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 4%),
-      0 26px 70px rgb(0 0 0 / 24%),
-      0 0 28px rgb(200 162 90 / 3.5%);
-  }
-}
-
+  
 /* Motion unification */
 [data-surface="marketing"] {
   --mkt-duration-fast: 180ms;

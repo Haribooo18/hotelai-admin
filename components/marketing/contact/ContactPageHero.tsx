@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 export function ContactPageHero() {
   return (
     <section
-      className="mkt-page-hero border-b border-white/[0.05]"
+      className="mkt-page-hero border-b border-[var(--mkt-border-subtle)]"
       aria-labelledby="contact-page-hero-heading"
     >
       <div className="mkt-container-wide py-12 md:py-16 lg:py-18">
