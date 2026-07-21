@@ -20,7 +20,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     id: "platform",
     title: "Platform",
     links: [
-      { href: MARKETING_PRODUCT_HREF, label: "Runtime" },
       { href: "/ai", label: "AI Reception" },
       { href: MARKETING_PRODUCT_HREF, label: "Operations" },
       { href: "/integrations", label: "Integrations" },
