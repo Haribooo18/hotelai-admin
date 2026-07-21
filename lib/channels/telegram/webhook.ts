@@ -14,11 +14,13 @@ export function getTelegramWebhookSecret(): string | undefined {
 }
 
 export function getTelegramHotelId(): string {
-  return (
-    process.env.TELEGRAM_HOTEL_ID?.trim() ||
-    process.env.DEFAULT_HOTEL_ID ||
-    "hotel_aurora"
-  );
+  const hotelId = process.env.TELEGRAM_HOTEL_ID?.trim();
+
+  if (!hotelId) {
+    throw new Error("TELEGRAM_HOTEL_ID is not configured");
+  }
+
+  return hotelId;
 }
 
 export function validateWebhookSecret(
@@ -98,7 +100,7 @@ export async function insertTelegramGuestMessage(
   hotelId: string,
   conversationId: string,
   inbound: ChannelInboundMessage
-): Promise<string> {
+): Promise<{ messageId: string | null; duplicate: boolean }> {
   const supabase = createAdminClient();
 
   const { data, error } = await supabase
@@ -113,7 +115,12 @@ export async function insertTelegramGuestMessage(
     .select("id, created_at")
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === "23505") {
+      return { messageId: null, duplicate: true };
+    }
+    throw error;
+  }
 
   await supabase
     .from("conversations")
@@ -127,7 +134,7 @@ export async function insertTelegramGuestMessage(
     .eq("id", conversationId)
     .eq("hotel_id", hotelId);
 
-  return data.id as string;
+  return { messageId: data.id as string, duplicate: false };
 }
 
 export async function processTelegramUpdate(
@@ -144,7 +151,15 @@ export async function processTelegramUpdate(
     inbound
   );
 
-  await insertTelegramGuestMessage(hotelId, conversation.id, inbound);
+  const inserted = await insertTelegramGuestMessage(
+    hotelId,
+    conversation.id,
+    inbound
+  );
+
+  if (inserted.duplicate) {
+    return { handled: true, reason: "duplicate_update" };
+  }
 
   const aiResult = await generateAIResponseForHotel(hotelId, conversation.id, {
     messageMetadata: { channel: "telegram" },
@@ -194,11 +209,13 @@ export async function handleTelegramWebhook(request: Request): Promise<Response>
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Ошибка обработки вебхука";
-    console.error("[telegram-webhook]", message);
-    return new Response(JSON.stringify({ error: message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("[telegram-webhook]", err);
+    return new Response(
+      JSON.stringify({ error: "Ошибка обработки вебхука" }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }

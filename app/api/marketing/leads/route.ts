@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { parseMarketingLeadRoomRange } from "@/lib/marketing/lead-fields";
 import { createClient } from "@/lib/supabase/server";
 
 type LeadSource = "contact" | "demo";
@@ -58,23 +59,6 @@ function optionalText(value: unknown, maxLength: number): string | null {
   return normalized;
 }
 
-function parseRooms(value: unknown): number | null {
-  if (value === undefined || value === null || value === "") {
-    return null;
-  }
-
-  const normalized =
-    typeof value === "number"
-      ? value
-      : Number.parseInt(String(value).trim(), 10);
-
-  if (!Number.isInteger(normalized) || normalized <= 0 || normalized > 100000) {
-    throw new Error("Rooms must be a positive whole number.");
-  }
-
-  return normalized;
-}
-
 function parseSource(value: unknown): LeadSource {
   if (value === "contact" || value === "demo") {
     return value;
@@ -105,7 +89,7 @@ export async function POST(request: Request) {
 
     const hotel = optionalText(body.hotel, 160);
     const country = optionalText(body.country, 120);
-    const rooms = parseRooms(body.rooms);
+    const roomsRange = parseMarketingLeadRoomRange(body.rooms);
     const preferredDate = optionalText(body.preferredDate, 80);
     const message = optionalText(body.message, 3000);
 
@@ -117,7 +101,7 @@ export async function POST(request: Request) {
       email,
       hotel,
       country,
-      rooms,
+      rooms_range: roomsRange,
       preferred_date: preferredDate,
       message,
       status: "new",

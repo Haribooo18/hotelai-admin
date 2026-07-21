@@ -1,105 +1,121 @@
 import type { User } from "@supabase/supabase-js";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import {
   buildTenantContext,
-  getTenantContext,
+  canManageBilling,
   resolveHotelId,
+  selectTenantMembership,
 } from "@/lib/tenant/context";
 
-function makeUser(metadata: {
-  app?: Record<string, unknown>;
-  user?: Record<string, unknown>;
-}): User {
+function makeUser(appMetadata: Record<string, unknown> = {}): User {
   return {
     id: "user-1",
     email: "admin@hotel.com",
-    app_metadata: metadata.app ?? {},
-    user_metadata: metadata.user ?? {},
+    app_metadata: appMetadata,
+    user_metadata: {},
     aud: "authenticated",
     created_at: "2026-01-01T00:00:00.000Z",
   } as User;
 }
 
 describe("resolveHotelId", () => {
-  it("prefers app_metadata.hotel_id", () => {
-    const user = makeUser({
-      app: { hotel_id: "hotel_app" },
-      user: { hotel_id: "hotel_user" },
-    });
-
-    expect(resolveHotelId(user)).toBe("hotel_app");
+  it("reads a normalized hotel selector from app_metadata", () => {
+    expect(resolveHotelId(makeUser({ hotel_id: "  hotel_app  " }))).toBe(
+      "hotel_app",
+    );
   });
 
-  it("falls back to user_metadata.hotel_id", () => {
-    const user = makeUser({
-      user: { hotel_id: "hotel_user" },
-    });
+  it("does not trust user_metadata or a default hotel fallback", () => {
+    const user = {
+      ...makeUser(),
+      user_metadata: { hotel_id: "hotel_user" },
+    } as User;
 
-    expect(resolveHotelId(user)).toBe("hotel_user");
+    expect(resolveHotelId(user)).toBeNull();
   });
 
-  it("uses DEFAULT_HOTEL_ID when metadata is missing (temporary fallback, TD-09)", () => {
-    const user = makeUser({});
+  it("ignores an empty app_metadata hotel selector", () => {
+    expect(resolveHotelId(makeUser({ hotel_id: "   " }))).toBeNull();
+  });
+});
 
-    expect(resolveHotelId(user)).toBe("hotel_aurora");
+describe("selectTenantMembership", () => {
+  const memberships = [
+    { hotel_id: "hotel_one", role: "owner" },
+    { hotel_id: "hotel_two", role: "staff" },
+  ];
+
+  it("verifies a metadata-selected hotel against memberships", () => {
+    expect(selectTenantMembership(memberships, "hotel_two")).toEqual(
+      memberships[1],
+    );
   });
 
-  it("ignores empty app_metadata hotel_id", () => {
-    const user = makeUser({
-      app: { hotel_id: "" },
-    });
+  it("rejects a selected hotel that is not in memberships", () => {
+    expect(() =>
+      selectTenantMembership(memberships, "hotel_other"),
+    ).toThrow("not a member");
+  });
 
-    expect(resolveHotelId(user)).toBe("hotel_aurora");
+  it("uses the sole membership when no hotel is selected", () => {
+    expect(selectTenantMembership([memberships[0]], null)).toEqual(
+      memberships[0],
+    );
+  });
+
+  it("rejects users without memberships", () => {
+    expect(() => selectTenantMembership([], null)).toThrow(
+      "no hotel membership",
+    );
+  });
+
+  it("requires an explicit selector for users with multiple memberships", () => {
+    expect(() => selectTenantMembership(memberships, null)).toThrow(
+      "multiple hotels",
+    );
   });
 });
 
 describe("buildTenantContext", () => {
-  it("maps hotel and user fields from auth metadata", () => {
-    const user = makeUser({
-      app: {
-        hotel_id: "hotel_app",
-        hotel_name: "App Hotel",
-        role: "admin",
-      },
-    });
-
-    expect(buildTenantContext(user)).toEqual({
-      tenantId: "hotel_app",
-      hotelId: "hotel_app",
+  it("uses membership data as the source of hotel and role", () => {
+    expect(
+      buildTenantContext(
+        makeUser({
+          hotel_id: "stale_hotel",
+          role: "staff",
+          hotel_name: "Stale Hotel",
+        }),
+        { hotel_id: "hotel_db", role: "manager" },
+        "Database Hotel",
+      ),
+    ).toEqual({
+      tenantId: "hotel_db",
+      hotelId: "hotel_db",
       userId: "user-1",
       userEmail: "admin@hotel.com",
-      role: "admin",
-      hotelName: "App Hotel",
+      role: "manager",
+      hotelName: "Database Hotel",
     });
+  });
+
+  it("rejects roles outside the database role contract", () => {
+    expect(() =>
+      buildTenantContext(
+        makeUser(),
+        { hotel_id: "hotel_db", role: "admin" },
+        "Database Hotel",
+      ),
+    ).toThrow("Unsupported membership role");
   });
 });
 
-vi.mock("next/navigation", () => ({
-  redirect: vi.fn(),
-}));
+describe("canManageBilling", () => {
+  it.each(["owner", "manager"] as const)("allows %s", (role) => {
+    expect(canManageBilling(role)).toBe(true);
+  });
 
-vi.mock("@/lib/supabase/server", () => ({
-  createClient: vi.fn(),
-}));
-
-describe("getTenantContext", () => {
-  it("returns resolved tenant context for authenticated user", async () => {
-    const { createClient } = await import("@/lib/supabase/server");
-    vi.mocked(createClient).mockResolvedValue({
-      auth: {
-        getUser: vi.fn().mockResolvedValue({
-          data: {
-            user: makeUser({ app: { hotel_id: "hotel_from_auth" } }),
-          },
-        }),
-      },
-    } as never);
-
-    await expect(getTenantContext()).resolves.toMatchObject({
-      hotelId: "hotel_from_auth",
-      tenantId: "hotel_from_auth",
-      userId: "user-1",
-    });
+  it("does not allow staff", () => {
+    expect(canManageBilling("staff")).toBe(false);
   });
 });

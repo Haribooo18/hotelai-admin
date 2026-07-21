@@ -83,7 +83,10 @@ export async function POST(request: Request) {
               return;
             }
 
-            send({ type: "error", message: normalized.message });
+            send({
+              type: "error",
+              message: "Не удалось обработать запрос. Попробуйте позже.",
+            });
           } finally {
             controller.close();
           }

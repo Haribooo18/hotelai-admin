@@ -2,19 +2,20 @@ import { createPortalSession } from "@/lib/billing/portal";
 import { isStripeConfigured } from "@/lib/billing/stripe";
 import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
 import { ProviderError } from "@/lib/ops/errors";
-import { getCurrentHotelId } from "@/lib/tenant";
+import { requireBillingTenant } from "@/lib/billing/access";
 
 export const runtime = "nodejs";
 
-function resolveOrigin(request: Request): string {
-  const origin = request.headers.get("origin");
-  if (origin) return origin;
+function getSiteUrl(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
-  const host = request.headers.get("host");
-  const proto = request.headers.get("x-forwarded-proto") ?? "http";
-  if (host) return `${proto}://${host}`;
+  if (!siteUrl) {
+    throw new ProviderError(
+      "NEXT_PUBLIC_SITE_URL is not configured."
+    );
+  }
 
-  return "http://localhost:3000";
+  return siteUrl.replace(/\/+$/, "");
 }
 
 export async function POST(request: Request) {
@@ -32,13 +33,15 @@ export async function POST(request: Request) {
         );
       }
 
-      const hotelId = await getCurrentHotelId();
-      bindApiContext({ hotelId });
-      const origin = resolveOrigin(request);
+      const tenant = await requireBillingTenant();
+
+      const hotelId = tenant.hotelId;
+      bindApiContext({ hotelId, userId: tenant.userId });
+      const siteUrl = getSiteUrl();
 
       const result = await createPortalSession({
         hotelId,
-        returnUrl: `${origin}/settings?tab=billing`,
+        returnUrl: `${siteUrl}/settings?tab=billing`,
       });
 
       return Response.json(result);

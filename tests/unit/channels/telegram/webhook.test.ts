@@ -6,6 +6,7 @@ import {
   findOrCreateTelegramConversation,
   findTelegramConversation,
   insertTelegramGuestMessage,
+  getTelegramHotelId,
   processTelegramUpdate,
   validateWebhookSecret,
 } from "@/lib/channels/telegram/webhook";
@@ -88,6 +89,17 @@ describe("validateWebhookSecret", () => {
   });
 });
 
+describe("getTelegramHotelId", () => {
+  it("requires an explicit Telegram hotel configuration", () => {
+    vi.stubEnv("TELEGRAM_HOTEL_ID", "");
+    vi.stubEnv("DEFAULT_HOTEL_ID", "fallback-must-not-be-used");
+
+    expect(() => getTelegramHotelId()).toThrow(
+      "TELEGRAM_HOTEL_ID is not configured"
+    );
+  });
+});
+
 describe("Telegram conversation lifecycle", () => {
   beforeEach(() => {
     for (const k of Object.keys(queryResults)) delete queryResults[k];
@@ -154,7 +166,7 @@ describe("Telegram conversation lifecycle", () => {
       inbound
     );
 
-    expect(messageId).toBe("msg-1");
+    expect(messageId).toEqual({ messageId: "msg-1", duplicate: false });
     expect(insertMock).toHaveBeenCalledWith(
       expect.objectContaining({
         table: "messages",
@@ -166,6 +178,24 @@ describe("Telegram conversation lifecycle", () => {
       })
     );
   });
+
+
+  it("treats a duplicate Telegram message as already processed", async () => {
+    queryResults[key("messages", "insert")] = {
+      data: null,
+      error: { code: "23505" },
+    };
+
+    const result = await insertTelegramGuestMessage(
+      "hotel_test",
+      "conv-1",
+      inbound
+    );
+
+    expect(result).toEqual({ messageId: null, duplicate: true });
+    expect(updateMock).not.toHaveBeenCalled();
+  });
+
 });
 
 describe("processTelegramUpdate", () => {

@@ -2,19 +2,20 @@ import { createCheckoutSession, parseCheckoutPlan } from "@/lib/billing/checkout
 import { isStripeConfigured } from "@/lib/billing/stripe";
 import { bindApiContext, runApiRoute } from "@/lib/ops/api-route";
 import { ProviderError, ValidationError } from "@/lib/ops/errors";
-import { getCurrentHotel, getCurrentUser } from "@/lib/tenant";
+import { requireBillingTenant } from "@/lib/billing/access";
 
 export const runtime = "nodejs";
 
-function resolveOrigin(request: Request): string {
-  const origin = request.headers.get("origin");
-  if (origin) return origin;
+function getSiteUrl(): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim();
 
-  const host = request.headers.get("host");
-  const proto = request.headers.get("x-forwarded-proto") ?? "http";
-  if (host) return `${proto}://${host}`;
+  if (!siteUrl) {
+    throw new ProviderError(
+      "NEXT_PUBLIC_SITE_URL is not configured."
+    );
+  }
 
-  return "http://localhost:3000";
+  return siteUrl.replace(/\/+$/, "");
 }
 
 export async function POST(request: Request) {
@@ -44,18 +45,19 @@ export async function POST(request: Request) {
         throw new ValidationError("Укажите тариф: starter, pro или enterprise");
       }
 
-      const [hotel, user] = await Promise.all([getCurrentHotel(), getCurrentUser()]);
-      bindApiContext({ hotelId: hotel.id, userId: user?.id });
+      const tenant = await requireBillingTenant();
 
-      const origin = resolveOrigin(request);
+      bindApiContext({ hotelId: tenant.hotelId, userId: tenant.userId });
+
+      const siteUrl = getSiteUrl();
 
       const result = await createCheckoutSession({
-        hotelId: hotel.id,
-        hotelName: hotel.name,
-        userEmail: user?.email ?? undefined,
+        hotelId: tenant.hotelId,
+        hotelName: tenant.hotelName,
+        userEmail: tenant.userEmail || undefined,
         plan,
-        successUrl: `${origin}/settings?tab=billing&checkout=success`,
-        cancelUrl: `${origin}/settings?tab=billing&checkout=canceled`,
+        successUrl: `${siteUrl}/settings?tab=billing&checkout=success`,
+        cancelUrl: `${siteUrl}/settings?tab=billing&checkout=canceled`,
       });
 
       return Response.json(result);
