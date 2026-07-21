@@ -32,9 +32,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     title: "Resources",
     links: [
       { href: "/docs", label: "Documentation" },
-      { href: "/docs", label: "API" },
-      { href: "/security", label: "Status" },
-      { href: "/docs", label: "Changelog" },
     ],
   },
   {
@@ -43,7 +40,6 @@ export const FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { href: "/about", label: "About" },
       { href: "/contact", label: "Contact" },
-      { href: "/careers", label: "Careers" },
     ],
   },
   {

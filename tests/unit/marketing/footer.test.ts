@@ -27,7 +27,9 @@ describe("footer content", () => {
     const resources = FOOTER_COLUMNS.find((column) => column.id === "resources");
     const company = FOOTER_COLUMNS.find((column) => column.id === "company");
     const legal = FOOTER_COLUMNS.find((column) => column.id === "legal");
-
+    if (!resources || !company) {
+      throw new Error("Expected footer columns are missing");
+    }
     expect(platform?.links.map((link) => link.label)).toEqual([
       "Runtime",
       "AI Reception",
@@ -36,16 +38,12 @@ describe("footer content", () => {
       "Security",
     ]);
     expect(platform?.links[0]?.href).toBe(MARKETING_PRODUCT_HREF);
-    expect(resources?.links.map((link) => link.label)).toEqual([
+    expect(resources.links.map((link) => link.label)).toEqual([
       "Documentation",
-      "API",
-      "Status",
-      "Changelog",
     ]);
-    expect(company?.links.map((link) => link.label)).toEqual([
+    expect(company.links.map((link) => link.label)).toEqual([
       "About",
       "Contact",
-      "Careers",
     ]);
     expect(legal?.links.map((link) => link.label)).toEqual(["Privacy", "Terms"]);
   });
