@@ -18,24 +18,34 @@ export function IntegrationsAvailableSection() {
     >
       <div className="mkt-container-wide">
         <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>{INTEGRATIONS_PAGE_AVAILABLE.overline}</p>
+          <p className={mktOverlineClass}>
+            {INTEGRATIONS_PAGE_AVAILABLE.overline}
+          </p>
+
           <h2
             id="integrations-available-heading"
-            className={mktSectionHeadlineClass}
+            className={`${mktSectionHeadlineClass} max-w-4xl`}
           >
             {INTEGRATIONS_PAGE_AVAILABLE.headline}
           </h2>
-          <p className={mktSectionSubheadClass}>
+
+          <p className={`${mktSectionSubheadClass} max-w-3xl`}>
             {INTEGRATIONS_PAGE_AVAILABLE.subhead}
           </p>
         </header>
 
         <ul
-          className={cn(mktSectionBodyClass, "mkt-integrations-available-grid")}
-          aria-label="Integrations"
+          className={cn(
+            mktSectionBodyClass,
+            "mkt-integrations-available-grid"
+          )}
+          aria-label="Available integrations"
         >
           {INTEGRATIONS_PAGE_AVAILABLE.items.map((integration) => (
-            <IntegrationCard key={integration.id} integration={integration} />
+            <IntegrationCard
+              key={integration.id}
+              integration={integration}
+            />
           ))}
         </ul>
       </div>

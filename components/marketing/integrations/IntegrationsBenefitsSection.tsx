@@ -17,23 +17,54 @@ export function IntegrationsBenefitsSection() {
     >
       <div className="mkt-container-wide">
         <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>{INTEGRATIONS_PAGE_BENEFITS.overline}</p>
+          <p className={mktOverlineClass}>
+            {INTEGRATIONS_PAGE_BENEFITS.overline}
+          </p>
+
           <h2
             id="integrations-benefits-heading"
-            className={mktSectionHeadlineClass}
+            className={`${mktSectionHeadlineClass} max-w-4xl`}
           >
             {INTEGRATIONS_PAGE_BENEFITS.headline}
           </h2>
-          <p className={mktSectionSubheadClass}>
+
+          <p className={`${mktSectionSubheadClass} max-w-3xl`}>
             {INTEGRATIONS_PAGE_BENEFITS.subhead}
           </p>
         </header>
 
-        <ul className={cn(mktSectionBodyClass, "mkt-features-benefits-grid")}>
-          {INTEGRATIONS_PAGE_BENEFITS.items.map((benefit) => (
-            <li key={benefit.id} className="mkt-features-benefit-card">
-              <h3 className="mkt-features-card-title">{benefit.title}</h3>
-              <p className="mkt-features-card-description">{benefit.description}</p>
+        <ul
+          className={cn(
+            mktSectionBodyClass,
+            "mkt-integrations-benefits-grid"
+          )}
+          aria-label="Integration benefits"
+        >
+          {INTEGRATIONS_PAGE_BENEFITS.items.map((benefit, index) => (
+            <li
+              key={benefit.id}
+              className="mkt-features-benefit-card"
+            >
+              <div className="mkt-integrations-benefit-header">
+                <span className="mkt-integrations-benefit-eyebrow">
+                  Benefit
+                </span>
+
+                <span
+                  className="mkt-integrations-benefit-index"
+                  aria-hidden="true"
+                >
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+
+              <h3 className="mkt-integrations-benefit-title">
+                {benefit.title}
+              </h3>
+
+              <p className="mkt-integrations-benefit-description">
+                {benefit.description}
+              </p>
             </li>
           ))}
         </ul>
