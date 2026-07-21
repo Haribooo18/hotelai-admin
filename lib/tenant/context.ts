@@ -4,10 +4,7 @@ import type { User } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/server";
 
-const DEFAULT_HOTEL_ID = process.env.DEFAULT_HOTEL_ID ?? "hotel_aurora";
-const DEFAULT_ROLE = "staff";
-
-export type TenantRole = "owner" | "admin" | "staff" | (string & {});
+export type TenantRole = "owner" | "manager" | "staff";
 
 export type TenantContext = {
   tenantId: string;
@@ -18,48 +15,95 @@ export type TenantContext = {
   hotelName: string;
 };
 
-function readMetadataString(
+type MembershipRow = {
+  hotel_id: string;
+  role: string;
+};
+
+const BILLING_ROLES: readonly TenantRole[] = ["owner", "manager"];
+const VALID_TENANT_ROLES: readonly TenantRole[] = [
+  "owner",
+  "manager",
+  "staff",
+];
+
+export function canManageBilling(role: TenantRole): boolean {
+  return BILLING_ROLES.includes(role);
+}
+
+function readAppMetadataString(user: User, key: string): string | undefined {
+  const appMetadata = (user.app_metadata ?? {}) as Record<string, unknown>;
+  const value = appMetadata[key];
+
+  if (typeof value !== "string") return undefined;
+
+  const normalized = value.trim();
+  return normalized.length > 0 ? normalized : undefined;
+}
+
+/**
+ * Returns the hotel selected in trusted app metadata.
+ *
+ * This value is only a selector. `getTenantContext()` always verifies it
+ * against the authenticated user's rows in `memberships` before using it.
+ */
+export function resolveHotelId(user: User): string | null {
+  return readAppMetadataString(user, "hotel_id") ?? null;
+}
+
+function parseTenantRole(role: string): TenantRole {
+  if (VALID_TENANT_ROLES.includes(role as TenantRole)) {
+    return role as TenantRole;
+  }
+
+  throw new Error(`Unsupported membership role: ${role}`);
+}
+
+export function selectTenantMembership(
+  memberships: readonly MembershipRow[],
+  preferredHotelId: string | null,
+): MembershipRow {
+  if (preferredHotelId) {
+    const selected = memberships.find(
+      (membership) => membership.hotel_id === preferredHotelId,
+    );
+
+    if (!selected) {
+      throw new Error(
+        "The authenticated user is not a member of the selected hotel.",
+      );
+    }
+
+    return selected;
+  }
+
+  if (memberships.length === 0) {
+    throw new Error("The authenticated user has no hotel membership.");
+  }
+
+  if (memberships.length > 1) {
+    throw new Error(
+      "The authenticated user belongs to multiple hotels, but no hotel is selected in app_metadata.hotel_id.",
+    );
+  }
+
+  return memberships[0];
+}
+
+export function buildTenantContext(
   user: User,
-  key: string
-): string | undefined {
-  const appMeta = (user.app_metadata ?? {}) as Record<string, unknown>;
-  const userMeta = (user.user_metadata ?? {}) as Record<string, unknown>;
-
-  const fromApp = appMeta[key];
-  const fromUser = userMeta[key];
-
-  if (typeof fromApp === "string" && fromApp.length > 0) return fromApp;
-  if (typeof fromUser === "string" && fromUser.length > 0) return fromUser;
-
-  return undefined;
-}
-
-export function resolveHotelId(user: User): string {
-  return readMetadataString(user, "hotel_id") ?? DEFAULT_HOTEL_ID;
-}
-
-function resolveTenantId(user: User, hotelId: string): string {
-  return readMetadataString(user, "tenant_id") ?? hotelId;
-}
-
-function resolveHotelName(user: User): string {
-  return readMetadataString(user, "hotel_name") ?? "Aurora Hotel";
-}
-
-function resolveRole(user: User): TenantRole {
-  return (readMetadataString(user, "role") ?? DEFAULT_ROLE) as TenantRole;
-}
-
-export function buildTenantContext(user: User): TenantContext {
-  const hotelId = resolveHotelId(user);
+  membership: MembershipRow,
+  hotelName: string,
+): TenantContext {
+  const hotelId = membership.hotel_id;
 
   return {
-    tenantId: resolveTenantId(user, hotelId),
+    tenantId: hotelId,
     hotelId,
     userId: user.id,
-    userEmail: user.email ?? "admin@hotel.com",
-    role: resolveRole(user),
-    hotelName: resolveHotelName(user),
+    userEmail: user.email ?? "",
+    role: parseTenantRole(membership.role),
+    hotelName,
   };
 }
 
@@ -84,8 +128,45 @@ function requireAuthenticatedUser(user: User | null): User {
   return user;
 }
 
-/** Single source of truth for tenant-scoped server access. Cached per request. */
+/**
+ * Single source of truth for authenticated dashboard tenant access.
+ *
+ * JWT app metadata may select a hotel, but authorization and role always come
+ * from `memberships`. This prevents stale or misconfigured metadata from
+ * granting service-layer access to another tenant.
+ */
 export const getTenantContext = cache(async (): Promise<TenantContext> => {
   const user = requireAuthenticatedUser(await getAuthenticatedUser());
-  return buildTenantContext(user);
+  const supabase = await createClient();
+
+  const { data: memberships, error: membershipsError } = await supabase
+    .from("memberships")
+    .select("hotel_id, role")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: true });
+
+  if (membershipsError) {
+    throw membershipsError;
+  }
+
+  const membership = selectTenantMembership(
+    (memberships ?? []) as MembershipRow[],
+    resolveHotelId(user),
+  );
+
+  const { data: hotel, error: hotelError } = await supabase
+    .from("hotels")
+    .select("name")
+    .eq("id", membership.hotel_id)
+    .maybeSingle();
+
+  if (hotelError) {
+    throw hotelError;
+  }
+
+  if (!hotel) {
+    throw new Error("The selected hotel does not exist or is not accessible.");
+  }
+
+  return buildTenantContext(user, membership, hotel.name);
 });

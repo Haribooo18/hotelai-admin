@@ -11,6 +11,21 @@ function escapeHtml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function isSafeMarkdownHref(href: string): boolean {
+  const normalized = href.trim().replace(/[\u0000-\u001F\u007F\s]+/g, "");
+
+  if (
+    normalized.startsWith("#") ||
+    normalized.startsWith("/") ||
+    normalized.startsWith("./") ||
+    normalized.startsWith("../")
+  ) {
+    return true;
+  }
+
+  return /^(https?:|mailto:)/i.test(normalized);
+}
+
 export function markdownToPreviewHtml(markdown: string): string {
   const lines = markdown.split("\n");
   const html: string[] = [];
@@ -66,9 +81,12 @@ function formatInline(text: string): string {
     /`(.+?)`/g,
     '<code class="rounded bg-zinc-800 px-1 py-0.5 text-sm">$1</code>'
   );
-  out = out.replace(
-    /\[(.+?)\]\((.+?)\)/g,
-    '<a href="$2" class="text-blue-400 underline" target="_blank" rel="noopener noreferrer">$1</a>'
-  );
+  out = out.replace(/\[(.+?)\]\((.+?)\)/g, (_match, label: string, href: string) => {
+    if (!isSafeMarkdownHref(href)) {
+      return label;
+    }
+
+    return `<a href="${href}" class="text-blue-400 underline" target="_blank" rel="noopener noreferrer">${label}</a>`;
+  });
   return out;
 }

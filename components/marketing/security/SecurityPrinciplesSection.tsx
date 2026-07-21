@@ -18,21 +18,34 @@ export function SecurityPrinciplesSection() {
     >
       <div className="mkt-container-wide">
         <header className={mktSectionHeaderClass}>
-          <p className={mktOverlineClass}>{SECURITY_PAGE_PRINCIPLES.overline}</p>
-          <h2 id="security-principles-heading" className={mktSectionHeadlineClass}>
+          <p className={mktOverlineClass}>
+            {SECURITY_PAGE_PRINCIPLES.overline}
+          </p>
+
+          <h2
+            id="security-principles-heading"
+            className={`${mktSectionHeadlineClass} max-w-4xl`}
+          >
             {SECURITY_PAGE_PRINCIPLES.headline}
           </h2>
-          <p className={mktSectionSubheadClass}>
+
+          <p className={`${mktSectionSubheadClass} max-w-3xl`}>
             {SECURITY_PAGE_PRINCIPLES.subhead}
           </p>
         </header>
 
         <ul
-          className={cn(mktSectionBodyClass, "mkt-features-workspace-grid")}
+          className={cn(
+            mktSectionBodyClass,
+            "grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+          )}
           aria-label="Security principles"
         >
           {SECURITY_PAGE_PRINCIPLES.items.map((principle) => (
-            <SecurityPrincipleCard key={principle.id} principle={principle} />
+            <SecurityPrincipleCard
+              key={principle.id}
+              principle={principle}
+            />
           ))}
         </ul>
       </div>

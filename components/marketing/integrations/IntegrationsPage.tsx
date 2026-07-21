@@ -1,21 +1,21 @@
-import { FinalCtaSection } from "@/components/marketing/landing/FinalCtaSection";
-import { IntegrationsArchitectureSection } from "@/components/marketing/integrations/IntegrationsArchitectureSection";
-import { IntegrationsAvailableSection } from "@/components/marketing/integrations/IntegrationsAvailableSection";
-import { IntegrationsBenefitsSection } from "@/components/marketing/integrations/IntegrationsBenefitsSection";
-import { IntegrationsFutureSection } from "@/components/marketing/integrations/IntegrationsFutureSection";
-import { IntegrationsGuestCommunicationSection } from "@/components/marketing/integrations/IntegrationsGuestCommunicationSection";
-import { IntegrationsPageHero } from "@/components/marketing/integrations/IntegrationsPageHero";
+import { IntegrationsAvailableSection } from "./IntegrationsAvailableSection";
+import { IntegrationsBenefitsSection } from "./IntegrationsBenefitsSection";
+import { IntegrationsFutureSection } from "./IntegrationsFutureSection";
+import { IntegrationsGuestCommunicationSection } from "./IntegrationsGuestCommunicationSection";
+import { IntegrationsPageHero } from "./IntegrationsPageHero";
 
 export function IntegrationsPage() {
   return (
-    <>
+    <main className="overflow-x-hidden">
       <IntegrationsPageHero />
+
       <IntegrationsAvailableSection />
+
       <IntegrationsGuestCommunicationSection />
-      <IntegrationsFutureSection />
-      <IntegrationsArchitectureSection />
+
       <IntegrationsBenefitsSection />
-      <FinalCtaSection variant="integrations" />
-    </>
+
+      <IntegrationsFutureSection />
+    </main>
   );
 }

@@ -20,9 +20,9 @@ export type SecurityPrinciple = {
 
 export const SECURITY_PAGE_HERO = {
   overline: "Security",
-  headline: "Security built into every workspace.",
+  headline: "Security by design.",
   subhead:
-    "Tenant isolation and operational reliability — each hotel runs on a platform built to protect its data.",
+    "Monavel is built with tenant isolation, secure authentication, role-based access, and modern cloud infrastructure to protect every hotel workspace.",
   primaryCtaLabel: "Contact sales",
   primaryCtaHref: "/contact",
   secondaryCtaLabel: "Start free trial",
@@ -32,37 +32,37 @@ export const SECURITY_PAGE_HERO = {
 export const SECURITY_PAGE_PRINCIPLES = {
   sectionId: "security-principles",
   overline: "Security principles",
-  headline: "How we approach protection.",
+  headline: "Security principles that guide the platform.",
   subhead:
-    "Security is part of the platform foundation — not an afterthought added around hotel operations.",
+    "Security is designed into every layer of Monavel, from authentication and tenant isolation to infrastructure and daily operations.",
   items: [
     {
       id: "tenant-isolation",
       icon: Shield,
       title: "Tenant isolation",
       description:
-        "Each hotel operates in a separate tenant context. Data and workspace access are scoped to your property.",
+        "Every hotel operates inside its own isolated tenant. Data, permissions, and operations remain scoped to your workspace.",
     },
     {
       id: "authentication",
       icon: KeyRound,
       title: "Secure authentication",
       description:
-        "Team members sign in through authenticated sessions. Access requires a valid account tied to your hotel.",
+        "Authenticated sessions protect access to the platform and ensure only verified users can reach hotel workspaces.",
     },
     {
       id: "rbac",
       icon: Users,
       title: "Role-based access",
       description:
-        "Permissions control what each team member can view and manage inside the workspace.",
+        "Granular permissions allow staff members to access only the areas and actions required for their responsibilities.",
     },
     {
       id: "data-protection",
       icon: Lock,
       title: "Data protection",
       description:
-        "Hotel data is protected through platform-level controls, isolated storage, and secure operational practices.",
+        "Operational safeguards, isolated storage, and encrypted connections help protect hotel and guest information.",
     },
   ] satisfies SecurityPrinciple[],
 } as const;
@@ -70,9 +70,9 @@ export const SECURITY_PAGE_PRINCIPLES = {
 export const SECURITY_PAGE_ARCHITECTURE = {
   sectionId: "security-architecture",
   overline: "Platform architecture",
-  headline: "A simple security model.",
+  headline: "Security at every layer.",
   subhead:
-    "Hotel data flows through a layered platform — from your workspace to secure infrastructure below.",
+    "Every request passes through authenticated access, isolated workspaces, and secure cloud infrastructure before reaching your hotel data.",
   steps: [
     { id: "hotel", label: "Hotel" },
     { id: "platform", label: "Monavel Platform" },
@@ -85,27 +85,27 @@ export const SECURITY_PAGE_ARCHITECTURE = {
 export const SECURITY_PAGE_ACCESS_CONTROL = {
   sectionId: "security-access-control",
   overline: "Access control",
-  headline: "Who can see what.",
+  headline: "Access only where it's needed.",
   subhead:
-    "Monavel separates authentication, permissions, and workspace isolation so hotel data stays scoped to the right people.",
+    "Authentication, permissions, and tenant isolation work together so every user only accesses the data they're authorized to use.",
   topics: [
     {
       id: "authentication",
       title: "Authentication",
       description:
-        "Users authenticate before accessing the platform. Sessions are required for workspace and API access.",
+        "Verified user authentication is required before accessing the platform, APIs, or hotel workspaces.",
     },
     {
       id: "permissions",
       title: "Permissions",
       description:
-        "Role-based permissions determine which workspaces, records, and actions a team member can use.",
+        "Role-based permissions define which records, features, and operational actions each team member can access.",
     },
     {
       id: "isolation",
       title: "Workspace isolation",
       description:
-        "Each hotel workspace is isolated at the data layer — queries and operations stay within your tenant boundary.",
+        "Every hotel workspace is isolated at the data layer to prevent cross-tenant access or data exposure.",
     },
   ],
 } as const;
@@ -120,37 +120,37 @@ export type SecurityInfrastructureItem = {
 export const SECURITY_PAGE_INFRASTRUCTURE = {
   sectionId: "security-infrastructure",
   overline: "Infrastructure",
-  headline: "Built for reliable cloud operations.",
+  headline: "Cloud infrastructure designed for reliability.",
   subhead:
-    "Monavel runs on modern cloud infrastructure designed for availability, secure connectivity, and ongoing maintenance.",
+    "Modern managed infrastructure provides secure connectivity, scalable services, and dependable platform availability.",
   items: [
     {
       id: "cloud",
       icon: Cloud,
       title: "Cloud hosted",
       description:
-        "The platform runs on cloud infrastructure with managed services for database, auth, and application hosting.",
+        "Monavel runs on modern managed cloud infrastructure with dedicated services for application hosting, authentication, and databases.",
     },
     {
       id: "encrypted",
       icon: Lock,
       title: "Encrypted connections",
       description:
-        "Connections to the platform use encrypted transport. Data in transit is protected between clients and services.",
+        "Traffic between clients and the platform is protected using encrypted transport to safeguard data in transit.",
     },
     {
       id: "updates",
       icon: RefreshCw,
-      title: "Regular updates",
+      title: "Continuous updates",
       description:
-        "Application and infrastructure components receive ongoing updates to address security and reliability improvements.",
+        "Platform and infrastructure components are continuously maintained with security patches and reliability improvements.",
     },
     {
       id: "scalable",
       icon: Database,
       title: "Scalable architecture",
       description:
-        "The platform architecture scales with hotel operations without mixing data across tenants.",
+        "The platform scales with hotel operations while maintaining strict tenant separation across all workspaces.",
     },
   ] satisfies SecurityInfrastructureItem[],
 } as const;
@@ -158,39 +158,39 @@ export const SECURITY_PAGE_INFRASTRUCTURE = {
 export const SECURITY_PAGE_FAQ = {
   sectionId: "security-faq",
   overline: "FAQ",
-  headline: "Security questions.",
+  headline: "Common security questions.",
   subhead:
-    "Answers to common questions about how Monavel handles hotel data and platform access.",
+    "Answers to the questions hotels ask most often before deploying Monavel.",
   items: [
     {
-      question: "Where is data stored?",
+      question: "Where is hotel data stored?",
       answer:
-        "Hotel data is stored in cloud database services scoped to your tenant. Data stays within the platform's isolated storage model.",
+        "Hotel data is stored within managed cloud database services using isolated tenant architecture so every workspace remains separated.",
     },
     {
-      question: "Can multiple hotels share the platform?",
+      question: "Can multiple hotels use the same platform?",
       answer:
-        "Yes. Monavel is a multi-tenant platform. Each hotel has its own isolated workspace and data boundary.",
+        "Yes. Monavel is a multi-tenant platform where every hotel operates in its own isolated workspace with separate data boundaries.",
     },
     {
-      question: "Who can access hotel data?",
+      question: "Who can access our hotel data?",
       answer:
-        "Only authenticated users with permissions for your hotel workspace. Access is limited by role-based controls.",
+        "Only authenticated users with the appropriate permissions for your workspace can access hotel information.",
     },
     {
       question: "How are permissions managed?",
       answer:
-        "Permissions are assigned through role-based access inside your hotel workspace. Administrators control who can view and manage data.",
+        "Administrators assign role-based permissions that determine which features, records, and operational actions each team member can perform.",
     },
     {
-      question: "Is guest channel data isolated?",
+      question: "How is customer data separated?",
       answer:
-        "Guest conversations and channel messages are stored within your hotel tenant context alongside other workspace data.",
+        "Every hotel runs inside its own tenant. Application logic, database access, and workspace permissions are scoped to that tenant to prevent cross-hotel access.",
     },
     {
-      question: "Do you publish compliance certifications?",
+      question: "How is guest information protected?",
       answer:
-        "We do not claim certifications we have not completed. Contact us if you need details about security practices for your evaluation.",
+        "Guest conversations and operational data remain inside your isolated workspace and are protected through authentication, authorization, encrypted connections, and platform-level security controls.",
     },
   ],
 } as const;

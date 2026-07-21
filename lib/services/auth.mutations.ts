@@ -8,6 +8,8 @@ export type SignInState = {
   error?: string;
 };
 
+import { resolvePostSignInDestination } from "@/lib/services/auth.redirects";
+
 export async function signIn(
   _prevState: SignInState,
   formData: FormData
@@ -32,12 +34,7 @@ export async function signIn(
     return { error: "Invalid email or password" };
   }
 
-  const destination =
-    redirectedFrom && redirectedFrom.startsWith("/")
-      ? redirectedFrom
-      : "/dashboard";
-
-  redirect(destination);
+  redirect(resolvePostSignInDestination(redirectedFrom));
 }
 
 export async function signOut() {
