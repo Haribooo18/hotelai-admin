@@ -15,10 +15,10 @@ function findProductEntry<T extends { href: string; label: string }>(
   return entries.find((entry) => entry.label === "Product");
 }
 
-function findRuntimeEntry<T extends { href: string; label: string }>(
+function findOperationsEntry<T extends { href: string; label: string }>(
   entries: readonly T[]
 ): T | undefined {
-  return entries.find((entry) => entry.label === "Runtime");
+  return entries.find((entry) => entry.label === "Operations");
 }
 
 describe("product navigation destinations", () => {
@@ -28,11 +28,11 @@ describe("product navigation destinations", () => {
     expect(entry?.href).toBe("/#product");
   });
 
-  it("footer Runtime link uses the same canonical Product destination as the header", () => {
+  it("footer Operations link uses the same canonical Product destination as the header", () => {
     const platformColumn = FOOTER_COLUMNS.find(
       (column) => column.id === "platform"
     );
-    const entry = findRuntimeEntry(platformColumn?.links ?? []);
+    const entry = findOperationsEntry(platformColumn?.links ?? []);
 
     expect(entry?.href).toBe(MARKETING_PRODUCT_HREF);
     expect(entry?.href).toBe(findProductEntry(MARKETING_NAV)?.href);
@@ -50,7 +50,7 @@ describe("product navigation destinations", () => {
   it("never has a duplicated hash across any Product destination", () => {
     const hrefs = [
       findProductEntry(MARKETING_NAV)?.href,
-      findRuntimeEntry(
+      findOperationsEntry(
         FOOTER_COLUMNS.find((column) => column.id === "platform")?.links ?? []
       )?.href,
       PLATFORM_PILLARS.find((pillar) => pillar.id === "operations")?.href,

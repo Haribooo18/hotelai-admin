@@ -31,13 +31,14 @@ describe("footer content", () => {
       throw new Error("Expected footer columns are missing");
     }
     expect(platform?.links.map((link) => link.label)).toEqual([
-      "Runtime",
       "AI Reception",
       "Operations",
       "Integrations",
       "Security",
     ]);
-    expect(platform?.links[0]?.href).toBe(MARKETING_PRODUCT_HREF);
+    expect(
+      platform?.links.find((link) => link.label === "Operations")?.href
+    ).toBe(MARKETING_PRODUCT_HREF);
     expect(resources.links.map((link) => link.label)).toEqual([
       "Documentation",
     ]);

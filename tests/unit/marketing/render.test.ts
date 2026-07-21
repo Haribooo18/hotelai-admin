@@ -472,7 +472,6 @@ describe("marketing page rendering", () => {
     expect(html).toContain("Resources");
     expect(html).toContain("Company");
     expect(html).toContain("Legal");
-    expect(html).toContain("Runtime");
     expect(html).toContain("AI Reception");
     expect(html).toContain("Documentation");
     expect(html).toContain('href="/#product"');
@@ -762,7 +761,6 @@ describe("marketing page rendering", () => {
     );
     expect(html).toContain("Search documentation...");
     expect(html).toContain("Install Monavel");
-    expect(html).toContain("Runtime");
     expect(html).toContain("Shared operating layer for every workspace.");
     expect(html).toContain("Telegram");
     expect(html).toContain("Administration");
