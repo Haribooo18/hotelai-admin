@@ -1,4 +1,5 @@
 import { streamAIResponseForHotel } from "@/lib/services/tenant-ai.service";
+import { requestAIHumanHandoff } from "@/lib/services/ai-handoff.service";
 import type { ChannelInboundMessage } from "@/lib/channels/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Conversation } from "@/types/conversation";
@@ -237,6 +238,7 @@ export async function handleWebsiteStream(
       return;
     }
 
+    const message = error instanceof Error ? error.message : "Unknown error";
     console.error("[Website Chat processing error]", error);
 
     logWebsiteWidget("disconnect", {
@@ -244,6 +246,29 @@ export async function handleWebsiteStream(
       hotel_id: frame.hotel_id,
       reason: "processing_error",
     });
+
+    // Same pattern as the Telegram channel: flag the conversation for a
+    // human via the existing handoff path instead of only logging server
+    // side, where staff would never see it. Best-effort — a handoff
+    // failure must not mask sendWebsiteError below.
+    // Reads hotelId from the resolved connection state (always a string,
+    // defaulted in registerWebsiteConnection) rather than frame.hotel_id
+    // (optional on the wire — the guest's browser sends it, but the frame
+    // type doesn't guarantee it survived parsing).
+    const state = connections.get(frame.session_id);
+    if (state?.conversationId) {
+      try {
+        const supabase = createAdminClient();
+        await requestAIHumanHandoff(supabase, {
+          hotelId: state.hotelId,
+          conversationId: state.conversationId,
+          reason: `AI receptionist failed to respond: ${message}`,
+          urgency: "urgent",
+        });
+      } catch {
+        // Best-effort — see comment above.
+      }
+    }
 
     sendWebsiteError(send, PUBLIC_WEBSITE_ERROR_MESSAGE);
   }

@@ -28,17 +28,25 @@ export const serverKnowledgeRetriever: KnowledgeRetriever = {
           category,
         });
 
-    const filtered = results.filter((result) => {
-      if (language && result.language !== language) {
-        return false;
-      }
-
-      if (category && result.category !== category) {
-        return false;
-      }
-
+    const byCategory = results.filter((result) => {
+      if (category && result.category !== category) return false;
       return true;
     });
+
+    // Language is a soft preference here, not a hard requirement. The
+    // detected language can default to a guess (e.g. a guest writing in a
+    // script the detector doesn't recognize falls back to a default
+    // language) — excluding every article that doesn't match that guess
+    // used to mean those guests got zero knowledge base results even when
+    // a perfectly relevant article existed, just tagged with a different
+    // language. Prefer a language match when one exists; otherwise fall
+    // back to the best relevance-ranked results regardless of language
+    // rather than showing the guest nothing.
+    const languageMatched = language
+      ? byCategory.filter((result) => result.language === language)
+      : byCategory;
+
+    const filtered = languageMatched.length > 0 ? languageMatched : byCategory;
 
     return filtered.slice(0, limit).map((article) => ({
       id: article.id,

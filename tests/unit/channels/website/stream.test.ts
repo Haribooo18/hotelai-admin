@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { ChannelInboundMessage } from "@/lib/channels/types";
+import { PUBLIC_WEBSITE_ERROR_MESSAGE } from "@/lib/channels/website/logger";
 import {
   __resetWebsiteStreamsForTests,
   cleanupWebsiteStream,
@@ -289,6 +290,6 @@ describe("handleWebsiteStream", () => {
     const events: unknown[] = [];
     await handleWebsiteStream(guestFrame, (event) => events.push(event));
 
-    expect(events).toEqual([{ type: "error", message: "Ошибка обработки" }]);
+    expect(events).toEqual([{ type: "error", message: PUBLIC_WEBSITE_ERROR_MESSAGE }]);
   });
 });

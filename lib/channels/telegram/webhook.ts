@@ -1,5 +1,6 @@
 import { readJsonBody } from "@/lib/http/json-body";
 import { generateAIResponseForHotel } from "@/lib/services/tenant-ai.service";
+import { requestAIHumanHandoff } from "@/lib/services/ai-handoff.service";
 import type { ChannelInboundMessage } from "@/lib/channels/types";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Conversation } from "@/types/conversation";
@@ -9,6 +10,10 @@ import { sendTelegramMessage } from "./sender";
 import type { TelegramUpdate } from "./types";
 
 const TELEGRAM_WEBHOOK_HEADER = "x-telegram-bot-api-secret-token";
+
+/** Shown to the guest when the AI failed to respond and staff has been flagged instead of leaving them with silence. */
+const TELEGRAM_FALLBACK_MESSAGE =
+  "Секунду — у меня небольшая техническая заминка. Администратор уже уведомлён и скоро подключится к диалогу.";
 
 export function getTelegramWebhookSecret(): string | undefined {
   return process.env.TELEGRAM_WEBHOOK_SECRET?.trim() || undefined;
@@ -162,24 +167,61 @@ export async function processTelegramUpdate(
     return { handled: true, reason: "duplicate_update" };
   }
 
-  const aiResult = await generateAIResponseForHotel(hotelId, conversation.id, {
-    messageMetadata: { channel: "telegram" },
-  });
+  try {
+    const aiResult = await generateAIResponseForHotel(hotelId, conversation.id, {
+      messageMetadata: { channel: "telegram" },
+    });
 
-  if (!aiResult) {
-    return { handled: true, reason: "ai_disabled" };
+    if (!aiResult) {
+      return { handled: true, reason: "ai_disabled" };
+    }
+
+    const sendResult = await sendTelegramMessage({
+      externalChatId: inbound.externalChatId,
+      body: aiResult.content,
+    });
+
+    if (!sendResult.ok) {
+      throw new Error(sendResult.error ?? "Не удалось отправить сообщение в Telegram");
+    }
+
+    return { handled: true };
+  } catch (err) {
+    // The AI failed to produce a reply, or Telegram rejected the send.
+    // Previously this propagated straight to a bare webhook 500: the guest
+    // got silence (Telegram has nothing to show), and no one on staff
+    // found out except by reading Vercel function logs. Two things happen
+    // instead now, both best-effort so a failure here can't mask the
+    // original error:
+    //   1. The guest gets a short, honest holding message.
+    //   2. The conversation is flagged for a human via the same handoff
+    //      path `request_human_handoff` already uses, so it surfaces in
+    //      the existing staff /ai inbox instead of a silent log line.
+    const errorMessage = err instanceof Error ? err.message : "Unknown AI/send failure";
+
+    try {
+      await sendTelegramMessage({
+        externalChatId: inbound.externalChatId,
+        body: TELEGRAM_FALLBACK_MESSAGE,
+      });
+    } catch {
+      // Best-effort — if Telegram itself is down there is nothing more we can do here.
+    }
+
+    try {
+      const supabase = createAdminClient();
+      await requestAIHumanHandoff(supabase, {
+        hotelId,
+        conversationId: conversation.id,
+        reason: `AI receptionist failed to respond: ${errorMessage}`,
+        urgency: "urgent",
+      });
+    } catch {
+      // Best-effort — don't let a handoff-logging failure hide the original error below.
+    }
+
+    throw err;
   }
-
-  const sendResult = await sendTelegramMessage({
-    externalChatId: inbound.externalChatId,
-    body: aiResult.content,
-  });
-
-  if (!sendResult.ok) {
-    throw new Error(sendResult.error ?? "Не удалось отправить сообщение в Telegram");
-  }
-
-  return { handled: true };
 }
 
 export async function handleTelegramWebhook(request: Request): Promise<Response> {

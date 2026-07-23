@@ -41,7 +41,7 @@ const MAX_ARTICLE_CHARS = 2_500;
 export class ContextBuilder {
   build(input: AIContextInput): BuiltContext {
     const now = input.now ?? new Date();
-    const language = normalizeLanguage(input.language ?? input.hotel.language ?? "ru");
+    const language = normalizeLanguage(input.language ?? input.hotel.language ?? "en");
 
     return {
       hotelProfile: this.buildHotelProfile(input.hotel),
@@ -103,15 +103,28 @@ export class ContextBuilder {
 
   private buildDateContext(now: Date, timezone: string | undefined, language: string): string {
     const safeTimezone = isValidTimeZone(timezone) ? timezone : "UTC";
-    const locale = language === "uk" ? "uk-UA" : language === "en" ? "en-US" : "ru-RU";
+    const LOCALE_BY_LANGUAGE: Record<string, string> = {
+      ru: "ru-RU",
+      uk: "uk-UA",
+      en: "en-US",
+      de: "de-DE",
+      fr: "fr-FR",
+      es: "es-ES",
+      it: "it-IT",
+      pl: "pl-PL",
+      tr: "tr-TR",
+    };
+    const locale = LOCALE_BY_LANGUAGE[language] ?? "en-US";
+    const isoToday = now.toLocaleDateString("en-CA", { timeZone: safeTimezone }); // en-CA locale formats as YYYY-MM-DD
 
     return [
       `Текущая дата и время в отеле: ${now.toLocaleString(locale, {
         timeZone: safeTimezone,
         dateStyle: "full",
         timeStyle: "short",
-      })}`,
+      })} (ISO: ${isoToday})`,
       `Часовой пояс: ${safeTimezone}`,
+      `Если гость называет дату без года, используй ближайший будущий год относительно ${isoToday} — никогда не используй текущий календарный год по умолчанию. Пример: если сегодня ${isoToday} и гость называет день/месяц, которые в этом году уже прошли, бери следующий год.`,
     ].join("\n");
   }
 

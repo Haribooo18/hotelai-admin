@@ -12,7 +12,7 @@ export const DEFAULT_AI_SETTINGS: Omit<
   temperature: 0.3,
   top_p: 1,
   tool_choice: "auto",
-  system_language: "ru",
+  system_language: "en",
   rate_limit_per_minute: 30,
   timeout_ms: 60_000,
   max_tool_rounds: 5,

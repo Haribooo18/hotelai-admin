@@ -1,5 +1,6 @@
 import { createBooking } from "@/lib/services/bookings.mutations";
 import { createClient } from "@/lib/supabase/server";
+import { sanitizeBookingDates } from "../date-sanitizer";
 import {
   createBookingToolInputSchema,
   createBookingToolOutputSchema,
@@ -34,11 +35,27 @@ export const createBookingTool: AITool = {
     if (roomError) throw roomError;
     if (!room) throw new Error("Номер не найден");
 
+    // Safety net: an LLM given "15 января" with no year has been observed
+    // (in the equivalent n8n workflow) to default to the current calendar
+    // year instead of the nearest future one, silently producing a past
+    // date. The system prompt now instructs the model correctly, but this
+    // tool still never trusts that alone — the same way `create_booking`
+    // writes a real reservation, not a lead a human reviews first.
+    const { checkIn, checkOut, orderingValid } = sanitizeBookingDates(
+      input.check_in,
+      input.check_out
+    );
+    if (!orderingValid) {
+      throw new Error(
+        "Дата выезда должна быть позже даты заезда. Уточните у гостя корректные даты и попробуйте снова."
+      );
+    }
+
     const result = await createBooking({
       room_id: input.room_id,
       guest_name: input.guest_name,
-      check_in: input.check_in,
-      check_out: input.check_out,
+      check_in: checkIn,
+      check_out: checkOut,
       guest_email: input.guest_email || "",
       guest_phone: input.guest_phone || "",
     });

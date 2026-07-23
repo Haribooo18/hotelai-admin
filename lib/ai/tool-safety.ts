@@ -6,24 +6,72 @@ import type { Message } from "@/types/message";
 
 import type { AITool, ToolContext, ToolResult } from "./tools";
 
+// Deliberately strict: each pattern must match the ENTIRE guest message
+// (aside from trailing punctuation), not just contain the word somewhere
+// in a longer sentence. That's intentional for a safety gate on write-risk
+// actions — a word appearing mid-sentence isn't reliable enough to greenlight
+// creating or cancelling a real booking. What was missing wasn't stricter
+// matching, it was *vocabulary*: this used to be almost Russian-only, which
+// meant a guest confirming in another language (or with an everyday "ок")
+// could get stuck in an infinite "please confirm" loop, unable to actually
+// complete the action they already agreed to.
 const AFFIRMATIVE = [
+  // Russian
   /^да[.! ]*$/i,
+  /^ага[.! ]*$/i,
+  /^ок(ей)?[.! ]*$/i,
+  /^хорошо[.! ]*$/i,
+  /^конечно[.! ]*$/i,
+  /^верно[.! ]*$/i,
+  /^точно[.! ]*$/i,
   /^подтверждаю[.! ]*$/i,
   /^согласен[.! ]*$/i,
   /^согласна[.! ]*$/i,
   /^выполняй[.! ]*$/i,
   /^подтвердить[.! ]*$/i,
+  /^да,?\s*подтверждаю[.! ]*$/i,
+  // English
   /^yes[.! ]*$/i,
-  /^confirm[.! ]*$/i,
+  /^yep[.! ]*$/i,
+  /^yeah[.! ]*$/i,
+  /^ok(ay)?[.! ]*$/i,
+  /^sure[.! ]*$/i,
+  /^correct[.! ]*$/i,
+  /^confirm(ed)?[.! ]*$/i,
+  /^go ahead[.! ]*$/i,
+  // Ukrainian
+  /^так[.! ]*$/i,
+  /^підтверджую[.! ]*$/i,
+  // Spanish / Portuguese / Italian
+  /^s[ií]m?[.! ]*$/i,
+  /^confirmo[.! ]*$/i,
+  // French
+  /^oui[.! ]*$/i,
+  /^d'accord[.! ]*$/i,
+  // German
+  /^ja[.! ]*$/i,
 ];
 
 const NEGATIVE = [
+  // Russian
   /^нет[.! ]*$/i,
+  /^неа[.! ]*$/i,
   /^отмена[.! ]*$/i,
   /^не надо[.! ]*$/i,
+  /^не нужно[.! ]*$/i,
   /^отменить[.! ]*$/i,
+  // English
   /^no[.! ]*$/i,
+  /^nope[.! ]*$/i,
   /^cancel[.! ]*$/i,
+  /^not now[.! ]*$/i,
+  // Ukrainian
+  /^ні[.! ]*$/i,
+  /^скасувати[.! ]*$/i,
+  // French
+  /^non[.! ]*$/i,
+  // German
+  /^nein[.! ]*$/i,
 ];
 
 type StoredToolInput = {

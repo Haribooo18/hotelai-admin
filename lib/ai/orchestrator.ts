@@ -1,6 +1,7 @@
 import type { Conversation } from "@/types/conversation";
 import type { Message } from "@/types/message";
 import type { AITokenUsage } from "@/types/ai-settings";
+import type { Guest } from "@/types/guest";
 
 import type { HotelAISettings } from "@/types/ai-settings";
 
@@ -573,11 +574,13 @@ export class AIOrchestrator {
     opts: ResolvedProviderOptions
   ): Promise<AIRequest> {
     const services = getAIServices();
+    const guest = await resolveGuestForConversation(input.hotel.id, input.conversation);
 
     const aiRequest = await services.promptAssembler.build({
       hotel: input.hotel,
       conversation: input.conversation,
       messages: input.messages,
+      guest,
       retrievalQuery: input.retrievalQuery,
       language: resolveConversationLanguage(input.messages, opts.language),
       instructions: [
@@ -789,6 +792,71 @@ async function setConversationAIActive(
     .update({ is_ai_typing: true, status: "ai_answering" })
     .eq("id", conversationId)
     .eq("hotel_id", hotelId);
+}
+
+/**
+ * Resolves a returning guest record for this conversation, if one exists,
+ * so their VIP status and known identity land in the system prompt from
+ * the first reply rather than depending on the model deciding to call the
+ * `get_guest` tool on its own. The tool itself stays available for
+ * mid-conversation lookups (e.g. a phone number given later that doesn't
+ * match the conversation's own guest_phone/guest_email) — this is a
+ * separate, deterministic path for what's already known up front.
+ *
+ * Matched by conversation.guest_phone / guest_email. Note that for
+ * Telegram, guest_phone currently holds the Telegram chat id (see
+ * findTelegramConversation), not a real phone number, so this will only
+ * find a match once a guest has actually shared their real phone/email in
+ * a previous booking — which is exactly the "returning guest" case this
+ * exists for.
+ */
+async function resolveGuestForConversation(
+  hotelId: string,
+  conversation: Pick<Conversation, "guest_phone" | "guest_email">
+): Promise<
+  Pick<Guest, "id" | "first_name" | "last_name" | "email" | "phone" | "is_vip"> | null
+> {
+  const phone = conversation.guest_phone?.trim();
+  const email = conversation.guest_email?.trim();
+  if (!phone && !email) return null;
+
+  // Best-effort enrichment — a lookup failure here (a real Supabase error,
+  // or a client that doesn't implement .select at all) should degrade to
+  // "no known guest info" rather than block the whole AI reply. The whole
+  // call chain is wrapped, not just the awaited { error } field, because a
+  // missing/incompatible method on the client throws synchronously before
+  // any Promise exists to await.
+  try {
+    const supabase = createAdminClient();
+    let query = supabase
+      .from("guests")
+      .select("id, first_name, last_name, email, phone, is_vip")
+      .eq("hotel_id", hotelId)
+      .is("deleted_at", null);
+
+    query = email ? query.eq("email", email) : query.eq("phone", phone as string);
+
+    const { data, error } = await query.maybeSingle();
+    if (error) {
+      opsLogger.error({
+        module: "ai",
+        operation: "resolve_guest",
+        message: error.message,
+        hotelId,
+      });
+      return null;
+    }
+
+    return data;
+  } catch (err) {
+    opsLogger.error({
+      module: "ai",
+      operation: "resolve_guest",
+      message: err instanceof Error ? err.message : "Unknown error",
+      hotelId,
+    });
+    return null;
+  }
 }
 
 async function clearConversationAITyping(

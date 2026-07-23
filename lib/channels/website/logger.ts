@@ -13,4 +13,5 @@ export function logWebsiteWidget(
   console.info("[HotelAI widget]", event, meta);
 }
 
-export const PUBLIC_WEBSITE_ERROR_MESSAGE = "Ошибка обработки";
+export const PUBLIC_WEBSITE_ERROR_MESSAGE =
+  "Секунду — у меня небольшая техническая заминка. Администратор уже уведомлён и скоро подключится к диалогу.";

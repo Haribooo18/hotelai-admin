@@ -285,6 +285,57 @@ describe("processTelegramUpdate", () => {
     expect(result).toEqual({ handled: true, reason: "ai_disabled" });
     expect(sendTelegramMock).not.toHaveBeenCalled();
   });
+
+  it("sends the guest a fallback message and flags the conversation for staff when the AI service fails", async () => {
+    // Regression test: this failure mode previously propagated straight to
+    // a bare webhook 500 — the guest got silence and no one on staff found
+    // out except by reading Vercel function logs. See the comment in
+    // processTelegramUpdate for the full rationale.
+    queryResults[key("conversations", "select")] = {
+      data: {
+        id: "conv-new",
+        hotel_id: "hotel_test",
+        guest_phone: "9001",
+        channel: "telegram",
+        status: "new",
+        priority: "normal",
+        internal_notes: null,
+      },
+      error: null,
+    };
+    queryResults[key("messages", "insert")] = {
+      data: { id: "msg-guest", created_at: "2026-07-04T12:00:00.000Z" },
+      error: null,
+    };
+
+    generateAIResponseForHotelMock.mockRejectedValue(new Error("OpenAI timeout"));
+    sendTelegramMock.mockResolvedValue({ ok: true, messageId: 99 });
+
+    await expect(
+      processTelegramUpdate({
+        update_id: 12,
+        message: {
+          message_id: 17,
+          date: 1,
+          chat: { id: 9001, type: "private" },
+          from: { id: 3, first_name: "Anna" },
+          text: "Есть свободные номера?",
+        },
+      })
+    ).rejects.toThrow("OpenAI timeout");
+
+    // Guest still gets a message, even though the AI itself failed.
+    expect(sendTelegramMock).toHaveBeenCalledWith({
+      externalChatId: "9001",
+      body: expect.stringContaining("технич"),
+    });
+
+    // The conversation was flagged for a human via the same DB write path
+    // request_human_handoff already uses (status/priority update).
+    expect(updateMock).toHaveBeenCalledWith(
+      expect.objectContaining({ table: "conversations" })
+    );
+  });
 });
 
 describe("findTelegramConversation", () => {

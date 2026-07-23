@@ -5,7 +5,6 @@ export type SupportedAILanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 const CYRILLIC_UKRAINIAN = /[іїєґ]/i;
 const CYRILLIC = /[а-яё]/i;
-const LATIN = /[a-z]/i;
 
 const KEYWORDS: Record<SupportedAILanguage, RegExp[]> = {
   ru: [/\b(здравствуйте|спасибо|номер|бронирован|отель|можно|нужно|хочу)\b/i],
@@ -23,10 +22,10 @@ export function normalizeLanguage(value?: string | null): SupportedAILanguage {
   const normalized = value?.trim().toLowerCase().split(/[-_]/)[0];
   return SUPPORTED_LANGUAGES.includes(normalized as SupportedAILanguage)
     ? (normalized as SupportedAILanguage)
-    : "ru";
+    : "en";
 }
 
-export function detectLanguage(text: string, fallback = "ru"): SupportedAILanguage {
+export function detectLanguage(text: string, fallback = "en"): SupportedAILanguage {
   const sample = text.trim().slice(0, 2_000);
   if (!sample) return normalizeLanguage(fallback);
   if (CYRILLIC_UKRAINIAN.test(sample)) return "uk";
@@ -44,8 +43,14 @@ export function detectLanguage(text: string, fallback = "ru"): SupportedAILangua
     }
   }
   if (best) return best;
+  // Plain Cyrillic with no Ukrainian-specific letters and no keyword match
+  // is still a real, positive signal for Russian — this isn't a "default",
+  // it's script-based detection, so it stays "ru" regardless of the
+  // fallback language used elsewhere in this function.
   if (CYRILLIC.test(sample)) return "ru";
-  if (LATIN.test(sample)) return normalizeLanguage(fallback) === "ru" ? "en" : normalizeLanguage(fallback);
+  // Latin script with no keyword match, or a script this detector doesn't
+  // recognize at all (Arabic, CJK, Devanagari, etc.) — genuinely unknown,
+  // so use the fallback language rather than guessing.
   return normalizeLanguage(fallback);
 }
 
@@ -56,7 +61,7 @@ export function resolveConversationLanguage(
   const latestGuest = [...messages]
     .reverse()
     .find((message) => message.role === "guest" && !message.is_internal && !message.deleted_at);
-  return detectLanguage(latestGuest?.body ?? "", fallback ?? "ru");
+  return detectLanguage(latestGuest?.body ?? "", fallback ?? "en");
 }
 
 export function languageDisplayName(language: string): string {
