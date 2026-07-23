@@ -218,6 +218,10 @@ export type AdminTranslations = {
     subscribe: string;
     checkoutError: string;
     portalError: string;
+    accessBlockedTitle: string;
+    accessBlockedBody: string;
+    accessBlockedBodyStaff: string;
+    accessBlockedCta: string;
   };
   errors: {
     genericLoad: string;

@@ -1,35 +1,41 @@
 import type { Conversation } from "@/types/conversation";
 import type { Message } from "@/types/message";
 import type { AITokenUsage } from "@/types/ai-settings";
-import type { Guest } from "@/types/guest";
 
 import type { HotelAISettings } from "@/types/ai-settings";
 
-import { estimateCostUsd, mergeTokenUsage, EMPTY_TOKEN_USAGE } from "./cost";
+import { estimateCostUsd, EMPTY_TOKEN_USAGE } from "./cost";
 import { resolveProviderOptions } from "./config";
 import {
   assertContextGuardrails,
   assertConversationGuardrails,
   resolveConversationTimeoutMs,
-  resolveToolTimeoutMs,
 } from "./guardrails";
 import { CurrentPromptVersion } from "./prompt-version";
 import { logAICompletionMetrics, logAIObservability } from "./observability";
-import { hotelRateLimiter } from "./rate-limiter";
 import { opsLogger } from "@/lib/ops/logger";
 import { opsMetrics } from "@/lib/ops/metrics";
-import { patchRequestContext } from "@/lib/ops/request-context";
-import type { OpenAIProvider } from "./providers/openai";
 import { getAIServices } from "./container";
-import type { AIProvider } from "./types";
-import type { AIRequest, AIResponse } from "./types";
-import type { ToolContext } from "./tools";
-import { createAbortDeadline, getErrorType, withTimeout } from "./retry";
+import type { AIResponse } from "./types";
+import { createAbortDeadline, getErrorType } from "./retry";
 import { getConversation, getMessages } from "@/lib/services/ai.service";
 import { getHotelAISettings } from "@/lib/services/ai-settings.service";
 import { getCurrentHotel } from "@/lib/tenant";
-import { createAdminClient } from "@/lib/supabase/admin";
-import { resolveConversationLanguage } from "./language";
+import {
+  setConversationAIActive,
+  clearConversationAITyping,
+  persistAIMessage,
+  logAIActionStart,
+  logAIActionComplete,
+  logAIActionFailed,
+} from "./orchestrator-persistence";
+import {
+  beginAIContext,
+  validatePreflight,
+  prepareAIRequest,
+  executeCompletionLoop,
+  type CompletionLoopResult,
+} from "./orchestrator-internals";
 
 export type OrchestratorInput = {
   hotel: { id: string; name: string };
@@ -61,35 +67,13 @@ export type OrchestratorStreamEvent =
   | { type: "text_final"; content: string }
   | { type: "done"; messageId: string };
 
-const FALLBACK_CONTENT =
-  "К сожалению, у меня нет этой информации. Пожалуйста, свяжитесь с ресепшном.";
-
-const ANTI_HALLUCINATION = [
-  "НИКОГДА не выдумывайте цены, политики, услуги или наличие номеров.",
-  "Отвечайте ТОЛЬКО на основе базы знаний, результатов инструментов или явных фактов из контекста.",
-  "Если информации нет в базе знаний и инструменты не дали ответа — скажите: «К сожалению, у меня нет этой информации. Пожалуйста, свяжитесь с ресепшном.»",
-  "Не ссылайтесь на статьи, которых нет в предоставленной базе знаний.",
-];
-
-type ResolvedProviderOptions = ReturnType<typeof resolveProviderOptions>;
-
-type CompletionLoopResult = {
-  content: string;
-  usage: AITokenUsage;
-  costUsd: number;
-  toolRounds: number;
-  requestId: string;
-  retryCount: number;
-  finishReason?: string;
-};
-
 export class AIOrchestrator {
   async run(input: OrchestratorInput): Promise<OrchestratorResult> {
     const services = getAIServices();
     const provider = services.provider;
 
-    this.validatePreflight(input, provider);
-    this.beginAIContext(input, provider);
+    validatePreflight(input, provider);
+    beginAIContext(input, provider);
     assertConversationGuardrails(input);
 
     const opts = resolveProviderOptions(input.settings);
@@ -99,7 +83,7 @@ export class AIOrchestrator {
       input.signal
     );
 
-    const aiRequest = await this.prepareAIRequest(input, opts);
+    const aiRequest = await prepareAIRequest(input, opts);
     assertContextGuardrails(aiRequest);
 
     const actionId = await logAIActionStart({
@@ -124,7 +108,7 @@ export class AIOrchestrator {
     });
 
     try {
-      const result = await this.executeCompletionLoop({
+      const result = await executeCompletionLoop({
         input,
         aiRequest,
         opts,
@@ -255,8 +239,8 @@ export class AIOrchestrator {
     const services = getAIServices();
     const provider = services.provider;
 
-    this.validatePreflight(input, provider);
-    this.beginAIContext(input, provider);
+    validatePreflight(input, provider);
+    beginAIContext(input, provider);
     assertConversationGuardrails(input);
 
     const opts = resolveProviderOptions(input.settings);
@@ -269,7 +253,7 @@ export class AIOrchestrator {
     yield { type: "status", status: "ai_answering" };
     await setConversationAIActive(input.conversation.id, input.hotel.id);
 
-    const aiRequest = await this.prepareAIRequest(input, opts);
+    const aiRequest = await prepareAIRequest(input, opts);
     assertContextGuardrails(aiRequest);
 
     const actionId = await logAIActionStart({
@@ -340,7 +324,7 @@ export class AIOrchestrator {
 
         if (streamedResponse && streamedResponse.toolCalls.length > 0) {
           yield { type: "status", status: "tool_calls" };
-          loopResult = await this.executeCompletionLoop({
+          loopResult = await executeCompletionLoop({
             input,
             aiRequest,
             opts,
@@ -350,7 +334,7 @@ export class AIOrchestrator {
           fullText = loopResult.content;
           yield { type: "text_final", content: fullText };
         } else if (!fullText.trim()) {
-          loopResult = await this.executeCompletionLoop({
+          loopResult = await executeCompletionLoop({
             input,
             aiRequest,
             opts,
@@ -390,7 +374,7 @@ export class AIOrchestrator {
       }
 
       if (!fullText.trim()) {
-        loopResult = await this.executeCompletionLoop({
+        loopResult = await executeCompletionLoop({
           input,
           aiRequest,
           opts,
@@ -520,487 +504,6 @@ export class AIOrchestrator {
     }
   }
 
-  private beginAIContext(input: OrchestratorInput, provider: AIProvider): void {
-    patchRequestContext({
-      hotelId: input.hotel.id,
-      conversationId: input.conversation.id,
-      provider: provider.name,
-    });
-    opsMetrics.recordAIRequest(provider.name);
-  }
-
-  private validatePreflight(
-    input: OrchestratorInput,
-    provider: AIProvider
-  ): void {
-    if (provider.name === "unconfigured") {
-      throw new Error("AI-провайдер не настроен. Добавьте OPENAI_API_KEY.");
-    }
-
-    if (!input.settings.enabled) {
-      throw new Error("AI-ресепшн отключён в настройках отеля.");
-    }
-
-    if (
-      input.conversation.status === "handoff_requested" ||
-      input.conversation.status === "assigned" ||
-      input.conversation.status === "resolved" ||
-      input.conversation.status === "archived"
-    ) {
-      throw new Error(
-        "AI отключён для диалога, переданного сотруднику или закрытого.",
-      );
-    }
-
-    const rate = hotelRateLimiter.check(
-      input.hotel.id,
-      input.settings.rate_limit_per_minute,
-      {
-        endpoint: "ai.orchestrator",
-        hotelId: input.hotel.id,
-        conversationId: input.conversation.id,
-        reason: "hotel_ai_rate_limit",
-      }
-    );
-    if (!rate.allowed) {
-      throw new Error(
-        `Превышен лимит запросов. Повторите через ${Math.ceil(rate.retryAfterMs / 1000)} с.`
-      );
-    }
-  }
-
-  private async prepareAIRequest(
-    input: OrchestratorInput,
-    opts: ResolvedProviderOptions
-  ): Promise<AIRequest> {
-    const services = getAIServices();
-    const guest = await resolveGuestForConversation(input.hotel.id, input.conversation);
-
-    const aiRequest = await services.promptAssembler.build({
-      hotel: input.hotel,
-      conversation: input.conversation,
-      messages: input.messages,
-      guest,
-      retrievalQuery: input.retrievalQuery,
-      language: resolveConversationLanguage(input.messages, opts.language),
-      instructions: [
-        ...ANTI_HALLUCINATION,
-        ...(input.settings.extra_instructions
-          ? [input.settings.extra_instructions]
-          : []),
-      ],
-    });
-
-    if (aiRequest.knowledgeSnippets.length === 0) {
-      aiRequest.systemPrompt +=
-        "\n\n# Внимание\nБаза знаний пуста для этого запроса. Не отвечайте на вопросы о политиках, ценах и услугах без вызова инструментов. Если инструменты не помогают — сообщите, что информация недоступна.";
-    }
-
-    return aiRequest;
-  }
-
-  private async executeCompletionLoop(params: {
-    input: OrchestratorInput;
-    aiRequest: AIRequest;
-    opts: ResolvedProviderOptions;
-    initialResponse: AIResponse | null;
-    signal?: AbortSignal;
-  }): Promise<CompletionLoopResult> {
-    const { input, aiRequest, opts, initialResponse, signal } = params;
-    const provider = getAIServices().provider as OpenAIProvider;
-
-    let usage = { ...EMPTY_TOKEN_USAGE };
-    let totalCost = 0;
-    let toolRounds = 0;
-    let requestId = "";
-    let retryCount = 0;
-    let finishReason: string | undefined;
-
-    let response: AIResponse;
-
-    if (initialResponse) {
-      response = initialResponse;
-      usage = mergeTokenUsage(
-        usage,
-        (initialResponse.metadata.usage as AITokenUsage) ?? EMPTY_TOKEN_USAGE
-      );
-      totalCost += estimateCostUsd(
-        String(initialResponse.metadata.model ?? opts.model),
-        (initialResponse.metadata.usage as AITokenUsage) ?? EMPTY_TOKEN_USAGE
-      );
-      requestId = String(initialResponse.metadata.request_id ?? "");
-      retryCount += Number(initialResponse.metadata.retry_count ?? 0);
-      finishReason = initialResponse.metadata.finish_reason as string | undefined;
-    } else {
-      response = await provider.complete(aiRequest, {
-        model: opts.model,
-        maxOutputTokens: opts.maxOutputTokens,
-        temperature: opts.temperature,
-        topP: opts.topP,
-        toolChoice: opts.toolChoice,
-        timeoutMs: opts.timeoutMs,
-        maxRetries: opts.maxRetries,
-        signal,
-      });
-
-      usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);
-      totalCost += estimateCostUsd(
-        String(response.metadata.model ?? opts.model),
-        response.metadata.usage as AITokenUsage
-      );
-      requestId = String(response.metadata.request_id ?? "");
-      retryCount += Number(response.metadata.retry_count ?? 0);
-      finishReason = response.metadata.finish_reason as string | undefined;
-    }
-
-    while (
-      response.toolCalls.length > 0 &&
-      toolRounds < input.settings.max_tool_rounds
-    ) {
-      if (signal?.aborted) {
-        throw new Error("Запрос отменён");
-      }
-
-      const toolOutputs = await this.executeTools(
-        response,
-        aiRequest,
-        input.conversation.id,
-        resolveToolTimeoutMs(input.settings),
-        signal
-      );
-
-      for (const call of response.toolCalls) {
-        const raw = toolOutputs.find((t) => t.call_id === call.id)?.output;
-        let parsed: Record<string, unknown> = {};
-        try {
-          parsed = raw ? (JSON.parse(raw) as Record<string, unknown>) : {};
-        } catch {
-          parsed = { raw };
-        }
-        await logAIActionTool({
-          hotelId: input.hotel.id,
-          conversationId: input.conversation.id,
-          toolName: call.name,
-          input: call.arguments,
-          output: parsed,
-          model: opts.model,
-        });
-      }
-
-      toolRounds++;
-
-      const previousResponseId = String(response.metadata.request_id ?? "");
-      if (!previousResponseId) {
-        throw new Error("AI provider did not return a response ID for tool continuation");
-      }
-
-      response = await provider.completeWithToolOutputs(
-        aiRequest,
-        previousResponseId,
-        toolOutputs,
-        {
-          model: opts.model,
-          maxOutputTokens: opts.maxOutputTokens,
-          temperature: opts.temperature,
-          topP: opts.topP,
-          toolChoice: opts.toolChoice,
-          timeoutMs: opts.timeoutMs,
-          maxRetries: opts.maxRetries,
-          signal,
-        }
-      );
-
-      usage = mergeTokenUsage(usage, response.metadata.usage as AITokenUsage);
-      totalCost += estimateCostUsd(
-        String(response.metadata.model ?? opts.model),
-        response.metadata.usage as AITokenUsage
-      );
-      requestId = String(response.metadata.request_id ?? requestId);
-      retryCount += Number(response.metadata.retry_count ?? 0);
-      finishReason = response.metadata.finish_reason as string | undefined;
-    }
-
-    if (response.toolCalls.length > 0) {
-      throw new Error(
-        `AI exceeded the maximum number of tool rounds (${input.settings.max_tool_rounds})`
-      );
-    }
-
-    const content = response.content?.trim() || FALLBACK_CONTENT;
-
-    return {
-      content,
-      usage,
-      costUsd: totalCost,
-      toolRounds,
-      requestId,
-      retryCount,
-      finishReason,
-    };
-  }
-
-  private async executeTools(
-    response: AIResponse,
-    request: AIRequest,
-    conversationId: string,
-    toolTimeoutMs: number,
-    signal?: AbortSignal
-  ) {
-    const { toolExecutor } = getAIServices();
-    const ctx: ToolContext = {
-      hotelId: request.hotelId,
-      conversationId,
-      request,
-    };
-
-    const outputs: { call_id: string; output: string }[] = [];
-
-    for (const call of response.toolCalls) {
-      const toolStart = Date.now();
-      const result = await withTimeout(
-        toolExecutor.execute(call.name, ctx, call.arguments),
-        toolTimeoutMs,
-        signal
-      );
-      opsMetrics.recordToolExecution(
-        call.name,
-        Date.now() - toolStart,
-        result.ok
-      );
-      outputs.push({
-        call_id: call.id,
-        output: JSON.stringify(
-          result.ok ? result.result.output : { error: result.error }
-        ),
-      });
-    }
-
-    return outputs;
-  }
 }
 
 export const aiOrchestrator = new AIOrchestrator();
-
-async function setConversationAIActive(
-  conversationId: string,
-  hotelId: string
-): Promise<void> {
-  const supabase = createAdminClient();
-
-  await supabase
-    .from("conversations")
-    .update({ is_ai_typing: true, status: "ai_answering" })
-    .eq("id", conversationId)
-    .eq("hotel_id", hotelId);
-}
-
-/**
- * Resolves a returning guest record for this conversation, if one exists,
- * so their VIP status and known identity land in the system prompt from
- * the first reply rather than depending on the model deciding to call the
- * `get_guest` tool on its own. The tool itself stays available for
- * mid-conversation lookups (e.g. a phone number given later that doesn't
- * match the conversation's own guest_phone/guest_email) — this is a
- * separate, deterministic path for what's already known up front.
- *
- * Matched by conversation.guest_phone / guest_email. Note that for
- * Telegram, guest_phone currently holds the Telegram chat id (see
- * findTelegramConversation), not a real phone number, so this will only
- * find a match once a guest has actually shared their real phone/email in
- * a previous booking — which is exactly the "returning guest" case this
- * exists for.
- */
-async function resolveGuestForConversation(
-  hotelId: string,
-  conversation: Pick<Conversation, "guest_phone" | "guest_email">
-): Promise<
-  Pick<Guest, "id" | "first_name" | "last_name" | "email" | "phone" | "is_vip"> | null
-> {
-  const phone = conversation.guest_phone?.trim();
-  const email = conversation.guest_email?.trim();
-  if (!phone && !email) return null;
-
-  // Best-effort enrichment — a lookup failure here (a real Supabase error,
-  // or a client that doesn't implement .select at all) should degrade to
-  // "no known guest info" rather than block the whole AI reply. The whole
-  // call chain is wrapped, not just the awaited { error } field, because a
-  // missing/incompatible method on the client throws synchronously before
-  // any Promise exists to await.
-  try {
-    const supabase = createAdminClient();
-    let query = supabase
-      .from("guests")
-      .select("id, first_name, last_name, email, phone, is_vip")
-      .eq("hotel_id", hotelId)
-      .is("deleted_at", null);
-
-    query = email ? query.eq("email", email) : query.eq("phone", phone as string);
-
-    const { data, error } = await query.maybeSingle();
-    if (error) {
-      opsLogger.error({
-        module: "ai",
-        operation: "resolve_guest",
-        message: error.message,
-        hotelId,
-      });
-      return null;
-    }
-
-    return data;
-  } catch (err) {
-    opsLogger.error({
-      module: "ai",
-      operation: "resolve_guest",
-      message: err instanceof Error ? err.message : "Unknown error",
-      hotelId,
-    });
-    return null;
-  }
-}
-
-async function clearConversationAITyping(
-  conversationId: string,
-  hotelId: string
-): Promise<void> {
-  const supabase = createAdminClient();
-
-  await supabase
-    .from("conversations")
-    .update({ is_ai_typing: false })
-    .eq("id", conversationId)
-    .eq("hotel_id", hotelId);
-}
-
-async function persistAIMessage(input: {
-  hotelId: string;
-  conversationId: string;
-  body: string;
-  metadata: Record<string, unknown>;
-}): Promise<string> {
-  const supabase = createAdminClient();
-
-  const { data, error } = await supabase
-    .from("messages")
-    .insert({
-      hotel_id: input.hotelId,
-      conversation_id: input.conversationId,
-      role: "ai",
-      body: input.body,
-      metadata: input.metadata,
-    })
-    .select("id, created_at")
-    .single();
-
-  if (error) throw error;
-
-  await supabase
-    .from("conversations")
-    .update({
-      status: "waiting_guest",
-      is_ai_typing: false,
-      last_message_preview: input.body.slice(0, 200),
-      last_message_at: data.created_at,
-    })
-    .eq("id", input.conversationId)
-    .eq("hotel_id", input.hotelId);
-
-  return data.id as string;
-}
-
-async function logAIActionStart(input: {
-  hotelId: string;
-  conversationId: string;
-  request: AIRequest;
-  model: string;
-}) {
-  const supabase = createAdminClient();
-
-  const { data, error } = await supabase
-    .from("ai_actions")
-    .insert({
-      hotel_id: input.hotelId,
-      conversation_id: input.conversationId,
-      action_type: "completion",
-      tool_name: null,
-      input: {
-        system_prompt_length: input.request.systemPrompt.length,
-        knowledge_count: input.request.knowledgeSnippets.length,
-        message_count: input.request.messages.length,
-        prompt_version: input.request.promptVersion ?? CurrentPromptVersion,
-        system_prompt_hash: input.request.systemPromptHash,
-      },
-      status: "pending",
-      model: input.model,
-    })
-    .select("id")
-    .single();
-
-  if (error) throw error;
-  return data.id as string;
-}
-
-async function logAIActionComplete(input: {
-  actionId: string;
-  output: Record<string, unknown>;
-  model: string;
-  usage: AITokenUsage;
-  costUsd: number;
-  durationMs: number;
-  requestId: string;
-}) {
-  const supabase = createAdminClient();
-
-  await supabase
-    .from("ai_actions")
-    .update({
-      status: "completed",
-      output: input.output,
-      model: input.model,
-      token_usage: input.usage,
-      cost_usd: input.costUsd,
-      duration_ms: input.durationMs,
-      request_id: input.requestId,
-      completed_at: new Date().toISOString(),
-    })
-    .eq("id", input.actionId);
-}
-
-async function logAIActionFailed(input: {
-  actionId: string;
-  errorMessage: string;
-}) {
-  const supabase = createAdminClient();
-
-  await supabase
-    .from("ai_actions")
-    .update({
-      status: "failed",
-      error_message: input.errorMessage,
-      completed_at: new Date().toISOString(),
-    })
-    .eq("id", input.actionId);
-}
-
-async function logAIActionTool(input: {
-  hotelId: string;
-  conversationId: string;
-  toolName: string;
-  input: Record<string, unknown>;
-  output: Record<string, unknown>;
-  model: string;
-}) {
-  const supabase = createAdminClient();
-
-  await supabase.from("ai_actions").insert({
-    hotel_id: input.hotelId,
-    conversation_id: input.conversationId,
-    action_type: "tool_call",
-    tool_name: input.toolName,
-    input: input.input,
-    output: input.output,
-    status: "completed",
-    model: input.model,
-    completed_at: new Date().toISOString(),
-  });
-}

@@ -13,7 +13,9 @@ import {
   SkipLink,
   TopBar,
 } from "@/components/dashboard/shell";
+import { SubscriptionGate } from "@/components/dashboard/shell/SubscriptionGate";
 import { WorkspaceAiPresenceProvider } from "@/components/dashboard/shared/WorkspaceAiPresence";
+import type { HotelSubscription } from "@/types/subscription";
 
 type Props = {
   children: ReactNode;
@@ -22,9 +24,19 @@ type Props = {
     name: string;
   };
   userEmail?: string;
+  subscriptionAccess: {
+    hasAccess: boolean;
+    subscription: HotelSubscription | null;
+    canManage: boolean;
+  };
 };
 
-export function AppShell({ children, hotel, userEmail }: Props) {
+export function AppShell({
+  children,
+  hotel,
+  userEmail,
+  subscriptionAccess,
+}: Props) {
   return (
     <I18nProvider>
       <SkipLink />
@@ -33,7 +45,15 @@ export function AppShell({ children, hotel, userEmail }: Props) {
         <Sidebar hotel={hotel} userEmail={userEmail} />
         <TopBar />
         <div className={`${shellMainColumnClass} min-h-0 flex-1`}>
-          <PageContainer>{children}</PageContainer>
+          <PageContainer>
+            <SubscriptionGate
+              hasAccess={subscriptionAccess.hasAccess}
+              subscription={subscriptionAccess.subscription}
+              canManage={subscriptionAccess.canManage}
+            >
+              {children}
+            </SubscriptionGate>
+          </PageContainer>
         </div>
       </WorkspaceAiPresenceProvider>
       </div>

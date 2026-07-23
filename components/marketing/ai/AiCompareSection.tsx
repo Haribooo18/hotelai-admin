@@ -151,7 +151,7 @@ export function AiCompareSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
 
-  const { headline, subtitle, without, withMonavel } = AI_PAGE_COMPARE;
+  const { headline, subtitle, exampleLabel, without, withMonavel } = AI_PAGE_COMPARE;
 
   const active = prefersReducedMotion() || hasEnteredViewport;
 
@@ -206,6 +206,10 @@ export function AiCompareSection() {
                 <br />
               </span>
             ))}
+          </p>
+
+          <p className="mkt-caption mkt-ai-story-example-label">
+            {exampleLabel}
           </p>
         </header>
 

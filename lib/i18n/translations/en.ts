@@ -249,6 +249,12 @@ export const EN: AdminTranslations = {
     subscribe: "Subscribe",
     checkoutError: "Subscription checkout error",
     portalError: "Failed to open portal",
+    accessBlockedTitle: "Subscription needed",
+    accessBlockedBody:
+      "This hotel's subscription is inactive. Update your billing to keep using Monavel.",
+    accessBlockedBodyStaff:
+      "This hotel's subscription is inactive. Ask your hotel owner or manager to update billing.",
+    accessBlockedCta: "Manage billing",
   },
   errors: {
     genericLoad: "An error occurred while loading data. Try refreshing the page.",

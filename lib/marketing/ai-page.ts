@@ -158,6 +158,7 @@ export const AI_PAGE_COMPARE = {
   sectionId: "ai-every-second",
   headline: "Every second matters.",
   subtitle: "Slow replies lose bookings.\nFast replies protect revenue.",
+  exampleLabel: "Illustrative example, not measured data",
   without: {
     label: "Without Monavel",
     steps: [

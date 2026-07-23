@@ -6238,6 +6238,10 @@ html[data-shell-theme="gray"] {
   text-wrap: pretty;
 }
 
+[data-surface="marketing"] .mkt-ai-story-example-label {
+  margin: 0.5rem 0 0;
+}
+
 [data-surface="marketing"] .mkt-ai-story-grid {
   display: grid;
   gap: var(--mkt-gap);

@@ -249,6 +249,12 @@ export const RU: AdminTranslations = {
     subscribe: "Подписаться",
     checkoutError: "Ошибка оформления подписки",
     portalError: "Не удалось открыть портал",
+    accessBlockedTitle: "Нужна подписка",
+    accessBlockedBody:
+      "Подписка этого отеля неактивна. Обновите оплату, чтобы продолжить пользоваться Monavel.",
+    accessBlockedBodyStaff:
+      "Подписка этого отеля неактивна. Обратитесь к владельцу или менеджеру отеля, чтобы обновить оплату.",
+    accessBlockedCta: "Управление подпиской",
   },
   errors: {
     genericLoad: "Произошла ошибка при загрузке данных. Попробуйте обновить страницу.",

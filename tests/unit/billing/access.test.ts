@@ -9,7 +9,8 @@ vi.mock("@/lib/tenant/context", () => ({
   canManageBilling: (role: string) => role === "owner" || role === "manager",
 }));
 
-import { requireBillingTenant } from "@/lib/billing/access";
+import { hasProductAccess, requireBillingTenant } from "@/lib/billing/access";
+import type { HotelSubscription, SubscriptionStatus } from "@/types/subscription";
 
 describe("requireBillingTenant", () => {
   beforeEach(() => {
@@ -43,5 +44,45 @@ describe("requireBillingTenant", () => {
     getTenantContextMock.mockResolvedValue(tenant);
 
     await expect(requireBillingTenant()).resolves.toBe(tenant);
+  });
+});
+
+function subscriptionWithStatus(status: SubscriptionStatus): HotelSubscription {
+  return {
+    id: "sub-1",
+    hotel_id: "hotel-1",
+    stripe_customer_id: "cus_1",
+    stripe_subscription_id: "sub_stripe_1",
+    plan: "starter",
+    status,
+    current_period_start: "2026-07-01T00:00:00.000Z",
+    current_period_end: "2026-08-01T00:00:00.000Z",
+    cancel_at_period_end: false,
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-07-01T00:00:00.000Z",
+  };
+}
+
+describe("hasProductAccess", () => {
+  it("denies access when there is no subscription row at all", () => {
+    expect(hasProductAccess(null)).toBe(false);
+  });
+
+  it.each<SubscriptionStatus>(["active", "trialing", "past_due"])(
+    "allows access for status %s",
+    (status) => {
+      expect(hasProductAccess(subscriptionWithStatus(status))).toBe(true);
+    }
+  );
+
+  it.each<SubscriptionStatus>([
+    "canceled",
+    "unpaid",
+    "incomplete",
+    "incomplete_expired",
+    "paused",
+    "none",
+  ])("denies access for status %s", (status) => {
+    expect(hasProductAccess(subscriptionWithStatus(status))).toBe(false);
   });
 });

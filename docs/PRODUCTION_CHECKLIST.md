@@ -4,12 +4,16 @@ Use this checklist before and after launching to production.
 
 Related: [`DEPLOYMENT.md`](./DEPLOYMENT.md), [`README.md`](../README.md), [`DATABASE.md`](./DATABASE.md).
 
+**Legend:** `[x]` = confirmed working via a real test in this session (not just "code exists"). `[ ]` = not verified this way — either genuinely not done, or it's infrastructure/dashboard configuration nobody can confirm by reading code (e.g. "Stripe account in live mode"). An unchecked box is not necessarily broken — it just hasn't been proven, so don't treat this file as more certain than it is.
+
+*Last reconciled against reality: 2026-07-23.*
+
 ---
 
 ## Database
 
-- [ ] All migrations applied (`0001` … `0011`) in order
-- [ ] RLS enabled on tenant tables (verified via migrations)
+- [x] Migrations applied through `0026` (range updated from the stale `0001…0011` — 16 more exist; `0026` confirmed applied via a direct SQL query against `information_schema.columns`, not just "the command didn't error")
+- [ ] RLS enabled on tenant tables (verified via migrations) — not re-checked this session, no reason to believe it changed
 - [ ] Seed hotel exists (`hotel_aurora` or your production hotel id)
 - [ ] Staff users created in Supabase Auth
 - [ ] `memberships` rows link users to hotels
@@ -26,19 +30,21 @@ Related: [`DEPLOYMENT.md`](./DEPLOYMENT.md), [`README.md`](../README.md), [`DATA
 - [ ] `STRIPE_WEBHOOK_SECRET` set in Vercel
 - [ ] Webhook endpoint registered: `https://<domain>/api/billing/webhook`
 - [ ] Webhook events subscribed: `checkout.session.completed`, `customer.subscription.*`
-- [ ] Migration `0011_billing.sql` applied
+- [x] Migration `0011_billing.sql` applied (covered by the `0026` range check above)
+- [x] **Access gating implemented** — `hasProductAccess()` blocks the product for `canceled`/`unpaid`/`incomplete`/`incomplete_expired`/`paused`/no-subscription, allows `active`/`trialing`/`past_due`. New item, wasn't in this checklist before — added because it wasn't true until 23.07.2026
 
 ---
 
 ## Telegram
 
-- [ ] Bot created via @BotFather
-- [ ] `TELEGRAM_BOT_TOKEN` set
-- [ ] `TELEGRAM_WEBHOOK_SECRET` set
-- [ ] `TELEGRAM_HOTEL_ID` set (or `DEFAULT_HOTEL_ID`)
-- [ ] Webhook registered: `https://<domain>/api/channels/telegram/webhook`
-- [ ] `getWebhookInfo` returns correct URL
-- [ ] `SUPABASE_SERVICE_ROLE_KEY` set
+- [x] Bot created via @BotFather
+- [x] `TELEGRAM_BOT_TOKEN` set
+- [x] `TELEGRAM_WEBHOOK_SECRET` set
+- [x] `TELEGRAM_HOTEL_ID` set (checklist previously said `DEFAULT_HOTEL_ID` — the code actually reads `TELEGRAM_HOTEL_ID` specifically; corrected)
+- [x] Webhook registered: `https://<domain>/api/channels/telegram/webhook`
+- [x] `getWebhookInfo` returns correct URL — confirmed live, including catching and fixing a `www` vs apex-domain redirect that was silently breaking delivery (`308` responses Telegram doesn't follow)
+- [x] `SUPABASE_SERVICE_ROLE_KEY` set
+- [x] **Live end-to-end test passed** — real message sent from Telegram, AI replied, conversation appeared in `/app/ai`
 
 ---
 
@@ -55,7 +61,7 @@ Related: [`DEPLOYMENT.md`](./DEPLOYMENT.md), [`README.md`](../README.md), [`DATA
 - [ ] `SUPABASE_SERVICE_ROLE_KEY` set
 - [ ] `WEBSITE_CHAT_HOTEL_ID` or `DEFAULT_HOTEL_ID` set
 - [ ] `OPENAI_API_KEY` set for AI replies
-- [ ] Widget points to `https://<domain>/api/channels/website/stream`
+- [x] Widget points to `https://<domain>/api/channels/website/stream` — tested live via the "Monavel — AI-ресепшн отеля" chat bubble, got a real AI response
 
 ---
 
@@ -79,11 +85,11 @@ Related: [`DEPLOYMENT.md`](./DEPLOYMENT.md), [`README.md`](../README.md), [`DATA
 
 ## Domain
 
-- [ ] Custom domain configured in Vercel
-- [ ] DNS records correct (apex + www)
-- [ ] HTTPS active (Vercel certificate valid)
-- [ ] `https://<domain>/login` accessible
-- [ ] Redirect from HTTP to HTTPS (Vercel default)
+- [x] Custom domain configured in Vercel (`monavel.app`, primary is `www.monavel.app`)
+- [x] DNS records correct (apex + www) — apex correctly 308-redirects to `www`; this exact redirect was the root cause of a real Telegram webhook outage today, now documented instead of tripping the next person up
+- [x] HTTPS active (Vercel certificate valid)
+- [x] `https://<domain>/login` accessible
+- [x] Redirect from apex to `www` confirmed via `curl -I` (not just assumed)
 
 ---
 
@@ -97,7 +103,7 @@ Related: [`DEPLOYMENT.md`](./DEPLOYMENT.md), [`README.md`](../README.md), [`DATA
 - [ ] `STRIPE_SECRET_KEY`
 - [ ] `STRIPE_WEBHOOK_SECRET`
 - [ ] `STRIPE_PRICE_STARTER` / `PRO` / `ENTERPRISE`
-- [ ] Telegram vars (if using Telegram)
+- [x] Telegram vars (`TELEGRAM_BOT_TOKEN`, `TELEGRAM_WEBHOOK_SECRET`, `TELEGRAM_HOTEL_ID`) — all three added and confirmed working today
 - [ ] `WEBSITE_CHAT_HOTEL_ID` (if different from default)
 
 ---
@@ -164,6 +170,16 @@ curl -N -X POST "https://<domain>/api/channels/website/stream" \
 1. Log in as staff.
 2. `GET /api/ai/health` (browser devtools or curl with session cookie).
 3. **Expect:** JSON with `supabase`, `openai`, `stripe`, `telegram`, `website_chat`, `ai` sections.
+
+### Billing access gating (new, added 23.07.2026 — not yet run against production)
+
+1. In Supabase, set a test hotel's `subscriptions.status` to `canceled`.
+2. Log in as a staff member of that hotel, visit any page other than `/settings` (e.g. `/dashboard`, `/bookings`).
+3. **Expect:** Full-page "Subscription needed" block instead of the page content. Sidebar/top bar still visible.
+4. As `staff` role: **expect** no "Manage billing" button, just a message to contact the owner/manager.
+5. As `owner`/`manager` role: **expect** a "Manage billing" button linking to `/settings?tab=billing`.
+6. Visit `/settings` directly while still blocked. **Expect:** loads normally — this is the one exception.
+7. Set `subscriptions.status` back to `active` (or `trialing`/`past_due`), reload `/dashboard`. **Expect:** normal content, no block.
 
 ---
 
