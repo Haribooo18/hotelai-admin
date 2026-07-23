@@ -563,6 +563,10 @@ html[data-shell-theme="gray"] {
   }
 
   .ds-page-transition-root {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 0%;
+    flex-direction: column;
     opacity: 1;
     transition: opacity var(--ds-duration) var(--ds-ease);
     will-change: opacity;
