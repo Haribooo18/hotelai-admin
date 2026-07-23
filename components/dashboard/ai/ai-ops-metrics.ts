@@ -50,15 +50,33 @@ function isActiveConversation(conversation: Conversation): boolean {
   return !["resolved", "archived"].includes(conversation.status);
 }
 
+/**
+ * Hydration-safe by construction: `now` must be passed in explicitly
+ * rather than computed internally via `new Date()`. Calling `new Date()`
+ * directly during render meant the server render and the client's first
+ * render (before hydration completes) could land on different sides of a
+ * day boundary — same message, different branch, different text — which
+ * is exactly the shape of a React hydration mismatch (error #418).
+ *
+ * Callers should pass `null` for the very first render (server render and
+ * the client's pre-mount render), which always produces the same
+ * deterministic absolute-time output on both sides. Only after mount
+ * (e.g. via a `useEffect` that calls `setNow(new Date())`) should a real
+ * `Date` be passed — that update happens client-side, after hydration has
+ * already succeeded, so it's a normal re-render rather than a mismatch.
+ */
 export function formatRelativeTime(
   iso: string | null,
   t: (path: TranslationPath) => string,
-  locale: AdminLocale
+  locale: AdminLocale,
+  now: Date | null = null
 ): string {
   if (!iso) return "";
 
   const date = new Date(iso);
-  const now = new Date();
+
+  if (!now) return formatAdminTime(iso, locale);
+
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 

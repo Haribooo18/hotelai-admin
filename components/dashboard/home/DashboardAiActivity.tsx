@@ -15,7 +15,8 @@ import {
   DashboardListItem,
   matchesDashboardSearch,
 } from "./dashboard-ui";
-import { formatAdminDateShort } from "@/lib/dashboard/format";
+import { formatAdminDateShort, formatAdminTime } from "@/lib/dashboard/format";
+import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { formatTranslation, useI18n } from "@/lib/i18n";
 
 type Props = {
@@ -31,13 +32,21 @@ const STATUS_VARIANT: Record<string, "success" | "default" | "warning" | "destru
   cancelled: "destructive",
 };
 
+/**
+ * Hydration-safe by construction — see the identical comment in
+ * components/dashboard/ai/ai-ops-metrics.ts for the full rationale.
+ */
 function formatRelativeTime(
   value: string,
   t: ReturnType<typeof useI18n>["t"],
-  locale: ReturnType<typeof useI18n>["locale"]
+  locale: ReturnType<typeof useI18n>["locale"],
+  now: Date | null
 ): string {
   const date = new Date(value);
-  const diffMs = Date.now() - date.getTime();
+
+  if (!now) return formatAdminTime(value, locale);
+
+  const diffMs = now.getTime() - date.getTime();
   const diffMinutes = Math.floor(diffMs / 60_000);
 
   if (diffMinutes < 1) return t("dashboard.justNow");
@@ -63,6 +72,8 @@ export function DashboardAiActivity({
   searchQuery = "",
 }: Props) {
   const { locale, t } = useI18n();
+  const mounted = useHasMounted();
+  const now = mounted ? new Date() : null;
   const filteredItems = items.filter((item) =>
     matchesDashboardSearch(searchQuery, [
       item.guestName,
@@ -106,7 +117,7 @@ export function DashboardAiActivity({
                       {item.guestName}
                     </p>
                     <span className="shrink-0 text-[11px] text-[var(--shell-muted)]">
-                      {formatRelativeTime(item.createdAt, t, locale)}
+                      {formatRelativeTime(item.createdAt, t, locale, now)}
                     </span>
                   </div>
                   <p className="mt-1 line-clamp-1 text-[12px] text-[var(--shell-muted)]">

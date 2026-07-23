@@ -3,6 +3,7 @@
 import type { Conversation } from "@/types/conversation";
 import type { ConversationChannel } from "@/types/conversation";
 import { getConversationChannelMeta } from "@/lib/ai/metadata";
+import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 
 import { Avatar, AvatarFallback } from "@/components/ui/display/Avatar";
 import { Badge } from "@/components/ui/display/Badge";
@@ -49,6 +50,8 @@ export function ConversationList({
   onSelect,
 }: Props) {
   const { locale, t } = useI18n();
+  const mounted = useHasMounted();
+  const now = mounted ? new Date() : null;
 
   return (
     <aside
@@ -108,7 +111,7 @@ export function ConversationList({
 
                       <div className="flex shrink-0 flex-col items-end gap-1">
                         <span className="text-[10px] text-[var(--shell-muted)]">
-                          {formatRelativeTime(conversation.last_message_at, t, locale)}
+                          {formatRelativeTime(conversation.last_message_at, t, locale, now)}
                         </span>
                         {conversation.unread_count > 0 ? (
                           <Badge

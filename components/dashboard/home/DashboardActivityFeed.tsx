@@ -16,7 +16,8 @@ import { EmptyState } from "@/components/ui/feedback/EmptyState";
 import { Skeleton } from "@/components/ui/display/Skeleton";
 import { GlassSurface } from "@/components/ui/primitives/GlassSurface";
 import { cardPaddingClass } from "@/lib/dashboard/design-system";
-import { formatAdminDateShort } from "@/lib/dashboard/format";
+import { formatAdminDateShort, formatAdminTime } from "@/lib/dashboard/format";
+import { useHasMounted } from "@/lib/hooks/use-has-mounted";
 import { formatTranslation, useI18n } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -56,13 +57,25 @@ const TONE_CLASS = {
   neutral: "text-[var(--shell-muted)]",
 };
 
+/**
+ * Hydration-safe by construction — see the identical comment on the
+ * equivalent function in components/dashboard/ai/ai-ops-metrics.ts for the
+ * full rationale. In short: `now` must come in as a parameter, not from an
+ * internal `Date.now()` call, or the server render and the client's
+ * pre-mount render can disagree on minute-level boundaries and produce a
+ * React hydration mismatch (error #418) on essentially any page load.
+ */
 function formatRelativeTime(
   value: string,
   t: ReturnType<typeof useI18n>["t"],
-  locale: ReturnType<typeof useI18n>["locale"]
+  locale: ReturnType<typeof useI18n>["locale"],
+  now: Date | null
 ): string {
   const date = new Date(value);
-  const diffMs = Date.now() - date.getTime();
+
+  if (!now) return formatAdminTime(value, locale);
+
+  const diffMs = now.getTime() - date.getTime();
   const diffMinutes = Math.floor(diffMs / 60_000);
 
   if (diffMinutes < 1) return t("dashboard.justNow");
@@ -87,7 +100,8 @@ function buildActivityEntries(
   aiActivity: AiActivityItem[],
   latestBookings: Booking[],
   t: ReturnType<typeof useI18n>["t"],
-  locale: ReturnType<typeof useI18n>["locale"]
+  locale: ReturnType<typeof useI18n>["locale"],
+  now: Date | null
 ): ActivityEntry[] {
   const entries: ActivityEntry[] = [];
 
@@ -106,7 +120,7 @@ function buildActivityEntries(
   aiActivity.slice(0, 4).forEach((item) => {
     entries.push({
       id: `ai-${item.id}`,
-      time: formatRelativeTime(item.createdAt, t, locale),
+      time: formatRelativeTime(item.createdAt, t, locale, now),
       title: item.guestName,
       subtitle: item.preview,
       href: "/app/ai",
@@ -118,7 +132,7 @@ function buildActivityEntries(
   latestBookings.slice(0, 3).forEach((booking) => {
     entries.push({
       id: `booking-${booking.id}`,
-      time: formatRelativeTime(booking.created_at, t, locale),
+      time: formatRelativeTime(booking.created_at, t, locale, now),
       title: booking.guest_name,
       subtitle: t("dashboard.activity.reservationCreated"),
       href: "/bookings",
@@ -138,12 +152,15 @@ export function DashboardActivityFeed({
   searchQuery = "",
 }: Props) {
   const { locale, t } = useI18n();
+  const mounted = useHasMounted();
+  const now = mounted ? new Date() : null;
   const entries = buildActivityEntries(
     timeline,
     aiActivity,
     latestBookings,
     t,
-    locale
+    locale,
+    now
   );
   const filteredEntries = entries.filter((entry) =>
     matchesDashboardSearch(searchQuery, [entry.title, entry.subtitle, entry.time])
