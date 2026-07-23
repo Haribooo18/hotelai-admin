@@ -358,7 +358,7 @@ export function parseBookingTurn(input: ParseBookingTurnInput): ParsedBookingTur
 
   const preferenceNote = extractPreference(userMessage);
 
-  let lead: BookingDraft = isCancel
+  const lead: BookingDraft = isCancel
     ? { guest_name: "", phone: "", email: "", room_type: "", guests: 0, comment: "", check_in: "", check_out: "" }
     : {
         guest_name: pick(leadIn.guest_name, saved.guest_name, cleanString),

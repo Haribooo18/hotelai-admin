@@ -169,6 +169,7 @@ describe("evaluateToolSafety", () => {
     const args = { room_id: "r1" };
 
     const first = await evaluateToolSafety(tool, makeContext([guestMessage("book it")]), args);
+    expect(first.kind).toBe("require_confirmation");
     const fingerprint = (inserted[0]!.input as { fingerprint: string }).fingerprint;
 
     selectResult = {
@@ -201,6 +202,7 @@ describe("evaluateToolSafety", () => {
     const args = { room_id: "r1" };
 
     const first = await evaluateToolSafety(tool, makeContext([guestMessage("book it")]), args);
+    expect(first.kind).toBe("require_confirmation");
     const fingerprint = (inserted[0]!.input as { fingerprint: string }).fingerprint;
 
     selectResult = {
@@ -236,6 +238,7 @@ describe("evaluateToolSafety", () => {
     const args = { room_id: "r1" };
 
     const first = await evaluateToolSafety(tool, makeContext([guestMessage("book it")]), args);
+    expect(first.kind).toBe("require_confirmation");
     const fingerprint = (inserted[0]!.input as { fingerprint: string }).fingerprint;
 
     selectResult = {
