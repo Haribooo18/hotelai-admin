@@ -4933,6 +4933,26 @@ html[data-shell-theme="gray"] {
   text-wrap: balance;
 }
 
+/* About page's hero reads as too large at wide viewports relative to its
+   supporting copy — scoped to this one page (via the className passed on
+   MarketingPageHero) rather than the shared class, since Demo/Features/
+   Integrations/Security also render through the same component and were
+   not flagged as too large. First reduced from h1 to h2; still read as
+   too large on a wide-viewport recording, dropped further to h3. */
+[data-surface="marketing"] .mkt-about-page-hero .mkt-page-hero-headline {
+  font-size: var(--mkt-type-h3);
+}
+
+/* Same complaint applies further down the page: Mission/Vision/Principles/
+   Philosophy/Roadmap all use the site-wide .mkt-section-headline (h2),
+   which is appropriately sized elsewhere but reads too large stacked
+   repeatedly down one text-heavy page. Scoped via .mkt-about-page on the
+   page's <main>, not the shared class, so other pages using the same
+   section-headline pattern are unaffected. */
+[data-surface="marketing"] .mkt-about-page .mkt-section-headline {
+  font-size: var(--mkt-type-h3);
+}
+
 [data-surface="marketing"] .mkt-page-hero-accent {
   display: block;
   color: color-mix(in oklch, var(--mkt-text-muted) 72%, var(--mkt-accent));

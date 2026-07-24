@@ -100,7 +100,7 @@ export class WidgetUI {
     this.root.dataset.open = "false";
     this.root.style.setProperty(
       "--hotelai-primary",
-      this.config.primaryColor ?? "#10b981"
+      this.config.primaryColor ?? "#c8a25a"
     );
   }
 
@@ -116,7 +116,32 @@ export class WidgetUI {
     );
     icon.appendChild(path);
     this.launcher.appendChild(icon);
-    this.launcher.setAttribute("aria-label", "Открыть чат Monavel");
+
+    // Small sparkle badge — the panel header already says "AI-ресепшн
+    // отеля" once opened, but before that first click the launcher was
+    // indistinguishable from a generic "contact us" chat bubble. This is
+    // the standard, widely recognized shorthand for "AI-powered" without
+    // needing a text label that wouldn't fit at this size.
+    const badge = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    badge.setAttribute("viewBox", "0 0 24 24");
+    badge.setAttribute("class", "hotelai-widget__launcher-badge");
+    badge.setAttribute("aria-hidden", "true");
+    const badgeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    badgeCircle.setAttribute("cx", "12");
+    badgeCircle.setAttribute("cy", "12");
+    badgeCircle.setAttribute("r", "11");
+    badgeCircle.setAttribute("class", "hotelai-widget__launcher-badge-bg");
+    const badgeSparkle = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    badgeSparkle.setAttribute(
+      "d",
+      "M12 5.5l1.2 3.3 3.3 1.2-3.3 1.2-1.2 3.3-1.2-3.3-3.3-1.2 3.3-1.2z"
+    );
+    badgeSparkle.setAttribute("class", "hotelai-widget__launcher-badge-icon");
+    badge.appendChild(badgeCircle);
+    badge.appendChild(badgeSparkle);
+    this.launcher.appendChild(badge);
+
+    this.launcher.setAttribute("aria-label", "Открыть AI-чат Monavel");
     this.launcher.addEventListener("click", () => this.toggle(true));
 
     const header = createElement("div", "hotelai-widget__header");

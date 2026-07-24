@@ -7,7 +7,7 @@ import { AboutVisionSection } from "./AboutVisionSection";
 
 export function AboutPage() {
   return (
-    <main className="overflow-x-hidden">
+    <main className="mkt-about-page overflow-x-hidden">
       <AboutPageHero />
       <AboutMissionSection />
       <AboutVisionSection />

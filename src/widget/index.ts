@@ -33,7 +33,7 @@ export function normalizeWidgetConfig(config: WidgetConfig): WidgetConfig {
     apiUrl,
     theme: config.theme ?? "light",
     position: config.position ?? "right",
-    primaryColor: config.primaryColor ?? "#10b981",
+    primaryColor: config.primaryColor ?? "#c8a25a",
     guestName: config.guestName?.trim() || "Website Guest",
   };
 }

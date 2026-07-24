@@ -51,7 +51,7 @@ describe("widget initialization", () => {
       apiUrl: "https://hotelai.example",
       theme: "light",
       position: "right",
-      primaryColor: "#10b981",
+      primaryColor: "#c8a25a",
       guestName: "Website Guest",
     });
   });

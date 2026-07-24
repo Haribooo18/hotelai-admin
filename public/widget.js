@@ -275,7 +275,323 @@ var HotelAI = (() => {
   }
 
   // src/widget/styles.css
-  var styles_default = '.hotelai-widget {\n  --hotelai-primary: #10b981;\n  --hotelai-bg: #ffffff;\n  --hotelai-surface: #f4f4f5;\n  --hotelai-text: #18181b;\n  --hotelai-muted: #71717a;\n  --hotelai-border: #e4e4e7;\n  --hotelai-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);\n  --hotelai-radius: 16px;\n  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;\n  line-height: 1.5;\n  color: var(--hotelai-text);\n}\n\n.hotelai-widget[data-theme="dark"] {\n  --hotelai-bg: #18181b;\n  --hotelai-surface: #27272a;\n  --hotelai-text: #fafafa;\n  --hotelai-muted: #a1a1aa;\n  --hotelai-border: #3f3f46;\n  --hotelai-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);\n}\n\n.hotelai-widget[data-position="left"] {\n  left: 20px;\n  right: auto;\n}\n\n.hotelai-widget[data-position="right"] {\n  right: 20px;\n  left: auto;\n}\n\n.hotelai-widget {\n  position: fixed;\n  bottom: 20px;\n  z-index: 2147483000;\n}\n\n.hotelai-widget__launcher {\n  width: 56px;\n  height: 56px;\n  border: none;\n  border-radius: 999px;\n  background: var(--hotelai-primary);\n  color: #ffffff;\n  cursor: pointer;\n  box-shadow: var(--hotelai-shadow);\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: transform 0.2s ease;\n}\n\n.hotelai-widget__launcher:hover {\n  transform: scale(1.04);\n}\n\n.hotelai-widget__launcher-icon {\n  width: 24px;\n  height: 24px;\n  fill: currentColor;\n}\n\n.hotelai-widget__panel {\n  position: absolute;\n  bottom: 72px;\n  width: min(360px, calc(100vw - 32px));\n  height: 520px;\n  max-height: calc(100vh - 120px);\n  display: none;\n  flex-direction: column;\n  border-radius: var(--hotelai-radius);\n  overflow: hidden;\n  background: var(--hotelai-bg);\n  border: 1px solid var(--hotelai-border);\n  box-shadow: var(--hotelai-shadow);\n}\n\n.hotelai-widget[data-open="true"] .hotelai-widget__panel {\n  display: flex;\n}\n\n.hotelai-widget[data-position="left"] .hotelai-widget__panel {\n  left: 0;\n}\n\n.hotelai-widget[data-position="right"] .hotelai-widget__panel {\n  right: 0;\n}\n\n.hotelai-widget__header {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 14px 16px;\n  background: var(--hotelai-primary);\n  color: #ffffff;\n}\n\n.hotelai-widget__title {\n  margin: 0;\n  font-size: 15px;\n  font-weight: 600;\n}\n\n.hotelai-widget__subtitle {\n  margin: 2px 0 0;\n  font-size: 12px;\n  opacity: 0.9;\n}\n\n.hotelai-widget__close {\n  border: none;\n  background: transparent;\n  color: inherit;\n  cursor: pointer;\n  font-size: 20px;\n  line-height: 1;\n  padding: 4px;\n}\n\n.hotelai-widget__messages {\n  flex: 1;\n  overflow-y: auto;\n  padding: 16px;\n  background: var(--hotelai-surface);\n  display: flex;\n  flex-direction: column;\n  gap: 10px;\n}\n\n.hotelai-widget__message {\n  max-width: 85%;\n  padding: 10px 12px;\n  border-radius: 14px;\n  font-size: 14px;\n  white-space: pre-wrap;\n  word-break: break-word;\n}\n\n.hotelai-widget__message--guest {\n  align-self: flex-end;\n  background: var(--hotelai-primary);\n  color: #ffffff;\n  border-bottom-right-radius: 4px;\n}\n\n.hotelai-widget__message--assistant {\n  align-self: flex-start;\n  background: var(--hotelai-bg);\n  color: var(--hotelai-text);\n  border: 1px solid var(--hotelai-border);\n  border-bottom-left-radius: 4px;\n}\n\n.hotelai-widget__typing {\n  align-self: flex-start;\n  display: none;\n  gap: 4px;\n  padding: 10px 12px;\n  border-radius: 14px;\n  background: var(--hotelai-bg);\n  border: 1px solid var(--hotelai-border);\n}\n\n.hotelai-widget__typing[data-visible="true"] {\n  display: inline-flex;\n}\n\n.hotelai-widget__typing-dot {\n  width: 6px;\n  height: 6px;\n  border-radius: 999px;\n  background: var(--hotelai-muted);\n  animation: hotelai-typing 1.2s infinite ease-in-out;\n}\n\n.hotelai-widget__typing-dot:nth-child(2) {\n  animation-delay: 0.15s;\n}\n\n.hotelai-widget__typing-dot:nth-child(3) {\n  animation-delay: 0.3s;\n}\n\n@keyframes hotelai-typing {\n  0%,\n  80%,\n  100% {\n    opacity: 0.35;\n    transform: translateY(0);\n  }\n  40% {\n    opacity: 1;\n    transform: translateY(-2px);\n  }\n}\n\n.hotelai-widget__composer {\n  display: flex;\n  gap: 8px;\n  padding: 12px;\n  border-top: 1px solid var(--hotelai-border);\n  background: var(--hotelai-bg);\n}\n\n.hotelai-widget__input {\n  flex: 1;\n  min-height: 40px;\n  max-height: 96px;\n  resize: none;\n  border: 1px solid var(--hotelai-border);\n  border-radius: 12px;\n  padding: 10px 12px;\n  font: inherit;\n  color: var(--hotelai-text);\n  background: var(--hotelai-surface);\n}\n\n.hotelai-widget__input:focus {\n  outline: 2px solid color-mix(in srgb, var(--hotelai-primary) 35%, transparent);\n  border-color: var(--hotelai-primary);\n}\n\n.hotelai-widget__send {\n  border: none;\n  border-radius: 12px;\n  padding: 0 14px;\n  background: var(--hotelai-primary);\n  color: #ffffff;\n  font: inherit;\n  font-size: 14px;\n  font-weight: 600;\n  cursor: pointer;\n}\n\n.hotelai-widget__send:disabled {\n  opacity: 0.6;\n  cursor: not-allowed;\n}\n\n.hotelai-widget__error {\n  display: none;\n  padding: 8px 12px;\n  font-size: 12px;\n  color: #b91c1c;\n  background: #fef2f2;\n  border-top: 1px solid #fecaca;\n}\n\n.hotelai-widget[data-theme="dark"] .hotelai-widget__error {\n  color: #fecaca;\n  background: #450a0a;\n  border-top-color: #7f1d1d;\n}\n\n.hotelai-widget__error[data-visible="true"] {\n  display: block;\n}\n\n@media (max-width: 480px) {\n  .hotelai-widget__panel {\n    width: calc(100vw - 24px);\n    height: min(70vh, 520px);\n  }\n}\n';
+  var styles_default = `.hotelai-widget {
+  /* Monavel brand gold \u2014 matches --mkt-accent / --brand-gold on the main
+     site. This is also the fallback when a hotel's own config omits
+     primaryColor, so the widget never silently reverts to a generic,
+     off-brand color. */
+  --hotelai-primary: #c8a25a;
+  --hotelai-primary-hover: #d4b169;
+  /* Near-black, not white \u2014 matches --mkt-accent-foreground, the exact
+     text color the rest of the site pairs with this gold so the widget
+     reads as part of the same brand, not a bolted-on default widget. */
+  --hotelai-on-primary: #15120c;
+  --hotelai-bg: #ffffff;
+  --hotelai-surface: #f4f4f5;
+  --hotelai-text: #18181b;
+  --hotelai-muted: #71717a;
+  --hotelai-border: #e4e4e7;
+  --hotelai-shadow:
+    0 16px 48px -14px rgba(0, 0, 0, 0.14),
+    0 4px 12px -6px rgba(0, 0, 0, 0.08);
+  --hotelai-radius: 20px;
+  font-family:
+    "Geist",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  line-height: 1.5;
+  color: var(--hotelai-text);
+}
+
+.hotelai-widget[data-theme="dark"] {
+  /* Matches --brand-charcoal / --shell-bg-adjacent tones \u2014 warm near-black,
+     not a generic Tailwind zinc-900 gray, so dark mode actually looks like
+     the rest of the site rather than a default component library theme. */
+  --hotelai-bg: #121418;
+  --hotelai-surface: #181b20;
+  --hotelai-text: #f2f2f2;
+  --hotelai-muted: #9a9fa6;
+  --hotelai-border: #2a2e35;
+  --hotelai-shadow:
+    0 24px 56px -16px rgba(0, 0, 0, 0.45),
+    0 8px 20px -8px rgba(0, 0, 0, 0.3);
+}
+
+.hotelai-widget[data-position="left"] {
+  left: 20px;
+  right: auto;
+}
+
+.hotelai-widget[data-position="right"] {
+  right: 20px;
+  left: auto;
+}
+
+.hotelai-widget {
+  position: fixed;
+  bottom: 20px;
+  z-index: 2147483000;
+}
+
+.hotelai-widget__launcher {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 999px;
+  background: var(--hotelai-primary);
+  color: var(--hotelai-on-primary);
+  cursor: pointer;
+  box-shadow: var(--hotelai-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease;
+}
+
+.hotelai-widget__launcher:hover {
+  transform: scale(1.04);
+  background: var(--hotelai-primary-hover);
+}
+
+.hotelai-widget__launcher-icon {
+  width: 24px;
+  height: 24px;
+  fill: currentColor;
+}
+
+.hotelai-widget__launcher-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 20px;
+  height: 20px;
+}
+
+.hotelai-widget__launcher-badge-bg {
+  fill: var(--hotelai-bg);
+  stroke: var(--hotelai-primary);
+  stroke-width: 1.5;
+}
+
+.hotelai-widget__launcher-badge-icon {
+  fill: var(--hotelai-primary);
+}
+
+.hotelai-widget__panel {
+  position: absolute;
+  bottom: 72px;
+  width: min(360px, calc(100vw - 32px));
+  height: 520px;
+  max-height: calc(100vh - 120px);
+  display: none;
+  flex-direction: column;
+  border-radius: var(--hotelai-radius);
+  overflow: hidden;
+  background: var(--hotelai-bg);
+  border: 1px solid var(--hotelai-border);
+  box-shadow: var(--hotelai-shadow);
+}
+
+.hotelai-widget[data-open="true"] .hotelai-widget__panel {
+  display: flex;
+}
+
+.hotelai-widget[data-position="left"] .hotelai-widget__panel {
+  left: 0;
+}
+
+.hotelai-widget[data-position="right"] .hotelai-widget__panel {
+  right: 0;
+}
+
+.hotelai-widget__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--hotelai-primary);
+  color: var(--hotelai-on-primary);
+}
+
+.hotelai-widget__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hotelai-widget__subtitle {
+  margin: 2px 0 0;
+  font-size: 12px;
+  opacity: 0.75;
+}
+
+.hotelai-widget__close {
+  border: none;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px;
+}
+
+.hotelai-widget__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  background: var(--hotelai-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hotelai-widget__message {
+  max-width: 85%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.hotelai-widget__message--guest {
+  align-self: flex-end;
+  background: var(--hotelai-primary);
+  color: var(--hotelai-on-primary);
+  border-bottom-right-radius: 4px;
+}
+
+.hotelai-widget__message--assistant {
+  align-self: flex-start;
+  background: var(--hotelai-bg);
+  color: var(--hotelai-text);
+  border: 1px solid var(--hotelai-border);
+  border-bottom-left-radius: 4px;
+}
+
+.hotelai-widget__typing {
+  align-self: flex-start;
+  display: none;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: var(--hotelai-bg);
+  border: 1px solid var(--hotelai-border);
+}
+
+.hotelai-widget__typing[data-visible="true"] {
+  display: inline-flex;
+}
+
+.hotelai-widget__typing-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--hotelai-muted);
+  animation: hotelai-typing 1.2s infinite ease-in-out;
+}
+
+.hotelai-widget__typing-dot:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.hotelai-widget__typing-dot:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes hotelai-typing {
+  0%,
+  80%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.hotelai-widget__composer {
+  display: flex;
+  gap: 8px;
+  padding: 12px;
+  border-top: 1px solid var(--hotelai-border);
+  background: var(--hotelai-bg);
+}
+
+.hotelai-widget__input {
+  flex: 1;
+  min-height: 40px;
+  max-height: 96px;
+  resize: none;
+  border: 1px solid var(--hotelai-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: inherit;
+  color: var(--hotelai-text);
+  background: var(--hotelai-surface);
+}
+
+.hotelai-widget__input:focus {
+  outline: 2px solid color-mix(in srgb, var(--hotelai-primary) 35%, transparent);
+  border-color: var(--hotelai-primary);
+}
+
+.hotelai-widget__send {
+  border: none;
+  border-radius: 12px;
+  padding: 0 14px;
+  background: var(--hotelai-primary);
+  color: var(--hotelai-on-primary);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.hotelai-widget__send:hover:not(:disabled) {
+  background: var(--hotelai-primary-hover);
+}
+
+.hotelai-widget__send:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.hotelai-widget__error {
+  display: none;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border-top: 1px solid #fecaca;
+}
+
+.hotelai-widget[data-theme="dark"] .hotelai-widget__error {
+  color: #fecaca;
+  background: #450a0a;
+  border-top-color: #7f1d1d;
+}
+
+.hotelai-widget__error[data-visible="true"] {
+  display: block;
+}
+
+@media (max-width: 480px) {
+  .hotelai-widget__panel {
+    width: calc(100vw - 24px);
+    height: min(70vh, 520px);
+  }
+}
+`;
 
   // src/widget/ui.ts
   var STYLE_ELEMENT_ID = "hotelai-widget-styles";
@@ -344,7 +660,7 @@ var HotelAI = (() => {
       this.root.dataset.open = "false";
       this.root.style.setProperty(
         "--hotelai-primary",
-        (_c = this.config.primaryColor) != null ? _c : "#10b981"
+        (_c = this.config.primaryColor) != null ? _c : "#c8a25a"
       );
     }
     buildLayout() {
@@ -359,7 +675,25 @@ var HotelAI = (() => {
       );
       icon.appendChild(path);
       this.launcher.appendChild(icon);
-      this.launcher.setAttribute("aria-label", "\u041E\u0442\u043A\u0440\u044B\u0442\u044C \u0447\u0430\u0442 Monavel");
+      const badge = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      badge.setAttribute("viewBox", "0 0 24 24");
+      badge.setAttribute("class", "hotelai-widget__launcher-badge");
+      badge.setAttribute("aria-hidden", "true");
+      const badgeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      badgeCircle.setAttribute("cx", "12");
+      badgeCircle.setAttribute("cy", "12");
+      badgeCircle.setAttribute("r", "11");
+      badgeCircle.setAttribute("class", "hotelai-widget__launcher-badge-bg");
+      const badgeSparkle = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      badgeSparkle.setAttribute(
+        "d",
+        "M12 5.5l1.2 3.3 3.3 1.2-3.3 1.2-1.2 3.3-1.2-3.3-3.3-1.2 3.3-1.2z"
+      );
+      badgeSparkle.setAttribute("class", "hotelai-widget__launcher-badge-icon");
+      badge.appendChild(badgeCircle);
+      badge.appendChild(badgeSparkle);
+      this.launcher.appendChild(badge);
+      this.launcher.setAttribute("aria-label", "\u041E\u0442\u043A\u0440\u044B\u0442\u044C AI-\u0447\u0430\u0442 Monavel");
       this.launcher.addEventListener("click", () => this.toggle(true));
       const header = createElement("div", "hotelai-widget__header");
       const headerText = createElement("div");
@@ -599,7 +933,7 @@ var HotelAI = (() => {
       apiUrl,
       theme: (_c = config.theme) != null ? _c : "light",
       position: (_d = config.position) != null ? _d : "right",
-      primaryColor: (_e = config.primaryColor) != null ? _e : "#10b981",
+      primaryColor: (_e = config.primaryColor) != null ? _e : "#c8a25a",
       guestName: ((_f = config.guestName) == null ? void 0 : _f.trim()) || "Website Guest"
     });
   }
