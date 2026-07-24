@@ -31,6 +31,8 @@ describe("legal content", () => {
       "Termination",
       "Disclaimer",
       "Limitation of liability",
+      "Governing law",
+      "Changes to these terms",
       "Contact",
     ]);
   });

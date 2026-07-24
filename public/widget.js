@@ -354,33 +354,73 @@ var HotelAI = (() => {
     background 0.2s ease;
 }
 
+.hotelai-widget__launcher::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 999px;
+  border: 1.5px solid var(--hotelai-primary);
+  opacity: 0;
+  animation: hotelai-pulse-ring 2.8s ease-out infinite;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotelai-widget__launcher::before {
+    animation: none;
+  }
+}
+
+@keyframes hotelai-pulse-ring {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.92);
+  }
+  70% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.22);
+  }
+}
+
 .hotelai-widget__launcher:hover {
   transform: scale(1.04);
   background: var(--hotelai-primary-hover);
 }
 
 .hotelai-widget__launcher-icon {
-  width: 24px;
-  height: 24px;
-  fill: currentColor;
+  position: relative;
+  width: 26px;
+  height: 26px;
 }
 
-.hotelai-widget__launcher-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  width: 20px;
-  height: 20px;
+.hotelai-widget__launcher-panel {
+  transition: transform 0.25s ease;
+  transform-origin: center;
 }
 
-.hotelai-widget__launcher-badge-bg {
-  fill: var(--hotelai-bg);
-  stroke: var(--hotelai-primary);
-  stroke-width: 1.5;
+.hotelai-widget__launcher-panel--gold {
+  fill: #f4d07b;
 }
 
-.hotelai-widget__launcher-badge-icon {
-  fill: var(--hotelai-primary);
+.hotelai-widget__launcher-panel--charcoal {
+  fill: var(--hotelai-on-primary);
+  opacity: 0.85;
+}
+
+.hotelai-widget__launcher-panel--green {
+  fill: #1f5b4c;
+}
+
+.hotelai-widget__launcher:hover .hotelai-widget__launcher-panel--gold {
+  transform: translateY(-1px);
+}
+
+.hotelai-widget__launcher:hover .hotelai-widget__launcher-panel--green {
+  transform: translateY(1px);
 }
 
 .hotelai-widget__panel {
@@ -415,7 +455,7 @@ var HotelAI = (() => {
   align-items: center;
   justify-content: space-between;
   padding: 14px 16px;
-  background: var(--hotelai-primary);
+  background: linear-gradient(135deg, #f4d07b 0%, var(--hotelai-primary) 48%, #7a4f18 100%);
   color: var(--hotelai-on-primary);
 }
 
@@ -668,31 +708,19 @@ var HotelAI = (() => {
       const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
       icon.setAttribute("viewBox", "0 0 24 24");
       icon.setAttribute("class", "hotelai-widget__launcher-icon");
-      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      path.setAttribute(
-        "d",
-        "M12 3C7.03 3 3 6.58 3 11c0 1.86.74 3.58 2 4.94V21l4.2-2.31c.9.17 1.84.26 2.8.26 4.97 0 9-3.58 9-8s-4.03-8-9-8z"
-      );
-      icon.appendChild(path);
+      icon.setAttribute("aria-hidden", "true");
+      const panels = [
+        { points: "2,2.29 8.09,6.06 8.09,23.01 2,19.1", part: "gold" },
+        { points: "9.39,8.23 14.03,11.13 14.03,23.01 9.39,20.12", part: "charcoal" },
+        { points: "15.48,6.06 22,2 22,19.1 15.48,23.16", part: "green" }
+      ];
+      for (const { points, part } of panels) {
+        const panel = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        panel.setAttribute("points", points);
+        panel.setAttribute("class", `hotelai-widget__launcher-panel hotelai-widget__launcher-panel--${part}`);
+        icon.appendChild(panel);
+      }
       this.launcher.appendChild(icon);
-      const badge = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-      badge.setAttribute("viewBox", "0 0 24 24");
-      badge.setAttribute("class", "hotelai-widget__launcher-badge");
-      badge.setAttribute("aria-hidden", "true");
-      const badgeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      badgeCircle.setAttribute("cx", "12");
-      badgeCircle.setAttribute("cy", "12");
-      badgeCircle.setAttribute("r", "11");
-      badgeCircle.setAttribute("class", "hotelai-widget__launcher-badge-bg");
-      const badgeSparkle = document.createElementNS("http://www.w3.org/2000/svg", "path");
-      badgeSparkle.setAttribute(
-        "d",
-        "M12 5.5l1.2 3.3 3.3 1.2-3.3 1.2-1.2 3.3-1.2-3.3-3.3-1.2 3.3-1.2z"
-      );
-      badgeSparkle.setAttribute("class", "hotelai-widget__launcher-badge-icon");
-      badge.appendChild(badgeCircle);
-      badge.appendChild(badgeSparkle);
-      this.launcher.appendChild(badge);
       this.launcher.setAttribute("aria-label", "\u041E\u0442\u043A\u0440\u044B\u0442\u044C AI-\u0447\u0430\u0442 Monavel");
       this.launcher.addEventListener("click", () => this.toggle(true));
       const header = createElement("div", "hotelai-widget__header");

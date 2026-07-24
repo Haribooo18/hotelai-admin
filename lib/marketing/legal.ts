@@ -196,6 +196,24 @@ export const TERMS_OF_SERVICE: LegalDocument = {
       ],
     },
     {
+      id: "governing-law",
+      title: "Governing law",
+      paragraphs: [
+        "These Terms of Service are governed by the laws of [jurisdiction to be confirmed], without regard to its conflict of laws principles.",
+        "Any disputes arising out of or relating to these terms or the use of Monavel will be subject to the exclusive jurisdiction of the courts located in [jurisdiction to be confirmed], except where applicable law requires otherwise.",
+        "If you are a consumer residing in a jurisdiction that grants you the right to bring claims in your local courts regardless of this section, that right is not affected.",
+      ],
+    },
+    {
+      id: "changes-to-terms",
+      title: "Changes to these terms",
+      paragraphs: [
+        "Monavel may update these Terms of Service from time to time to reflect changes to the platform, legal requirements, or business practices.",
+        "Material changes will be communicated through the platform, by email to the account holder, or by updating the \"Last updated\" date at the top of this page.",
+        "Continued use of Monavel after a change takes effect constitutes acceptance of the revised terms. If you do not agree to the changes, you should stop using the platform and may cancel your subscription in accordance with the Termination section.",
+      ],
+    },
+    {
       id: "contact",
       title: "Contact",
       paragraphs: [

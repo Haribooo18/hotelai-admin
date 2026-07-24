@@ -28,14 +28,14 @@ function BookingTrendChart() {
     <svg viewBox="0 0 120 48" fill="none" aria-hidden className="mkt-exec-dash-chart">
       <path
         d="M4 38 L20 32 L36 34 L52 24 L68 26 L84 16 L100 18 L116 8"
-        stroke="#10b981"
+        stroke="#1f5b4c"
         strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M4 38 L20 32 L36 34 L52 24 L68 26 L84 16 L100 18 L116 8 L116 44 L4 44 Z"
-        fill="#10b981"
+        fill="#1f5b4c"
         fillOpacity="0.1"
       />
       <line x1="4" y1="44" x2="116" y2="44" stroke="#ffffff" strokeOpacity="0.08" />
@@ -58,7 +58,7 @@ function RevenueForecastChart() {
             width="10"
             height={height}
             rx="2"
-            fill={index === 5 ? "#10b981" : "#10b981"}
+            fill={index === 5 ? "#1f5b4c" : "#1f5b4c"}
             fillOpacity={index === 5 ? 0.85 : 0.28}
           />
         );
@@ -73,11 +73,11 @@ function OccupancyChart() {
     <svg viewBox="0 0 120 48" fill="none" aria-hidden className="mkt-exec-dash-chart">
       <path
         d="M4 40 C18 36 24 28 38 24 C52 20 58 30 72 22 C86 14 96 18 116 10"
-        stroke="#10b981"
+        stroke="#1f5b4c"
         strokeWidth="1.75"
         strokeLinecap="round"
       />
-      <circle cx="116" cy="10" r="3" fill="#10b981" fillOpacity="0.9" />
+      <circle cx="116" cy="10" r="3" fill="#1f5b4c" fillOpacity="0.9" />
       <line x1="4" y1="44" x2="116" y2="44" stroke="#ffffff" strokeOpacity="0.08" />
     </svg>
   );
@@ -95,7 +95,7 @@ function WeeklyPerformanceChart() {
           width="8"
           height={height}
           rx="1.5"
-          fill="#10b981"
+          fill="#1f5b4c"
           fillOpacity={index === 6 ? 0.9 : 0.35}
         />
       ))}

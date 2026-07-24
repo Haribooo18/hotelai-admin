@@ -19,7 +19,7 @@ export function PlatformIllustration() {
         />
 
         {/* Center hub */}
-        <circle cx="240" cy="260" r="36" fill="#10b98122" stroke="#10b981" strokeOpacity="0.4" />
+        <circle cx="240" cy="260" r="36" fill="#1f5b4c22" stroke="#1f5b4c" strokeOpacity="0.4" />
         <text
           x="240"
           y="256"
@@ -69,19 +69,19 @@ export function PlatformIllustration() {
         </g>
 
         {/* Connector lines */}
-        <path d="M240 112 L240 224" stroke="#10b981" strokeOpacity="0.35" strokeWidth="1.5" />
-        <path d="M196 176 L204 224" stroke="#10b981" strokeOpacity="0.25" strokeWidth="1.5" />
-        <path d="M284 176 L276 224" stroke="#10b981" strokeOpacity="0.25" strokeWidth="1.5" />
-        <path d="M108 196 L180 248" stroke="#10b981" strokeOpacity="0.2" strokeWidth="1.5" />
-        <path d="M372 196 L300 248" stroke="#10b981" strokeOpacity="0.2" strokeWidth="1.5" />
-        <path d="M204 296 L180 324" stroke="#10b981" strokeOpacity="0.2" strokeWidth="1.5" />
-        <path d="M276 296 L300 324" stroke="#10b981" strokeOpacity="0.2" strokeWidth="1.5" />
-        <path d="M240 296 L240 408" stroke="#10b981" strokeOpacity="0.35" strokeWidth="1.5" />
-        <path d="M160 344 L210 280" stroke="#10b981" strokeOpacity="0.15" strokeWidth="1" />
-        <path d="M320 344 L270 280" stroke="#10b981" strokeOpacity="0.15" strokeWidth="1" />
+        <path d="M240 112 L240 224" stroke="#1f5b4c" strokeOpacity="0.35" strokeWidth="1.5" />
+        <path d="M196 176 L204 224" stroke="#1f5b4c" strokeOpacity="0.25" strokeWidth="1.5" />
+        <path d="M284 176 L276 224" stroke="#1f5b4c" strokeOpacity="0.25" strokeWidth="1.5" />
+        <path d="M108 196 L180 248" stroke="#1f5b4c" strokeOpacity="0.2" strokeWidth="1.5" />
+        <path d="M372 196 L300 248" stroke="#1f5b4c" strokeOpacity="0.2" strokeWidth="1.5" />
+        <path d="M204 296 L180 324" stroke="#1f5b4c" strokeOpacity="0.2" strokeWidth="1.5" />
+        <path d="M276 296 L300 324" stroke="#1f5b4c" strokeOpacity="0.2" strokeWidth="1.5" />
+        <path d="M240 296 L240 408" stroke="#1f5b4c" strokeOpacity="0.35" strokeWidth="1.5" />
+        <path d="M160 344 L210 280" stroke="#1f5b4c" strokeOpacity="0.15" strokeWidth="1" />
+        <path d="M320 344 L270 280" stroke="#1f5b4c" strokeOpacity="0.15" strokeWidth="1" />
 
         {/* Subtle pulse on hub */}
-        <circle cx="240" cy="260" r="48" fill="none" stroke="#10b981" strokeOpacity="0.12" className="mkt-platform-illustration-pulse" />
+        <circle cx="240" cy="260" r="48" fill="none" stroke="#1f5b4c" strokeOpacity="0.12" className="mkt-platform-illustration-pulse" />
       </svg>
     </figure>
   );

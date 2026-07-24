@@ -106,40 +106,33 @@ export class WidgetUI {
 
   private buildLayout(): void {
     setText(this.launcher, "");
+
+    // The real Monavel mark (three architectural panels — gold, charcoal,
+    // green) at compact-icon scale, same proportions as the source SVG in
+    // public/brand/monavel-mark.svg. Built with raw DOM calls, not an
+    // <img src> pointing at that file, because this widget ships as a
+    // self-contained bundle that can be embedded on any hotel's own
+    // domain — a path like "/brand/monavel-mark.svg" would 404 anywhere
+    // but monavel.app itself. This replaces a generic speech-bubble icon
+    // that could belong to any chat widget; the actual brand mark makes
+    // the launcher recognizably Monavel's, not a bolted-on default.
     const icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     icon.setAttribute("viewBox", "0 0 24 24");
     icon.setAttribute("class", "hotelai-widget__launcher-icon");
-    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    path.setAttribute(
-      "d",
-      "M12 3C7.03 3 3 6.58 3 11c0 1.86.74 3.58 2 4.94V21l4.2-2.31c.9.17 1.84.26 2.8.26 4.97 0 9-3.58 9-8s-4.03-8-9-8z"
-    );
-    icon.appendChild(path);
-    this.launcher.appendChild(icon);
+    icon.setAttribute("aria-hidden", "true");
 
-    // Small sparkle badge — the panel header already says "AI-ресепшн
-    // отеля" once opened, but before that first click the launcher was
-    // indistinguishable from a generic "contact us" chat bubble. This is
-    // the standard, widely recognized shorthand for "AI-powered" without
-    // needing a text label that wouldn't fit at this size.
-    const badge = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    badge.setAttribute("viewBox", "0 0 24 24");
-    badge.setAttribute("class", "hotelai-widget__launcher-badge");
-    badge.setAttribute("aria-hidden", "true");
-    const badgeCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    badgeCircle.setAttribute("cx", "12");
-    badgeCircle.setAttribute("cy", "12");
-    badgeCircle.setAttribute("r", "11");
-    badgeCircle.setAttribute("class", "hotelai-widget__launcher-badge-bg");
-    const badgeSparkle = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    badgeSparkle.setAttribute(
-      "d",
-      "M12 5.5l1.2 3.3 3.3 1.2-3.3 1.2-1.2 3.3-1.2-3.3-3.3-1.2 3.3-1.2z"
-    );
-    badgeSparkle.setAttribute("class", "hotelai-widget__launcher-badge-icon");
-    badge.appendChild(badgeCircle);
-    badge.appendChild(badgeSparkle);
-    this.launcher.appendChild(badge);
+    const panels: Array<{ points: string; part: "gold" | "charcoal" | "green" }> = [
+      { points: "2,2.29 8.09,6.06 8.09,23.01 2,19.1", part: "gold" },
+      { points: "9.39,8.23 14.03,11.13 14.03,23.01 9.39,20.12", part: "charcoal" },
+      { points: "15.48,6.06 22,2 22,19.1 15.48,23.16", part: "green" },
+    ];
+    for (const { points, part } of panels) {
+      const panel = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+      panel.setAttribute("points", points);
+      panel.setAttribute("class", `hotelai-widget__launcher-panel hotelai-widget__launcher-panel--${part}`);
+      icon.appendChild(panel);
+    }
+    this.launcher.appendChild(icon);
 
     this.launcher.setAttribute("aria-label", "Открыть AI-чат Monavel");
     this.launcher.addEventListener("click", () => this.toggle(true));
