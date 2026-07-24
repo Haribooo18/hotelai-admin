@@ -1,16 +1,26 @@
 import { ImageResponse } from "next/og";
 
 export const size = {
-  width: 16,
-  height: 16,
+  width: 32,
+  height: 32,
 };
 
 export const contentType = "image/png";
 
-/** Official Monavel mark — three architectural panels. */
+/**
+ * Official Monavel mark — three architectural panels.
+ *
+ * Previously rendered at 16×16, which left almost no pixel data for the
+ * mark's diagonal edges to anti-alias against — on any high-DPI (Retina)
+ * display the browser tab upscaled that 16px source, producing a visibly
+ * pixelated/blurry icon. Doubled to 32×32 (4x the pixel area), which is
+ * also the resolution most browsers actually request for tab favicons on
+ * modern displays, so this is no longer being upscaled from an
+ * undersized source.
+ */
 export default function Icon() {
-  // Same composition as the prior icon: mark at 90% of canvas, centered.
-  // 48×48 → 16×16: mark 43.2 → 14.4, radius 10.5 → 3.5.
+  // Mark at 90% of canvas, centered, same proportions as before.
+  // 32×32 canvas -> mark 28.8, radius 7.
   return new ImageResponse(
     (
       <div
@@ -21,12 +31,12 @@ export default function Icon() {
           alignItems: "center",
           justifyContent: "center",
           background: "#0D0F12",
-          borderRadius: 3.5,
+          borderRadius: 7,
         }}
       >
         <svg
-          width="14.4"
-          height="14.4"
+          width="28.8"
+          height="28.8"
           viewBox="0 0 32 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
